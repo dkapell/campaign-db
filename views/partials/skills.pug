@@ -1,0 +1,194 @@
+mixin skillList(skills, showSource, backto)
+    .row.my-2
+        .col-sm-auto
+            span.mr-2.d-block.d-lg-inline.align-middle Toggle Column:
+            .btn-group.btn-group-sm.d-inline.align-middle
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Source':'Name'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Name':'Type'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Type':'Usage'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Usage':'Tag(s)'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Tag(s)':'Summary'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Summary':'Cost'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Cost':'Status'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    = showSource?'Status':'Actions'
+
+                if showSource
+                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
+                        i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                        | Actions
+        if checkPermission('admin')
+            .col-sm.text-right
+                .custom-control.custom-switch
+                    input.custom-control-input#skillDeleteSwitch(type="checkbox")
+                    label.custom-control-label(for="skillDeleteSwitch") Show Delete Buttons
+    .row-my-2
+        .col
+            .progress
+                -
+                    const skillsByStatus = {};
+                    for (const skill of skills){
+                        if (!_.has(skillsByStatus, skill.status.name)){
+                            skillsByStatus[skill.status.name] = {
+                                name:skill.status.name,
+                                display_order: skill.status.display_order,
+                                class: skill.status.class,
+                                count:0
+                            };
+                        }
+                        skillsByStatus[skill.status.name].count++;
+                    }
+                    skills
+                    let prevBar = 0;
+
+                each status in _.sortBy(_.values(skillsByStatus), 'display_order')
+                    - const statusWidth = Math.round(status.count/skills.length * 100);
+                    .progress-bar(
+                        class=`bg-${status.class}`
+                        style={width: `${statusWidth }%`}
+                        aria-valuemin=prevBar
+                        aria-valuenow=Math.min(prevBar+statusWidth, 100)
+                        aria-valuemax=100
+                        title=`${status.name} (${status.count})`
+                        data-toggle="tooltip"
+                    )
+                        if statusWidth > 5
+                            | #{status.name} (#{status.count})
+                        else
+                            = status.count
+
+                    - prevBar += statusWidth
+    .row
+        .col-sm
+            .table-responsive.my-2
+                .col-sm-6.offset-sm-3.text-center#tableLoading
+                    .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                        .sr-only Table is Loading
+                table.table.table-striped.skill-table.table-hover.my-3.dt-responsive.nowrap.table-sm.topsort.table-bordered.w-100#skill-table(
+                    data-order=showSource?'[[0, "asc"],[3, "asc"]]':'[[0, "asc"],[2, "asc"]]'
+                    data-showedittoggle=true
+                    data-showsource=showSource
+                    style="display: none"
+                    )
+                    thead
+                        tr
+                            if (showSource)
+                                th Source
+                            th(data-priority="1") Name
+                            th Type
+                            th Usage
+                            th(data-partialmatch="true") Tag(s)
+                            th(data-priority="3") Summary
+                            th Cost
+                            th Status
+                            th(data-priority="2" data-orderable="false")
+
+                    tbody
+                        for skill in skills
+                            tr.clickable-row.skillRow(data-click-object='skill' data-click-id=skill.id )
+                                if (showSource)
+                                    th(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
+                                        if skill.source
+                                            a.action-btn(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
+                                        else
+                                            i Not Set
+                                td.font-italic= skill.name
+                                td
+                                    if skill.type
+                                        = capitalize(skill.type.name)
+                                    else
+                                        i Not Set
+                                td
+                                    if skill.usage
+                                        = capitalize(skill.usage.name)
+                                    else
+                                        i Not Set
+                                td= _.pluck(skill.tags, 'name').join(', ')
+
+                                td
+                                    if skill.summary.length>83
+                                        | !{marked.parseInline(skill.summary.substr(0, 80)+'...')}
+                                    else
+                                        | !{marked.parseInline(skill.summary)}
+                                td= skill.cost
+                                td
+                                    if skill.status
+                                        .badge.badge-pill.skill-status(class=`badge-${skill.status.class}`)
+                                            = capitalize(skill.status.name)
+
+                                td.text-right
+                                    if skill.approvals
+                                        .badge.badge-info.mr-1(data-toggle="tooltip" title="Approvals")=skill.approvals
+                                    if (skill.description)
+                                        a.btn.btn-outline-info.btn-xs.ml-1.action-btn(
+                                            tabindex="0"
+                                            role="button"
+                                            data-toggle="popover"
+                                            data-content=marked(skill.description, {breaks: true})
+                                            data-html="true"
+                                            title="Description"
+                                        )
+                                            i.fas.fa-eye.fa-fw
+
+                                    if (skill.notes)
+                                        a.btn.btn-outline-info.btn-xs.ml-1.action-btn(
+                                            tabindex="0"
+                                            role="button"
+                                            data-toggle="popover"
+                                            data-content=marked(skill.notes, {breaks: true})
+                                            data-html="true"
+                                            title="Notes"
+                                        )
+                                            i.fas.fa-sticky-note.fa-fw
+
+                                    a.btn.btn-outline-primary.btn-xs.ml-1.skill-edit-btn(
+                                        role="button"
+                                        data-toggle="tooltip"
+                                        data-click-id=skill.id
+                                        title="Edit"
+                                        href=`/skill/${skill.id}/edit?backto=${backto}`
+                                    )
+                                        i.fas.fa-edit.fa-fw
+                                    if checkPermission('admin')
+                                        if skill.status.advanceable
+                                            a.btn.btn-outline-primary.btn-xs.advance-btn.ml-1(
+                                                style="display:none"
+                                                role="button",
+                                                url=`/skill/${skill.id}/advance`
+                                            )
+                                                i.fas.fa-arrow-right.fa-fw
+                                        a.btn.btn-outline-danger.btn-xs.delete-btn.ml-1(
+                                            style="display:none"
+                                            role="button",
+                                            url=`/skill/${skill.id}`
+                                        )
+                                            i.fas.fa-trash.fa-fw
+
+
+mixin skillModal()
+    .modal.fade#skillModal(role="dialog" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true")
+        .modal-dialog.modal-xl.modal-dialog-centered(role="document")
+            .modal-content
+                .modal-header
+                    h5.modal-title
+                    button.close#dismissPopupModal(type="button", data-dismiss="modal" area-label="Close")
+                        span(aria-hidden="true") &times;
+                .modal-body
+                .modal-footer
+                    button.btn.btn-secondary(type="button", data-dismiss="modal") Cancel
+                    button.btn.btn-primary.save-btn(type="submit") Save

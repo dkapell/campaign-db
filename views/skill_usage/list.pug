@@ -1,0 +1,47 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/skill_usage/new')
+        span(class="fa fa-plus")
+        |  New Skill Usage
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Display Order
+                    th Display to Players?
+                    th Description
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for skill_usage in skill_usages
+                    tr(class='clickable-row', data-click-object='skill_usage' data-click-id=skill_usage.id)
+                        td.dtr-control
+                        td= skill_usage.name
+                        td= skill_usage.display_order
+                        td= skill_usage.display_name?'Yes':'No'
+                        td= skill_usage.description
+                        if checkPermission('admin')
+                            td.text-right
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/skill_usage/${skill_usage.id}`,
+                                    data-back='/skill_usage'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

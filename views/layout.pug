@@ -1,0 +1,43 @@
+doctype html
+html(lang="en")
+    include ./partials/layout/head
+
+    body(style= activeUser ? 'padding-top: 6rem;': '' )
+        if (activeUser)
+            nav.navbar.navbar-expand-md.navbar-dark.bg-primary.fixed-top.mb-4
+                include ./partials/layout/menu
+        else
+            include ./partials/layout/mini_menu
+
+        if breadcrumbs
+            include ./partials/layout/breadcrumbs
+
+        if (pageTitle)
+            .container(role="page_title")
+                if (typeof pageTitle === 'string')
+                    h2=pageTitle
+                else
+                    if (pageTitle.h1)
+                        h1=pageTitle.h1
+                    if (pageTitle.h2)
+                        h2=pageTitle.h2
+                    if (pageTitle.h3)
+                        h3=pageTitle.h3
+                    if (pageTitle.h4)
+                        h4=pageTitle.h4
+
+
+
+        include ./partials/layout/messages
+
+        if wideMain
+            main.container-fluid(role="main")
+                block content
+        else if fullHeightMain
+            main.container.h-100(role="main")
+                block content
+        else
+            main.container(role="main")
+                block content
+
+        include ./partials/layout/footer

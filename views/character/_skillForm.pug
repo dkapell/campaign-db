@@ -1,0 +1,65 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+if possibleSkills.length
+    .form-row.my-2
+        .col
+            select.custom-select.complex-select2#character_skill_skill_id(name="character_skill[skill_id]" data-placeholder='Select Skill' required)
+                option
+                for skill in possibleSkills
+                    option(
+                        value=skill.id
+                        selected=Number(character_skill.skill_id)===skill.id data-skill=skill
+                        title=skill.name
+                        data-text=`<strong>${skill.source.name}</strong>: <i>${skill.name}</i>`
+                        data-html=`<div class="float-right">${skill.next_cost} CP</div><div class="float-right mr-4">${skill.usage.name}</div><div><strong>${skill.source.name}</strong>: <i>${skill.name}</i></div><div class="ml-2">${marked.parseInline(skill.summary)}</div>`
+                    ) #{skill.source.name}: #{skill.name}
+
+
+.form-row.my-2.p-1
+    .col.border.rounded.bg-light.p-2.overflow-auto#skill-description(style=character_skill.id?'':'height:200px')
+        if character_skill.id
+            +characterSkill(character_skill)
+
+.form-group.form-row.provides-options-text.my-2(style="display:none")
+    .col-sm-2
+        label.col-form-label(for="provides_value_text") Value
+    .col-sm-10
+        input.form-control#provides_value_text(type="text",placeholder="Value",name="character_skill[details][provides_value_text]")
+
+.form-group.form-row.provides-options-select.my-2(style="display:none")
+    .col-sm-2
+        label.col-form-label(for="provides_value_select") Value
+    .col-sm-10
+         select.custom-select.select2#provides_value_select(name="character_skill[details][provides_value_select]")
+                option
+
+if possibleSkills.length
+   .row
+        .col
+            label.control-label.w-100#skill-notes-heading(for="skill-character_skill_notes", data-toggle="collapse" data-target="#skill-notes" aria-expanded=!!character_skill.details.notes?'true':'false') Skill Notes
+                i.expand-text-shown.ml-4 (click to hide note)
+                i.expand-text.ml-4 (click to show note)
+                span.float-right.pl-2
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
+
+
+
+            .div#skill-notes(aria-labelledby="skill-notes-heading" class={collapse: !character_skill.details.notes})
+                .form-row.my-2
+                    .col
+                        label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (i.e. verbal)
+                        input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
+                .form-row.my-2
+                    .col
+                        +markdownEditor('Notes', 'character_skill_notes', 'character_skill[details][notes]', 5, 100, character_skill.details.notes, true)
+else
+    .form-row.my-2
+        .col
+            label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (for Character Sheet, i.e. verbal)
+            input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
+
+    .form-row.my-2
+        .col
+            label.control-label(for="skill-character_skill_notes") Skill Notes
+            +markdownEditor('Longer Notes', 'character_skill_notes', 'character_skill[details][notes]', 5, 100, character_skill.details.notes, true)

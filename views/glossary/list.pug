@@ -1,0 +1,27 @@
+extends ../layout
+
+include ../partials/glossary
+
+block content
+    - const entries = sortEntries(glossary_entries);
+    .row
+        .col-md-2
+            +glossaryMenu(entries, listType !== 'search')
+
+        .col-md.mx-3.glossary-entries
+            h2.mb-2= listName
+            if listType === 'search'
+                form.form.mb-2#glossarySearchForm(method="GET" action="/glossary/search")
+                    .input-group
+                        input.form-control.border-right-0.border#glossarySearch(name="query" value=searchQuery)
+                        .input-group-append
+                            button.btn.btn-outline-secondary.border-left-0.border(type="submit")
+                                i.fas.fa-search
+            if glossary_entries.length
+                each data, type in entries
+                    +typeLayout(type, data, listType==='all')
+            else
+                .alert.alert-light.my-2 No Entries Found
+
+append scripts
+    script(src='/javascripts/glossary.js')

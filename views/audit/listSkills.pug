@@ -1,0 +1,21 @@
+extends ../layout
+
+block content
+
+    .table-responsive
+        table.table.table-striped.skill-audit-table.table-hover.my-3.dt-responsive.nowrap.table-sm
+            thead
+                tr
+                    th(data-priority="1") Timestamp
+                    th User
+                    th Action
+                    th Object ID
+                    th Object
+                    th Diff
+            tbody
+                
+
+
+
+append scripts
+    script(src='/javascripts/audits.js')

@@ -1,0 +1,103 @@
+extends ../layout
+
+include ../partials/skills
+include ../partials/editor
+
+block content
+    .row.my-3
+        .col
+             h3= skill_source.name
+                .badge.badge-secondary.ml-2=capitalize(skill_source.type.name)
+                if (skill_source.required)
+                    .badge.badge-warning.ml-2 Required
+                if (!skill_source.display_to_pc)
+                    .badge.badge-danger.ml-2 Hidden
+
+
+    .row.my-3
+        .col
+            if checkPermission('gm')
+                a.btn.btn-outline-primary.mr-2(role="button" href='/skill_source/' + skill_source.id + '/edit')
+                    i.fas.fa-edit
+                    |  Edit Skill Source
+
+            a.btn.btn-outline-info.mr-2(role="button" href='/skill_source/' + skill_source.id + '/doc')
+                i.fas.fa-file-alt
+                |  View as Document
+
+    dl.row.my-2
+        if (skill_source.type)
+            dt.col-sm-2 Type
+            dd.col-sm-10=capitalize(skill_source.type.name)
+
+        if (skill_source.cost)
+            dt.col-sm-2 Cost
+            dd.col-sm-10 #{skill_source.cost} CP
+
+        if (skill_source.requires && skill_source.requires.length)
+            dt.col-sm-2 Requires #{skill_source.require_num} of
+            dd.col-sm-10
+                if _.uniq(_.pluck(skill_source.requires, 'name')).length === 1
+                    | #{skill_source.requires[0].name}
+                else
+                    ul.list-unstyled
+                        for i of skill_source.requires
+                            li #{i.name}
+
+        if (skill_source.conflicts && skill_source.conflicts.length)
+            dt.col-sm-2 Conflicts with:
+            dd.col-sm-10
+                if _.uniq(_.pluck(skill_source.conflicts, 'name')).length === 1
+                    | #{skill_source.conflicts[0].name}
+                else
+                    ul.list-unstyled
+                        for i of skill_source.conflicts
+                            li #{i.name}
+
+        if skill_source.provides && skill_source.provides.length
+            dt.col-sm-2 Provides
+            dd.col-sm-10
+                ul.list-unstyled
+                    for provider of skill_source.provides
+                        li #{capitalize(provider.type)}: #{provider.name}#{provider.name?':':''} #{provider.value}
+
+        if (skill_source.description)
+            dt.col-sm-2 Description (Player-facing)
+            dd.col-sm-10 !{marked(skill_source.description, {breaks: true})}
+
+        if(skill_source.notes)
+            dt.col-sm-2 Notes (GM Only)
+            dd.col-sm-10 !{marked(skill_source.notes, {breaks: true})}
+
+    .row.my-3
+        .col
+
+            h4 Skills
+            if checkPermission('gm')
+                .row.my-3
+                    .col
+                        a.btn.btn-outline-success.mr-2.skill-new-btn(
+                            data-source=skill_source.id
+                            role="button"
+                            href=`/skill/new?skill_source=${skill_source.id}`
+                        )
+                            i.fas.fa-plus
+                            |  Add Skill
+                    .col
+                        .float-right
+                            a.btn.btn-outline-info.mr-2(href=`/skill_source/${skill_source.id}?export=true`)
+                                i.fas.fa-download.mr-1
+                                | CSV
+                            a.btn.btn-outline-info.mr-2(href=`/skill_source/${skill_source.id}?export=true&player=true`)
+                                i.fas.fa-download.mr-1
+                                | Player CSV
+            +skillList(skills, false, 'source')
+
+    +skillModal()
+append scripts
+    script.
+        const isGM = !{checkPermission('gm')}
+    script(src='/javascripts/templates/skill/modalEditForm.js')
+    script(src='/javascripts/templates/skill/modalNewForm.js')
+    script(src='/javascripts/skill.js')
+

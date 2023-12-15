@@ -1,0 +1,32 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+
+.form-row.my-2
+    .col
+        select.custom-select.complex-select2#character_skill_source_source_id(name="character_skill_source[source_id]" data-placeholder='Select Header' required)
+            option
+            for source in possibleSources
+                option(
+                    value=source.id
+                    selected=Number(character_skill_source.source_id)===source.id data-source=source
+                    title=source.name
+                    data-text=`<strong>${capitalize(source.type.name)}</strong>: ${source.name}`
+                    data-html=`<div class="float-right">${source.cost} CP</div><div><strong>${capitalize(source.type.name)}</strong>: ${source.name}</div>`
+                ) #{capitalize(source.type.name)}: #{source.name}
+
+
+.form-row.my-2.p-1
+    .col.border.rounded.bg-light.p-2.overflow-auto#source-description(style='height:200px')
+
+.form-group.form-row.provides-options-text.my-2(style="display:none")
+    .col-sm-2
+        label.col-form-label(for="provides_value_text") Value
+    .col-sm-10
+        input.form-control#provides_value_text(type="text",placeholder="Value",name="character_skill_source[details][provides_value_text]")
+
+.form-group.form-row.provides-options-select.my-2(style="display:none")
+    .col-sm-2
+        label.col-form-label(for="provides_value_select") Value
+    .col-sm-10
+        select.custom-select.select2#provides_value_select(name="character_skill_source[details][provides_value_select]")
+            option

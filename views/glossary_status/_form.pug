@@ -1,0 +1,33 @@
+.form-group
+    label.control-label(for="glossary_status_name") Name
+    input.form-control(type="text",placeholder="Name",name="glossary_status[name]",value=glossary_status.name,id='glossary_status_name',required)
+    div.invalid-feedback Please choose a valid name
+
+.form-group
+    label.control-label(for="glossary_status_class") Class
+    select.custom-select.select2(name="glossary_status[class]",id="glossary_status_class" data-placeholder='Class')
+            option
+            for type in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']
+                option(value=type selected=glossary_status.class===type)= capitalize(type)
+
+.form-group
+    .custom-control.custom-switch
+        input.custom-control-input(type="checkbox", name="glossary_status[display_to_pc]", id="glossary_status_display_to_pc", checked=glossary_status.display_to_pc)
+        label.custom-control-label(for="glossary_status_display_to_pc") Display to Players in Glossary
+
+.form-group
+    label.control-label(for="glossary_status_display_order") Display Order
+    input.form-control(type="number",placeholder="Order",name="glossary_status[display_order]",value=glossary_status.display_order,id='glossary_status_display_order',required)
+    div.invalid-feedback Please choose a valid display order
+
+
+.form-group
+    label.control-label(for="glossary_status_description") Description
+    textarea.form-control(name="glossary_status[description]",id="glossary_status_description",rows=3)
+        = glossary_status.description
+
+.form-group
+    button.btn.btn-primary(type="submit")= glossary_status.id?'Update':'Create'
+    a.btn.btn-link(href="/glossary_status") Cancel
+
+

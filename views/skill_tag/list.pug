@@ -1,0 +1,51 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/skill_tag/new')
+        span(class="fa fa-plus")
+        |  New Skill Tag
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Player Visible
+                    th On Sheet
+                    th Color
+                    th Description
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for skill_tag in skill_tags
+                    tr(class='clickable-row', data-click-object='skill_tag' data-click-id=skill_tag.id)
+                        td.dtr-control
+                        td= skill_tag.name
+                        td= skill_tag.display_to_pc?'Yes':'No'
+                        td= skill_tag.on_sheet?'Yes':'No'
+                        td
+                            if skill_tag.color
+                                span.badge(class=`badge-${skill_tag.color}`)=capitalize(skill_tag.color)
+                            else
+                                i Default
+                        td= skill_tag.description
+                        if checkPermission('admin')
+                            td.text-right
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/skill_tag/${skill_tag.id}`,
+                                    data-back='/skill_tag'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

@@ -1,0 +1,107 @@
+extends ../layout
+
+block content
+    if checkPermission('gm')
+        a.btn.btn-outline-success.my-2(href='/skill_source/new')
+            span(class="fa fa-plus")
+            |  New Source
+
+    .row
+        .col-sm-auto
+            span.mr-2.d-block.d-lg-inline.align-middle Toggle Column:
+            .btn-group.btn-group-sm.d-inline.align-middle
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Name
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Type
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Cost
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Skill Count
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Required
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | PC Visible
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Requires
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Conflicts
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
+                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    | Actions
+
+        if checkPermission('admin')
+            .col-sm.text-right
+                .custom-control.custom-switch
+                    input.custom-control-input#skillDeleteSwitch(type="checkbox")
+                    label.custom-control-label(for="skillDeleteSwitch") Show Delete Buttons
+
+
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.skill-table.table-hover.my-3.dt-responsive.nowrap.table-sm.topsort.w-100(
+            data-order='[[0, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th(data-priority="1") Name
+                    th(data-priority="2") Type
+                    th Cost
+                    th Skill Count
+                    th Required
+                    th PC Visible
+                    th Requires
+                    th Conflicts
+                    th(data-priority="3")
+
+
+            tbody
+                for skill_source in skill_sources
+                    tr(class='clickable-row', data-click-object='skill_source' data-click-id=skill_source.id)
+                        th(
+                            data-sort=`${skill_source.type.display_order}-${skill_source.name}`
+                            data-search=skill_source.name)
+                            a.action-btn(href=`/skill_source/${skill_source.id}`)= capitalize(skill_source.name)
+                        td(data-sort=skill_source.type.display_order)= capitalize(skill_source.type.name)
+                        td #{skill_source.cost} CP
+                        td= skill_source.skills.length
+                        td=skill_source.required?'Yes':'No'
+                        td=skill_source.display_to_pc?'Yes':'No'
+                        td
+                            if skill_source.requires && _.isArray(skill_source.requires)
+                                =skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')
+                                |  (#{skill_source.require_num})
+                        td
+                            if skill_source.conflicts && _.isArray(skill_source.conflicts)
+                                if (skill_source.conflicts.length <= 3 )
+                                    =skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')
+                                else
+                                    | #{skill_source.conflicts.length} Conflicts
+
+                        td.text-right
+                            a.btn.btn-outline-info.btn-xs.action-btn(
+                                    role="button",
+                                    href=`/skill_source/${skill_source.id}/edit?backto=list`
+                                )
+                                i.fas.fa-edit.fa-fw
+                            if checkPermission('admin')
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.ml-1(
+                                    role="button",
+                                    url=`/skill_source/${skill_source.id}`,
+                                    data-back='/skill_source'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+append scripts
+   script(src='/javascripts/skill.js')

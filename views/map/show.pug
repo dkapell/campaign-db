@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+    h1 World Map
+    .row
+        .col
+            #toolbarDiv(class=`${checkPermission(gm)?'':'py-4'}`)
+                .float-right.align-middle.mb-2
+                    if checkPermission('gm')
+                        a.btn.btn-sm.btn-outline-info(href='images/Ritual_Map.png') Download Full Image ~70mb
+
+            #worldmap.img-fluid.mx-auto( style="width: 1110px; height: 780px;")
+
+append scripts
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/openseadragon/2.4.2/openseadragon.min.js')
+    script.
+        var viewer = OpenSeadragon({
+            id: "worldmap",
+            prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/2.4.2/images/",
+            tileSources: "/images/generated/map.dzi",
+            visibilityRatio: 1,
+            toolbar:       "toolbarDiv",
+            constrainDuringPan: true,
+            maxZoomPixelRatio: 1,
+        });

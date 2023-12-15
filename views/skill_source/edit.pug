@@ -1,0 +1,27 @@
+extends ../layout
+
+include ../partials/editor
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header= 'Edit Skill Source: ' + skill_source.name
+                .card-body
+                    form.form.needs-validation(method="POST" action="/skill_source/" + skill_source.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='skill_source[id]',value=skill_source.id)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/skill.js')
+    script.
+        $(function(){
+             $('.select2').select2({
+                theme:'bootstrap4',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+        });

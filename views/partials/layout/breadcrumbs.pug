@@ -1,0 +1,7 @@
+div(class=`${wideMain?'container-fluid':'container'}` role="breadcrumbs")
+    nav(aria-label='breadcrumb')
+        ol.breadcrumb
+            for breadcrumb in breadcrumbs.path
+                li.breadcrumb-item
+                    a(href=breadcrumb.url)= breadcrumb.name
+            li.breadcrumb-item.active(aria-current="page")= breadcrumbs.current

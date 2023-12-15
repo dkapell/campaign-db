@@ -1,0 +1,15 @@
+extends ../layout
+
+include ../partials/editor
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header New Skill
+                .card-body
+                    include ./_newForm.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/skill.js')

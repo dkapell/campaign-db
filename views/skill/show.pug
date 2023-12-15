@@ -1,0 +1,146 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col
+            h3.d-inline= skill.name
+            h4.d-inline
+                .badge.badge-pill.mx-2(class=`badge-${skill.status.class}`)
+                    = capitalize(skill.status.name)
+
+            h4.d-inline
+                for tag in skill.tags
+                    if (checkPermission('event') || tag.display_to_pc)
+                        .badge.badge-info.mr-2= tag.name
+
+    .row.my-2
+        .col
+            a.btn.btn-outline-primary.mr-2(role="button" href='/skill/' + skill.id + '/edit')
+                i.fas.fa-edit
+                |  Edit Skill
+    dl.row.my-2
+        dt.col-sm-3 Summary
+        dd.col-sm-9(style='font-size: 1.1rem;')
+            | !{marked.parseInline(skill.summary)}
+
+        dt.col-sm-3 Last Updated
+        dd.col-sm-9= skill.updatedFormatted
+
+        dt.col-sm-3 Source
+        dd.col-sm-9
+            a(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
+
+        if skill.type
+            dt.col-sm-3 Type
+            dd.col-sm-9=capitalize(skill.type.name)
+
+        if skill.usage
+            dt.col-sm-3 Usage
+            dd.col-sm-9=capitalize(skill.usage.name)
+
+        dt.col-sm-3 Cost
+        dd.col-sm-9
+            if skill.cost
+                = skill.cost
+            else
+                i Unset
+
+        if skill.requires && skill.requires.length
+            dt.col-sm-3 Requires #{skill.require_num} of
+            dd.col-sm-9
+                if _.uniq(_.pluck(skill.requires, 'name')).length === 1
+                    | #{skill.requires[0].name} (#{_.pluck(_.pluck(skill.requires, 'source'), 'name').join(', ')})
+                else
+                    ul.list-unstyled
+                        for i of skill.requires
+                            li #{i.source.name}: #{i.name}
+
+        if skill.conflicts && skill.conflicts.length
+            dt.col-sm-3 Conflicts with
+            dd.col-sm-9
+                if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
+                    | #{skill.conflicts[0].name} (#{_.pluck(_.pluck(skill.conflicts, 'source'), 'name').join(', ')})
+                else
+                    ul.list-unstyled
+                        for i of skill.conflicts
+                            li #{i.source.name}: #{i.name}
+
+        if skill.provides && skill.provides.length
+            dt.col-sm-3 Provides
+            dd.col-sm-9
+                ul.list-unstyled
+                    for provider of skill.provides
+                        li #{capitalize(provider.type)}: #{provider.name}#{provider.name?':':''} #{provider.value}
+
+        if skill.description
+            dt.col-sm-3 Description (Player-facing)
+            dd.col-sm-9 !{marked(skill.description, {breaks: true} ) }
+
+        if skill.notes
+            dt.col-sm-3 Notes (GM Only)
+            dd.col-sm-9 !{marked(skill.notes, {breaks: true})}
+
+
+
+    .row
+        .col
+            if (checkPermission('contrib'))
+                h4.my-1 Change History
+                .table-responsive.my-0
+                    table.table.table-striped.skill-audit-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100
+                        thead
+                            tr
+                                th(data-priority="1") Timestamp
+                                th User
+                                th Action
+                                th Diff
+                        tbody
+                            //(style="display: none")
+                            for audit in audits
+                                tr
+                                    td(data-sort=audit.created)=audit.createdFormated
+                                    td=audit.user.name
+                                    td=audit.action
+                                    td.text-wrap
+                                        for change in audit.diff
+                                            case change.type
+                                                when 'status'
+                                                    strong #{change.field} #{change.status}
+                                                    br
+                                                when 'field'
+                                                    strong.mr-1 #{change.field}:
+                                                    | #{change.old?change.old:'unset'} -> #{change.new?change.new:'unset'}
+                                                    br
+                                                when 'plaintext'
+                                                    strong.mr-1 #{change.field}:
+                                                    | #{change.text}
+                                                when 'text'
+                                                    strong.mr-1 #{change.field}:
+                                                    -let output = ''
+                                                    for part in change.text
+                                                        -output += `<span style="color:${part.color}">${part.text}</span>`
+
+
+                                                    | !{marked.parseInline(output, {breaks: true})}
+                                                    br
+                                                when 'longtext'
+                                                    strong.mr-1 #{change.field}:
+                                                    -let longoutput = ''
+                                                    for part in change.text
+                                                        -longoutput += `<span style="color:${part.color}">${part.text}</span>`
+
+                                                    | !{marked(longoutput, {breaks: true})}
+
+                                                when 'tags'
+                                                    strong.mr-1 #{change.field}:
+                                                    | #{change.tags.join(', ')}
+                                                    br
+
+                    .col-sm-6.offset-sm-3.text-center#tableLoading
+                        .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                            .sr-only Table is Loading
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/audits.js')
+

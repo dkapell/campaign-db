@@ -1,0 +1,51 @@
+{
+    "app": {
+        "name": "Ritual Larp",
+        "debug": false,
+        "dbURL": "postgres://ritual:ritual@localhost:5432/ritual",
+        "dbSSL": false,
+        "dbPoolSize": 1,
+        "sessionType": "local",
+        "sessionSecret": "ritual",
+        "secureOnly": false,
+        "logRequests": true,
+        "redis":{
+            "url": false,
+            "tls": false
+        },
+        "cacheType": "redis"
+    },
+    "auth": {
+        "clientID": "clientID",
+        "clientSecret": "clientSecret",
+        "callbackURL": "http://localhost:3000/auth/google/callback"
+    },
+    "drive": {
+        "credentials": {},
+        "root": null,
+        "folders":{
+            "player": "https://drive.google.com/drive/folders/14s0kZyYllsKmpo3_HCpvKDGVuM6sD8Gg",
+            "contrib": "https://drive.google.com/drive/folders/1H2iT1UMM3FjjUb1AF8oUKTb9Di1ls_c6",
+            "staff": "https://drive.google.com/drive/folders/1OfbPyFH5IRoT0lUrVITcGeQhquPzGAwY",
+            "playerFolders": "1aBXlGSBJJ_L8DHYtgBicNfdPMEUFRHhG"
+        }
+    },
+    "rulebook": {
+        "name": "top",
+        "id": "14s0kZyYllsKmpo3_HCpvKDGVuM6sD8Gg",
+        "children": [
+            {
+                "name": "Setting Folder",
+                "id": "108U26M84PeZNM2bY3txRZwycr1Y9TUB1"
+            },
+            {
+                "name": "Rulebook Folder",
+                "id": "1R7xNjy0NgXCDG8tvEfmIs29pBE1KNjbG"
+            }
+        ]
+    },
+    "skill":{
+        "showAll": false,
+        "includeLanguages": false
+    }
+}

@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+
+    .table-responsive
+
+        table.table.table-striped.audit-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100
+            thead
+                tr
+                    th(data-priority="1") Timestamp
+                    th User
+                    th Action
+                    th Object Type
+                    th Object ID
+                    th Object
+                    th Diff
+            tbody(style="display: none")
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+
+append scripts
+    script(src='/javascripts/audits.js')

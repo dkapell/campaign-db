@@ -1,0 +1,136 @@
+extends ../layout
+
+include ../partials/character
+
+block content
+    .row.my-3
+        .col-md-5
+            h3.d-inline= character.name
+                if character.active
+                    span.d-inline.text-success.ml-2(
+                        title='Character is Active'
+                        data-toggle="tooltip"
+                    )
+                        i.far.fa-check-circle
+
+            .row
+                .col-sm
+                    h4= character.user.name
+
+        .col-md.order-md-3.text-right
+            .row
+                .col
+                    if allowedEdit
+                        a.btn.btn-outline-primary.btn-sm.mt-1(role="button" href='/character/' + character.id + '/edit')
+                            i.fas.fa-edit
+                            |  Edit Details
+                    .btn-group.mt-1.ml-2
+                        a.btn.btn-outline-info.btn-sm(role="button" href='/character/' + character.id + '/pdf')
+                            i.fas.fa-file-alt
+                            |  Download PDF
+                        a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+                            .sr-only Toggle Dropdown
+                        .dropdown-menu.py-1
+                            a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
+                                i.fas.fa-file
+                                |  With Skill Descriptions
+                            if checkPermission('contrib')
+                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?languages=true')
+                                    i.fas.fa-file
+                                    |  With Language Guides
+                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true&languages=true')
+                                    i.fas.fa-file
+                                    |  With Languages & Descriptions
+            .row
+                .col.text-right
+
+
+                    h4.text-info.mt-2
+                        span.mr-1#character-cp #{character.cp}
+                        | CP Spent
+
+
+        .col-md
+            dl.row
+                each source in character.sources
+                    if source.type.name === 'path'
+                        dt.col-sm-4 Path
+                        dd.col-sm-8.mb-0= source.name
+                each source in character.sources
+                    if source.type.name === 'tradition'
+                        dt.col-sm-4 Tradition
+                        dd.col-sm-8.mb-0= source.name
+                each source in character.sources
+                    if source.type.name === 'culture'
+                        dt.col-sm-4 Culture
+                        dd.col-sm-8.mb-0= source.name
+                if character.foreordainment
+                    dt.col-sm-4 Foreordainment
+                    dd.col-sm-8.mb-0= character.foreordainment
+
+
+
+    ul.nav.nav-tabs#characterTabs(role="tablist")
+
+        li.nav-item(role="presentation")
+            a.nav-link.active#character-tab(href="#character" data-toggle="tab" role="tab" aria-controls="character" aria-selected="true") Character Sheet
+        li.nav-item(role="presentation")
+            a.nav-link#skill-tab(href="#skills" data-toggle="tab" role="tab" aria-controls="skills" aria-selected="false") #{allowedEdit?'Edit':'View'} Skills
+        li.nav-item(role="presentation")
+            a.nav-link#history-tab(href="#history" data-toggle="tab" role="tab" aria-controls="history" aria-selected="false") Build History
+
+
+    .tab-content#characterTabContent
+        .tab-pane.fade.show.active.character-sheet#character(role="tabpanel" aria-labelledby="character-tab")
+            +characterSheet(character)
+
+
+        .tab-pane.fade#skills(role="tabpanel" aria-labelledby="skills-tab")
+            .row.my-3
+                .col
+                    if allowedEdit
+                        .float-right
+                            a.btn.btn-outline-success.btn-sm.ml-4.add-source-btn(data-characterid=character.id)
+                                i.fas.fa-plus.fa-fw.mr-1
+                                | Add Header
+                    h4 Headers
+                    #character-source-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
+                    .col-sm-6.offset-sm-3.text-center#character-source-table-loading
+                        .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                            .sr-only Table is Loading
+
+            .row.my-3
+                .col
+                    if allowedEdit
+                        .float-right
+                            a.btn.btn-outline-success.btn-sm.ml-4.add-skill-btn(data-characterid=character.id)
+                                i.fas.fa-plus.fa-fw.mr-1
+                                | Add Skill
+                    h4 Skills
+                    .div.table-responsive-md
+                        #character-skill-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
+                    .col-sm-6.offset-sm-3.text-center#character-skill-table-loading
+                        .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                            .sr-only Table is Loading
+
+        .tab-pane.fade.character-history#history(role="tabpanel" aria-labelledby="history-tab")
+            #character-audits-table(data-characterid=character.id)
+            .col-sm-6.offset-sm-3.text-center#character-audits-table-loading
+                .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                    .sr-only Table is Loading
+
+    +characterModal()
+
+append scripts
+    script(src='/javascripts/templates/characterSkillList.js')
+    script(src='/javascripts/templates/characterSourceList.js')
+    script(src='/javascripts/templates/character/addSkillForm.js')
+    script(src='/javascripts/templates/character/editSkillForm.js')
+    script(src='/javascripts/templates/character/characterSkill.js')
+    script(src='/javascripts/templates/character/addSourceForm.js')
+    script(src='/javascripts/templates/character/characterSource.js')
+    script(src='/javascripts/templates/character/characterSheet.js')
+    script(src='/javascripts/templates/character/characterAudits.js')
+
+    script(src='/javascripts/character.js')
+    script(src='/javascripts/data-table.js')

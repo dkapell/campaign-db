@@ -1,0 +1,49 @@
+table.table.table-sm.table-striped
+    thead
+        tr
+            th.col-md-8 Header
+            th Cost
+            th Skills
+            if allowedEdit
+                th.text-right Actions
+    tbody
+        each source in sources
+            tr
+                td= source.name
+                    if source.details
+                        if source.details.stat
+                            i.ml-2 (#{source.details.stat})
+                        if source.details.trait
+                            i.ml-2 (#{source.details.trait})
+                        if source.details.style
+                            i.ml-2 (#{source.details.style})
+                        if source.details.language
+                            i.ml-2 (#{source.details.language})
+                        if source.details.tagskill
+                            i.ml-2 (#{source.details.tagskill})
+                        if source.details.crafting
+                            i.ml-2 (#{source.details.crafting})
+
+                        if source.details.skill
+                            i.ml-2 (#{source.details.skill})
+
+                        if source.details.notes
+                            span.badge.badge-info.mt-1.float-right notes
+                td
+                    if source.character_cost !== source.cost
+                        span.text-success(title="Reduced Cost" data-toggle="tooltip")= source.character_cost
+                    else
+                        = source.character_cost
+                td= source.character_skills.length
+                if allowedEdit
+                    td.text-right
+                        if source.removable
+                            a.btn.btn-outline-danger.btn-xs.delete-source-btn(
+                                title='Remove Header'
+                                data-toggle="tooltip"
+                                role="button"
+                                data-sourceid=source.id
+                                data-characterid=character_id
+                                data-csrf=csrfToken
+                            )
+                                i.fas.fa-trash.fa-fw

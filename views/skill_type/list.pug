@@ -1,0 +1,40 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/skill_type/new')
+        span(class="fa fa-plus")
+        |  New Skill Type
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Description
+                    if checkPermission('admin')
+                        th
+
+            tbody
+                for skill_type in skill_types
+                    tr(class='clickable-row', data-click-object='skill_type' data-click-id=skill_type.id)
+                        td.dtr-control
+                        td= capitalize(skill_type.name)
+                        td= skill_type.description
+                        if checkPermission('admin')
+                            td.text-right
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/skill_type/${skill_type.id}`,
+                                    data-back='/skill_type'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

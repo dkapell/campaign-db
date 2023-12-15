@@ -1,0 +1,6 @@
+form.form.needs-validation#skillForm(method="POST" action="/skill/" + skill.id novalidate)
+    input(type="hidden", name="_method",  value="PUT")
+    input(type="hidden", name='_csrf',value=csrfToken)
+    input(type="hidden", name='skill[id]',value=skill.id)
+    include ./_form.pug
+

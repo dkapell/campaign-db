@@ -1,0 +1,85 @@
+mixin markdownEditor(label, id, name, rows, size, contents, showPreview, previewUrl, required=false, disabled=false)
+    if !showPreview
+        label.control-label.mb-0.d-inline(for=id)= label
+        small.form-text.text-muted.d-inline.ml-2 Supports
+            a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                i.fas.fa-external-link-alt.ml-1
+        textarea.form-control.editor(
+            id= id
+            rows= rows
+            name= name
+            data-size= size
+            data-preview=showPreview
+            required=required
+            disabled=disabled
+        )
+            = contents
+    else
+        ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")
+            li.nav-item(role="presentation")
+                a.nav-link.active(
+                    id=`${id}-code-tab`
+                    data-toggle="tab"
+                    href=`#${id}-code`
+                    role="tab"
+                    aria-controls=`${id}-code`
+                    aria-selected="true"
+                )= label
+            li.nav-item(role="presentation")
+                a.nav-link(
+                    id=`${id}-preview-tab`
+                    data-toggle="tab"
+                    href=`#${id}-preview`
+                    role="tab"
+                    aria-controls=`${id}-preview`
+                    aria-selected="false"
+                ) Preview
+        .tab-content.pb-2(id=`${id}-editor`)
+            .tab-pane.fade.show.active(
+                id=`${id}-code`
+                role="tabpanel"
+                aria-labelledby=`${id}-code-tab`
+            )
+                textarea.form-control.editor(
+                    id= id
+                    rows= rows
+                    name= name
+                    data-size= size
+                    data-preview=showPreview
+                    data-previewUrl=previewUrl
+                    required=required
+                    disabled=disabled
+                )
+                    = contents
+                small.form-text.text-muted
+                    a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown Reference
+                        i.fas.fa-external-link-alt.ml-1
+
+            .tab-pane.fade(
+                id=`${id}-preview`
+                role="tabpanel"
+                aria-labelledby=`${id}-preview-tab`
+            )
+                .overflow-auto.editor-preview.rounded(
+                    id=`${id}-preview-frame`
+                    style=`height: ${size-2}px`)
+                small.form-text.text-muted.invisible Placeholder
+
+
+append styles
+    link(rel='stylesheet' href='/stylesheets/editor.css')
+
+append scripts
+    script(src='/javascripts/editor.js')
+    script.
+        $(function() {
+            $('.editor').each(function() {
+                const $this = $(this);
+                const id = $this.attr('id');
+                const size = $this.data('size');
+                const preview = $this.data('preview');
+                const previewUrl = $this.data('previewurl');
+                renderMarkdownEditor(id, size, preview, previewUrl);
+            });
+        });
+

@@ -1,0 +1,54 @@
+extends ../layout
+include ../partials/character
+
+
+block content
+    a.btn.btn-outline-success.my-2(href='/character/new')
+        span(class="fa fa-plus")
+        |  New Character
+    if checkPermission('admin')
+        a.btn.btn-outline-danger.my-2.ml-2#rebuildAllBtn(href='#' data-csrf=csrfToken)
+            span(class="fa fa-calculator")
+            |  Recalculate All Characters
+    if checkPermission('player') && !checkPermission('contrib')
+        +characterListDisplay(characters, true, true, true)
+
+    else
+        ul.nav.nav-tabs.my-2#characterTabs(role="tablist")
+
+            li.nav-item(role="presentation")
+                a.nav-link.active#active-pc-tab(href="#active-pc" data-toggle="tab" role="tab" aria-controls="active-pc" aria-selected="true") Active PC Characters
+
+            li.nav-item(role="presentation")
+                a.nav-link#active-staff-tab(href="#active-staff" data-toggle="tab" role="tab" aria-controls="active-staff" aria-selected="false") Active Staff Characters
+
+            li.nav-item(role="presentation")
+                a.nav-link#all-tab(href="#all" data-toggle="tab" role="tab" aria-controls="all" aria-selected="false") All Characters
+
+
+        .tab-content#characterTabContent
+            .tab-pane.fade.show.active#active-pc(role="tabpanel" aria-labelledby="active-pc-tab")
+                -
+                    const activePcCharacters = characters.filter(character => {
+                        return character.active && character.user.user_type === 'player'
+                    });
+                +characterListDisplay(activePcCharacters, false, true)
+
+
+            .tab-pane.fade#active-staff(role="tabpanel" aria-labelledby="active-staff-tab")
+                -
+                    const activeStaffCharacters = characters.filter(character => {
+                        return character.active && character.user.user_type !== 'player'
+                    });
+                +characterListDisplay(activeStaffCharacters, false, true)
+
+
+            .tab-pane.fade#all(role="tabpanel" aria-labelledby="all-tab")
+                +characterListDisplay(characters, false, true, true)
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/character.js')
+
+

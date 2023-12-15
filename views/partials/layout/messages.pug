@@ -1,0 +1,12 @@
+.container(role="messages")
+    - if (messages.error)
+        div.alert.alert-danger(role='alert')
+            = messages.error.join(', ')
+
+    - if (messages.info)
+        div.alert.alert-info(role='alert')
+            = messages.info.join(', ')
+
+    - if (messages.success)
+        div.alert.alert-success(role='alert')
+            = messages.success.join(', ')

@@ -1,0 +1,7 @@
+extends ../layout
+include ../partials/document
+
+block content
+    for source in sources
+        +sourceDoc(source, 'skilldoc')
+

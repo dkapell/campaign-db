@@ -1,0 +1,44 @@
+if checkPermission('contrib')
+    .form-row.mb-2
+        .col
+            label.control-label(for="character_user_id") Owner
+            select.custom-select.complex-select2(name="character[user_id]",id="character_user_id" data-placeholder='User')
+                option
+                each user in users
+                    - const type = user.user_type === 'player'?'Player':'Staff'
+                    option(
+                        value=user.id
+                        selected=character.user_id===user.id
+                        title=character.name
+                        data-text=`<span class="${user.user_type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-html=`<span class="${user.user_type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                    ) #{capitalize(user.name)} (#{type})
+.form-row.my-2
+    .col
+        label.control-label(for="character_name") Character Name
+        input.form-control(type="text",placeholder="Name",name="character[name]",value=character.name,id='character_name',required)
+        div.invalid-feedback Please choose a valid name
+
+if !activeRequired
+    .form-row.my-2
+        .col
+            .custom-control.custom-switch
+                input.custom-control-input(type="checkbox", name="character[active]", id="character_active", checked=character.active disabled=character.active && !checkPermission('contrib'))
+                label.custom-control-label(for="character_active") Active
+
+if checkPermission('contrib')
+    .form-row.my-2
+        .col
+            label.control-label(for="character_foreordainment") Foreordainment (Currently Staff Only)
+            input.form-control(type="text",placeholder="Name",name="character[foreordainment]",value=character.foreordainment,id='character_foreordainment')
+    .form-row.my-2
+        .col
+            label.control-label(for="character_extra_traits") Extra Traits (comma-seperated)
+            input.form-control(type="text",placeholder="Traits",name="character[extra_traits]",value=character.extra_traits,id='character_extra_traits')
+
+.form-row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= character.id?'Update':'Create'
+        a.btn.btn-link(href=`/character${character.id?'/' + character.id:''}`) Cancel
+
+

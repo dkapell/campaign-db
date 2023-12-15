@@ -1,0 +1,388 @@
+mixin characterModal()
+    .modal.fade#characterModal(role="dialog" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true")
+        .modal-dialog.modal-lg.modal-dialog-centered(role="document")
+            .modal-content.vh-75
+                .modal-header
+                    h5.modal-title
+                    button.close#dismissPopupModal(type="button", data-dismiss="modal" area-label="Close")
+                        span(aria-hidden="true") &times;
+                .modal-body
+                .modal-footer
+                    button.btn.btn-secondary(type="button", data-dismiss="modal") Cancel
+                    button.btn.btn-primary.save-btn(type="submit") Save
+
+mixin characterSkill(skill, showDescription=false)
+    .character-skill
+        .row
+            .col-md-8.skill-name
+                i.mr-2= skill.name
+                if skill.count > 1
+                    span.mr-2 (X#{skill.count})
+                for tag in skill.tags
+                    if tag.display_to_pc && tag.on_sheet
+                        -const tagClass = tag.color?`badge-${tag.color}`:'badge-info'
+                        .badge.mr-1(class=tagClass)= tag.name
+            .col.skill-cost
+                if _.has(skill, 'character_cost')
+                    if skill.character_cost
+                        | #{skill.character_cost} CP
+                else
+                    | #{skill.next_cost} CP
+
+            .col.float-right.text-right.skill-source
+                strong= skill.source.name
+        .row.skill-summary
+            .col
+                p.my-1!=marked.parseInline(skill.summary)
+        if skill.description
+            .row.skill-description(style=showDescription?'':'display:none')
+                .col
+                    p.my-1!=marked.parseInline(skill.description, {breaks: true})
+        if skill.details
+            if skill.details.sheet_note
+                .row.skill-sheet-note
+                    .col
+                        p.my-1.py-1.alert.alert-light
+                            strong.mr-1 Sheet Note:
+                            i=skill.details.sheet_note
+
+            if skill.details.notes
+                .row.skill-note
+                    .col
+                        p.my-1.py-1.alert.alert-light
+                            strong.mr-1 Note:
+                            !=marked.parseInline(skill.details.notes, {breaks: true})
+
+
+mixin characterSource(source)
+    .character-ource
+        .row
+            .col-md-8.source-name
+                i.mr-2= source.name
+                if source.required
+                    .badge.badge-info.mr-1 required
+            .col.source-cost #{source.cost} CP
+
+            .col.float-right.text-right.source-type
+                strong= capitalize(source.type.name)
+        if source.description
+            .row.source-description
+                .col
+                    p.my-1!=marked.parseInline(source.description, {breaks: true})
+
+mixin characterSheet(character)
+    .row
+        .col-md-4.mt-4
+            if _.keys(character.provides.stats).length
+                .card.mb-3
+                    h5.py-2.card-header Attributes
+                    ul.card-text.list-group.list-group-flush
+                        each val, stat in character.provides.stats
+                            li.py-2.list-group-item=stat
+                                span.ml-1.float-right= val
+
+            if _.keys(character.provides.traits).length
+                each traits, type in character.provides.traits
+                    .card.mb-3
+                        h5.py-2.card-header #{type} Traits
+                        ul.card-text.list-group.list-group-flush
+                            each trait in traits
+                                li.py-2.list-group-item=trait
+
+            if character.provides.languages.length
+                .card.mb-3
+                    h5.py-2.card-header Languages
+                    ul.card-text.list-group.list-group-flush
+                        each language in character.provides.languages
+                            li.py-2.list-group-item=language
+
+            if character.provides.tagskills.length
+                .card.mb-3
+                    h5.py-2.card-header Tag Reading Skills
+                    ul.card-text.list-group.list-group-flush
+                        each tagskill in character.provides.tagskills
+                            li.py-2.list-group-item=tagskill
+
+            if character.provides.diagnose.length
+                .card.mb-3
+                    h5.py-2.card-header Diagnose (3s)
+                    .card-body.py-0
+                        ul.row.list-unstyled.my-0.py-0.trait-list
+                            each trait, idx in character.provides.diagnose
+                                - const bordered = Math.floor(idx / 3) < Math.floor(character.provides.diagnose.length/3);
+                                li.list-item.col-sm-4.py-2.border-right.text-center(class=bordered?'border-bottom':'')=trait
+
+            if _.keys(character.provides.styles).length
+
+                .card.mb-3
+                    h5.py-2.card-header Weapon Styles
+                    ul.card-text.list-group.list-group-flush
+
+                        each count, style in character.provides.styles
+                            li.py-2.list-group-item=style
+                                if count > 1
+                                    |  (#{count})
+
+            if _.keys(character.provides.crafting).length
+                .card.mb-3
+                    h5.py-2.card-header Crafting Skills
+                    ul.card-text.list-group.list-group-flush
+                        each val, type in character.provides.crafting
+                            li.py-2.list-group-item=capitalize(type)
+                                span.ml-1.float-right= val
+
+            .card.mb-3
+                h5.py-2.card-header Headers
+                ul.card-text.list-group.list-group-flush
+                    each source in character.sources
+                        li.py-2.list-group-item=source.name
+                            if source.character_cost
+                                span.ml-1.float-right #{source.character_cost} CP
+
+        .col-md
+            .row
+                .col
+                    .text-right.pt-0
+                        .custom-control.custom-switch
+                            input.custom-control-input#showSkillDescriptions(type="checkbox" checked)
+                            label.custom-control-label(for="showSkillDescriptions") Show Skill Descriptions
+
+                    - const grouped = _.groupBy(character.provides.skills, 'usage_id')
+                    each group, type in grouped
+                        .card.mb-3
+                            h5.py-2.card-header #{group[0].usage.name} Skills
+
+                            -
+                                const groupReduced = group.reduce((o, e) => {
+                                    const skill = _.findWhere(o, {name:e.name});
+                                    if (!skill) {
+                                        e.count = 1;
+                                        o.push(e);
+                                    } else {
+                                        skill.count++;
+                                    }
+                                    return o;
+                                }, [])
+                            ul.card-text.list-group.list-group-flush
+                                each skill in groupReduced
+                                    li.list-group-item.py-1
+                                        +characterSkill(skill)
+
+
+
+mixin characterAudits(audits, showCharacter=false)
+    .table-responsive.my-0
+        table.table.table-striped.character-audit-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100
+            thead
+                tr
+                    th(data-priority="1") Timestamp
+                    if showCharacter
+                        th Character
+                    th User
+                    th Action
+                    th Change
+            tbody
+                for audit in audits
+                    tr
+                        td(data-sort=audit.created)
+                            span.text-nowrap.mr-1=audit.createdFormated.day
+                            span.text-nowrap=audit.createdFormated.hour
+                        if showCharacter
+                            td=audit.object.name
+                        td=audit.user.name
+                        td=capitalize(audit.action)
+                        td.text-wrap
+                            case audit.action
+                                when 'create'
+                                    = audit.object.name
+                                when 'clone'
+                                    | From "#{audit.data.from.name}"
+                                when 'update'
+                                    ul.list-unstyled.my-0
+                                        each change in audit.changes
+                                            li
+                                                strong.mr-1 #{capitalize(change.field)}:
+                                                if change.old
+                                                    | !{change.old?marked.parseInline(change.old):'unset'} -> !{change.new?marked.parseInline(change.new):'unset'}
+                                                else
+                                                    | !{change.new?marked.parseInline(change.new):'unset'}
+
+                                when 'delete'
+
+                                when 'add skill'
+                                    i= audit.data.skill.name
+                                    br
+                                    each change in audit.data.details
+                                        strong.mr-1 #{capitalize(change.field)}:
+                                        | !{change.new?marked.parseInline(change.new):'unset'}
+                                when 'remove skill'
+                                    i= audit.data.skill.name
+                                when 'update skill'
+                                    i= audit.data.skill.name
+                                    br
+                                    each change in audit.data.details
+                                        strong.mr-1 #{capitalize(change.field)}:
+                                        if change.old
+                                            | !{change.old?marked.parseInline(change.old):'unset'} -> !{change.new?marked.parseInline(change.new):'unset'}
+                                        else
+                                            | !{change.new?marked.parseInline(change.new):'unset'}
+
+
+                                when 'add source'
+                                    strong= audit.data.source.name
+                                when 'remove source'
+                                    strong= audit.data.source.name
+
+mixin characterTable(characters, forPlayer, showActive=false)
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order=forPlayer?'[[2, "desc"]]':'[[1, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    if checkPermission('contrib') && !forPlayer
+                        th Player
+                    th(data-priority="1") Name
+                    if showActive
+                        th(data-priority="3") Active
+                    th CP
+                    th(data-priority="3") Updated
+                    th(data-priority="2").col-1
+
+            tbody
+                for character in characters
+                    tr(class='clickable-row', data-click-object='character' data-click-id=character.id)
+                        td.dtr-control
+                        if checkPermission('contrib') && !forPlayer
+                            td
+                                a.action-btn(href=`/user/${character.user.id}`)
+                                    i.fas.fa-user.mr-1
+                                    = character.user.name
+                        td
+                            i.far.fa-user.mr-1
+                            = character.name
+                        if showActive
+                            td
+                                if character.active
+                                    .badge.badge-success.badge-pill Active
+                        td= character.cp
+                        td= moment(character.updated).format('MMM Do YYYY, h:mm a')
+                        td
+                            a.btn.btn-outline-info.btn-xs.action-btn.mr-1(
+                                role="button",
+                                title="View/Edit Character"
+                                data-toggle="tooltip"
+                                href=`/character/${character.id}`
+                            )
+                                i.fas.fa-edit.fa-fw
+                            a.btn.btn-outline-success.btn-xs.clone-btn.action-btn.mr-1(
+                                role="button",
+                                data-toggle="tooltip"
+                                title='Duplicate Character'
+                                data-characterid=character.id
+                                data-csrf=csrfToken
+                            )
+                                i.fas.fa-copy.fa-fw
+                            if checkPermission('gm') || (session.assumed_user ?  session.assumed_user.id : activeUser.id) === character.user_id
+                                a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                    role="button",
+                                    title="Delete Character"
+                                    data-toggle="tooltip"
+                                    url=`/character/${character.id}`
+                                )
+                                    i.fas.fa-trash.fa-fw
+mixin characterCard(character)
+    if character
+        -console.log(character)
+        .card
+            .card-header
+                .float-right
+                    a.btn.btn-outline-info(href=`/character/${character.id}` title='View Character')
+                        i.fas.fa-eye
+                h4= character.name
+            .card-body
+
+                dl.row
+                    each source in character.sources
+                        if source.type.name === 'path'
+                            dt.col-sm-4 Path
+                            dd.col-sm-8.mb-0= source.name
+                    each source in character.sources
+                        if source.type.name === 'tradition'
+                            dt.col-sm-4 Tradition
+                            dd.col-sm-8.mb-0= source.name
+                    each source in character.sources
+                        if source.type.name === 'culture'
+                            dt.col-sm-4 Culture
+                            dd.col-sm-8.mb-0= source.name
+                    if character.foreordainment
+                        dt.col-sm-4 Foreordainment
+                        dd.col-sm-8.mb-0= character.foreordainment
+                    -
+                        const byways = character.sources.filter(source => {
+                            return source.type.name === 'byway'
+                        })
+                    dt.col-sm-4 Byways
+                    dd.col-sm-8.mb-0= (_.pluck(byways, 'name')).join(', ')
+
+mixin characterList(characters, forPlayer=false, extended=false, showActive=false)
+    ul.list-group
+        each character in characters
+            +characterListItem(character, forPlayer, extended, showActive)
+
+mixin characterListItem(character, forPlayer, extended, showActive)
+    li.list-group-item.py-2(href=`/character/${character.id}`)
+        .row
+            .col
+                a(href=`/character/${character.id}` style='font-size: 1rem')
+                    i.far.fa-user.mr-1
+                    = character.name
+                if showActive && character.active
+                    .badge.badge-success.badge-pill.ml-1 Active
+            .col-2
+                small #{character.cp} CP
+            if !forPlayer
+                .col-4
+                    a(href=`/user/${character.user.id}`)
+                        i.fas.fa-user.mr-1
+                        =character.user.name
+        if extended
+            .row.mt-1
+                .col
+                    | Updated: #{moment(character.updated).format('MMM Do YYYY, h:mm a')}
+                .col.text-right
+                    a.btn.btn-outline-info.btn-xs.action-btn.mr-1(
+                        role="button",
+                        title="View/Edit Character"
+                        data-toggle="tooltip"
+                        href=`/character/${character.id}`
+                    )
+                        i.fas.fa-edit.fa-fw
+                    a.btn.btn-outline-success.btn-xs.clone-btn.action-btn.mr-1(
+                        role="button",
+                        data-toggle="tooltip"
+                        title='Duplicate Character'
+                        data-characterid=character.id
+                        data-csrf=csrfToken
+                    )
+                        i.fas.fa-copy.fa-fw
+                    if checkPermission('gm') || (session.assumed_user ?  session.assumed_user.id : activeUser.id) === character.user_id
+                        a.btn.btn-outline-danger.btn-xs.delete-btn(
+                            role="button",
+                            title="Delete Character"
+                            data-toggle="tooltip"
+                            url=`/character/${character.id}`
+                        )
+                            i.fas.fa-trash.fa-fw
+
+mixin characterListDisplay(characters, forPlayer=false, extended=false, showActive=false)
+    .d-lg-none
+        +characterList(characters, forPlayer, extended, showActive)
+    .d-none.d-lg-block
+        +characterTable(characters, forPlayer, showActive)
+

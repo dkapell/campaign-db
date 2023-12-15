@@ -1,0 +1,32 @@
+{
+    "app": {
+        "dbURL": "DATABASE_URL",
+        "dbSSL": "DATABASE_SSL",
+        "dbPoolSize": "DATABASE_POOL_SIZE",
+        "sessionType": "SESSION_TYPE",
+        "sessionSecret": "SESSION_SECRET",
+        "secureOnly": "SECURE_ONLY",
+        "redis": {
+            "url": "REDIS_URL",
+            "tls": "REDIS_TLS"
+        },
+        "cacheType": "CACHE_TYPE"
+    },
+    "auth": {
+        "clientID": "GOOGLE_CLIENT_ID",
+        "clientSecret": "GOOGLE_CLIENT_SECRET",
+        "callbackURL": "CALLBACK_URL"
+    },
+    "drive": {
+        "credentials": {
+            "__name": "DRIVE_CREDS",
+            "__format": "json"
+        },
+        "root": "DRIVE_ROOT"
+
+    },
+    "skill": {
+        "showAll": "SHOW_ALL_SKILLS"
+    }
+
+}

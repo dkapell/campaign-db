@@ -1,0 +1,49 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/glossary_status/new')
+        span(class="fa fa-plus")
+        |  New Glossary Status
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Display Order
+                    th Display to Players?
+                    th Description
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for glossary_status in glossary_statuses
+                    tr(class='clickable-row', data-click-object='glossary_status' data-click-id=glossary_status.id)
+                        td.dtr-control
+                        td
+                            .badge.badge-pill.glossary-status(class=`badge-${glossary_status.class}`)
+                                = capitalize(glossary_status.name)
+                        td= glossary_status.display_order
+                        td= glossary_status.display_to_pc?'Yes':'No'
+                        td= glossary_status.description
+                        if checkPermission('admin')
+                            td.text-right
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/glossary_status/${glossary_status.id}`,
+                                    data-back='/glossary_status'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

@@ -1,0 +1,47 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/skill_source_type/new')
+        span(class="fa fa-plus")
+        |  New Skill Source Type
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Number Free
+                    th Display Order
+                    th
+
+            tbody
+                for skill_source_type in skill_source_types
+                    tr(class='clickable-row', data-click-object='skill_source_type' data-click-id=skill_source_type.id)
+                        td.dtr-control
+                        td= capitalize(skill_source_type.name)
+                        td= skill_source_type.num_free
+                        td= skill_source_type.display_order
+                        td.text-right
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
+                                    role="button",
+                                    href=`/skill_source_type/${skill_source_type.id}/edit`,
+                                    data-back='/skill_source_type'
+                                )
+                                i.fas.fa-edit.fa-fw
+                            if checkPermission('admin')
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/skill_source_type/${skill_source_type.id}`,
+                                    data-back='/skill_source_type'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+append scripts
+    script(src='/javascripts/data-table.js')

@@ -1,0 +1,42 @@
+extends ../layout
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header New Character
+                .card-body
+                    form.form.needs-validation(method="POST" action="/character" novalidate)
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script.
+        $(function(){
+             $('.select2').select2({
+                theme:'bootstrap4',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+            $('.complex-select2').each(function(e){
+                const $select = $(this);
+                $select.select2({
+                    theme:'bootstrap4',
+                    minimumResultsForSearch: 6,
+                    width:'resolve',
+                    escapeMarkup: function(markup) {
+                        return markup;
+                    },
+                    templateResult: function(data) {
+                        return $(data.element).data('html');
+                    },
+                    templateSelection: function(data) {
+                        if (data.id === '') {
+                            return $select.data('placeholder');
+                        }
+                        return $(data.element).data('text');
+                    }
+                });
+            });
+        });

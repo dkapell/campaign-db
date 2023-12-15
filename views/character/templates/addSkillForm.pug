@@ -1,0 +1,12 @@
+include ../../partials/editor
+include ../../partials/character
+
+
+block content
+    form.form.needs-validation#skillForm(method='POST' action=`/character/${characterId}/skill` novalidate)
+        input(type="hidden" name='_csrf' value=csrfToken)
+        
+        include ../_skillForm.pug
+
+
+

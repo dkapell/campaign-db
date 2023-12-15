@@ -1,0 +1,41 @@
+extends ../layout
+include ../partials/skill_review
+
+block content
+    -
+        const counts = {
+            unreviewed: skills.filter(skill => { return !skill.approved}).length,
+            all: skills.length,
+            comments: skills.filter(skill => {
+                return (skill.reviews.filter(review => { return review.content})).length > 0
+            }).length
+        };
+    ul.nav.nav-tabs#reviewTabs(role="tablist")
+
+        li.nav-item(role="presentation")
+            a.nav-link.active#skills-tab(href="#skills" data-toggle="tab" role="tab" aria-controls="skills" aria-selected="true") Skills to Review
+                span.ml-1.badge.badge-info=counts.unreviewed
+        li.nav-item(role="presentation")
+            a.nav-link#reviews-tab(href="#reviews" data-toggle="tab" role="tab" aria-controls="reviews" aria-selected="false") All Skills
+                span.ml-1.badge.badge-info=counts.all
+        li.nav-item(role="presentation")
+            a.nav-link#comments-tab(href="#comments" data-toggle="tab" role="tab" aria-controls="comments" aria-selected="false") Reviews with Comments
+                span.ml-1.badge.badge-info=counts.comments
+
+
+    .tab-content#reviewTabContent
+        .tab-pane.fade.show.active#skills(role="tabpanel" aria-labelledby="skills-tab")
+            +reviewSkillList(skills, 'unapproved', true)
+
+        .tab-pane.fade#reviews(role="tabpanel" aria-labelledby="reviews-tab")
+            .alert.alert-warning.my-3.review-alert If you have reviewed skills, you should reload this page before trusting it to be accurate.
+            +reviewSkillList(skills, false, false)
+
+        .tab-pane.fade#comments(role="tabpanel" aria-labelledby="comments-tab")
+            .alert.alert-warning.my-3.review-alert If you have reviewed skills, you should reload this page before trusting it to be accurate.
+            +reviewSkillList(skills, 'comments', false)
+
+
+
+append scripts
+    script(src='/javascripts/review.js')

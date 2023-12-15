@@ -1,0 +1,11 @@
+include ../../partials/editor
+include ../../partials/character
+
+
+block content
+    form.form.needs-validation#skillForm(method="POST" action=`/character/${characterId}/skill/${character_skill.character_skill_id}` novalidate)
+        input(type="hidden", name="_method",  value="PUT")
+        input(type="hidden", name='_csrf',value=csrfToken)
+        input(type="hidden", name='character_skill[id]',value=character_skill.id)
+        include ../_skillForm.pug
+

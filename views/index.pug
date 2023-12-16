@@ -4,63 +4,25 @@ include ./partials/rulebook
 include ./partials/character
 
 append content
-    if !activeUser
+    if !currentCampaign.id
         .row
             .col-lg-8
-                h1.display-2 Ritual
-
+                h1.display-2=config.get('app.name')
                 p.pl-2
-                    i
-                        | First, speak the words of Opening to prepare the ritual space.
-                        br
-                        | Second, make the offering to the Sun.
+                    | This is the root site of #{config.get('app.name')}
 
-                p.pl-2 The world is built of ritual, and ritual keeps it together, binds us all together and keeps back the darkness.
+    else if !activeUser
+        .row
+            .col-lg-8
+                h1.display-2=currentCampaign.name
 
-                p.pl-2
-                    i
-                        | Next, walk the circle, and speak the words of Intent.
-                        br
-                        |When you return, make the offering to the Moon.
+                div !{marked(currentCampaign.description,  {breaks: true})}
 
-                p.pl-2 The time of the great ritual is upon us, the great work that will maintain the world, for the next Cycle of ten generations.
-
-                p.pl-2
-                    i
-                        | Next, the words of Promise must be spoken, loud and true.
-                        br
-                        | Walk the circle in the other direction, bring the candle back to the start.
-
-                p.pl-2 Three centuries ago, they were not prepared, and the world cracked. Darkness filled the cracks, oozed out into the lit places. The survivors completed what they could of the Work, and the shattered world held together at the brink of dissolution.
-
-                p.pl-2
-                    i
-                        | Turn to the Officiant and give them a memory from your past. That memory becomes the Officiant's and will be lost to you.
-                        br
-                        | Face each direction, and whisper a truth to the North, a lie to the West, a hope to the South and a fear to the East.
-
-                p.pl-2 You have gathered from across the shattered lands to perform the great work once more, much knowledge has been lost in the shattering, but the Work must be completed. You stand in the Ritual Hall and make plans. You stand in the observatory, and take notes of the stars and their movements. You search the remains of ruined libraries and laboratories, filled with dark, angry things, in hopes of finding the lost knowledge that will lead you forward.
-
-                p.pl-2
-                    i
-                        | Draw a horn-handled knife across your hand, and let a few drops of your blood fall into the pool.
-                        br
-                        | Say the words of Offering such that all can hear
-
-                P.pl-2 This time will be different. Anything else is unthinkable. This time you will succeed, and the Work will be completed.
-
-                p.pl-2
-                    i
-                        |The words of Closing end the ritual, as they do most rituals, binding the magics and forming the contract with the world.
-
-                hr.w-50
-
-                p.pl-2.lead  Welcome to Ritual, a story about the last hope of a shattered world,  A story of magic, honor, rebuilding, and what we do when we have no option but to succeed.
-
-                p.pl-2 Ritual is a invite-only hopepunk larp set in a post-post-apocalyptic fantasy world where a 3 year long ritual must be performed every 300 years to keep the world going, and to set things up for the next cycle. The last time the Great Work was performed, the Foreordained were only barely able to complete it, and the world almost ended. Since then, we have had almost 300 years of rebuilding, and the time has come to do the ritual again. In the meantime much was lost.
-                p.pl-2 For more information, write your intent on a slip of paper torn from your favorite book, and bury it under the tree that now grows where you met a dear friend when you were young.  When the time is right, you will know.
             .col-lg.d-none.d-lg-block
-                a(href='/map')
+                if currentCampaign.display_map
+                    a(href='/map')
+                        img.img-fluid(src='/images/ritual-logo-mq-round.png')
+                else
                     img.img-fluid(src='/images/ritual-logo-mq-round.png')
     else
         .row.my-2
@@ -68,23 +30,27 @@ append content
                 h1.display-4
                     a(href='/map')
                         img.img-fluid.mr-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
-                    | Ritual
+                    =config.get('app.name')
+
         .row.my-2
             .col-lg
                 h1.h3 Resources
                 .list-group.mb-2
                     -
-                        let driveLink = config.get('drive.folders.player');
-                        if (checkPermission('gm')){
-                            driveLink = config.get('drive.folders.staff');
-                        } else if (checkPermission('contrib')){
-                            driveLink = config.get('drive.folders.contrib');
+                        let driveLink = null;
+                        if (currentCampaign.player_drive_folder){
+                            driveLink = config.get('drive.folders.player');
                         }
-
-                    a.list-group-item.list-group-item-action(href=driveLink target="_blank")
-                        i.fab.fa-google-drive.mr-1
-                        | Google Drive
-                        i.fa.fa-external-link.ml-1
+                        if (checkPermission('gm') && currentCampaign.staff_drive_folder){
+                            driveLink = currentCampaign.staff_drive_folder;
+                        } else if (checkPermission('contrib') && currentCampaign.npc_drive_folder){
+                            driveLink = currentCampaign.npc_drive_folder
+                        }
+                    if driveLink
+                        a.list-group-item.list-group-item-action(href=driveLink target="_blank")
+                            i.fab.fa-google-drive.mr-1
+                            | Google Drive
+                            i.fa.fa-external-link.ml-1
                     - user = session.assumed_user ?  session.assumed_user : activeUser
                     if user.drive_folder
                         a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
@@ -92,11 +58,12 @@ append content
                             | Personal Drive Folder
                             i.fa.fa-external-link.ml-1
                     if checkPermission('contrib')
-                        a.list-group-item.list-group-item-action(href=config.get('drive.folders.player')  target="_blank")
-                            i.fab.fa-google-drive.mr-1
-                            | Player Drive
+                        if currentCampaign.player_drive_folder
+                            a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")
+                                i.fab.fa-google-drive.mr-1
+                                | Player Drive
 
-                            i.fa.fa-external-link.ml-1
+                                i.fa.fa-external-link.ml-1
                     else
                         a.list-group-item.list-group-item-action(href='/skill/doc')
                             i.fa.fa-file-alt.mr-1

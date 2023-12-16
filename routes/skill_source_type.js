@@ -14,7 +14,7 @@ async function list(req, res, next){
         current: 'Source Types'
     };
     try {
-        res.locals.skill_source_types = await req.models.skill_source_type.list();
+        res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id: req.campaign.id});
         res.locals.title += ' - Skill Source Types';
         res.render('skill_source_type/list', { pageTitle: 'Skill Source Types' });
     } catch (err){
@@ -26,6 +26,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill_source_type = await req.models.skill_source_type.get(id);
+        if (!skill_source_type || skill_source_type.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Source Type');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -79,6 +82,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill_source_type = await req.models.skill_source_type.get(id);
+        if (!skill_source_type || skill_source_type.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Source Type');
+        }
         res.locals.skill_source_type = skill_source_type;
         if (_.has(req.session, 'skill_source_typeData')){
             res.locals.skill_source_type = req.session.skill_source_typeData;
@@ -103,6 +109,7 @@ async function create(req, res, next){
     const skill_source_type = req.body.skill_source_type;
 
     req.session.skill_source_typeData = skill_source_type;
+    skill_source_type.campaign_id = req.campaign.id;
 
     try{
         const id = await req.models.skill_source_type.create(skill_source_type);
@@ -123,6 +130,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.skill_source_type.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.skill_source_type.update(id, skill_source_type);
         await req.audit('skill_source_type', id, 'update', {old: current, new:skill_source_type});
@@ -140,6 +150,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.skill_source_type.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.skill_source_type.delete(id);
         await req.audit('skill_source_type', id, 'delete', {old: current});
         req.flash('success', 'Removed Source Types');

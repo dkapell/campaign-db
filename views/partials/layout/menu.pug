@@ -9,67 +9,86 @@
             li.nav-item(class= siteSection==='home'?"active":null)
                 a.nav-link(href="/") Home
                     span.sr-only (current)
-            if checkPermission('event')
-                li.nav-item.dropdown(class= siteSection==='gm'?"active":null)
-                    a.nav-link.dropdown-toggle#gmDropdown(
+            if currentCampaign.id
+                if checkPermission('event')
+                    li.nav-item.dropdown(class= siteSection==='gm'?"active":null)
+                        a.nav-link.dropdown-toggle#gmDropdown(
+                            href='#'
+                            role='button'
+                            data-toggle='dropdown'
+                            aria-haspopup="true"
+                            aria-expanded="false") GM Stuff
+                        .dropdown-menu(aria-labelledby="gmDropdown")
+                            if checkPermission('contrib')
+                                a.dropdown-item(href='/skill') Skills
+
+                            if checkPermission('contrib')
+                                .dropdown-divider
+                                a.dropdown-item(href='/character') Characters
+
+                if checkPermission('player') && !checkPermission('event')
+                    li.nav-item
+                        a.nav-link(href=config.get('drive.folders.player') target="_blank") Google Drive
+                                i.fa.fa-external-link.ml-1
+                    li.nav-item.dropdown(class= siteSection==='character'?"active":null)
+                        a.nav-link.dropdown-toggle#gmDropdown(
+                            href='#'
+                            role='button'
+                            data-toggle='dropdown'
+                            aria-haspopup="true"
+                            aria-expanded="false") Characters
+                        .dropdown-menu(aria-labelledby="gmDropdown")
+                            a.dropdown-item(href='/character/active') Current Character
+                            a.dropdown-item(href='/character') All Characters
+                            a.dropdown-item(href='/skill/doc') Skills
+
+
+
+                li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
+                    a.nav-link.dropdown-toggle#worldbuildingDropdown(
                         href='#'
                         role='button'
                         data-toggle='dropdown'
                         aria-haspopup="true"
-                        aria-expanded="false") GM Stuff
-                    .dropdown-menu(aria-labelledby="gmDropdown")
-                        if checkPermission('contrib')
-                            a.dropdown-item(href='/skill') Skills
+                        aria-expanded="false") Setting
+                    .dropdown-menu(aria-labelledby="worldbuildingDropdown")
+                            if checkPermission('contrib') || checkPermission('player')
+                                a.dropdown-item(href='/glossary') Glossary
+                            if currentCampaign.display_map
+                                a.dropdown-item(href='/map') World Map
 
-                        if checkPermission('contrib')
-                            .dropdown-divider
-                            a.dropdown-item(href='/character') Characters
+                if checkPermission('gm')
+                    li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
+                        a.nav-link.dropdown-toggle#adminDropdown(
+                            href='#'
+                            role='button'
+                            data-toggle='dropdown'
+                            aria-haspopup="true"
+                            aria-expanded="false") Admin
+                        .dropdown-menu(aria-labelledby="adminDropdown")
+                            a.dropdown-item(href='/user') Users
+                            a.dropdown-item(href='/audit') Audits
+                            if checkPermission('admin')
+                                a.dropdown-item(href='/skill_status') Skill Statuses
+                                a.dropdown-item(href='/glossary_status') Glossary Statuses
+                                a.dropdown-item(href=`/admin/campaign/${currentCampaign.id}`) Campaign Settings
 
-            if checkPermission('player') && !checkPermission('event')
-                li.nav-item
-                    a.nav-link(href=config.get('drive.folders.player') target="_blank") Google Drive
-                            i.fa.fa-external-link.ml-1
-                li.nav-item.dropdown(class= siteSection==='character'?"active":null)
-                    a.nav-link.dropdown-toggle#gmDropdown(
-                        href='#'
-                        role='button'
-                        data-toggle='dropdown'
-                        aria-haspopup="true"
-                        aria-expanded="false") Characters
-                    .dropdown-menu(aria-labelledby="gmDropdown")
-                        a.dropdown-item(href='/character/active') Current Character
-                        a.dropdown-item(href='/character') All Characters
-                        a.dropdown-item(href='/skill/doc') Skills
-
-
-
-            li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
-                a.nav-link.dropdown-toggle#worldbuildingDropdown(
-                    href='#'
-                    role='button'
-                    data-toggle='dropdown'
-                    aria-haspopup="true"
-                    aria-expanded="false") Setting
-                .dropdown-menu(aria-labelledby="worldbuildingDropdown")
-                        if checkPermission('contrib') || checkPermission('player')
-                            a.dropdown-item(href='/glossary') Glossary
-                        a.dropdown-item(href='/map') World Map
-
-            if checkPermission('gm')
-                li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
-                    a.nav-link.dropdown-toggle#adminDropdown(
-                        href='#'
-                        role='button'
-                        data-toggle='dropdown'
-                        aria-haspopup="true"
-                        aria-expanded="false") Admin
-                    .dropdown-menu(aria-labelledby="adminDropdown")
-                        a.dropdown-item(href='/user') Users
-                        a.dropdown-item(href='/audit') Audits
-                        if checkPermission('admin')
-                            a.dropdown-item(href='/variable') Variables
-                            a.dropdown-item(href='/skill_status') Skill Statuses
-                            a.dropdown-item(href='/glossary_status') Glossary Statuses
+            else
+                if checkPermission('admin')
+                    li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
+                        a.nav-link.dropdown-toggle#adminDropdown(
+                            href='#'
+                            role='button'
+                            data-toggle='dropdown'
+                            aria-haspopup="true"
+                            aria-expanded="false") Site Admin
+                        .dropdown-menu(aria-labelledby="adminDropdown")
+                            a.dropdown-item(href='/user')
+                                i.fas.fa-users-cog.fa-fw.mr-1
+                                |  Users
+                            a.dropdown-item(href='/admin/campaign')
+                                i.fas.fa-dice-d20.fa-fw.mr-1
+                                |  Campaigns
 
         ul.navbar-nav.float-right
             if activeUser

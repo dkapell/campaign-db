@@ -1,0 +1,44 @@
+extends ../../layout
+
+block content
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.table-filtered.table-hover.my-3.dt-responsive.nowrap.table-sm.data-table.w-100( style="display: none")
+            thead
+                tr
+                    th(data-order='asc') Name
+                    th Email
+                    th Site Admin
+                    th(data-partialmatch="true") Campaigns
+                    th(data-priority="1")
+
+            tbody
+                for user in users
+                    tr
+                        td= user.name
+                        td= user.email
+                        td= user.site_admin?'Yes':'No'
+                        td(data-search=(_.pluck(user.campaigns, 'name')).join(','))
+                            =(user.campaigns.map(function(game){ return `${campaign.name}: ${campaign.type}`})).join(', ')
+                        td.text-right
+                            a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                role="button",
+                                url=`/user/${user.id}`,
+                                data-back='/user'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-toggle="tooltip"]').tooltip({
+                delay: { 'show': 500, 'hide': 100 },
+                placement:'auto'
+            });
+        });
+

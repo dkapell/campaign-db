@@ -14,6 +14,7 @@ const models = {
 };
 
 const tableFields = [
+    'campaign_id',
     'name',
     'summary',
     'description',
@@ -79,20 +80,23 @@ exports.find = async function(conditions, options){
     }
 };
 
-exports.findOne = async function (conditions){
-    const result = await exports.find(conditions);
+exports.findOne = async function (campaignId, conditions){
+    const result = await exports.find(campaignId, conditions);
     if (!result.length){ return null; }
     return fill(result[0]);
 };
 
 
-exports.list = async function(){
-    return exports.find({});
+exports.list = async function(campaignId){
+    return exports.find(campaignId, {});
 };
 
 exports.create = async function(data, cb){
     if (! validate(data)){
         throw new Error('Invalid Data');
+    }
+    if (!_.has(data, 'campaign_id')){
+        throw new Error('Campaign Id must be specified');
     }
     const queryFields = [];
     const queryData = [];
@@ -129,6 +133,9 @@ exports.update = async function(id, data, cb){
         data.updated = new Date();
     }
     for (const field of tableFields){
+        if (field === 'campaign_id'){
+            continue;
+        }
         if (_.has(data, field)){
             queryUpdates.push(field + ' = $' + (queryUpdates.length+2));
             queryData.push(data[field]);

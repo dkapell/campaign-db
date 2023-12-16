@@ -24,9 +24,5 @@
         },
         "root": "DRIVE_ROOT"
 
-    },
-    "skill": {
-        "showAll": "SHOW_ALL_SKILLS"
     }
-
 }

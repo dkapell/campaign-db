@@ -1,5 +1,6 @@
 const express = require('express');
 const csrf = require('csurf');
+const async = require('async');
 const _ = require('underscore');
 const permission = require('../lib/permission');
 
@@ -12,9 +13,27 @@ async function list(req, res, next){
         current: 'Users'
     };
     try {
-        res.locals.users = await req.models.user.list();
-        res.locals.title += ' - Users';
-        res.render('user/list', { pageTitle: 'Users' });
+        if (req.campaign.id){
+            res.locals.users = await req.models.user.find(req.campaign.id, {});
+            res.locals.title += ' - Users';
+            res.render('user/list', { pageTitle: 'Users' });
+        } else {
+            const campaigns = await req.models.campaign.find();
+            const users = await req.models.user.find();
+            res.locals.users = await async.map(users, async(user) => {
+                user.campaigns = (await req.models.campaign_user.find({user_id: user.id})).map(user_campaign => {
+                    const campaign = _.findWhere(campaigns, {id: user_campaign.campaign_id});
+                    return {
+                        name: campaign.name,
+                        type: user_game.type,
+                        campaign_id: campaign.id
+                    };
+                });
+                return user;
+            });
+            res.locals.campaigns = campaigns;
+            res.render('admin/user/list', { pageTitle: 'All Users' });
+        }
     } catch (err){
         next(err);
     }
@@ -25,7 +44,7 @@ async function show(req, res, next){
     res.locals.csrfToken = req.csrfToken();
     try{
 
-        const user = await req.models.user.get(id);
+        const user = await req.models.user.get(req.campaign.id, id);
         if (!user){
             return res.status(404);
         }
@@ -80,7 +99,7 @@ async function showEdit(req, res, next){
     res.locals.csrfToken = req.csrfToken();
 
     try {
-        const user = await req.models.user.get(id);
+        const user = await req.models.user.get(req.campaign.id, id);
         res.locals.user = user;
         if (_.has(req.session, 'userData')){
             res.locals.furniture = req.session.userData;
@@ -110,7 +129,7 @@ async function create(req, res, next){
     req.session.userData = user;
 
     try{
-        await req.models.user.create(user);
+        await req.models.user.create(req.campaign.id, user);
         delete req.session.userData;
         req.flash('success', 'Created User ' + user.name);
         res.redirect('/user');
@@ -126,17 +145,17 @@ async function update(req, res, next){
     req.session.userData = user;
 
     try {
-        const current = await req.models.user.get(id);
+        const current = await req.models.user.get(req.campaign.id, id);
 
         const currentUser = req.session.assumed_user ? req.session.assumed_user: req.user;
-
-        if (currentUser.user_type !== 'admin'){
+        console.log(currentUser)
+        if (! (currentUser.type === 'admin' || current.site_admin)){
             delete user.name;
             delete user.email;
-            delete user.user_type;
+            delete user.type;
         }
 
-        await req.models.user.update(id, user);
+        await req.models.user.update(req.campaign.id, id, user);
         delete req.session.userData;
         req.flash('success', 'Updated User ' + current.name);
         if (req.body.backto && req.body.backto==='list'){
@@ -154,7 +173,7 @@ async function update(req, res, next){
 async function remove(req, res, next){
     const id = req.params.id;
     try {
-        await req.models.user.delete(id);
+        await req.models.user.delete(req.campaign.id, id);
         req.flash('success', 'Removed User');
         res.redirect('/user');
     } catch(err) {
@@ -164,7 +183,7 @@ async function remove(req, res, next){
 
 async function assume(req, res, next){
     try{
-        const user = await req.models.user.get(req.params.id);
+        const user = await req.models.user.get(req.campaign.id, req.params.id);
         if (!user){
             req.flash('error', 'No User Found');
             return res.redirect('/user');

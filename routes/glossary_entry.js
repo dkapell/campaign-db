@@ -16,13 +16,13 @@ async function list(req, res, next){
         current: 'Glossary'
     };
     try {
-        const glossary_entries = await req.models.glossary_entry.list();
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'));
+        const glossary_entries = await req.models.glossary_entry.find({campaign_id: req.campaign.id});
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
         res.locals.listName = 'All Entries';
         res.locals.listType = 'all';
-        res.locals.reviewReady = await glossaryHelper.reviewReady();
+        res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
         res.locals.title += ' - Glossary';
         res.render('glossary/list');
     } catch (err){
@@ -34,6 +34,9 @@ async function listTag(req, res, next){
     const tagId = req.params.id;
     try{
         const tag = await req.models.glossary_tag.get(tagId);
+        if (tag.campaign_id !== req.campaign.id){
+            throw new Error('Can not get entries from different campaign');
+        }
 
         res.locals.breadcrumbs = {
             path: [
@@ -44,13 +47,13 @@ async function listTag(req, res, next){
         };
 
         const glossary_entries = await req.models.glossary_entry.listByTag(tagId);
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'));
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
         res.locals.glossary_tag = tag;
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
         res.locals.listName = `Tag: ${tag.name}`;
         res.locals.listType = 'tag';
-        res.locals.reviewReady = await glossaryHelper.reviewReady();
+        res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
         res.locals.title += ` - Glossary - ${tag.name}`;
         res.render('glossary/list');
     } catch (err){
@@ -64,7 +67,7 @@ async function listStatus(req, res, next){
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
 
-        const status = await req.models.glossary_status.findOne({name:statusName});
+        const status = await req.models.glossary_status.findOne({name:statusName, campaign_id:req.campaign.id});
         if (!status){
             res.locals.breadcrumbs = {
                 path: [
@@ -75,7 +78,7 @@ async function listStatus(req, res, next){
             };
             res.locals.glossary_entries = [];
             res.locals.glossary_status = {name: 'Not Found'};
-            res.locals.reviewReady = await glossaryHelper.reviewReady();
+            res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
             return res.render('glossary/list');
 
         }
@@ -88,11 +91,11 @@ async function listStatus(req, res, next){
         };
 
         const glossary_entries = await req.models.glossary_entry.find({status_id:status.id});
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'));
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
         res.locals.glossary_status = status;
         res.locals.listName = `Status: ${res.locals.capitalize(status.name)}`;
         res.locals.listType = 'status';
-        res.locals.reviewReady = await glossaryHelper.reviewReady();
+        res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
         res.locals.title += ` - Glossary - ${res.locals.capitalize(status.name)}`;
         res.render('glossary/list');
     } catch (err){
@@ -111,14 +114,14 @@ async function search(req, res, next){
             current: 'Search'
         };
 
-        const glossary_entries = await req.models.glossary_entry.search(query);
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'));
+        const glossary_entries = await req.models.glossary_entry.search(req.campaign.id, query);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
         res.locals.searchQuery = query;
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
         res.locals.listName = 'Search Results';
         res.locals.listType = 'search';
-        res.locals.reviewReady = await glossaryHelper.reviewReady();
+        res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
         res.locals.title += ' - Glossary - Search Results';
         res.render('glossary/list');
     } catch (err){
@@ -130,6 +133,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const glossary_entry = await req.models.glossary_entry.get(id);
+        if (!glossary_entry || glossary_entry.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Glossary Entry');
+        }
         if (!res.locals.checkPermission('gm') || (glossary_entry.status && glossary_entry.status.display_to_pc)){
             req.flash('warning', 'No permission to view this entry');
             return res.redirect('/glossary');
@@ -143,8 +149,8 @@ async function show(req, res, next){
         };
         if (glossary_entry.content){
             glossary_entry.content = {
-                anchor: await glossaryHelper.format(glossary_entry.content, true, res.locals.checkPermission('contrib')),
-                entry: await glossaryHelper.format(glossary_entry.content, false, res.locals.checkPermission('contrib')),
+                anchor: await glossaryHelper.format(glossary_entry.content, true, res.locals.checkPermission('contrib'), req.campaign.id),
+                entry: await glossaryHelper.format(glossary_entry.content, false, res.locals.checkPermission('contrib'), req.campaign.id),
             };
         }
         res.locals.glossary_entry = glossary_entry;
@@ -193,6 +199,9 @@ async function showEdit(req, res, next){
 
     try{
         const glossary_entry = await req.models.glossary_entry.get(id);
+        if (!glossary_entry || glossary_entry.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Glossary Entry');
+        }
         res.locals.glossary_entry = glossary_entry;
         if (_.has(req.session, 'glossary_entryData')){
             res.locals.glossary_entry = req.session.glossary_entryData;
@@ -232,6 +241,7 @@ async function create(req, res, next){
     });
 
     req.session.glossary_entryData = glossary_entry;
+    glossary_entry.campaign_id = req.campaign.id;
 
     try{
         const id = await req.models.glossary_entry.create(glossary_entry);
@@ -267,7 +277,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.glossary_entry.get(id);
-
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.glossary_entry.update(id, glossary_entry);
         await req.audit('glossary_entry', id, 'update', {old: current, new:glossary_entry});
@@ -285,6 +297,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.glossary_entry.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.glossary_entry.delete(id);
         await req.audit('glossary_entry', id, 'delete', {old: current});
         req.flash('success', `Removed Entry ${current.name}`);
@@ -299,7 +314,7 @@ async function renderPreview(req, res, next){
     try {
         res.json({
             success:true,
-            content: await glossaryHelper.format(content, true, res.locals.checkPermission('gm'))
+            content: await glossaryHelper.format(content, true, res.locals.checkPermission('gm'), req.campaign.id)
         });
     } catch (err){
         res.json({success:false, error:err});

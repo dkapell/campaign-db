@@ -19,9 +19,12 @@ const models = require('./lib/models');
 const permission = require('./lib/permission');
 const audit = require('./lib/audit');
 
+
+
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
+const adminCampaignRouter = require('./routes/admin/campaign');
 
 const skillRouter = require('./routes/skill');
 const skillSourceRouter = require('./routes/skill_source');
@@ -109,6 +112,38 @@ app.use(function(req, res, next){
 app.use(permission());
 app.use(audit());
 
+// Figure out what campaign is active, based on URL
+app.use(async function(req, res, next){
+    let campaign = await models.campaign.getBySite(req.headers.host);
+    if (!campaign){
+        campaign = {
+            id: 0,
+            name: `${config.get('app.name')} Admin Site`,
+            theme: 'Flatly',
+            css: '',
+            site: req.headers.host,
+            default_to_player: false
+        };
+    }
+    req.campaign = campaign;
+
+    res.locals.currentCampaign = campaign;
+    res.locals.cssTheme = config.get(`themes.${campaign.theme}.dir`);
+
+    req.session.campaignId = campaign.id;
+    if (req.campaign.google_client_id && req.campaign.google_client_secret){
+        if (!_.has(passport._strategies, `google-campaign-${campaign.id}`)){
+            passport.use(`google-campaign-${campaign.id}`, new GoogleStrategy({
+                clientID: req.campaign.google_client_id,
+                clientSecret: req.campaign.google_client_secret,
+                callbackURL: config.get('auth.callbackURL'),
+                passReqToCallback: true
+            }, passportVerifyGoogle));
+        }
+    }
+    next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -116,9 +151,9 @@ passport.serializeUser(function(user, cb) {
     cb(null, user.id);
 });
 
-passport.deserializeUser(async function(id, cb) {
+passport.deserializeUser(async function(req, id, cb) {
     try{
-        const user = await models.user.get(id);
+        const user = await models.user.get(req.campaign.id, id);
         cb(null, user);
     } catch (err){
         cb(err);
@@ -128,27 +163,30 @@ passport.deserializeUser(async function(id, cb) {
 passport.use(new GoogleStrategy({
     clientID: config.get('auth.clientID'),
     clientSecret: config.get('auth.clientSecret'),
-    callbackURL: config.get('auth.callbackURL')
-},
-async function(accessToken, refreshToken, profile, cb) {
+    callbackURL: config.get('auth.callbackURL'),
+    passReqToCallback: true
+}, passportVerifyGoogle));
+
+async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb) {
     try{
-        const user = await models.user.findOrCreate({
+        const user = await models.user.findOrCreate(req.campaign.id, {
             name: profile.displayName,
             google_id: profile.id,
-            email: profile.emails[0].value
+            email: profile.emails[0].value,
+            type: req.campaign.default_to_player?'player':'none'
         });
         cb(null, user);
     } catch (err) {
         cb(err);
     }
-})
-);
+}
 
 // Set common helpers for the view
 app.use(function(req, res, next){
     res.locals.config = config;
     res.locals.session = req.session;
-    res.locals.title = config.get('app.name');
+    res.locals.siteName = req.campaign.name;
+    res.locals.title = req.campaign.name;
     res.locals._ = _;
     res.locals.moment = moment;
     res.locals.activeUser = req.user;
@@ -175,6 +213,8 @@ app.use('/glossary_status', glossaryStatusRouter);
 app.use('/glossary', glossaryEntryRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
+
+app.use('/admin/campaign', adminCampaignRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

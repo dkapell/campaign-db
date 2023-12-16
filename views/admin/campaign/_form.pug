@@ -1,0 +1,88 @@
+.form-row.my-2
+    .col-md-3
+        label.control-label(for="campaign_name") Name
+    .col
+        input.form-control(type="text",placeholder="Campaign Name",name="campaign[name]",value=campaign.name,id='campaign_name')
+
+.form-row.my-2
+    .col-md-3
+        label.control-label(for="campaign_site") Campaign Site URL
+    .col
+        input.form-control#campaign_site(type="text",placeholder="URL",name="campaign[site]",value=campaign.site)
+        div.invalid-feedback Must be a valid, unique URL
+
+.form-row.my-2
+    .col
+        label.control-label(for="campaign_description") Description (Front page)
+        +htmlEditor('campaign_description', 'campaign[description]', 4, 200, campaign.description, true)
+
+.form-row.my-2
+    .col
+        .custom-control.custom-switch
+            input.custom-control-input#campaign_default_to_player(type="checkbox", name="campaign[default_to_player]", checked=campaign.default_to_player)
+            label.custom-control-label(for="campaign_default_to_player") Default new users to Players
+
+.form-row.my-2
+    .col
+        .custom-control.custom-switch
+            input.custom-control-input#campaign_display_map(type="checkbox", name="campaign[campaign_display_map]", checked=campaign.campaign_display_map)
+            label.custom-control-label(for="campaign_display_map") Display Map
+
+fieldset.mb-2.border.p-2.rounded
+    label.h5 Display Options
+
+    .form-row.my-2
+        .col-md-2
+            label.control-label(for="campaign_theme") Theme
+        .col
+            select.custom-select.select2#campaign_theme(name="campaign[theme]" data-placeholder="Theme", required)
+                option
+                for theme in themes
+                    option(value=theme, selected=campaign.theme===theme)= theme
+
+    .form-row.my-2
+        .col
+            label.control-label.w-100#css-heading(for="campaign_css", data-toggle="collapse" data-target="#css-container" aria-expanded="false") Custom CSS
+                i.expand-text-shown.ml-4 (click to hide editor)
+                i.expand-text.ml-4 (click to show editor)
+                span.float-right.pl-2
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
+
+            #css-container.collapse(aria-labeledby="css-heading")
+                +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
+
+fieldset.mb-2.border.p-2.rounded
+    label.h5 Google Drive Options
+    .form-row.my-2
+        .col-md-4
+            label.control-label(for="campaign_staff_drive") Staff Drive Folder
+        .col
+            input.form-control#campaign_staff_drive(placeholder="URL",name="campaign[staff_drive_folder]",value=campaign.staff_drive_folder)
+    .form-row.my-2
+        .col-md-4
+            label.control-label(for="campaign_npc_drive") NPC Drive Folder
+        .col
+            input.form-control#campaign_npc_drive(placeholder="URL",name="campaign[npc_drive_folder]",value=campaign.npc_drive_folder)
+    .form-row.my-2
+        .col-md-4
+            label.control-label(for="campaign_player_drive") Player Drive Folder
+        .col
+            input.form-control#campaign_player_drive(placeholder="URL",name="campaign[player_drive_folder]",value=campaign.player_drive_folder)
+fieldset.mb-2.border.p-2.rounded
+    label.h5 Authentication Options
+    .form-row.my-2
+
+        .col-md-4
+            label.control-label(for="campaign_google_client_id") Google OAuth Client ID
+        .col
+            input.form-control#campaign_google_client_id(placeholder="OAuth Client ID",name="campaign[google_client_id]",value=campaign.google_client_id)
+    .form-row.my-2
+        .col-md-4
+            label.control-label(for="campaign_google_client_secret") Google OAuth Client Secret
+        .col
+            input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
+
+.form-group
+    button.btn.btn-primary(type="submit")= campaign.id?'Update':'Create'
+    a.btn.btn-link(href="/admin/campaign") Cancel

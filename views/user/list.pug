@@ -22,7 +22,7 @@ block content
                         td
                             a(href='/user/' + user.id)= user.name
                         td= user.email
-                        td= capitalize(user.user_type)
+                        td= capitalize(user.type)
                         td
                             if user.staff_drive_folder
                                 a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(

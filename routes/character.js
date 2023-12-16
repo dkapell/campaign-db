@@ -19,10 +19,10 @@ async function list(req, res, next){
     };
     try {
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.user_type === 'player'){
-            res.locals.characters = await req.models.character.find({user_id:user.id});
+        if (user.type === 'player'){
+            res.locals.characters = await req.models.character.find({user_id:user.id, campaign_id:req.campaign.id});
         } else {
-            const characters = await req.models.character.find();
+            const characters = await req.models.character.find({campaign_id:req.campaign.id});
             res.locals.characters = await async.map(characters, async (character) => {
                 if (character.user_id){
                     character.user = await req.models.user.get(Number(character.user_id));
@@ -42,8 +42,8 @@ async function list(req, res, next){
 async function showCurrent(req, res, next){
     try{
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.user_type === 'player'){
-            const character = await req.models.character.findOne({user_id: user.id, active: true});
+        if (user.type === 'player'){
+            const character = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (character){
                 return res.redirect(`/character/${character.id}`);
             }
@@ -63,6 +63,9 @@ async function show(req, res, next){
         if (!character._data){
             req.flash('warning', 'Character not found');
             return res.redirect('character/list');
+        }
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
         }
         res.locals.character = await character.data();
 
@@ -87,6 +90,9 @@ async function showData(req, res, next){
     try{
         const character = new Character({id:id});
         await character.init();
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
         res.json({success:true, character:await character.data()});
     } catch(err){
         next(err);
@@ -99,7 +105,9 @@ async function showCp(req, res, next){
     try{
         const character = new Character({id:id});
         await character.init();
-
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
         res.json({success:true, cp: await character.cp()});
     } catch(err){
         next(err);
@@ -111,7 +119,9 @@ async function showAudits(req, res, next){
     try{
         const character = new Character({id:id});
         await character.init();
-
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
         res.json({success:true, audits: await character.audits()});
     } catch(err){
         next(err);
@@ -123,6 +133,9 @@ async function showPdf(req, res, next){
     try{
         const character = new Character({id:id});
         await character.init();
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
         const pdf = await character.pdf(req.query.descriptions, req.query.languages);
 
         pdf.pipe(res);
@@ -144,10 +157,9 @@ async function showNew(req, res, next){
             user_id: user.id,
             active: false,
             activeRequired: false,
-            foreordainment: null,
             extra_traits: null,
         };
-        if ((await req.models.character.find({user_id: user.id})).length === 0){
+        if ((await req.models.character.find({user_id: user.id, campaign_id:req.campaign.id})).length === 0){
             res.locals.character.active = true;
             res.locals.character.activeRequired = true;
         }
@@ -159,8 +171,8 @@ async function showNew(req, res, next){
             ],
             current: 'New'
         };
-        res.locals.users = (await req.models.user.list()).filter(user => {
-            return user.user_type !== 'none';
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
         });
         res.locals.csrfToken = req.csrfToken();
 
@@ -182,6 +194,10 @@ async function showEdit(req, res, next){
 
     try{
         const character = await req.models.character.get(id);
+        if (!character || character.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         res.locals.character = character;
         if (_.has(req.session, 'characterData')){
             res.locals.character = req.session.characterData;
@@ -194,8 +210,8 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + character.name
         };
-        res.locals.users = (await req.models.user.list()).filter(user => {
-            return user.user_type !== 'none';
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
         });
         res.locals.title += ` - Edit Character - ${character.name}`;
         res.render('character/edit');
@@ -224,18 +240,19 @@ async function clone(req, res, next){
 
 async function create(req, res, next){
     const characterData = req.body.character;
+    characterData.campaign_id = req.campaign.id;
 
     req.session.characterData = characterData;
 
     try{
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.user_type === 'player' || !characterData.user_id){
+        if (user.type === 'player' || !characterData.user_id){
             characterData.user_id = user.id;
         }
         const character = new Character(characterData);
         await character.init();
 
-        if (user.user_type === 'player' && (await req.models.character.find({user_id: user.id})).length === 1){
+        if (user.type === 'player' && (await req.models.character.find({user_id: user.id})).length === 1){
             await character.activate();
         } else if (_.has(characterData, 'active')){
             await character.activate();
@@ -258,6 +275,9 @@ async function update(req, res, next){
 
     try {
         const oldCharacter = await req.models.character.get(id);
+        if (oldCharacter.campaign_id!== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
         const character = new Character({id:id});
         await character.init();
 
@@ -281,6 +301,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.character.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.character.delete(id);
         await req.audit('character', id, 'delete', {old: current});
         req.flash('success', 'Removed Character');
@@ -296,6 +319,10 @@ async function showSkill(req, res, next){
     try{
         const character = new Character({id:characterId});
         await character.init();
+
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
 
         const doc = {
             character_skill: await character.skill(skillId)
@@ -320,6 +347,10 @@ async function showSources(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         const doc = {
             csrfToken: req.csrfToken(),
             sources: await character.sources(),
@@ -337,6 +368,10 @@ async function showSkills(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         const doc = {
             csrfToken: req.csrfToken(),
             skills: await character.skills(),
@@ -353,6 +388,10 @@ async function showAddSkillApi(req, res, next){
     try{
         const character = new Character({id:characterId});
         await character.init();
+
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
 
         const doc = {
             csrfToken: req.csrfToken(),
@@ -389,6 +428,10 @@ async function showEditSkillApi(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         const doc = {
             csrfToken: req.csrfToken(),
             possibleSkills: [],
@@ -421,9 +464,13 @@ async function addSkill(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         try{
             const skill = await req.models.skill.get(skillId);
-            if (!skill){
+            if (!skill || skill.campaign_id !== req.campaign.id){
                 throw new Error('Skill not found');
             }
             const details = formatDetails(skill.provides, req.body.character_skill.details);
@@ -445,6 +492,10 @@ async function editSkill(req, res, next){
     try{
         const character = new Character({id:characterId});
         await character.init();
+
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
 
         try{
             const skill = await character.skill(characterSkillId);
@@ -529,6 +580,10 @@ async function removeSkill(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         try {
             const details = await character.removeSkill(skillId);
             await req.audit('character', character.id, 'remove skill', {characterSkill: details.id, skill: details.skill_id});
@@ -547,6 +602,10 @@ async function showSource(req, res, next){
     try{
         const character = new Character({id:characterId});
         await character.init();
+
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
 
         const doc = {
             character_skill_source: await character.source(sourceId)
@@ -571,9 +630,13 @@ async function showAddSourceApi(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         const doc = {
             csrfToken: req.csrfToken(),
-            possibleSources: await character.possibleSources(),
+            possibleSources: await character.possibleSources(req.campaign.id),
         };
         doc.character_skill_source = {
             character_id: characterId,
@@ -602,9 +665,13 @@ async function addSource(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         try{
             const source = await req.models.skill_source.get(sourceId);
-            if (!source){
+            if (!source || source.campaign_id !== req.campaign.id){
                 throw new Error('Source not found');
             }
             await character.addSource(sourceId);
@@ -626,6 +693,10 @@ async function removeSource(req, res, next){
         const character = new Character({id:characterId});
         await character.init();
 
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         try {
             await character.removeSource(sourceId);
             await req.audit('character', character.id, 'remove source', {source: sourceId});
@@ -644,6 +715,11 @@ async function recalculate(req, res, next){
     try {
         const character = new Character({id:id});
         await character.init();
+
+        if (character._data.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Character');
+        }
+
         await character.recalculateCP();
         return res.json({success:true});
     } catch(err){
@@ -654,7 +730,7 @@ async function recalculate(req, res, next){
 async function recalculateAll(req, res, next){
     try {
 
-        const characters = await req.models.character.find({});
+        const characters = await req.models.character.find({campaign_id:req.campaign.id});
         for (const characterData of characters){
             const character = new Character({id:characterData.id});
             await character.init();
@@ -671,6 +747,9 @@ async function checkAllowed(req, res, next){
     const characterId = req.params.id;
     if (!characterId){ return next(); }
     const character = await req.models.character.get(characterId);
+    if (character.campaign_id !== req.campaign.id){
+        throw new Error('Invalid Character');
+    }
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
     if (!character){
         // No character found
@@ -682,7 +761,7 @@ async function checkAllowed(req, res, next){
         res.locals.allowedEdit = true;
         return next();
     }
-    if (!user.user_type.match(/^(admin|core staff)$/)){
+    if (!user.type.match(/^(admin|core staff)$/)){
         // Event Staff can only View
         return next(createError(403));
     }
@@ -696,6 +775,9 @@ async function checkAllowedView(req, res, next){
     if (!characterId){ return next(); }
 
     const character = await req.models.character.get(characterId);
+    if (character.campaign_id !== req.campaign.id){
+        throw new Error('Invalid Character');
+    }
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
     if (!character){
@@ -708,11 +790,11 @@ async function checkAllowedView(req, res, next){
         res.locals.allowedEdit = true;
         return next();
     }
-    if (!user.user_type.match(/^(admin|core staff|contributing staff)$/)){
+    if (!user.type.match(/^(admin|core staff|contributing staff)$/)){
         // Event Staff can only View
         return next(createError(403));
     }
-    if (user.user_type.match(/^(admin|core staff)$/)){
+    if (user.type.match(/^(admin|core staff)$/)){
         res.locals.allowedView = true;
         res.locals.allowedEdit = true;
     } else {
@@ -728,7 +810,7 @@ const router = express.Router();
 router.use(permission('player'));
 router.use(function(req, res, next){
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-    if (user.user_type === 'player'){
+    if (user.type === 'player'){
         res.locals.siteSection='character';
     } else {
         res.locals.siteSection='gm';

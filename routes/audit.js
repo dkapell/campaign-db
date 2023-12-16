@@ -70,7 +70,7 @@ async function query(req, res, next){
             response.recordsFiltered = await req.models.audit.searchCount(req.query.search.value);
         } else {
         */
-        audits = await req.models.audit.find({}, options);
+        audits = await req.models.audit.find({campaign_id:req.campaign.id}, options);
         response.recordsFiltered = await req.models.audit.count();
         // }
         response.data = await async.map(audits, async (audit) => {
@@ -95,6 +95,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const audit = await req.models.audit.get(id);
+            if (!audit || audit.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Audit');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},

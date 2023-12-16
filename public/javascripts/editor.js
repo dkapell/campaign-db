@@ -23,6 +23,75 @@ function renderMarkdownEditor(id, size, showPreview, previewUrl){
 }
 
 
+function renderEditor(id, type, size){
+    const editorConfig = {
+        lineNumbers: true,
+        lineWrapping:true,
+        autoRefresh:true,
+    };
+    const $textarea = $('#' + id);
+    let showMarkdown = false;
+    switch(type){
+        case 'html-md':
+            showMarkdown: true;
+        case 'html':
+            editorConfig.mode = 'htmlmixed';
+            break;
+        case 'json':
+            editorConfig.mode = { name: 'javascript', json: true };
+            break;
+        case 'css':
+            editorConfig.mode = 'css';
+            break;
+    }
+
+    let editor = null;
+
+    editor = CodeMirror.fromTextArea($textarea[0], editorConfig);
+    $textarea.data('editor', editor);
+    editor.setSize(null, size);
+    if (type === 'html'){
+        $('#' + id + '-edit-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+            if ($(e.target).attr('aria-controls') === id + '-preview'){
+                if (type === 'html'){
+                    $('#' + id + '-preview-frame').html($.parseHTML(editor.getValue()));
+                }
+            }
+        });
+    } else if (type === 'html-md'){
+        $('#' + id + '-edit-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+            if ($(e.target).attr('aria-controls') === id + '-preview'){
+                if (type === 'html-md'){
+                    $('#' + id + '-preview-frame').html($.parseHTML(marked(editor.getValue(), {breaks:true} )));
+                }
+            }
+        });
+    } else if (type === 'json'){
+        editor.on('change', function(editor){
+            try{
+                const content = editor.getValue();
+                if (content){
+                    JSON.parse(editor.getValue());
+                }
+                editor.getTextArea().setCustomValidity('');
+                $(editor.getWrapperElement()).removeClass('is-invalid');
+                $(editor.getWrapperElement()).removeClass('border-danger');
+                $(editor.getWrapperElement()).addClass('is-valid');
+                $(editor.getWrapperElement()).addClass('border-success');
+            } catch(e){
+                editor.getTextArea().setCustomValidity('Not valid JSON');
+                $(editor.getWrapperElement()).addClass('is-invalid');
+                $(editor.getWrapperElement()).addClass('border-danger');
+                $(editor.getWrapperElement()).removeClass('is-valid');
+                $(editor.getWrapperElement()).removeClass('border-success');
+            }
+        });
+    }
+    editor.refresh();
+    return editor;
+}
+
+
 async function getPreview(url, content){
     const result = await fetch(url, {
         method:'POST',

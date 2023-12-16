@@ -4,7 +4,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
         small.form-text.text-muted.d-inline.ml-2 Supports
             a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown
                 i.fas.fa-external-link-alt.ml-1
-        textarea.form-control.editor(
+        textarea.form-control.markdown-editor(
             id= id
             rows= rows
             name= name
@@ -40,7 +40,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
                 role="tabpanel"
                 aria-labelledby=`${id}-code-tab`
             )
-                textarea.form-control.editor(
+                textarea.form-control.markdown-editor(
                     id= id
                     rows= rows
                     name= name
@@ -66,14 +66,93 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
                 small.form-text.text-muted.invisible Placeholder
 
 
+mixin htmlEditor(id, name, rows, size, contents, showMd)
+    ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")
+        li.nav-item(role="presentation")
+            a.nav-link.active(
+                id=`${id}-code-tab`
+                data-toggle="tab"
+                href=`#${id}-code`
+                role="tab"
+                aria-controls=`${id}-code`
+                aria-selected="true"
+            ) #{showMd?'HTML/md':'HTML'}
+        li.nav-item(role="presentation")
+            a.nav-link(
+                id=`${id}-preview-tab`
+                data-toggle="tab"
+                href=`#${id}-preview`
+                role="tab"
+                aria-controls=`${id}-preview`
+                aria-selected="false"
+            ) Preview
+    .tab-content.pb-2(id=`${id}-editor`)
+        .tab-pane.fade.show.active(
+            id=`${id}-code`
+            role="tabpanel"
+            aria-labelledby=`${id}-code-tab`
+        )
+            textarea.form-control.editor(
+                id= id
+                rows= rows
+                name= name
+                data-size= size
+                data-type= showMd?'html-md':'html'
+            )
+                = contents
+
+        .tab-pane.fade(
+            id=`${id}-preview`
+            role="tabpanel"
+            aria-labelledby=`${id}-preview-tab`
+        )
+            .card.border-secondary
+                .card-body.overflow-auto.editor-preview(
+                    id=`${id}-preview-frame`
+                    style=`height: ${size-2}px`)
+
+mixin jsonEditor(id, name, rows, size, contents)
+    textarea.form-control.editor(
+        id= id
+        rows= rows
+        name= name
+        data-size= size
+        data-type= 'json',
+        aria-describedby=`editor-feedback-${id}`
+    )
+        = !_.isNull(contents)?JSON.stringify(contents, null, 2):''
+    .invalid-feedback(id=`editor-feedback-${id}`) Not Valid JSON
+
+
+mixin cssEditor(id, name, rows, size, contents)
+    textarea.form-control.editor(
+        id= id
+        rows= rows
+        name= name
+        data-size= size
+        data-type= 'css',
+        aria-describedby=`editor-feedback-${id}`
+    )
+        = contents
+    .invalid-feedback(id=`editor-feedback-${id}`) Not Valid CSS
+
+
 append styles
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/codemirror.min.css")
     link(rel='stylesheet' href='/stylesheets/editor.css')
+
+
 
 append scripts
     script(src='/javascripts/editor.js')
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/codemirror.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/mode/xml/xml.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/mode/css/css.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.56.0/mode/htmlmixed/htmlmixed.min.js")
+
     script.
         $(function() {
-            $('.editor').each(function() {
+            $('.markdown-editor').each(function() {
                 const $this = $(this);
                 const id = $this.attr('id');
                 const size = $this.data('size');
@@ -81,5 +160,14 @@ append scripts
                 const previewUrl = $this.data('previewurl');
                 renderMarkdownEditor(id, size, preview, previewUrl);
             });
+            $('.editor').each(function() {
+                const $this = $(this);
+                const id = $this.attr('id');
+                const type = $this.data('type');
+                const size = $this.data('size');
+                renderEditor(id, type, size);
+            });
+
+
         });
 

@@ -1,0 +1,54 @@
+extends ../../layout
+
+block content
+    a.btn.btn-outline-success(href='/admin/campaign/new')
+        span(class="fa fa-plus")
+        |  New Campaign
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.table-filtered.table-hover.my-3.dt-responsive.nowrap.table-sm.data-table.w-100( style="display: none")
+            thead
+                tr
+                    th
+                    th(data-order='asc') Name
+                    th(data-nofilter="true") Site
+                    th Theme
+                    th Default
+                    th Created By
+                    th
+
+            tbody
+                for campaign in campaigns
+                    tr(class='clickable-row', data-click-object='admin/campaign' data-click-id=campaign.id)
+                        td.dtr-expand
+                        td
+                            a(href='/admin/campaign/' + campaign.id)= campaign.name
+                        td
+                            if campaign.site
+                                a.action-btn(target='_blank' href=`${campaign.site.match(/:/)?'http://':'https://'}${campaign.site}`)
+                                    = campaign.site
+                                    i.fas.fa-external-link-alt.ml-1
+                            else
+                                i Not Set
+
+                        td=campaign.theme
+                        td= campaign.default_to_player?'Player':'None'
+                        td=campaign.user?campaign.user.name:'System'
+
+                        td.text-right
+
+                            a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                role="button",
+                                url=`/admin/campaign/${campaign.id}`,
+                                title='Delete Game'
+                                data-toggle='tooltip'
+                                data-back='/admin/campaign'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

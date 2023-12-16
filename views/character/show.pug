@@ -34,13 +34,7 @@ block content
                             a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
                                 i.fas.fa-file
                                 |  With Skill Descriptions
-                            if checkPermission('contrib')
-                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?languages=true')
-                                    i.fas.fa-file
-                                    |  With Language Guides
-                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true&languages=true')
-                                    i.fas.fa-file
-                                    |  With Languages & Descriptions
+
             .row
                 .col.text-right
 
@@ -64,9 +58,6 @@ block content
                     if source.type.name === 'culture'
                         dt.col-sm-4 Culture
                         dd.col-sm-8.mb-0= source.name
-                if character.foreordainment
-                    dt.col-sm-4 Foreordainment
-                    dd.col-sm-8.mb-0= character.foreordainment
 
 
 

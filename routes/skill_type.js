@@ -14,7 +14,7 @@ async function list(req, res, next){
         current: 'Types'
     };
     try {
-        res.locals.skill_types = await req.models.skill_type.list();
+        res.locals.skill_types = await req.models.skill_type.find({campaign_id: req.campaign.id});
         res.locals.title += ' - Skill Types';
         res.render('skill_type/list', { pageTitle: 'Skill Types' });
     } catch (err){
@@ -26,6 +26,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill_type = await req.models.skill_type.get(id);
+        if (!skill_type || skill_type.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Type');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -76,6 +79,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill_type = await req.models.skill_type.get(id);
+        if (!skill_type || skill_type.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Type');
+        }
         res.locals.skill_type = skill_type;
         if (_.has(req.session, 'skill_typeData')){
             res.locals.skill_type = req.session.skill_typeData;
@@ -101,6 +107,7 @@ async function create(req, res, next){
     const skill_type = req.body.skill_type;
 
     req.session.skill_typeData = skill_type;
+    skill_type.campaign_id = req.campaign.id;
 
     try{
         const id = await req.models.skill_type.create(skill_type);
@@ -121,7 +128,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.skill_type.get(id);
-
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
         await req.models.skill_type.update(id, skill_type);
         await req.audit('skill_type', id, 'update', {old: current, new:skill_type});
         delete req.session.skill_typeData;
@@ -138,6 +147,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.skill_type.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.skill_type.delete(id);
         await req.audit('skill_type', id, 'delete', {old: current});
         req.flash('success', 'Removed Types');

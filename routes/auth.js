@@ -7,13 +7,27 @@ const permission = require('../lib/permission');
 
 const router = express.Router();
 
+
 // GET /auth/google
 //   Use passport.authenticate() as route middleware to authenticate the
 //   request.  The first step in Google authentication will involve
 //   redirecting the user to google.com.  After authorization, Google
 //   will redirect the user back to this application at /auth/google/callback
 router.get('/google',
-    passport.authenticate('google', { scope: [ 'email', 'profile' ]  }));
+    (req, res, next) => {
+        const authConfig = {
+            callbackURL: getCallbackUrl(req, 'google'),
+            scope: [ 'email', 'profile' ]
+        };
+
+        if (req.campaign.google_client_id && req.campaign.google_client_secret){
+            passport.authenticate(`google-campaign-${req.campaign.id}`, authConfig)(req, res, next);
+        } else {
+            passport.authenticate('google', authConfig)(req, res, next);
+        }
+    });
+
+
 
 // GET /auth/google/callback
 //   Use passport.authenticate() as route middleware to authenticate the
@@ -21,8 +35,18 @@ router.get('/google',
 //   login page.  Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
-    function(req, res) {
+    (req, res, next) => {
+        const authConfig = {
+            failureRedirect: '/',
+            callbackURL: getCallbackUrl(req, 'google'),
+        };
+        if (req.campaign.google_client_id && req.campaign.google_client_secret){
+            passport.authenticate(`google-campaign-${req.campaign.id}`, authConfig)(req, res, next);
+        } else {
+            passport.authenticate('google', authConfig)(req, res, next);
+        }
+    },
+    (req, res) => {
         if (_.has(req.session, 'backto')){
             const backto = req.session.backto;
             delete req.session.backto;
@@ -35,7 +59,6 @@ router.get('/google/callback',
 router.get('/logout',
     function logout(req, res, next){
         req.logout();
-        delete req.session.accessToken;
         res.redirect('/');
     });
 
@@ -59,5 +82,21 @@ router.get('/player', permission('player'),
         res.redirect('/');
     });
 
+
+module.exports = router;
+
+
+
+function getCallbackUrl(req, type){
+    let proto = 'http';
+    if (req.headers['x-forwarded-proto'] === 'https'){
+        proto = 'https';
+    }
+    if (config.get('auth.httpsAlways')){
+        proto = 'https';
+    }
+
+    return `${proto}://${req.headers.host}/auth/${type}/callback`;
+}
 
 module.exports = router;

@@ -16,10 +16,10 @@ if checkPermission('admin')
 
     .form-row.my-1
         .col-md
-            label.control-label(for="user_user_type") User Type
-            select.form-control.select2#user_user_type(name="user[user_type]")
+            label.control-label(for="user_type") User Type
+            select.form-control.select2#user_type(name="user[type]")
                 for type in [ 'admin', 'core staff', 'contributing staff', 'event staff', 'player','none']
-                    option(value=type selected=user.user_type===type)= capitalize(type)
+                    option(value=type selected=user.type===type)= capitalize(type)
 
 .form-row.my-1
     .col-md

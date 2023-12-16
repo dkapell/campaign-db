@@ -16,7 +16,7 @@ async function list(req, res, next){
         current: 'Sources'
     };
     try {
-        const skill_sources = await req.models.skill_source.list();
+        const skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await async.map ( skill_sources, async (source) => {
             source.skills = await req.models.skill.find({source_id:source.id}, {skipRelations:true});
             return source;
@@ -32,6 +32,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill_source = await req.models.skill_source.get(id);
+        if (!skill_source || skill_source.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Source');
+        }
         const skills = await req.models.skill.find({source_id:id});
         await async.each(skills, async(skill) => {
             if (skill.status.name === 'Ready'){
@@ -78,6 +81,9 @@ async function showDoc(req, res, next){
     const id = req.params.id;
     try {
         const skill_source = await req.models.skill_source.get(id);
+        if (!skill_source || skill_source.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Source');
+        }
         res.locals.skill_source = skill_source;
 
         res.locals.breadcrumbs = {
@@ -142,8 +148,8 @@ async function showNew(req, res, next){
         };
 
         res.locals.csrfToken = req.csrfToken();
-        res.locals.skill_source_types = await req.models.skill_source_type.list();
-        res.locals.skill_sources = await req.models.skill_source.list();
+        res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
 
         if (_.has(req.session, 'skill_sourceData')){
             res.locals.skill_source = req.session.skill_sourceData;
@@ -167,6 +173,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill_source = await req.models.skill_source.get(id);
+        if (!skill_source || skill_source.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Source');
+        }
         skill_source.provides = skillHelper.fillProvides(skill_source.provides, 1);
 
         res.locals.skill_source = skill_source;
@@ -174,8 +183,8 @@ async function showEdit(req, res, next){
             res.locals.skill_source = req.session.skill_sourceData;
             delete req.session.skill_sourceData;
         }
-        res.locals.skill_source_types = await req.models.skill_source_type.list();
-        res.locals.skill_sources = await req.models.skill_source.list();
+        res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
 
         res.locals.breadcrumbs = {
             path: [
@@ -230,6 +239,7 @@ async function create(req, res, next){
     } else {
         skill_source.require_num = 0;
     }
+    skill_source.campaign_id = req.campaign.id;
 
     try{
         const id = await req.models.skill_source.create(skill_source);
@@ -290,9 +300,11 @@ async function update(req, res, next){
         skill_source.require_num = 0;
     }
 
-
     try {
         const current = await req.models.skill_source.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.skill_source.update(id, skill_source);
         await req.audit('skill_source', id, 'update', {old: current, new:skill_source});
@@ -320,6 +332,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.skill_source.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not remove record from different campaign');
+        }
         await req.models.skill_source.delete(id);
         await req.audit('skill_source', id, 'delete', {old: current});
         req.flash('success', 'Removed Sources');

@@ -14,7 +14,7 @@ async function list(req, res, next){
         current: 'Tags'
     };
     try {
-        res.locals.skill_tags = await req.models.skill_tag.list();
+        res.locals.skill_tags = await req.models.skill_tag.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Skill Tags';
         res.render('skill_tag/list', { pageTitle: 'Skill Tags' });
     } catch (err){
@@ -26,6 +26,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill_tag = await req.models.skill_tag.get(id);
+        if (!skill_tag || skill_tag.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Tag');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -77,6 +80,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill_tag = await req.models.skill_tag.get(id);
+        if (!skill_tag || skill_tag.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Tag');
+        }
         res.locals.skill_tag = skill_tag;
         if (_.has(req.session, 'skill_tagData')){
             res.locals.skill_tag = req.session.skill_tagData;
@@ -107,6 +113,7 @@ async function create(req, res, next){
     if (!_.has(skill_tag, 'on_sheet')){
         skill_tag.on_sheet = false;
     }
+    skill_tag.campaign_id = req.campaign.id;
 
     try{
         const id = await req.models.skill_tag.create(skill_tag);
@@ -133,6 +140,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.skill_tag.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.skill_tag.update(id, skill_tag);
         await req.audit('skill_tag', id, 'update', {old: current, new:skill_tag});
@@ -150,6 +160,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.skill_tag.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.skill_tag.delete(id);
         await req.audit('skill_tag', id, 'delete', {old: current});
         req.flash('success', 'Removed Tag');

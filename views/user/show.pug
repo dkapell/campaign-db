@@ -4,8 +4,11 @@ include ../partials/character.pug
 
 block content
     h2.d-inline= user.name
+
     h4.d-inline.ml-4
         a(href=`mailto:${user.email}`)=user.email
+    h3.float-right
+        span.badge.badge-info=user.type
     
     .row.my-2
         .col

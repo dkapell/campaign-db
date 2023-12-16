@@ -26,14 +26,14 @@ async function showIndex(req, res, next){
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
-        if (user && user.user_type === 'player'){
+        if (user && user.type === 'player'){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true});
             if (characterData){
                 const character = new Character({id:characterData.id});
                 await character.init();
                 res.locals.character = await character.data();
             }
-        } else if (user && user.user_type.match(/^(admin|core staff|contributing staff)$/)){
+        } else if (user && user.type.match(/^(admin|core staff|contributing staff)$/)){
             const characters =  await req.models.character.find({active:true});
             await async.map(characters, async(character) => {
                 if (character.user_id){
@@ -42,7 +42,7 @@ async function showIndex(req, res, next){
                 return character;
             });
             res.locals.characters = characters.filter(character => {
-                return character.user.user_type === 'player';
+                return character.user.type === 'player';
             });
             res.locals.character = null;
 
@@ -54,10 +54,15 @@ async function showIndex(req, res, next){
     res.locals.siteSection='home';
     res.render('index', { title: 'Ritual Larp' });
 }
+function showCss(req, res, next){
+    res.setHeader('content-type', 'text/css');
+    res.send(req.campaign.css);
+}
 
 const router = express.Router();
 
 router.get('/', showIndex);
+router.get('/css', showCss);
 
 module.exports = router;
 

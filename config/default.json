@@ -1,12 +1,12 @@
 {
     "app": {
-        "name": "Ritual Larp",
+        "name": "Character DB",
         "debug": false,
-        "dbURL": "postgres://ritual:ritual@localhost:5432/ritual",
+        "dbURL": null,
         "dbSSL": false,
         "dbPoolSize": 1,
         "sessionType": "local",
-        "sessionSecret": "ritual",
+        "sessionSecret": "character-db",
         "secureOnly": false,
         "logRequests": true,
         "redis":{
@@ -18,17 +18,12 @@
     "auth": {
         "clientID": "clientID",
         "clientSecret": "clientSecret",
-        "callbackURL": "http://localhost:3000/auth/google/callback"
+        "callbackURL": "http://localhost:3000/auth/google/callback",
+        "httpsAlways": false
     },
     "drive": {
         "credentials": {},
-        "root": null,
-        "folders":{
-            "player": "https://drive.google.com/drive/folders/14s0kZyYllsKmpo3_HCpvKDGVuM6sD8Gg",
-            "contrib": "https://drive.google.com/drive/folders/1H2iT1UMM3FjjUb1AF8oUKTb9Di1ls_c6",
-            "staff": "https://drive.google.com/drive/folders/1OfbPyFH5IRoT0lUrVITcGeQhquPzGAwY",
-            "playerFolders": "1aBXlGSBJJ_L8DHYtgBicNfdPMEUFRHhG"
-        }
+        "root": null
     },
     "rulebook": {
         "name": "top",
@@ -44,8 +39,178 @@
             }
         ]
     },
-    "skill":{
-        "showAll": false,
-        "includeLanguages": false
+    "themes": {
+        "Darkly": {
+            "dir": "darkly",
+            "description": "Flatly in night mode"
+        },
+        "Flatly": {
+            "dir": "flatly",
+            "description": "Flat and modern"
+        },
+        "Mintly": {
+            "dir": "mintly",
+            "description": "A fresh feel"
+        }
+
+    },
+    "campaignDefaults":{
+        "glossary": {
+            "glossary_status":[
+                {
+                    "name":"Idea",
+                    "display_order": 1,
+                    "display_to_pc": false,
+                    "class": "secondary"
+                },
+                {
+                    "name":"Drafted",
+                    "display_order": 2,
+                    "display_to_pc": false,
+                    "class": "primary"
+                },
+                {
+                    "name":"Ready",
+                    "display_order": 3,
+                    "display_to_pc": false,
+                    "class": "warning"
+                },
+                {
+                    "name":"Finalized",
+                    "display_order": 4,
+                    "display_to_pc": false,
+                    "class": "success"
+                },
+                {
+                    "name":"Secret",
+                    "display_order": 5,
+                    "display_to_pc": false,
+                    "class": "dark"
+                }
+            ]
+        },
+        "skills":{
+            "skill_source_type": [
+                {
+                    "name": "open",
+                    "display_order": 1
+                },
+                {
+                    "name": "culture",
+                    "display_order": 2
+                },
+                {
+                    "name": "header",
+                    "display_order": 3
+                }
+            ],
+            "skill_type": [
+                { "name": "Melee" },
+                { "name": "Ranged" },
+                { "name": "Healing" },
+                { "name": "Defense" },
+                { "name": "Support" },
+                { "name": "Crafting" },
+                { "name": "Info" },
+                { "name": "BSA" },
+                { "name": "Other" }
+            ],
+            "skill_usage": [
+                {
+                    "name": "Weapon",
+                    "description": "Weapon skill"
+                },
+                {
+                    "name": "Stats",
+                    "description": "Provides a stat"
+                },
+                {
+                    "name": "Always",
+                    "description": "Always active"
+                },
+                {
+                    "name": "At Will",
+                    "description": "At-will combat skill"
+                },
+                {
+                    "name": "Stat",
+                    "description": "Skill that takes stats to use"
+                },
+                {
+                    "name": "Twilight",
+                    "description": "Resets at 6pm and 6am"
+                },
+                {
+                    "name": "Event",
+                    "description": "X times per event"
+                }
+            ],
+            "skill_status": [
+                {
+                    "name": "Idea",
+                    "description": "An idea for a skill",
+                    "display_order": 1,
+                    "display_to_pc": false,
+                    "purchasable": false,
+                    "class": "secondary"
+                },
+                {
+                    "name": "Drafted",
+                    "description": "Summary Ready for Review",
+                    "display_order": 2,
+                    "display_to_pc": false,
+                    "purchasable": false,
+                    "class": "info"
+                },
+                {
+                    "name": "Accepted",
+                    "description": "Summary Accepted, Needs final form",
+                    "display_order": 3,
+                    "display_to_pc": false,
+                    "purchasable": false,
+                    "class": "dark"
+                },
+                {
+                    "name": "Ready",
+                    "description": "In final form, Ready to be reviewed by Core Staff",
+                    "display_order": 4,
+                    "display_to_pc": false,
+                    "purchasable": false,
+                    "class": "warning"
+                },
+                {
+                    "name": "Public",
+                    "description": "Ready for PCs to view/buy",
+                    "display_order": 5,
+                    "display_to_pc": true,
+                    "purchasable": true,
+                    "class": "success"
+                },
+                {
+                    "name": "Future",
+                    "description": "Skills that are not yet available, but PCs can know about.",
+                    "display_order": 6,
+                    "display_to_pc": true,
+                    "purchasable": false,
+                    "class": "dark"
+                },
+                {
+                    "name": "Secret",
+                    "description": "Ready, but do not display to players.",
+                    "display_order": 7,
+                    "display_to_pc": false,
+                    "purchasable": true,
+                    "class": "secondary"
+                },
+                {
+                    "name": "Delete Me",
+                    "description": "Delete this Skill",
+                    "display_order": 99,
+                    "display_to_pc": false,
+                    "purchasable": false,
+                    "class": "danger"
+                }
+            ]
+        }
     }
 }

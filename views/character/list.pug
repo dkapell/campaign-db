@@ -30,7 +30,7 @@ block content
             .tab-pane.fade.show.active#active-pc(role="tabpanel" aria-labelledby="active-pc-tab")
                 -
                     const activePcCharacters = characters.filter(character => {
-                        return character.active && character.user.user_type === 'player'
+                        return character.active && character.user.type === 'player'
                     });
                 +characterListDisplay(activePcCharacters, false, true)
 
@@ -38,7 +38,7 @@ block content
             .tab-pane.fade#active-staff(role="tabpanel" aria-labelledby="active-staff-tab")
                 -
                     const activeStaffCharacters = characters.filter(character => {
-                        return character.active && character.user.user_type !== 'player'
+                        return character.active && character.user.type !== 'player'
                     });
                 +characterListDisplay(activeStaffCharacters, false, true)
 

@@ -14,7 +14,7 @@ async function list(req, res, next){
         current: 'Usages'
     };
     try {
-        res.locals.skill_usages = await req.models.skill_usage.list();
+        res.locals.skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Skill Usages';
         res.render('skill_usage/list', { pageTitle: 'Skill Usages' });
     } catch (err){
@@ -26,6 +26,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill_usage = await req.models.skill_usage.get(id);
+        if (!skill_usage || skill_usage.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Usage');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -44,7 +47,7 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const skill_usages = await req.models.skill_usage.find();
+        const skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
         const maxVal = _.max(_.pluck(skill_usages, 'display_order'));
         res.locals.skill_usage = {
             name: null,
@@ -80,6 +83,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill_usage = await req.models.skill_usage.get(id);
+        if (!skill_usage || skill_usage.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill Usage');
+        }
         res.locals.skill_usage = skill_usage;
         if (_.has(req.session, 'skill_usageData')){
             res.locals.skill_usage = req.session.skill_usageData;
@@ -107,7 +113,7 @@ async function create(req, res, next){
     if (!_.has(skill_usage, 'display_name')){
         skill_usage.display_name = false;
     }
-
+    skill_usage.campaign_id = req.campaign.id;
     try{
         const id = await req.models.skill_usage.create(skill_usage);
         await req.audit('skill_usage', id, 'create', {new:skill_usage});
@@ -130,6 +136,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.skill_usage.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.skill_usage.update(id, skill_usage);
         await req.audit('skill_usage', id, 'update', {old: current, new:skill_usage});
@@ -147,6 +156,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.skill_usage.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.skill_usage.delete(id);
         await req.audit('skill_usage', id, 'delete', {old: current});
         req.flash('success', 'Removed Usages');

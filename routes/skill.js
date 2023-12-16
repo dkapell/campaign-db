@@ -16,7 +16,7 @@ async function list(req, res, next){
         current: 'Skills'
     };
     try {
-        const skills = await req.models.skill.list();
+        const skills = await req.models.skill.find({campaign_id:req.campaign.id});
         await async.each(skills, async(skill) => {
             if (skill.status.name === 'Ready'){
                 const reviews = await req.models.skill_review.find({skill_id:skill.id, approved:true});
@@ -52,7 +52,7 @@ async function listDoc(req, res, next){
         current: 'Document'
     };
     try {
-        const sources = await req.models.skill_source.list();
+        const sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.sources = await async.map(sources, async (source) => {
             source.skills = await req.models.skill.find({source_id:source.id});
             source.skills = source.skills.sort(skillHelper.sorter);
@@ -85,6 +85,9 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const skill = await req.models.skill.get(id);
+        if(!skill || skill.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill');
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -141,12 +144,12 @@ async function showNew(req, res, next){
         };
 
         res.locals.csrfToken = req.csrfToken();
-        res.locals.skill_sources = await req.models.skill_source.list();
-        res.locals.skill_types = await req.models.skill_type.list();
-        res.locals.skill_usages = await req.models.skill_usage.list();
-        res.locals.skill_tags = await req.models.skill_tag.list();
-        res.locals.skill_statuses = await req.models.skill_status.list();
-        res.locals.skills = (await req.models.skill.list()).sort(skillHelper.sorter);
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
+        res.locals.skill_types = await req.models.skill_type.find({campaign_id: req.campaign.id});
+        res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
+        res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
+        res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
+        res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
@@ -167,12 +170,12 @@ async function showNewApi(req, res, next){
     try{
         const doc = {
             csrfToken: req.csrfToken(),
-            skill_sources: await req.models.skill_source.list(),
-            skill_types: await req.models.skill_type.list(),
-            skill_usages: await req.models.skill_usage.list(),
-            skill_tags: await req.models.skill_tag.list(),
-            skill_statuses: await req.models.skill_status.list(),
-            skills: (await req.models.skill.list()).sort(skillHelper.sorter)
+            skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
+            skill_types: await req.models.skill_type.find({campaign_id: req.campaign.id}),
+            skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
+            skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
+            skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
+            skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
         doc.skill = {
             name: 'TBD',
@@ -206,6 +209,9 @@ async function showEdit(req, res, next){
 
     try{
         const skill = await req.models.skill.get(id);
+        if(!skill || skill.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill');
+        }
         skill.provides = skillHelper.fillProvides(skill.provides, 2);
         res.locals.skill = skill;
         if (_.has(req.session, 'skillData')){
@@ -213,12 +219,12 @@ async function showEdit(req, res, next){
             delete req.session.skillData;
         }
 
-        res.locals.skill_sources = await req.models.skill_source.list();
-        res.locals.skill_types = await req.models.skill_type.list();
-        res.locals.skill_usages = await req.models.skill_usage.list();
-        res.locals.skill_tags = await req.models.skill_tag.list();
-        res.locals.skill_statuses = await req.models.skill_status.list();
-        res.locals.skills = (await req.models.skill.list()).sort(skillHelper.sorter);
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
+        res.locals.skill_types = await req.models.skill_type.find({campaign_id: req.campaign.id});
+        res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
+        res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
+        res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
+        res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
@@ -243,15 +249,19 @@ async function showEdit(req, res, next){
 async function showEditApi(req, res, next){
     const id = req.params.id;
     try{
+        const skill = await req.models.skill.get(id);
+        if(!skill || skill.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Skill');
+        }
         const doc = {
             csrfToken: req.csrfToken(),
-            skill: await req.models.skill.get(id),
-            skill_sources: await req.models.skill_source.list(),
-            skill_types: await req.models.skill_type.list(),
-            skill_usages: await req.models.skill_usage.list(),
-            skill_tags: await req.models.skill_tag.list(),
-            skill_statuses: await req.models.skill_status.list(),
-            skills: (await req.models.skill.list()).sort(skillHelper.sorter)
+            skill: skill,
+            skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
+            skill_types: await req.models.skill_type.find({campaign_id: req.campaign.id}),
+            skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
+            skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
+            skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
+            skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
         doc.skill.provides = skillHelper.fillProvides(doc.skill.provides, 2);
         if (_.has(req.session, 'skillData')){
@@ -292,6 +302,7 @@ async function create(req, res, next){
     } else {
         skill.require_num = 0;
     }
+    skill.campaign_id = req.campaign.id;
 
     try{
         if (!skill.tags){
@@ -367,7 +378,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.skill.get(id);
-
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
         if (!res.locals.checkPermission('gm')){
             for (const field in current){
                 if (field !== 'notes'){
@@ -425,9 +438,12 @@ async function advance(req, res, next){
 
     try {
         const current = await req.models.skill.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
         const old = JSON.parse(JSON.stringify(current));
 
-        const statuses = await req.models.skill_status.list();
+        const statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
         const current_status = _.findWhere(statuses, {id: current.status_id});
         if (!current_status || !current_status.advanceable){
             return res.json({success: true, update:false, skill: await req.models.skill.get(id)});
@@ -453,6 +469,9 @@ async function remove(req, res, next){
 
     try {
         const current = await req.models.skill.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.skill.delete(id);
         await req.audit('skill', id, 'delete', {old: current});
         req.flash('success', `Removed Skill ${current.name}`);
@@ -472,7 +491,7 @@ async function showReview(req, res, next){
     };
     const status = req.query.status? req.query.status : 'Ready';
     try {
-        const readyStatus = await req.models.skill_status.findOne({name: status});
+        const readyStatus = await req.models.skill_status.findOne({name: status, campaign_id:req.campaign.id});
 
         const skills = (await req.models.skill.find({status_id:readyStatus.id})).sort(skillHelper.sorter);
 
@@ -509,7 +528,8 @@ async function postReview(req, res, next) {
     const id = req.params.id;
     const review = {
         user_id: req.user.id,
-        skill_id: Number(id)
+        skill_id: Number(id),
+        campaign_id: req.campaign.id
     };
     let valid = false;
     if (req.body.approved){
@@ -537,7 +557,7 @@ const router = express.Router();
 router.use(permission('player'));
 router.use(function(req, res, next){
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-    if (user.user_type === 'player'){
+    if (user.type === 'player'){
         res.locals.siteSection='character';
     } else {
         res.locals.siteSection='gm';

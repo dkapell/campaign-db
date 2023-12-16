@@ -14,7 +14,7 @@ async function list(req, res, next){
         current: 'Statuses'
     };
     try {
-        res.locals.glossary_statuses = await req.models.glossary_status.list();
+        res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Glossary Statuses';
         res.render('glossary_status/list', { pageTitle: 'Glossary Statuses' });
     } catch (err){
@@ -26,6 +26,10 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const glossary_status = await req.models.glossary_status.get(id);
+        if (!glossary_status || glossary_status.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Glossary Status');
+        }
+
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -81,6 +85,9 @@ async function showEdit(req, res, next){
 
     try{
         const glossary_status = await req.models.glossary_status.get(id);
+        if (!glossary_status || glossary_status.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Glossary Status');
+        }
         res.locals.glossary_status = glossary_status;
         if (_.has(req.session, 'glossary_statusData')){
             res.locals.glossary_status = req.session.glossary_statusData;
@@ -108,7 +115,7 @@ async function create(req, res, next){
     if (!_.has(glossary_status, 'display_to_pc')){
         glossary_status.display_to_pc = false;
     }
-
+    glossary_status.campaign_id = req.campaign.id;
     try{
         const id = await req.models.glossary_status.create(glossary_status);
         await req.audit('glossary_status', id, 'create', {new:glossary_status});
@@ -131,6 +138,9 @@ async function update(req, res, next){
 
     try {
         const current = await req.models.glossary_status.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
 
         await req.models.glossary_status.update(id, glossary_status);
         await req.audit('glossary_status', id, 'update', {old: current, new:glossary_status});
@@ -148,6 +158,9 @@ async function remove(req, res, next){
     const id = req.params.id;
     try {
         const current = await req.models.glossary_status.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not delete record from different campaign');
+        }
         await req.models.glossary_status.delete(id);
         await req.audit('glossary_status', id, 'delete', {old: current});
         req.flash('success', 'Removed Statueses');

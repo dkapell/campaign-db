@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('ritual-larp:server');
+var debug = require('debug')('character-db:server');
 var http = require('http');
 
 /**

@@ -13,14 +13,14 @@ block content
     ul.nav.nav-tabs#reviewTabs(role="tablist")
 
         li.nav-item(role="presentation")
-            a.nav-link.active#skills-tab(href="#skills" data-toggle="tab" role="tab" aria-controls="skills" aria-selected="true") Skills to Review
-                span.ml-1.badge.badge-info=counts.unreviewed
+            a.nav-link.active#skills-tab(href="#skills" data-bs-toggle="tab" role="tab" aria-controls="skills" aria-selected="true") Skills to Review
+                span.ms-1.badge.text-bg-info=counts.unreviewed
         li.nav-item(role="presentation")
-            a.nav-link#reviews-tab(href="#reviews" data-toggle="tab" role="tab" aria-controls="reviews" aria-selected="false") All Skills
-                span.ml-1.badge.badge-info=counts.all
+            a.nav-link#reviews-tab(href="#reviews" data-bs-toggle="tab" role="tab" aria-controls="reviews" aria-selected="false") All Skills
+                span.ms-1.badge.text-bg-info=counts.all
         li.nav-item(role="presentation")
-            a.nav-link#comments-tab(href="#comments" data-toggle="tab" role="tab" aria-controls="comments" aria-selected="false") Reviews with Comments
-                span.ml-1.badge.badge-info=counts.comments
+            a.nav-link#comments-tab(href="#comments" data-bs-toggle="tab" role="tab" aria-controls="comments" aria-selected="false") Reviews with Comments
+                span.ms-1.badge.text-bg-info=counts.comments
 
 
     .tab-content#reviewTabContent

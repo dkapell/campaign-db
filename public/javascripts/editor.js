@@ -5,7 +5,7 @@ function renderMarkdownEditor(id, size, showPreview, previewUrl){
     $textarea.height(size);
 
     if (showPreview){
-        $(`#${id}-edit-tabs a[data-toggle="tab"]`).on('shown.bs.tab', async function(e) {
+        $(`#${id}-edit-tabs a[data-bs-toggle="tab"]`).on('shown.bs.tab', async function(e) {
             if ($(e.target).attr('aria-controls') === `${id}-preview`){
                 if (previewUrl){
                     $(`#${id}-preview-frame`).html(await getPreview(previewUrl, $textarea.val()) );
@@ -13,7 +13,7 @@ function renderMarkdownEditor(id, size, showPreview, previewUrl){
                         e.preventDefault();
                     });
                 } else {
-                    $(`#${id}-preview-frame`).html(marked($textarea.val(), {breaks: true}) );
+                    $(`#${id}-preview-frame`).html(marked.parse($textarea.val(), {breaks: true}) );
                 }
                 const height = $textarea.height();
                 $(`#${id}-preview-frame`).height(height);
@@ -33,7 +33,9 @@ function renderEditor(id, type, size){
     let showMarkdown = false;
     switch(type){
         case 'html-md':
-            showMarkdown: true;
+            showMarkdown=true;
+            editorConfig.mode = 'htmlmixed';
+            break;
         case 'html':
             editorConfig.mode = 'htmlmixed';
             break;
@@ -51,7 +53,7 @@ function renderEditor(id, type, size){
     $textarea.data('editor', editor);
     editor.setSize(null, size);
     if (type === 'html'){
-        $('#' + id + '-edit-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        $('#' + id + '-edit-tabs a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             if ($(e.target).attr('aria-controls') === id + '-preview'){
                 if (type === 'html'){
                     $('#' + id + '-preview-frame').html($.parseHTML(editor.getValue()));
@@ -59,10 +61,10 @@ function renderEditor(id, type, size){
             }
         });
     } else if (type === 'html-md'){
-        $('#' + id + '-edit-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        $('#' + id + '-edit-tabs a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
             if ($(e.target).attr('aria-controls') === id + '-preview'){
                 if (type === 'html-md'){
-                    $('#' + id + '-preview-frame').html($.parseHTML(marked(editor.getValue(), {breaks:true} )));
+                    $('#' + id + '-preview-frame').html($.parseHTML(marked.parse(editor.getValue(), {breaks:true} )));
                 }
             }
         });

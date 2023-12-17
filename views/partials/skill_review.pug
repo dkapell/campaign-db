@@ -13,35 +13,35 @@ mixin reviewSkillList(skills, filter, showActions)
 
 
 mixin reviewSkillDoc(skill, showActions)
-    li.media.py-3.pl-3(class=!showActions?'border-bottom':'')
+    li.media.py-3.ps-3(class=!showActions?'border-bottom':'')
         .media-body
             .row.mt-0
                 h3.h5
-                    a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=review` data-toggle='tooltip' title='Edit Skill')
+                    a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=review` data-bs-toggle='tooltip' title='Edit Skill')
                         if skill.name==='TBD'
                             i.skill-name Unnamed Skill
                             if (skill.cost)
-                                span.skill-cost.ml-2 (#{skill.cost} cp)
+                                span.skill-cost.ms-2 (#{skill.cost} cp)
                         else
                             span.skill-name= skill.name
                             if (skill.cost)
-                                    span.skill-cost.ml-2 (#{skill.cost} cp)
+                                    span.skill-cost.ms-2 (#{skill.cost} cp)
 
             .skill-source.my-1
                 strong= skill.source.name
             if (skill.usage)
-                .span.skill-usage.mr-2.d-inline Usage: #{skill.usage.name}
+                .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
             if (skill.tags)
                 for tag in skill.tags
-                    .span.skill-tag.mr-2.d-inline [ #{tag.name} ]
+                    .span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
             .skill-summary
-                strong.mr-1 Summary:
+                strong.me-1 Summary:
                 !=marked.parseInline(skill.summary)
 
             if (skill.requires && skill.requires.length)
                 p.my-1
-                    strong.mr-1 Requires
+                    strong.me-1 Requires
                         if _.uniq(_.pluck(skill.requires, 'name')).length > 1
                             |  #{skill.require_num} of:
 
@@ -53,7 +53,7 @@ mixin reviewSkillDoc(skill, showActions)
 
             if (skill.conflicts && skill.conflicts.length)
                 p.my-1
-                    strong.mr-1 Conflicts with:
+                    strong.me-1 Conflicts with:
                     if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
                         | #{skill.conflicts[0].name}
                     else
@@ -61,7 +61,7 @@ mixin reviewSkillDoc(skill, showActions)
 
             if skill.provides && skill.provides.length
                 p.my-1
-                    strong.mr-1 Provides:
+                    strong.me-1 Provides:
                     -
                         const provides = skill.provides.map( (provider) => {
                             let str = capitalize(provider.type);
@@ -77,12 +77,12 @@ mixin reviewSkillDoc(skill, showActions)
             if skill.description
                 strong.mb-0.mt-1.d-block Description
                 .skill-description
-                    != marked(skill.description, {breaks: true})
+                    != marked.parse(skill.description, {breaks: true})
             if skill.notes
                 strong.mb-0.mt-1.d-block GM Notes
-                .skill-notes !{marked(skill.notes, {breaks: true})}
+                .skill-notes !{marked.parse(skill.notes, {breaks: true})}
             p.my-1
-                strong.mr-1 Last Updated:
+                strong.me-1 Last Updated:
                 |  #{skill.updatedFormatted}
 
             -
@@ -97,44 +97,44 @@ mixin reviewSkillDoc(skill, showActions)
                         users.push(review.user.name);
                     }
                 p.my-1
-                    strong.mr-1 Approved by:
+                    strong.me-1 Approved by:
                     span.skill-approvers= _.uniq(users).join(', ')
 
             if skill.reviews.filter(review => { return !review.approved }).length
                 strong.mb-0.mt-1.d-block Review Comments
 
-                ul.list-unstyled.skill-comments.pl-2
+                ul.list-unstyled.skill-comments.ps-2
                     for review of skill.reviews
                         if review.content
                             li.media.border-bottom.border-light
                                 .media-body
                                     h6.mt-0=review.user.name
-                                        small.text-muted.ml-2=review.dateStr
+                                        small.text-muted.ms-2=review.dateStr
                                     p.my-1=review.content
 
 mixin reviewSkillActions(skill)
-    .skill-actions.my-2.pl-3.pb-2.border-bottom
-        button.btn.btn-sm.btn-outline-success.mr-2.skill-approve-btn(data-skillid=skill.id data-csrfToken=csrfToken)
-            i.fa.fas.fa-thumbs-up.mr-1
+    .skill-actions.my-2.ps-3.pb-2.border-bottom
+        button.btn.btn-sm.btn-outline-success.me-2.skill-approve-btn(data-skillid=skill.id data-csrfToken=csrfToken)
+            i.fa.fas.fa-thumbs-up.me-1
             | Approve
-        button.btn.btn-sm.btn-outline-info.mr-2(
+        button.btn.btn-sm.btn-outline-info.me-2(
             id=`skill-comment-btn-${skill.id}`
-            data-toggle="collapse"
-            data-target=`#skill-comment-form-${skill.id}`
+            data-bs-toggle="collapse"
+            data-bs-target=`#skill-comment-form-${skill.id}`
             aria-expanded="false" href='#'
             aria-controls=`skill-comment-form-${skill.id}`
         )
-            i.fa.fas.fa-edit.mr-1
+            i.fa.fas.fa-edit.me-1
             | Add Comment
-    form.skill-comment-form.collapse.my-2.pl-3(
+    form.skill-comment-form.collapse.my-2.ps-3(
         id=`skill-comment-form-${skill.id}`
         aria-labelledby=`skill-comment-btn-${skill.id}`
     )
         textarea.form-control.skill-comment
-        button.btn.btn-sm.btn-outline-success.skill-comment-save.mt-1.mr-2(data-skillid=skill.id  data-csrfToken=csrfToken type="submit") Save Comment
+        button.btn.btn-sm.btn-outline-success.skill-comment-save.mt-1.me-2(data-skillid=skill.id  data-csrfToken=csrfToken type="submit") Save Comment
         a.btn.btn-sm.btn-outline-danger.skill-comment-cancel.mt-1(
-            data-toggle="collapse"
-            data-target=`#skill-comment-form-${skill.id}`
+            data-bs-toggle="collapse"
+            data-bs-target=`#skill-comment-form-${skill.id}`
             aria-expanded="false" href='#'
             aria-controls=`skill-comment-form-${skill.id}`
         ) Cancel
@@ -144,7 +144,7 @@ mixin reviewSkillActions(skill)
 append scripts
     script.
         $(function() {
-            $('[data-toggle="tooltip"]').tooltip({
+            $('[data-bs-toggle="tooltip"]').tooltip({
                 container: 'body',
                 placement: 'right',
                 delay: { "show": 500, "hide": 100 }

@@ -1,11 +1,11 @@
 .container
 
     a.navbar-brand(href='/')= config.get('app.name')
-    button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation")
+    button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation")
         span.navbar-toggler-icon
 
     .collapse.navbar-collapse#navbar
-        ul.navbar-nav.mr-auto
+        ul.navbar-nav.me-auto
             li.nav-item(class= siteSection==='home'?"active":null)
                 a.nav-link(href="/") Home
                     span.sr-only (current)
@@ -15,7 +15,7 @@
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
                             role='button'
-                            data-toggle='dropdown'
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false") GM Stuff
                         .dropdown-menu(aria-labelledby="gmDropdown")
@@ -29,12 +29,12 @@
                 if checkPermission('player') && !checkPermission('event')
                     li.nav-item
                         a.nav-link(href=config.get('drive.folders.player') target="_blank") Google Drive
-                                i.fa.fa-external-link.ml-1
+                                i.fa.fa-external-link.ms-1
                     li.nav-item.dropdown(class= siteSection==='character'?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
                             role='button'
-                            data-toggle='dropdown'
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false") Characters
                         .dropdown-menu(aria-labelledby="gmDropdown")
@@ -48,7 +48,7 @@
                     a.nav-link.dropdown-toggle#worldbuildingDropdown(
                         href='#'
                         role='button'
-                        data-toggle='dropdown'
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false") Setting
                     .dropdown-menu(aria-labelledby="worldbuildingDropdown")
@@ -62,7 +62,7 @@
                         a.nav-link.dropdown-toggle#adminDropdown(
                             href='#'
                             role='button'
-                            data-toggle='dropdown'
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false") Admin
                         .dropdown-menu(aria-labelledby="adminDropdown")
@@ -79,45 +79,45 @@
                         a.nav-link.dropdown-toggle#adminDropdown(
                             href='#'
                             role='button'
-                            data-toggle='dropdown'
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false") Site Admin
                         .dropdown-menu(aria-labelledby="adminDropdown")
                             a.dropdown-item(href='/user')
-                                i.fas.fa-users-cog.fa-fw.mr-1
+                                i.fas.fa-users-cog.fa-fw.me-1
                                 |  Users
                             a.dropdown-item(href='/admin/campaign')
-                                i.fas.fa-dice-d20.fa-fw.mr-1
+                                i.fas.fa-dice-d20.fa-fw.me-1
                                 |  Campaigns
 
-        ul.navbar-nav.float-right
+        ul.navbar-nav.float-end
             if activeUser
                 li.nav-item.dropdown
                     a.nav-link.dropdown-toggle.px-4#userDropdown(
                         class=session.gm_mode||session.player_mode || session.assumed_user?'bg-warning rounded-pill':''
                         href='#'
                         role='button'
-                        data-toggle='dropdown'
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false")
-                        i.fas.mr-1(class=session.assumed_user?'fa-user-secret':'fa-user')
+                        i.fas.me-1(class=session.assumed_user?'fa-user-secret':'fa-user')
                         = session.assumed_user ?  session.assumed_user.name : activeUser.name
                     .dropdown-menu(aria-labelledby="userDropdown")
                         a.dropdown-item(href="/auth/logout")
-                            i.fas.fa-sign-out-alt.fa-fw.mr-1
+                            i.fas.fa-sign-out-alt.fa-fw.me-1
                             | Logout
                         if session.assumed_user
                             a.dropdown-item(href="/user/revert")
-                                i.fas.fa-user-secret.fa-fw.mr-1
+                                i.fas.fa-user-secret.fa-fw.me-1
                                 | Revert to #{activeUser.name}
 
                         if checkPermission('admin', true) && ! session.player_mode
                             a.dropdown-item(href="/auth/gm")
-                                i.fas.fa-user-tie.fa-fw.mr-1
+                                i.fas.fa-user-tie.fa-fw.me-1
                                 | #{session.gm_mode?'Disable':'Enable'} GM Mode
                         if checkPermission('gm', true) && ! session.gm_mode
                             a.dropdown-item(href="/auth/player")
-                                i.far.fa-user.fa-fw.mr-1
+                                i.far.fa-user.fa-fw.me-1
                                 | #{session.player_mode?'Disable':'Enable'} Player Mode
 
 

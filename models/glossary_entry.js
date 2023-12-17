@@ -26,7 +26,7 @@ GlossaryEntry.listByTag = async function(tagId){
     let query  = 'select glossary_entries.* from glossary_entries ';
     query += 'right join glossary_entry_tag on glossary_entry_tag.entry_id = glossary_entries.id ';
     query += 'where glossary_entry_tag.tag_id = $1 order by name';
-    const result = await database.query(query, [campaignId]);
+    const result = await database.query(query, [tagId]);
     return async.mapLimit(result.rows, 10, fill);
 };
 

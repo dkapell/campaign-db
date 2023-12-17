@@ -29,7 +29,7 @@ block content
                             if campaign.site
                                 a.action-btn(target='_blank' href=`${campaign.site.match(/:/)?'http://':'https://'}${campaign.site}`)
                                     = campaign.site
-                                    i.fas.fa-external-link-alt.ml-1
+                                    i.fas.fa-external-link-alt.ms-1
                             else
                                 i Not Set
 
@@ -43,7 +43,7 @@ block content
                                 role="button",
                                 url=`/admin/campaign/${campaign.id}`,
                                 title='Delete Game'
-                                data-toggle='tooltip'
+                                data-bs-toggle='tooltip'
                                 data-back='/admin/campaign'
                             )
                                 i.fas.fa-trash.fa-fw

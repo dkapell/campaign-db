@@ -28,7 +28,7 @@ $(function(){
     }
 
     $('#skillDeleteSwitch').on('change', skillDeleteSwitch);
-    $('.progress-bar[data-toggle="tooltip"]').tooltip({delay: { 'show': 200, 'hide': 100 }});
+    $('.progress-bar[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 200, 'hide': 100 }});
 
     toggleDeleteButtons();
 
@@ -135,7 +135,7 @@ function prepSkillTable(){
                     .appendTo($('.skill-table thead tr:eq(1) th').eq(column.index()).empty() );
 
                 const select = $('<select>')
-                    .addClass('custom-select')
+                    .addClass('form-select')
                     .attr('data-placeholder', title)
                     .data('partialmatch', $(column.header()).data('partialmatch'))
                     .append($('<option>'))
@@ -161,21 +161,19 @@ function prepSkillTable(){
 
                     })
                     .select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve',
                         dropdownCssClass: 'skillDropdown'
                     });
                 addFilterOptions($table, column);
 
-                const inputGroupAppend = $('<div>').addClass('input-group-append').appendTo(inputGroup);
-
                 const clearBtn = $('<button>')
                     .addClass('btn')
                     .addClass('btn-sm')
                     .addClass('btn-outline-secondary')
                     .append($('<i>').addClass('fa').addClass('fa-times-circle'))
-                    .appendTo(inputGroupAppend)
+                    .appendTo(inputGroup)
                     .on('click', function(){
                         select.val(null).trigger('change');
 
@@ -197,10 +195,10 @@ function prepSkillTable(){
                 e.stopPropagation();
                 editSkill($(this).data('click-id'));
             });
-            $table.find('[data-toggle="popover"]').popover({
+            $table.find('[data-bs-toggle="popover"]').popover({
                 trigger: 'hover'
             });
-            $table.find('[data-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+            $table.find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
 
             this.api().columns().every( function () {
                 addFilterOptions($table, this);
@@ -214,7 +212,7 @@ function prepSkillTable(){
     $('.dataTables_filter').find('label').append($('<button>')
         .append($('<i>').addClass('fa').addClass('fa-times-circle').addClass('pr-2'))
         .append('Clear Filters')
-        .addClass('float-right')
+        .addClass('float-end')
         .addClass('btn')
         .addClass('btn-sm')
         .addClass('ml-2')
@@ -255,7 +253,7 @@ function prepSkillTable(){
             .addClass('rounded-pill')
             .addClass('px-2')
             .addClass('py-0')
-            .addClass('float-right')
+            .addClass('float-end')
             .append($editSwitch);
 
         $('.dataTables_length').append($editSwitchContainer);
@@ -525,7 +523,7 @@ function updateTable(data){
 
     });
 
-    tableRow.find('[data-toggle="popover"]').popover({
+    tableRow.find('[data-bs-toggle="popover"]').popover({
         trigger: 'focus'
     });
 }
@@ -539,8 +537,8 @@ function getButtons(skill){
             .addClass('btn-xs')
             .addClass('ml-1')
             .addClass('action-btn')
-            .attr('data-toggle', 'popover')
-            .attr('data-content', marked(skill.description, {breaks: true}))
+            .attr('data-bs-toggle', 'popover')
+            .attr('data-content', marked.parse(skill.description, {breaks: true}))
             .attr('data-html', 'true')
             .attr('title', 'Description')
             .attr('role', 'button')
@@ -556,8 +554,8 @@ function getButtons(skill){
             .addClass('btn-xs')
             .addClass('ml-1')
             .addClass('action-btn')
-            .attr('data-toggle', 'popover')
-            .attr('data-content', marked(skill.notes, {breaks: true}))
+            .attr('data-bs-toggle', 'popover')
+            .attr('data-content', marked.parse(skill.notes, {breaks: true}))
             .attr('data-html', 'true')
             .attr('title', 'Notes')
             .attr('role', 'button')
@@ -588,14 +586,14 @@ function getStatus(skill){
         .addClass('badge')
         .addClass('badge-pill')
         .addClass('skill-status')
-        .addClass(`badge-${skill.status.class}`)
+        .addClass(`text-bg-${skill.status.class}`)
         .text(capitalize(skill.status.name));
     return $badge[0].outerHTML;
 }
 
 function prepSkillForm($form){
     $form.find('.select2').select2({
-        theme:'bootstrap4',
+        theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve'
     });
@@ -603,7 +601,7 @@ function prepSkillForm($form){
     $form.find('.complex-select2').each(function(e){
         const $select = $(this);
         $select.select2({
-            theme:'bootstrap4',
+            theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
             escapeMarkup: function(markup) {
@@ -620,7 +618,7 @@ function prepSkillForm($form){
 
     $form.find('.clearable-select2').select2({
         allowClear: true,
-        theme:'bootstrap4',
+        theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve',
         placeholder:{id:'-1'}

@@ -31,7 +31,7 @@ block content
                     tr(class='clickable-row', data-click-object='skill_status' data-click-id=skill_status.id)
                         td.dtr-control
                         td
-                            .badge.badge-pill.skill-status(class=`badge-${skill_status.class}`)
+                            .badge.badge-pill.skill-status(class=`text-bg-${skill_status.class}`)
                                 = capitalize(skill_status.name)
                         td= skill_status.display_order
                         td= skill_status.display_to_pc?'Yes':'No'

@@ -8,7 +8,7 @@ append content
         .row
             .col-lg-8
                 h1.display-2=config.get('app.name')
-                p.pl-2
+                p.ps-2
                     | This is the root site of #{config.get('app.name')}
 
     else if !activeUser
@@ -16,7 +16,7 @@ append content
             .col-lg-8
                 h1.display-2=currentCampaign.name
 
-                div !{marked(currentCampaign.description,  {breaks: true})}
+                div !{marked.parse(currentCampaign.description,  {breaks: true})}
 
             .col-lg.d-none.d-lg-block
                 if currentCampaign.display_map
@@ -29,7 +29,7 @@ append content
             .col
                 h1.display-4
                     a(href='/map')
-                        img.img-fluid.mr-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
+                        img.img-fluid.me-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
                     =config.get('app.name')
 
         .row.my-2
@@ -39,7 +39,7 @@ append content
                     -
                         let driveLink = null;
                         if (currentCampaign.player_drive_folder){
-                            driveLink = config.get('drive.folders.player');
+                            driveLink = currentCampaign.player_drive_folder;
                         }
                         if (checkPermission('gm') && currentCampaign.staff_drive_folder){
                             driveLink = currentCampaign.staff_drive_folder;
@@ -48,31 +48,31 @@ append content
                         }
                     if driveLink
                         a.list-group-item.list-group-item-action(href=driveLink target="_blank")
-                            i.fab.fa-google-drive.mr-1
+                            i.fab.fa-google-drive.me-1
                             | Google Drive
-                            i.fa.fa-external-link.ml-1
+                            i.fa.fa-external-link.ms-1
                     - user = session.assumed_user ?  session.assumed_user : activeUser
                     if user.drive_folder
                         a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
-                            i.fab.fa-google-drive.mr-1
+                            i.fab.fa-google-drive.me-1
                             | Personal Drive Folder
-                            i.fa.fa-external-link.ml-1
+                            i.fa.fa-external-link.ms-1
                     if checkPermission('contrib')
                         if currentCampaign.player_drive_folder
                             a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")
-                                i.fab.fa-google-drive.mr-1
+                                i.fab.fa-google-drive.me-1
                                 | Player Drive
 
-                                i.fa.fa-external-link.ml-1
+                                i.fa.fa-external-link.ms-1
                     else
                         a.list-group-item.list-group-item-action(href='/skill/doc')
-                            i.fa.fa-file-alt.mr-1
+                            i.fa.fa-file-alt.me-1
                             | Skills
                     a.list-group-item.list-group-item-action(href='/glossary')
-                            i.fa.fa-book.mr-1
+                            i.fa.fa-book.me-1
                             | Glossary
                     a.list-group-item.list-group-item-action(href='/character')
-                            i.fa.fa-users.mr-1
+                            i.fa.fa-users.me-1
                             | Characters
                     .list-group-item
                         h5 Documents

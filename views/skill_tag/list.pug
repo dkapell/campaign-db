@@ -33,7 +33,7 @@ block content
                         td= skill_tag.on_sheet?'Yes':'No'
                         td
                             if skill_tag.color
-                                span.badge(class=`badge-${skill_tag.color}`)=capitalize(skill_tag.color)
+                                span.badge(class=`text-bg-${skill_tag.color}`)=capitalize(skill_tag.color)
                             else
                                 i Default
                         td= skill_tag.description

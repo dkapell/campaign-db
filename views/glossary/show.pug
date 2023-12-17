@@ -8,12 +8,12 @@ block content
         a(href=`/glossary/tag/${tag.id}/${tag.name}`)
             h2.badge.badge-dark.mx-1= tag.name
     if checkPermission('gm')
-        a.btn.btn-sm.btn-outline-info.ml-2(href=`/glossary/${glossary_entry.id}/edit`)
-            i.fas.fa-edit.mr-1
+        a.btn.btn-sm.btn-outline-info.ms-2(href=`/glossary/${glossary_entry.id}/edit`)
+            i.fas.fa-edit.me-1
             | Edit
-        .float-right.text-right.d-inline
+        .float-end.text-right.d-inline
             if glossary_entry.status
-                h1.badge.badge-pill.skill-status(class=`badge-${glossary_entry.status.class}`)
+                h1.badge.badge-pill.skill-status(class=`text-bg-${glossary_entry.status.class}`)
                     = capitalize(glossary_entry.status.name)
 
     .glossary-entry-body !{glossary_entry.content.entry}

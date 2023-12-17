@@ -1,6 +1,6 @@
 if (backto)
     input(type="hidden" name="backto" value=backto)
-.form-row.my-1
+.row.my-1
     .col-md
         label.control-label(for="glossary_entry_name") Name
         input.form-control(type="text",placeholder="Name",name="glossary_entry[name]",value=glossary_entry.name,id='glossary_entry_name',required)
@@ -8,7 +8,7 @@ if (backto)
 
     .col-md-3
         label.control-label(for="glossary_entry_type") Type
-        select.custom-select.select2(name="glossary_entry[type]",id="glossary_entry_type" data-placeholder='Type')
+        select.form-select.select2(name="glossary_entry[type]",id="glossary_entry_type" data-placeholder='Type')
             option
             for type of ['in character', 'out of character']
                 option(value=type selected=glossary_entry.type===type)= capitalize(type)
@@ -16,19 +16,19 @@ if (backto)
 
     .col-md-3
         label.control-label(for="glossary_entry_status_id") Status
-        select.custom-select.complex-select2(name="glossary_entry[status_id]",id="glossary_entry_status_id" data-placeholder='Status' required)
+        select.form-select.complex-select2(name="glossary_entry[status_id]",id="glossary_entry_status_id" data-placeholder='Status' required)
             for status in glossary_statuses
                 option(
                     value=status.id
                     selected=Number(glossary_entry.status_id)===status.id
                     title=status.name
-                    data-text= `<div class="badge badge-${status.class} glossary_entry-status badge-pill">${status.name}</div>`
+                    data-text= `<div class="badge text-bg-${status.class} glossary_entry-status badge-pill">${status.name}</div>`
                     data-html=`<div class="text-${status.class}">${status.name}</div><div class="ml-2">${status.description?status.description:''}</div>`
                 )= capitalize(status.name)
 
-.form-row.my-2
+.row.my-2
     .col-md
-        select.form-control.tag-select2(multiple, name="glossary_entry[tags]",id="glossary_entry_tags" data-placeholder="Tags")
+        select.form-select.tag-select2(multiple, name="glossary_entry[tags]",id="glossary_entry_tags" data-placeholder="Tags")
             for tag in glossary_tags
                 -let selected = false;
                 -if (_.findWhere(glossary_entry.tags, {id:tag.id})) { selected = true; }
@@ -39,11 +39,11 @@ if (backto)
                     option(value=tag selected=true)= tag
 
 
-.form-row.my-2
+.row.my-2
     .col
         +markdownEditor('Content', 'glossary_entry_content', 'glossary_entry[content]', 10, 300, glossary_entry.content, true, '/glossary/preview')
 
-.form-row.my-1
+.row.my-1
     .col
         button.btn.btn-primary(type="submit")= glossary_entry.id?'Update':'Create'
         a.btn.btn-link(href="/glossary") Cancel

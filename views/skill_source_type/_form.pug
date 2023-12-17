@@ -1,20 +1,24 @@
-.form-group
-    label.control-label(for="skill_source_type_name") Name
-    input.form-control(type="text",placeholder="Name",name="skill_source_type[name]",value=skill_source_type.name,id='skill_source_type_name',required)
-    div.invalid-feedback Please choose a valid name
+.row.my-2
+    .col
+        label.control-label(for="skill_source_type_name") Name
+        input.form-control(type="text",placeholder="Name",name="skill_source_type[name]",value=skill_source_type.name,id='skill_source_type_name',required)
+        div.invalid-feedback Please choose a valid name
 
-.form-group
-    label.control-label(for="skill_source_type_display_order") Display Order
-    input.form-control(type="number",placeholder="Order",name="skill_source_type[display_order]",value=skill_source_type.display_order,id='skill_source_type_display_order',required)
-    div.invalid-feedback Please choose a valid display order
+.row.my-2
+    .col
+        label.control-label(for="skill_source_type_display_order") Display Order
+        input.form-control(type="number",placeholder="Order",name="skill_source_type[display_order]",value=skill_source_type.display_order,id='skill_source_type_display_order',required)
+        div.invalid-feedback Please choose a valid display order
 
-.form-group
-    label.control-label(for="skill_source_type_num_free") Number of Free Purchases (usually 0 or 1)
-    input.form-control(type="number",placeholder="Number",name="skill_source_type[num_free]",value=skill_source_type.num_free,id='skill_source_type_num_free',required)
-    div.invalid-feedback Please choose a valid number of purchases
+.row.my-2
+    .col
+        label.control-label(for="skill_source_type_num_free") Number of Free Purchases (usually 0 or 1)
+        input.form-control(type="number",placeholder="Number",name="skill_source_type[num_free]",value=skill_source_type.num_free,id='skill_source_type_num_free',required)
+        div.invalid-feedback Please choose a valid number of purchases
 
-.form-group
-    button.btn.btn-primary(type="submit")= skill_source_type.id?'Update':'Create'
-    a.btn.btn-link(href="/skill_source_type") Cancel
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= skill_source_type.id?'Update':'Create'
+        a.btn.btn-link(href="/skill_source_type") Cancel
 
 

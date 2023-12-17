@@ -25,7 +25,7 @@ async function list(req, res, next){
                     const campaign = _.findWhere(campaigns, {id: user_campaign.campaign_id});
                     return {
                         name: campaign.name,
-                        type: user_game.type,
+                        type: user_campaign.type,
                         campaign_id: campaign.id
                     };
                 });
@@ -148,7 +148,7 @@ async function update(req, res, next){
         const current = await req.models.user.get(req.campaign.id, id);
 
         const currentUser = req.session.assumed_user ? req.session.assumed_user: req.user;
-        console.log(currentUser)
+        console.log(currentUser);
         if (! (currentUser.type === 'admin' || current.site_admin)){
             delete user.name;
             delete user.email;

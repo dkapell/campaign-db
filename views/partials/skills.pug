@@ -1,42 +1,42 @@
 mixin skillList(skills, showSource, backto)
     .row.my-2
         .col-sm-auto
-            span.mr-2.d-block.d-lg-inline.align-middle Toggle Column:
+            span.me-2.d-block.d-lg-inline.align-middle Toggle Column:
             .btn-group.btn-group-sm.d-inline.align-middle
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Source':'Name'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Name':'Type'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Type':'Usage'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Usage':'Tag(s)'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Tag(s)':'Summary'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Summary':'Cost'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Cost':'Status'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Status':'Actions'
 
                 if showSource
                     button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
-                        i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                        i.fas.fa-eye.fa-fw.me-1.col-indicator
                         | Actions
         if checkPermission('admin')
             .col-sm.text-right
-                .custom-control.custom-switch
-                    input.custom-control-input#skillDeleteSwitch(type="checkbox")
-                    label.custom-control-label(for="skillDeleteSwitch") Show Delete Buttons
+                .form-check.form-switch
+                    input.form-check-input#skillDeleteSwitch(type="checkbox")
+                    label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
     .row-my-2
         .col
             .progress
@@ -65,7 +65,7 @@ mixin skillList(skills, showSource, backto)
                         aria-valuenow=Math.min(prevBar+statusWidth, 100)
                         aria-valuemax=100
                         title=`${status.name} (${status.count})`
-                        data-toggle="tooltip"
+                        data-bs-toggle="tooltip"
                     )
                         if statusWidth > 5
                             | #{status.name} (#{status.count})
@@ -128,37 +128,37 @@ mixin skillList(skills, showSource, backto)
                                 td= skill.cost
                                 td
                                     if skill.status
-                                        .badge.badge-pill.skill-status(class=`badge-${skill.status.class}`)
+                                        .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
                                             = capitalize(skill.status.name)
 
                                 td.text-right
                                     if skill.approvals
-                                        .badge.badge-info.mr-1(data-toggle="tooltip" title="Approvals")=skill.approvals
+                                        .badge.text-bg-info.me-1(data-bs-toggle="tooltip" title="Approvals")=skill.approvals
                                     if (skill.description)
-                                        a.btn.btn-outline-info.btn-xs.ml-1.action-btn(
+                                        a.btn.btn-outline-info.btn-xs.ms-1.action-btn(
                                             tabindex="0"
                                             role="button"
-                                            data-toggle="popover"
-                                            data-content=marked(skill.description, {breaks: true})
+                                            data-bs-toggle="popover"
+                                            data-content=marked.parse(skill.description, {breaks: true})
                                             data-html="true"
                                             title="Description"
                                         )
                                             i.fas.fa-eye.fa-fw
 
                                     if (skill.notes)
-                                        a.btn.btn-outline-info.btn-xs.ml-1.action-btn(
+                                        a.btn.btn-outline-info.btn-xs.ms-1.action-btn(
                                             tabindex="0"
                                             role="button"
-                                            data-toggle="popover"
-                                            data-content=marked(skill.notes, {breaks: true})
+                                            data-bs-toggle="popover"
+                                            data-content=marked.parse(skill.notes, {breaks: true})
                                             data-html="true"
                                             title="Notes"
                                         )
                                             i.fas.fa-sticky-note.fa-fw
 
-                                    a.btn.btn-outline-primary.btn-xs.ml-1.skill-edit-btn(
+                                    a.btn.btn-outline-primary.btn-xs.ms-1.skill-edit-btn(
                                         role="button"
-                                        data-toggle="tooltip"
+                                        data-bs-toggle="tooltip"
                                         data-click-id=skill.id
                                         title="Edit"
                                         href=`/skill/${skill.id}/edit?backto=${backto}`
@@ -166,13 +166,13 @@ mixin skillList(skills, showSource, backto)
                                         i.fas.fa-edit.fa-fw
                                     if checkPermission('admin')
                                         if skill.status.advanceable
-                                            a.btn.btn-outline-primary.btn-xs.advance-btn.ml-1(
+                                            a.btn.btn-outline-primary.btn-xs.advance-btn.ms-1(
                                                 style="display:none"
                                                 role="button",
                                                 url=`/skill/${skill.id}/advance`
                                             )
                                                 i.fas.fa-arrow-right.fa-fw
-                                        a.btn.btn-outline-danger.btn-xs.delete-btn.ml-1(
+                                        a.btn.btn-outline-danger.btn-xs.delete-btn.ms-1(
                                             style="display:none"
                                             role="button",
                                             url=`/skill/${skill.id}`
@@ -186,8 +186,7 @@ mixin skillModal()
             .modal-content
                 .modal-header
                     h5.modal-title
-                    button.close#dismissPopupModal(type="button", data-dismiss="modal" area-label="Close")
-                        span(aria-hidden="true") &times;
+                    button.btn-close#dismissPopupModal(type="button", data-bs-dismiss="modal" area-label="Close")
                 .modal-body
                 .modal-footer
                     button.btn.btn-secondary(type="button", data-dismiss="modal") Cancel

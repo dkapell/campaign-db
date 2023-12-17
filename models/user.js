@@ -98,9 +98,6 @@ exports.update = async function(campaignId, id, data){
     if (! validate(data)){
         throw new Error('Invalid Data');
     }
-    console.log('here1')
-    console.log(id)
-    console.log(data)
     const queryUpdates = [];
     const queryData = [id];
     for (const field of tableFields){
@@ -212,23 +209,20 @@ async function postSave(id, data, campaignId){
         return;
     }
     let campaign_user = await models.campaign_user.findOne({user_id: id, campaign_id: campaignId});
-    console.log(campaign_user);
-    console.log(data)
     if (campaign_user){
         let changed = false;
         for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes']){
-            console.log('looking at ' + field)
             if (_.has(data, field) && campaign_user[field] !== data[field]){
                 campaign_user[field] = data[field];
                 changed = true;
             }
         }
         if (changed){
-            console.log(campaign_user)
+            console.log(campaign_user);
             await models.campaign_user.update(campaign_user.id, campaign_user);
         }
     } else {
-        console.log('here3')
+        console.log('here3');
         campaign_user = {
             user_id: id,
             campaign_id: campaignId,

@@ -14,18 +14,18 @@ mixin rulebook(rulebook, depth=0)
                 }
             li(style=`padding-left: ${10*depth}px`)
                 a(target="_blank" href=url )
-                    i.fa.mr-1(class=icon)
+                    i.fa.me-1(class=icon)
                     = file.name
 
         each child, idx in rulebook.children
             li(style=`padding-left: ${10*depth}px;`)
                 a(target="_blank" href=`https://drive.google.com/drive/folders/${child.id}`)
-                    i.fab.fa-google-drive.mr-1
+                    i.fab.fa-google-drive.me-1
                     span(style="font-size:1.05rem;")= child.name
-                span.float-right(id=`rulebook-${child.id}-heading` for=`rulebook-${child.id}`, data-toggle="collapse" data-target=`#rulebook-${child.id}` aria-expanded="false")
+                span.float-end(id=`rulebook-${child.id}-heading` for=`rulebook-${child.id}`, data-bs-toggle="collapse" data-bs-target=`#rulebook-${child.id}` aria-expanded="false")
                     button.btn.btn-xs.btn-outline-primary.expand-text-shown.px-0
-                        i.fa.fa-minus.fa-fw.mr-0
+                        i.fa.fa-minus.fa-fw.me-0
                     button.btn.btn-xs.btn-outline-primary.expand-text.px-0
-                        i.fa.fa-plus.fa-fw.mr-0
+                        i.fa.fa-plus.fa-fw.me-0
                 .collapse(id=`rulebook-${child.id}` aria-labeledby=`rulebook-${child.id}-heading`)
                     +rulebook(child, depth+1)

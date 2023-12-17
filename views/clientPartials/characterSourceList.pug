@@ -12,26 +12,26 @@ table.table.table-sm.table-striped
                 td= source.name
                     if source.details
                         if source.details.stat
-                            i.ml-2 (#{source.details.stat})
+                            i.ms-2 (#{source.details.stat})
                         if source.details.trait
-                            i.ml-2 (#{source.details.trait})
+                            i.ms-2 (#{source.details.trait})
                         if source.details.style
-                            i.ml-2 (#{source.details.style})
+                            i.ms-2 (#{source.details.style})
                         if source.details.language
-                            i.ml-2 (#{source.details.language})
+                            i.ms-2 (#{source.details.language})
                         if source.details.tagskill
-                            i.ml-2 (#{source.details.tagskill})
+                            i.ms-2 (#{source.details.tagskill})
                         if source.details.crafting
-                            i.ml-2 (#{source.details.crafting})
+                            i.ms-2 (#{source.details.crafting})
 
                         if source.details.skill
-                            i.ml-2 (#{source.details.skill})
+                            i.ms-2 (#{source.details.skill})
 
                         if source.details.notes
-                            span.badge.badge-info.mt-1.float-right notes
+                            span.badge.text-bg-info.mt-1.float-end notes
                 td
                     if source.character_cost !== source.cost
-                        span.text-success(title="Reduced Cost" data-toggle="tooltip")= source.character_cost
+                        span.text-success(title="Reduced Cost" data-bs-toggle="tooltip")= source.character_cost
                     else
                         = source.character_cost
                 td= source.character_skills.length
@@ -40,7 +40,7 @@ table.table.table-sm.table-striped
                         if source.removable
                             a.btn.btn-outline-danger.btn-xs.delete-source-btn(
                                 title='Remove Header'
-                                data-toggle="tooltip"
+                                data-bs-toggle="tooltip"
                                 role="button"
                                 data-sourceid=source.id
                                 data-characterid=character_id

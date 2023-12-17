@@ -29,7 +29,7 @@ block content
                     tr(class='clickable-row', data-click-object='glossary_status' data-click-id=glossary_status.id)
                         td.dtr-control
                         td
-                            .badge.badge-pill.glossary-status(class=`badge-${glossary_status.class}`)
+                            .badge.badge-pill.glossary-status(class=`text-bg-${glossary_status.class}`)
                                 = capitalize(glossary_status.name)
                         td= glossary_status.display_order
                         td= glossary_status.display_to_pc?'Yes':'No'

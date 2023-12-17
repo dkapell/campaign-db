@@ -3,7 +3,7 @@
 
 $(function(){
     prepEntryForm($('#glossaryEntryForm'));
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         container: 'body',
         placement: 'right',
         delay: { 'show': 500, 'hide': 100 }
@@ -49,25 +49,25 @@ function scrollToItem(){
 
 function prepEntryForm($form){
     $form.find('.select2').select2({
-        theme:'bootstrap4',
+        theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve'
     });
 
     $form.find('.tag-select2').select2({
-        theme:'bootstrap4',
-        minimumResultsForSearch: 6,
-        width:'resolve',
+        theme:'bootstrap-5',
+        closeOnSelect: false,
+        placeholder: $( this ).data( 'placeholder' ),
+        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
         tags: true,
         tokenSeparators: [','],
         allowClear: true
-
     });
 
     $form.find('.complex-select2').each(function(e){
         const $select = $(this);
         $select.select2({
-            theme:'bootstrap4',
+            theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
             escapeMarkup: function(markup) {

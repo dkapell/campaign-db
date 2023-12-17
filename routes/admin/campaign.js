@@ -89,7 +89,7 @@ async function create(req, res, next){
     if (!_.has(campaign, 'default_to_player')){
         campaign.default_to_player = false;
     }
-    campaign.created_by = req.user.id
+    campaign.created_by = req.user.id;
 
     try{
         const campaignId = await req.models.campaign.create(campaign);
@@ -155,7 +155,7 @@ async function checkPermission(req, res, next){
         return next();
     }
     const siteUser = await req.models.user.get(id, user.id);
-    console.log(siteUser)
+    console.log(siteUser);
     if (siteUser.type === 'admin'){
         return next();
     }

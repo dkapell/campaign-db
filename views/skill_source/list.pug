@@ -8,41 +8,41 @@ block content
 
     .row
         .col-sm-auto
-            span.mr-2.d-block.d-lg-inline.align-middle Toggle Column:
+            span.me-2.d-block.d-lg-inline.align-middle Toggle Column:
             .btn-group.btn-group-sm.d-inline.align-middle
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Name
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Type
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Cost
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Skill Count
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Required
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | PC Visible
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Requires
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Conflicts
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
-                    i.fas.fa-eye.fa-fw.mr-1.col-indicator
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Actions
 
         if checkPermission('admin')
             .col-sm.text-right
-                .custom-control.custom-switch
-                    input.custom-control-input#skillDeleteSwitch(type="checkbox")
-                    label.custom-control-label(for="skillDeleteSwitch") Show Delete Buttons
+                .form-check.form-switch
+                    input.form-check-input#skillDeleteSwitch(type="checkbox")
+                    label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
 
 
     .table-responsive.my-2
@@ -96,7 +96,7 @@ block content
                                 )
                                 i.fas.fa-edit.fa-fw
                             if checkPermission('admin')
-                                a.btn.btn-outline-danger.btn-xs.delete-btn.ml-1(
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.ms-1(
                                     role="button",
                                     url=`/skill_source/${skill_source.id}`,
                                     data-back='/skill_source'

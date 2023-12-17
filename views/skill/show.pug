@@ -5,17 +5,17 @@ block content
         .col
             h3.d-inline= skill.name
             h4.d-inline
-                .badge.badge-pill.mx-2(class=`badge-${skill.status.class}`)
+                .badge.badge-pill.mx-2(class=`text-bg-${skill.status.class}`)
                     = capitalize(skill.status.name)
 
             h4.d-inline
                 for tag in skill.tags
                     if (checkPermission('event') || tag.display_to_pc)
-                        .badge.badge-info.mr-2= tag.name
+                        .badge.text-bg-info.me-2= tag.name
 
     .row.my-2
         .col
-            a.btn.btn-outline-primary.mr-2(role="button" href='/skill/' + skill.id + '/edit')
+            a.btn.btn-outline-primary.me-2(role="button" href='/skill/' + skill.id + '/edit')
                 i.fas.fa-edit
                 |  Edit Skill
     dl.row.my-2
@@ -74,11 +74,11 @@ block content
 
         if skill.description
             dt.col-sm-3 Description (Player-facing)
-            dd.col-sm-9 !{marked(skill.description, {breaks: true} ) }
+            dd.col-sm-9 !{marked.parse(skill.description, {breaks: true} ) }
 
         if skill.notes
             dt.col-sm-3 Notes (GM Only)
-            dd.col-sm-9 !{marked(skill.notes, {breaks: true})}
+            dd.col-sm-9 !{marked.parse(skill.notes, {breaks: true})}
 
 
 
@@ -108,14 +108,14 @@ block content
                                                     strong #{change.field} #{change.status}
                                                     br
                                                 when 'field'
-                                                    strong.mr-1 #{change.field}:
+                                                    strong.me-1 #{change.field}:
                                                     | #{change.old?change.old:'unset'} -> #{change.new?change.new:'unset'}
                                                     br
                                                 when 'plaintext'
-                                                    strong.mr-1 #{change.field}:
+                                                    strong.me-1 #{change.field}:
                                                     | #{change.text}
                                                 when 'text'
-                                                    strong.mr-1 #{change.field}:
+                                                    strong.me-1 #{change.field}:
                                                     -let output = ''
                                                     for part in change.text
                                                         -output += `<span style="color:${part.color}">${part.text}</span>`
@@ -124,15 +124,15 @@ block content
                                                     | !{marked.parseInline(output, {breaks: true})}
                                                     br
                                                 when 'longtext'
-                                                    strong.mr-1 #{change.field}:
+                                                    strong.me-1 #{change.field}:
                                                     -let longoutput = ''
                                                     for part in change.text
                                                         -longoutput += `<span style="color:${part.color}">${part.text}</span>`
 
-                                                    | !{marked(longoutput, {breaks: true})}
+                                                    | !{marked.parse(longoutput, {breaks: true})}
 
                                                 when 'tags'
-                                                    strong.mr-1 #{change.field}:
+                                                    strong.me-1 #{change.field}:
                                                     | #{change.tags.join(', ')}
                                                     br
 

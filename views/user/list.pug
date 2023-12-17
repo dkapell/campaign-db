@@ -28,28 +28,28 @@ block content
                                 a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
                                     href=user.staff_drive_folder
                                     target="_blank"
-                                    data-toggle="tooltip"
+                                    data-bs-toggle="tooltip"
                                     title="Open Player's Staff Folder"
                                 )
-                                    i.fab.fa-google-drive.mr-1
+                                    i.fab.fa-google-drive.me-1
                                     | Staff
-                                    i.fa.fa-external-link.ml-1
+                                    i.fa.fa-external-link.ms-1
                             if user.drive_folder
                                 a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
                                     href=user.drive_folder
                                     target="_blank"
-                                    data-toggle="tooltip"
+                                    data-bs-toggle="tooltip"
                                     title="Open Player's PC Folder"
                                 )
-                                    i.fab.fa-google-drive.mr-1
+                                    i.fab.fa-google-drive.me-1
                                     | Player
-                                    i.fa.fa-external-link.ml-1
+                                    i.fa.fa-external-link.ms-1
 
                         td
-                            a.btn.btn-outline-info.btn-xs.action-btn.mr-1(
+                            a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                                 role="button",
                                 href=`/user/${user.id}/edit?backto=list`
-                                data-toggle="tooltip"
+                                data-bs-toggle="tooltip"
                                 title="Edit User"
                             )
                                 i.fas.fa-edit.fa-fw
@@ -57,7 +57,7 @@ block content
                                 a.btn.btn-outline-danger.btn-xs.action-btn(
                                     role="button",
                                     href=`/user/${user.id}/assume`
-                                    data-toggle="tooltip"
+                                    data-bs-toggle="tooltip"
                                     title="Assume User"
                                 )
                                     i.fas.fa-user-secret.fa-fw
@@ -67,7 +67,7 @@ append scripts
     script(src='/javascripts/data-table.js')
     script.
         $(function(){
-            $('[data-toggle="tooltip"]').tooltip({
+            $('[data-bs-toggle="tooltip"]').tooltip({
                 delay: { 'show': 500, 'hide': 100 },
                 placement:'auto'
             });

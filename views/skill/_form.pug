@@ -1,54 +1,54 @@
 if (backto)
     input(type="hidden" name="backto" value=backto)
 
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_name") Name
         input.form-control(type="text",placeholder="Name",name="skill[name]",value=skill.name,id='skill_name',required disabled=!checkPermission('gm'))
         div.invalid-feedback Please choose a valid name
     .col-sm-4
         label.control-label(for="skill_status_id") Status
-        select.custom-select.complex-select2(name="skill[status_id]",id="skill_status_id" data-placeholder='Status' required disabled=!checkPermission('gm'))
+        select.form-select.complex-select2(name="skill[status_id]",id="skill_status_id" data-placeholder='Status' required disabled=!checkPermission('gm'))
             for status in skill_statuses
                 option(
                     value=status.id
                     selected=Number(skill.status_id)===status.id
                     title=status.name
-                    data-text= `<div class="badge badge-${status.class} skill-status badge-pill">${status.name}</div>`
+                    data-text= `<div class="badge text-bg-${status.class} skill-status badge-pill">${status.name}</div>`
                     data-html=`<div class="text-${status.class}">${status.name}</div><div class="ml-2">${status.description}</div>`
                 )= capitalize(status.name)
 
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_summary") Summary
         input.form-control(type="text",placeholder="Summary",name="skill[summary]",value=skill.summary,id='skill_summary' disabled=!checkPermission('gm'))
         small.form-text.text-muted Supports
-            a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown
-                i.fas.fa-external-link-alt.ml-1
+            a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                i.fas.fa-external-link-alt.ms-1
 
     .col-sm-4
         label.control-label(for="skill_type_id") Type
-        select.custom-select.select2(name="skill[type_id]",id="skill_type_id" data-placeholder='Type' disabled=!checkPermission('gm'))
+        select.form-select.select2(name="skill[type_id]",id="skill_type_id" data-placeholder='Type' disabled=!checkPermission('gm'))
             option
             for type in skill_types
                 option(value=type.id selected=Number(skill.type_id)===type.id)= capitalize(type.name)
 
-.form-row.my-2
+.row.my-2
 
     .col
         label.control-label(for="skill_source_id") Source
-        select.custom-select.select2(name="skill[source_id]",id="skill_source_id" data-placeholder='Source' required disabled=!checkPermission('gm'))
+        select.form-select.select2(name="skill[source_id]",id="skill_source_id" data-placeholder='Source' required disabled=!checkPermission('gm'))
             option
             for source in skill_sources
                 option(value=source.id selected=Number(skill.source_id)===source.id)= capitalize(source.name)
 
     .col
         label.control-label(for="skill_usage_id") Usage
-        select.custom-select.select2(name="skill[usage_id]",id="skill_usage_id" data-placeholder='Usage' disabled=!checkPermission('gm'))
+        select.form-select.select2(name="skill[usage_id]",id="skill_usage_id" data-placeholder='Usage' disabled=!checkPermission('gm'))
             option
             for usage in skill_usages
                 option(value=usage.id selected=Number(skill.usage_id)===usage.id)= capitalize(usage.name)
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_tags") Tags
         select.form-control.select2(multiple, name="skill[tags]",id="skill_tags" disabled=!checkPermission('gm'))
@@ -60,28 +60,28 @@ if (backto)
         input.form-control(type="text",placeholder="Cost, eg. 2 or 2,4,5",name="skill[cost]",value=skill.cost,id='skill_cost' disabled=!checkPermission('gm'))
         small.form-text.text-muted Number, or comma seperated list of costs, one per tier ("2" or "2, 4, 5")
 
-.form-row.my-2
+.row.my-2
     .col
         +markdownEditor('Description (Player visible)', 'skill_description', 'skill[description]', 5, 100, skill.description, true, null, false, disabled=!checkPermission('gm'))
 
-.form-row.my-2
+.row.my-2
     .col
         +markdownEditor('Notes (GM Only)', 'skill_notes', 'skill[notes]', 5, 80, skill.notes)
 
 if checkPermission('gm')
-    .form-row.my-3
+    .row.my-3
         .col
-            label.control-label.w-100#skill-bulder-heading(for="skill-config", data-toggle="collapse" data-target="#skill-config" aria-expanded="false") Character Builder Configuration
-                i.expand-text-shown.ml-4 (click to hide configuration)
-                i.expand-text.ml-4 (click to show configuration)
-                span.float-right.pl-2
+            label.control-label.w-100#skill-bulder-heading(for="skill-config", data-bs-toggle="collapse" data-bs-target="#skill-config" aria-expanded="false") Character Builder Configuration
+                i.expand-text-shown.ms-4 (click to hide configuration)
+                i.expand-text.ms-4 (click to show configuration)
+                span.float-end.ps-2
                     i.fa.fa-chevron-up
                     i.fa.fa-chevron-down
 
 
             .div#skill-config.collapse(aria-labelledby="skill-bulder-heading")
 
-                .form-row.my-2
+                .row.my-2
                     .col-md-9
                         label.control-label(for="skill_requires") Prereqs
                         select.form-control.select2(multiple, name="skill[requires]",id="skill_requires" data-placeholder='Prereqs')
@@ -92,14 +92,14 @@ if checkPermission('gm')
                         label.control-label(for="skill_require_num") Number of Prereqs
                         input.form-control.text-right#skill_require_num(type="number",placeholder="Usually 1",name="skill[require_num]",value=skill.require_num)
 
-                .form-row.my-2
+                .row.my-2
                     .col
                         label.control-label(for="skill_conflicts") Conflicts
                         select.form-control.select2(multiple, name="skill[conflicts]",id="skill_conflicts" data-placeholder='Conflicts')
                             for item in skills
                                 if (item.id !== skill.id)
                                     option(value=item.id selected=_.indexOf(skill.conflicts, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
-                .form-row.my-2.provides-row
+                .row.my-2.provides-row
                     .col
                         label.control-label(for="skill_provides_0_type") Provides
                         select.form-control.clearable-select2.skill-provides-type(name="skill[provides][0][type]", id="skill_provides_0_type" data-placeholder="Provides Type")
@@ -114,7 +114,7 @@ if checkPermission('gm')
                         label.control-label(for="skill_provides_0_value") Value
                         input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][0][value]",value=skill.provides[0].value,id='skill_provides_0_value')
 
-                .form-row.my-2.provides-row
+                .row.my-2.provides-row
                     .col
                         label.control-label(for="skill_provides_1_type") Provides
                         select.form-control.clearable-select2.skill-provides-type(name="skill[provides][1][type]", id="skill_provides_1_type" data-placeholder="Provides Type")
@@ -130,7 +130,7 @@ if checkPermission('gm')
                         input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][1][value]",value=skill.provides[1]?skill.provides[1].value:'',id='skill_provides_1_value')
 
 if !modal
-    .form-row.my-2
+    .row.my-2
         .col
             button.btn.btn-primary(type="submit")= skill.id?'Update':'Create'
             a.btn.btn-link(href="/skill") Cancel

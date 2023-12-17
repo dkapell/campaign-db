@@ -4,7 +4,7 @@ $(function(){
     $('.audit-table').each(prepAuditTable);
     $('.skill-audit-table').each(prepSkillAuditTable);
 
-    $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+    $('a[data-bs-toggle="tab"]').on( 'shown.bs.tab', function (e) {
         $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
     });
 
@@ -156,7 +156,7 @@ function diffFormatter(diffRow){
 
                 $output.append($span);
             }
-            return `<strong>${diffRow.field}</strong>: ${marked($output.prop('outerHTML'), {breaks: true})}`;
+            return `<strong>${diffRow.field}</strong>: ${marked.parse($output.prop('outerHTML'), {breaks: true})}`;
 
         }
         case 'tags': {

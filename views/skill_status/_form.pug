@@ -1,43 +1,50 @@
-.form-group
-    label.control-label(for="skill_status_name") Name
-    input.form-control(type="text",placeholder="Name",name="skill_status[name]",value=skill_status.name,id='skill_status_name',required)
-    div.invalid-feedback Please choose a valid name
-
-.form-group
-    label.control-label(for="skill_status_class") Class
-    select.custom-select.select2(name="skill_status[class]",id="skill_status_class" data-placeholder='Class')
-            option
-            for type in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']
-                option(value=type selected=skill_status.class===type)= capitalize(type)
-
-.form-row.mb-2
+.row.my-2
     .col
-        .custom-control.custom-switch
-            input.custom-control-input(type="checkbox", name="skill_status[display_to_pc]", id="skill_status_display_to_pc", checked=skill_status.display_to_pc)
-            label.custom-control-label(for="skill_status_display_to_pc") Display to Players in Skill List
+
+        label.control-label(for="skill_status_name") Name
+        input.form-control(type="text",placeholder="Name",name="skill_status[name]",value=skill_status.name,id='skill_status_name',required)
+        div.invalid-feedback Please choose a valid name
+
+.row.my-2
     .col
-        .custom-control.custom-switch
-            input.custom-control-input(type="checkbox", name="skill_status[purchasable]", id="skill_status_purchasable", checked=skill_status.purchasable)
-            label.custom-control-label(for="skill_status_purchasable") Purchasable
+
+        label.control-label(for="skill_status_class") Class
+        select.form-select.select2(name="skill_status[class]",id="skill_status_class" data-placeholder='Class')
+                option
+                for type in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']
+                    option(value=type selected=skill_status.class===type)= capitalize(type)
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_status[display_to_pc]", id="skill_status_display_to_pc", checked=skill_status.display_to_pc)
+            label.form-check-label(for="skill_status_display_to_pc") Display to Players in Skill List
+    .col
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_status[purchasable]", id="skill_status_purchasable", checked=skill_status.purchasable)
+            label.form-check-label(for="skill_status_purchasable") Purchasable
 
     .col
-        .custom-control.custom-switch
-            input.custom-control-input(type="checkbox", name="skill_status[advanceable]", id="skill_status_advanceable", checked=skill_status.advanceable)
-            label.custom-control-label(for="skill_status_advanceable") Advanceable to next step
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_status[advanceable]", id="skill_status_advanceable", checked=skill_status.advanceable)
+            label.form-check-label(for="skill_status_advanceable") Advanceable to next step
 
-.form-group
-    label.control-label(for="skill_status_display_order") Display Order
-    input.form-control(type="number",placeholder="Order",name="skill_status[display_order]",value=skill_status.display_order,id='skill_status_display_order',required)
-    div.invalid-feedback Please choose a valid display order
+.row.my-2
+    .col
+        label.control-label(for="skill_status_display_order") Display Order
+        input.form-control(type="number",placeholder="Order",name="skill_status[display_order]",value=skill_status.display_order,id='skill_status_display_order',required)
+        div.invalid-feedback Please choose a valid display order
 
 
-.form-group
-    label.control-label(for="skill_status_description") Description
-    textarea.form-control(name="skill_status[description]",id="skill_status_description",rows=3)
-        = skill_status.description
+.row.my-2
+    .col
+        label.control-label(for="skill_status_description") Description
+        textarea.form-control(name="skill_status[description]",id="skill_status_description",rows=3)
+            = skill_status.description
 
-.form-group
-    button.btn.btn-primary(type="submit")= skill_status.id?'Update':'Create'
-    a.btn.btn-link(href="/skill_status") Cancel
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= skill_status.id?'Update':'Create'
+        a.btn.btn-link(href="/skill_status") Cancel
 
 

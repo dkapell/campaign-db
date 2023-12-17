@@ -7,21 +7,21 @@ block content
     .row.my-3
         .col
              h3= skill_source.name
-                .badge.badge-secondary.ml-2=capitalize(skill_source.type.name)
+                .badge.text-bg-secondary.ms-2=capitalize(skill_source.type.name)
                 if (skill_source.required)
-                    .badge.badge-warning.ml-2 Required
+                    .badge.text-bg-warning.ms-2 Required
                 if (!skill_source.display_to_pc)
-                    .badge.badge-danger.ml-2 Hidden
+                    .badge.text-bg-danger.ms-2 Hidden
 
 
     .row.my-3
         .col
             if checkPermission('gm')
-                a.btn.btn-outline-primary.mr-2(role="button" href='/skill_source/' + skill_source.id + '/edit')
+                a.btn.btn-outline-primary.me-2(role="button" href='/skill_source/' + skill_source.id + '/edit')
                     i.fas.fa-edit
                     |  Edit Skill Source
 
-            a.btn.btn-outline-info.mr-2(role="button" href='/skill_source/' + skill_source.id + '/doc')
+            a.btn.btn-outline-info.me-2(role="button" href='/skill_source/' + skill_source.id + '/doc')
                 i.fas.fa-file-alt
                 |  View as Document
 
@@ -63,11 +63,11 @@ block content
 
         if (skill_source.description)
             dt.col-sm-2 Description (Player-facing)
-            dd.col-sm-10 !{marked(skill_source.description, {breaks: true})}
+            dd.col-sm-10 !{marked.parse(skill_source.description, {breaks: true})}
 
         if(skill_source.notes)
             dt.col-sm-2 Notes (GM Only)
-            dd.col-sm-10 !{marked(skill_source.notes, {breaks: true})}
+            dd.col-sm-10 !{marked.parse(skill_source.notes, {breaks: true})}
 
     .row.my-3
         .col
@@ -76,7 +76,7 @@ block content
             if checkPermission('gm')
                 .row.my-3
                     .col
-                        a.btn.btn-outline-success.mr-2.skill-new-btn(
+                        a.btn.btn-outline-success.me-2.skill-new-btn(
                             data-source=skill_source.id
                             role="button"
                             href=`/skill/new?skill_source=${skill_source.id}`
@@ -84,12 +84,12 @@ block content
                             i.fas.fa-plus
                             |  Add Skill
                     .col
-                        .float-right
-                            a.btn.btn-outline-info.mr-2(href=`/skill_source/${skill_source.id}?export=true`)
-                                i.fas.fa-download.mr-1
+                        .float-end
+                            a.btn.btn-outline-info.me-2(href=`/skill_source/${skill_source.id}?export=true`)
+                                i.fas.fa-download.me-1
                                 | CSV
-                            a.btn.btn-outline-info.mr-2(href=`/skill_source/${skill_source.id}?export=true&player=true`)
-                                i.fas.fa-download.mr-1
+                            a.btn.btn-outline-info.me-2(href=`/skill_source/${skill_source.id}?export=true&player=true`)
+                                i.fas.fa-download.me-1
                                 | Player CSV
             +skillList(skills, false, 'source')
 

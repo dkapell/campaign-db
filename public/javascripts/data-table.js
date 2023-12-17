@@ -3,7 +3,7 @@ $(function(){
     $('.table-sorted').each(prepSortedTable);
     $('.data-table').each(prepDataTable);
 
-    $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+    $('a[data-bs-toggle="tab"]').on( 'shown.bs.tab', function (e) {
         $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
     });
 

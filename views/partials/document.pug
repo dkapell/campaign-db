@@ -5,19 +5,19 @@ mixin sourceDoc(source, backto)
 
                 h1.d-inline.h3
                     if checkPermission('gm')
-                        a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-toggle='tooltip' title='Edit Source')
+                        a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Source')
                             | #{source.name}
                         if source.cost
-                            span.ml-2 (#{source.cost} CP)
+                            span.ms-2 (#{source.cost} CP)
                     else
                         span.source-name #{source.name}
                         if source.cost
-                            span.ml-2 (#{source.cost} CP)
-                h4.d-inline.ml-2 (#{capitalize(source.type.name)})
+                            span.ms-2 (#{source.cost} CP)
+                h4.d-inline.ms-2 (#{capitalize(source.type.name)})
 
         if (source.requires && source.requires.length)
             p.my-1
-                strong.mr-1 Requires
+                strong.me-1 Requires
                     if _.uniq(_.pluck(source.requires, 'name')).length > 1
                         |  #{source.require_num} of:
 
@@ -29,7 +29,7 @@ mixin sourceDoc(source, backto)
 
         if (source.conflicts && source.conflicts.length)
             p.my-1
-                strong.mr-1 Conflicts with:
+                strong.me-1 Conflicts with:
                 if _.uniq(_.pluck(source.conflicts, 'name')).length === 1
                     | #{source.conflicts[0].name}
                 else
@@ -38,13 +38,13 @@ mixin sourceDoc(source, backto)
 
 
         if source.description
-            .source-description !{marked(source.description, {breaks: true})}
+            .source-description !{marked.parse(source.description, {breaks: true})}
         if checkPermission('gm') && source.notes
             h2 GM Notes
-            .source-notes !{marked(source.notes, {breaks: true})}
+            .source-notes !{marked.parse(source.notes, {breaks: true})}
 
         h2.h4 Skills
-        ul.list-unstyled.ml-4
+        ul.list-unstyled.ms-4
             for skill in source.skills
                 if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc
 
@@ -64,41 +64,41 @@ mixin skillList(skills, backto)
 
 
 mixin skillDoc(skill, backto)
-    li.media.mb-3.border-bottom.border-light.pl-3
+    li.media.mb-3.border-bottom.border-light.ps-3
         .media-body
             .row.mt-0
                 h3.h5
                     if checkPermission('gm')
-                        a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-toggle='tooltip' title='Edit Skill')
+                        a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
                             if skill.name==='TBD'
                                 i.skill-name Unnamed Skill
                                 if (skill.cost)
-                                    span.skill-cost.ml-2 (#{skill.cost} cp)
+                                    span.skill-cost.ms-2 (#{skill.cost} cp)
                             else
                                 span.skill-name= skill.name
                                 if (skill.cost)
-                                    span.skill-cost.ml-2 (#{skill.cost} cp)
+                                    span.skill-cost.ms-2 (#{skill.cost} cp)
                     else
                         if skill.name==='TBD'
                             i.skill-name Unnamed Skill
                             if (skill.cost)
-                                span.skill-cost.ml-2 (#{skill.cost} cp)
+                                span.skill-cost.ms-2 (#{skill.cost} cp)
                         else
                             span.skill-name= skill.name
                             if (skill.cost)
-                                span.skill-cost.ml-2 (#{skill.cost} cp)
+                                span.skill-cost.ms-2 (#{skill.cost} cp)
             if (skill.usage && skill.usage.display_name)
-                .span.skill-usage.mr-2.d-inline Usage: #{skill.usage.name}
+                .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
             if (skill.tags)
                 for tag in skill.tags
                     if checkPermission('contrib') || tag.display_to_pc
-                        .span.skill-tag.mr-2.d-inline [ #{tag.name} ]
+                        .span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
             .skill-summary !{marked.parseInline(skill.summary)}
 
             if (skill.requires && skill.requires.length)
                 p.my-1
-                    strong.mr-1 Requires
+                    strong.me-1 Requires
                         if _.uniq(_.pluck(skill.requires, 'name')).length > 1
                             |  #{skill.require_num} of:
 
@@ -110,7 +110,7 @@ mixin skillDoc(skill, backto)
 
             if (skill.conflicts && skill.conflicts.length)
                 p.my-1
-                    strong.mr-1 Conflicts with:
+                    strong.me-1 Conflicts with:
                     if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
                         | #{skill.conflicts[0].name}
                     else
@@ -118,14 +118,14 @@ mixin skillDoc(skill, backto)
 
 
             if skill.description
-                .skill-description !{marked(skill.description, {breaks: true})}
+                .skill-description !{marked.parse(skill.description, {breaks: true})}
             if checkPermission('gm') && skill.notes
                 strong.mb-0.mt-1.d-block GM Notes
-                .skill-notes !{marked(skill.notes, {breaks: true})}
+                .skill-notes !{marked.parse(skill.notes, {breaks: true})}
 
 mixin cardDoc(card)
     li.media.py-2.border-bottom.border-light.card-entry
-        .media-body.border-left.border-white.px-2
+        .media-body.border-start.border-white.px-2
 
             .row.my-0
                 .col-sm-1
@@ -134,12 +134,12 @@ mixin cardDoc(card)
 
                     .row
                         .col
-                            strong.mr-1 Option One:
+                            strong.me-1 Option One:
                             |  !{marked.parseInline(card.option_one)}
                     if (card.option_two)
                         .row
                             .col
-                                strong.mr-1 Option Two:
+                                strong.me-1 Option Two:
                                 |  !{marked.parseInline(card.option_two)}
                     if !_.isNull(card.ending)
                         .row.mt-2
@@ -153,27 +153,27 @@ mixin cardDoc(card)
                         .row.mt-2
                             .col
                                 if card.min_years !== card.max_years
-                                    strong.mr-1 Then:
+                                    strong.me-1 Then:
                                     |  Between #{card.min_years} and #{card.max_years} years pass
                                 else
-                                    strong.mr-1 Then:
+                                    strong.me-1 Then:
                                     |  #{card.min_years} year#{card.min_years!==1?'s':''} pass#{card.min_years===1?'es':''}
                 if checkPermission('gm')
-                    .float-right.text-right
-                        a.btn.btn-outline-secondary.btn-sm.card-edit-btn.invisible(href=`/card/${card.id}/edit?backto=document` title='Edit Card' data-toggle="tooltip")
+                    .float-end.text-right
+                        a.btn.btn-outline-secondary.btn-sm.card-edit-btn.invisible(href=`/card/${card.id}/edit?backto=document` title='Edit Card' data-bs-toggle="tooltip")
                             i.fas.fa-edit
 
 
 mixin deckCardDoc(card, years)
     li.media.py-2.border-bottom.border-light
-        .media-body.border-left.border-white.px-2
+        .media-body.border-start.border-white.px-2
             .row.mt-0
                 .col-sm-1
                     h5= years
                 .col
 
                     if card.story
-                        | !{marked(card.story)}
+                        | !{marked.parse(card.story)}
                     else
                         i TBD
 
@@ -181,7 +181,7 @@ mixin deckCardDoc(card, years)
 append scripts
     script.
         $(function() {
-            $('[data-toggle="tooltip"]').tooltip({
+            $('[data-bs-toggle="tooltip"]').tooltip({
                 container: 'body',
                 placement: 'right',
                 delay: { "show": 500, "hide": 100 }

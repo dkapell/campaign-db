@@ -59,7 +59,6 @@ select.value-selector{
   background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ecf0f1' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px
 
 }
-
 .skill-table .select2-container .select2-selection--single {
   height: 29px !important;
   font-weight: normal;
@@ -87,9 +86,20 @@ select.value-selector{
   margin-right: 1.4em;
   color: black;
 }
+
+.select2-container .select2-search--inline{
+  float:none;
+}
+
+.select2-container .select2-search__field{
+  resize: none;
+}
+
 .skill-table, .audit-table, .skill-audit-table, .character-audit-table{
   font-size: 0.77rem;
 }
+
+
 
 .skill-status, .glossary_entry-status, .card-deck-type{
   font-size: 0.8rem;
@@ -137,7 +147,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
       top: 5rem;
     }
     .glossary-menu-entries{
-       border-right: 1px solid #eee;
+       border-end: 1px solid #eee;
     }
     .section-nav {
       max-height: 90vh;
@@ -173,7 +183,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
   font-size:  1rem;
 }
 .trait-list li:nth-child(3n){
-  border-right: none !important;
+  border-end: none !important;
 }
 .trait-list li:nth-child(-n+3) {
   border-top: none !important;

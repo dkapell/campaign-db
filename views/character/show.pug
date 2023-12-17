@@ -7,9 +7,9 @@ block content
         .col-md-5
             h3.d-inline= character.name
                 if character.active
-                    span.d-inline.text-success.ml-2(
+                    span.d-inline.text-success.ms-2(
                         title='Character is Active'
-                        data-toggle="tooltip"
+                        data-bs-toggle="tooltip"
                     )
                         i.far.fa-check-circle
 
@@ -24,11 +24,11 @@ block content
                         a.btn.btn-outline-primary.btn-sm.mt-1(role="button" href='/character/' + character.id + '/edit')
                             i.fas.fa-edit
                             |  Edit Details
-                    .btn-group.mt-1.ml-2
+                    .btn-group.mt-1.ms-2
                         a.btn.btn-outline-info.btn-sm(role="button" href='/character/' + character.id + '/pdf')
                             i.fas.fa-file-alt
                             |  Download PDF
-                        a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(data-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+                        a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
                             .sr-only Toggle Dropdown
                         .dropdown-menu.py-1
                             a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
@@ -40,7 +40,7 @@ block content
 
 
                     h4.text-info.mt-2
-                        span.mr-1#character-cp #{character.cp}
+                        span.me-1#character-cp #{character.cp}
                         | CP Spent
 
 
@@ -64,11 +64,11 @@ block content
     ul.nav.nav-tabs#characterTabs(role="tablist")
 
         li.nav-item(role="presentation")
-            a.nav-link.active#character-tab(href="#character" data-toggle="tab" role="tab" aria-controls="character" aria-selected="true") Character Sheet
+            a.nav-link.active#character-tab(href="#character" data-bs-toggle="tab" role="tab" aria-controls="character" aria-selected="true") Character Sheet
         li.nav-item(role="presentation")
-            a.nav-link#skill-tab(href="#skills" data-toggle="tab" role="tab" aria-controls="skills" aria-selected="false") #{allowedEdit?'Edit':'View'} Skills
+            a.nav-link#skill-tab(href="#skills" data-bs-toggle="tab" role="tab" aria-controls="skills" aria-selected="false") #{allowedEdit?'Edit':'View'} Skills
         li.nav-item(role="presentation")
-            a.nav-link#history-tab(href="#history" data-toggle="tab" role="tab" aria-controls="history" aria-selected="false") Build History
+            a.nav-link#history-tab(href="#history" data-bs-toggle="tab" role="tab" aria-controls="history" aria-selected="false") Build History
 
 
     .tab-content#characterTabContent
@@ -80,9 +80,9 @@ block content
             .row.my-3
                 .col
                     if allowedEdit
-                        .float-right
-                            a.btn.btn-outline-success.btn-sm.ml-4.add-source-btn(data-characterid=character.id)
-                                i.fas.fa-plus.fa-fw.mr-1
+                        .float-end
+                            a.btn.btn-outline-success.btn-sm.ms-4.add-source-btn(data-characterid=character.id)
+                                i.fas.fa-plus.fa-fw.me-1
                                 | Add Header
                     h4 Headers
                     #character-source-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
@@ -93,9 +93,9 @@ block content
             .row.my-3
                 .col
                     if allowedEdit
-                        .float-right
-                            a.btn.btn-outline-success.btn-sm.ml-4.add-skill-btn(data-characterid=character.id)
-                                i.fas.fa-plus.fa-fw.mr-1
+                        .float-end
+                            a.btn.btn-outline-success.btn-sm.ms-4.add-skill-btn(data-characterid=character.id)
+                                i.fas.fa-plus.fa-fw.me-1
                                 | Add Skill
                     h4 Skills
                     .div.table-responsive-md

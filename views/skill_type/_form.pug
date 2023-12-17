@@ -1,15 +1,19 @@
-.form-group
-    label.control-label(for="skill_type_name") Name
-    input.form-control(type="text",placeholder="Name",name="skill_type[name]",value=skill_type.name,id='skill_type_name',required)
-    div.invalid-feedback Please choose a valid name
+.row.my-2
+    .col
 
-.form-group
-    label.control-label(for="skill_type_description") Description
-    textarea.form-control(name="skill_type[description]",id="skill_type_description",rows=3)
-        = skill_type.description
+        label.control-label(for="skill_type_name") Name
+        input.form-control(type="text",placeholder="Name",name="skill_type[name]",value=skill_type.name,id='skill_type_name',required)
+        div.invalid-feedback Please choose a valid name
 
-.form-group
-    button.btn.btn-primary(type="submit")= skill_type.id?'Update':'Create'
-    a.btn.btn-link(href="/skill_type") Cancel
+.row.my-2
+    .col
+        label.control-label(for="skill_type_description") Description
+        textarea.form-control(name="skill_type[description]",id="skill_type_description",rows=3)
+            = skill_type.description
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= skill_type.id?'Update':'Create'
+        a.btn.btn-link(href="/skill_type") Cancel
 
 

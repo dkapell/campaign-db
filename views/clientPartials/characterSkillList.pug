@@ -19,32 +19,32 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
                 td!=marked.parseInline(skill.summary)
                     if skill.details
                         if skill.details.stat
-                            i.ml-2 (#{skill.details.stat})
+                            i.ms-2 (#{skill.details.stat})
                         if skill.details.trait
-                            i.ml-2 (#{skill.details.trait})
+                            i.ms-2 (#{skill.details.trait})
                         if skill.details.style
-                            i.ml-2 (#{skill.details.style})
+                            i.ms-2 (#{skill.details.style})
                         if skill.details.language
-                            i.ml-2 (#{skill.details.language})
+                            i.ms-2 (#{skill.details.language})
                         if skill.details.tagskill
-                            i.ml-2 (#{skill.details.tagskill})
+                            i.ms-2 (#{skill.details.tagskill})
                         if skill.details.crafting
-                            i.ml-2 (#{skill.details.crafting})
+                            i.ms-2 (#{skill.details.crafting})
                         if skill.details.skill
-                            i.ml-2 (#{skill.details.skill})
+                            i.ms-2 (#{skill.details.skill})
 
 
 
                         if skill.details.notes || skill.details.sheet_note
-                            span.badge.badge-info.mt-1.float-right notes
+                            span.badge.text-bg-info.mt-1.float-end notes
                 td= skill.character_cost
                 if allowedEdit
                     td
                         .skill-actions.text-nowrap
-                            a.btn.btn-outline-info.btn-xs.skill-edit-btn.mr-1(
+                            a.btn.btn-outline-info.btn-xs.skill-edit-btn.me-1(
                                 role="button",
                                 title='Edit Skill Details'
-                                data-toggle="tooltip"
+                                data-bs-toggle="tooltip"
                                 data-skillid=skill.character_skill_id
                                 data-characterid=character_id
                             )
@@ -53,7 +53,7 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
                                 a.btn.btn-outline-danger.btn-xs.delete-skill-btn(
                                     role="button",
                                     title='Remove Skill'
-                                    data-toggle="tooltip"
+                                    data-bs-toggle="tooltip"
                                     data-skillid=skill.character_skill_id
                                     data-characterid=character_id
                                     data-csrf=csrfToken

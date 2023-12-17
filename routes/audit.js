@@ -95,7 +95,7 @@ async function show(req, res, next){
     const id = req.params.id;
     try{
         const audit = await req.models.audit.get(id);
-            if (!audit || audit.campaign_id !== req.campaign.id){
+        if (!audit || audit.campaign_id !== req.campaign.id){
             throw new Error('Invalid Audit');
         }
         res.locals.breadcrumbs = {

@@ -1,9 +1,9 @@
 mixin markdownEditor(label, id, name, rows, size, contents, showPreview, previewUrl, required=false, disabled=false)
     if !showPreview
         label.control-label.mb-0.d-inline(for=id)= label
-        small.form-text.text-muted.d-inline.ml-2 Supports
-            a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown
-                i.fas.fa-external-link-alt.ml-1
+        small.form-text.text-muted.d-inline.ms-2 Supports
+            a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                i.fas.fa-external-link-alt.ms-1
         textarea.form-control.markdown-editor(
             id= id
             rows= rows
@@ -19,7 +19,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
             li.nav-item(role="presentation")
                 a.nav-link.active(
                     id=`${id}-code-tab`
-                    data-toggle="tab"
+                    data-bs-toggle="tab"
                     href=`#${id}-code`
                     role="tab"
                     aria-controls=`${id}-code`
@@ -28,7 +28,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
             li.nav-item(role="presentation")
                 a.nav-link(
                     id=`${id}-preview-tab`
-                    data-toggle="tab"
+                    data-bs-toggle="tab"
                     href=`#${id}-preview`
                     role="tab"
                     aria-controls=`${id}-preview`
@@ -52,8 +52,8 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
                 )
                     = contents
                 small.form-text.text-muted
-                    a.ml-1(href='https://commonmark.org/help/' target='_blank') Markdown Reference
-                        i.fas.fa-external-link-alt.ml-1
+                    a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown Reference
+                        i.fas.fa-external-link-alt.ms-1
 
             .tab-pane.fade(
                 id=`${id}-preview`
@@ -71,7 +71,7 @@ mixin htmlEditor(id, name, rows, size, contents, showMd)
         li.nav-item(role="presentation")
             a.nav-link.active(
                 id=`${id}-code-tab`
-                data-toggle="tab"
+                data-bs-toggle="tab"
                 href=`#${id}-code`
                 role="tab"
                 aria-controls=`${id}-code`
@@ -80,7 +80,7 @@ mixin htmlEditor(id, name, rows, size, contents, showMd)
         li.nav-item(role="presentation")
             a.nav-link(
                 id=`${id}-preview-tab`
-                data-toggle="tab"
+                data-bs-toggle="tab"
                 href=`#${id}-preview`
                 role="tab"
                 aria-controls=`${id}-preview`

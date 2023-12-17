@@ -28,7 +28,7 @@ $(function(){
         showAudits($('#character-audits-table').data('characterid'));
     }
 
-    $('[data-toggle="tooltip"]').tooltip({
+    $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 500, 'hide': 100 },
         placement:'auto'
     });
@@ -42,7 +42,7 @@ $(function(){
         .confirmation({
             title: 'Recalculate CP for all Characters?'
         }).on('click', recalcAll);
-    $('#characterTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    $('#characterTabs a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const target = $(e.target).attr('aria-controls');
         const $table = $(`#${target}`).find('.data-table');
         $table.DataTable().columns.adjust().responsive.recalc();
@@ -117,7 +117,7 @@ async function showSourceList(){
             title: 'Remove this Header'
         }).on('click', removeSource);
 
-    $('#character-source-table').find('[data-toggle="tooltip"]').tooltip();
+    $('#character-source-table').find('[data-bs-toggle="tooltip"]').tooltip();
     $('#character-source-table-loading').hide();
     $('#character-source-table').show();
 }
@@ -138,7 +138,7 @@ async function showSkillList(){
             title: 'Remove this Skill'
         }).on('click', removeSkill);
 
-    $('#character-skill-table').find('[data-toggle="tooltip"]').tooltip();
+    $('#character-skill-table').find('[data-bs-toggle="tooltip"]').tooltip();
     $('#character-skill-table-loading').hide();
     $('#character-skill-table').show();
     $('#character-skill-table').find('table').each(prepDataTable);
@@ -302,7 +302,7 @@ async function removeSkill(e){
 
 function prepCharacterSourceForm($form){
     $form.find('.select2').select2({
-        theme:'bootstrap4',
+        theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve'
     });
@@ -310,7 +310,7 @@ function prepCharacterSourceForm($form){
     $form.find('.complex-select2').each(function(e){
         const $select = $(this);
         $select.select2({
-            theme:'bootstrap4',
+            theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
             escapeMarkup: function(markup) {
@@ -337,7 +337,7 @@ function prepCharacterSourceForm($form){
 
 function prepCharacterSkillForm($form, character_skill){
     $form.find('.select2').select2({
-        theme:'bootstrap4',
+        theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve'
     });
@@ -345,7 +345,7 @@ function prepCharacterSkillForm($form, character_skill){
     $form.find('.complex-select2').each(function(e){
         const $select = $(this);
         $select.select2({
-            theme:'bootstrap4',
+            theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
             escapeMarkup: function(markup) {
@@ -399,7 +399,7 @@ function displayDetails(object, selected){
                     }
                     $select.attr('required', true);
                     $select.select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve'
                     });
@@ -443,7 +443,7 @@ function displayDetails(object, selected){
                     }
                     $select.attr('required', true);
                     $select.select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve'
                     });
@@ -479,7 +479,7 @@ function displayDetails(object, selected){
                     }
                     $select.attr('required', true);
                     $select.select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve'
                     });
@@ -515,7 +515,7 @@ function displayDetails(object, selected){
                     }
                     $select.attr('required', true);
                     $select.select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve'
                     });
@@ -551,7 +551,7 @@ function displayDetails(object, selected){
                     }
                     $select.attr('required', true);
                     $select.select2({
-                        theme:'bootstrap4',
+                        theme:'bootstrap-5',
                         minimumResultsForSearch: 6,
                         width:'resolve'
                     });

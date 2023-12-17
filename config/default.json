@@ -6,7 +6,7 @@
         "dbSSL": false,
         "dbPoolSize": 1,
         "sessionType": "local",
-        "sessionSecret": "character-db",
+        "sessionSecret": "campaign-db",
         "secureOnly": false,
         "logRequests": true,
         "redis":{

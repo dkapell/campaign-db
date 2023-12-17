@@ -2,20 +2,21 @@ mixin glossaryMenu(entries, showSearch)
     .glossary-menu.sticky-top.w-100#glossaryMenu
         h2.mb-3#glossaryMenuLabel Glossary
         if checkPermission('gm')
-            a.btn.btn-sm.btn-outline-success.btn-block.mb-2(href='/glossary/new')
-                span.fas.fa-plus.mr-1
-                | New Entry
+            .d-grid.gap-2
+                a.btn.btn-sm.btn-outline-success.mb-2(href='/glossary/new')
+                    span.fas.fa-plus.me-1
+                    | New Entry
             if reviewReady
-                a.btn.btn-sm.btn-outline-info.btn-block.my-2(href='/glossary/status/Ready')
-                    span.fas.fa-tasks.mr-1
-                    | Review Entries
+                .d-grid.gap-2
+                    a.btn.btn-sm.btn-outline-info.my-2(href='/glossary/status/Ready')
+                        span.fas.fa-tasks.me-1
+                        | Review Entries
         if showSearch
             form.form#glossarySearchForm(method="GET" action="/glossary/search")
                 .input-group.input-group-sm.mb-2
-                    input.form-control.border-right-0.border#glossarySearch(name="query" placeholder="Search")
-                    .input-group-append
-                        button.btn.btn-outline-secondary.border-left-0.border(type="submit")
-                            i.fas.fa-search
+                    input.form-control.border-end-0.border#glossarySearch(name="query" placeholder="Search")
+                    button.btn.btn-outline-secondary.border-start-0.border(type="submit")
+                        i.fas.fa-search
         .section-nav.glossary-menu-entries.nav.flex-column.w-100.flex-nowrap#glossaryMenu
             - types = ['in character', 'out of character']
             each type in types
@@ -26,7 +27,7 @@ mixin glossaryMenu(entries, showSearch)
 mixin typeMenu(type, data)
     nav.nav.flex-column.toc-entry.nav-fill
         a.d-block.menu-type-header.menu-link( href=`#type-${type.replace(/\W+/g, '_')}` )= capitalize(type)
-        nav.flex-column.toc-entry.type-section.pl-2(id=`menu-type-${type.replace(/\W+/g, '_')}`)
+        nav.flex-column.toc-entry.type-section.ps-2(id=`menu-type-${type.replace(/\W+/g, '_')}`)
             each entryList, tag in data.tags
                 +tagMenu(tag, entryList)
             if data.notags.length
@@ -36,7 +37,7 @@ mixin tagMenu(tag, data, italic)
     - minLengthForShow = 0
     nav.nav.flex-column.toc-entry.nav-fill
         a.d-block(
-            data-toggle="collapse"
+            data-bs-toggle="collapse"
             href=`#menu-tag-${tag.replace(/\W+/g, '_')}`
             aria-expanded=data.length<=minLengthForShow?"true":"false"
             aria-controls=`menu-tag-${tag.replace(/\W+/g, '_')}`
@@ -46,10 +47,10 @@ mixin tagMenu(tag, data, italic)
                     i= capitalize(tag)
                 else
                     = capitalize(tag)
-            span.pr-2.float-right
+            span.pe-2.float-end
                 i.fas.fa-chevron-up
                 i.fas.fa-chevron-down
-        nav.flex-column.toc-entry.tag-section.collapse.pl-2(id=`menu-tag-${tag.replace(/\W+/g, '_')}` class=[data.length<=minLengthForShow?'show':''])
+        nav.flex-column.toc-entry.tag-section.collapse.ps-2(id=`menu-tag-${tag.replace(/\W+/g, '_')}` class=[data.length<=minLengthForShow?'show':''])
             for entry in data
                 +entryMenu(entry)
 
@@ -64,19 +65,19 @@ mixin typeLayout(type, data, anchor)
             +entryLayout(entry, anchor)
 
 mixin entryLayout(entry, anchor)
-    .entry-body.border-left.border-white.pl-2(id=`entry-${entry.name.replace(/\W+/g, '_').toLowerCase()}`)
+    .entry-body.border-start.border-white.ps-2(id=`entry-${entry.name.replace(/\W+/g, '_').toLowerCase()}`)
         dt
-            a.mr-3(href=`/glossary/${entry.id}/${querystring.escape(entry.name)}`)= entry.name
+            a.me-3(href=`/glossary/${entry.id}/${querystring.escape(entry.name)}`)= entry.name
             for tag in entry.tags
                 a(href=`/glossary/tag/${tag.id}/${tag.name}`)
-                    span.badge.badge-secondary.mx-1= tag.name
+                    span.badge.text-bg-secondary.mx-1= tag.name
             if checkPermission('contrib')
-                .float-right.text-right
+                .float-end.text-right
                     if checkPermission('gm')
-                        a.btn.btn-sm.btn-outline-info.mr-2.entry-edit-btn.invisible(href=`/glossary/${entry.id}/edit` data-toggle="tooltip" title=`Edit ${entry.name}`)
+                        a.btn.btn-sm.btn-outline-info.me-2.entry-edit-btn.invisible(href=`/glossary/${entry.id}/edit` data-bs-toggle="tooltip" title=`Edit ${entry.name}`)
                             i.fas.fa-edit
                     if entry.status && checkPermission('contrib')
-                        .badge.badge-pill.skill-status(class=`badge-${entry.status.class}`)
+                        .badge.badge-pill.skill-status(class=`text-bg-${entry.status.class}`)
                             = capitalize(entry.status.name)
 
         dd.border-bottom.border-light.glossary-list-entry !{anchor?entry.content.anchor:entry.content.entry}

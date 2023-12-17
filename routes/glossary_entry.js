@@ -179,8 +179,8 @@ async function showNew(req, res, next){
         };
 
         res.locals.csrfToken = req.csrfToken();
-        res.locals.glossary_statuses = await req.models.glossary_status.find();
-        res.locals.glossary_tags = await req.models.glossary_tag.find();
+        res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
+        res.locals.glossary_tags = await req.models.glossary_tag.find({campaign_id:req.campaign.id});
 
         if (_.has(req.session, 'glossary_entryData')){
             res.locals.glossary_entry = req.session.glossary_entryData;
@@ -214,8 +214,8 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + glossary_entry.name
         };
-        res.locals.glossary_statuses = await req.models.glossary_status.find();
-        res.locals.glossary_tags = await req.models.glossary_tag.find();
+        res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
+        res.locals.glossary_tags = await req.models.glossary_tag.find({campaign_id:req.campaign.id});
         res.locals.title += ` - Edit Glossary Entry - ${glossary_entry.name}`;
         res.render('glossary/edit');
     } catch(err){

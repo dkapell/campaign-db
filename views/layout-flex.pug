@@ -8,7 +8,8 @@ html(lang="en")
                 include ./partials/layout/menu
 
             if breadcrumbs
-                include ./partials/layout/breadcrumbs
+                .container-fluid
+                    include ./partials/layout/breadcrumbs
 
             if (pageTitle)
                 .container(role="page_title")

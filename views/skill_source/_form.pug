@@ -1,15 +1,15 @@
 if (backto)
     input(type="hidden" name="backto" value=backto)
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_source_name") Name
         input.form-control(type="text",placeholder="Name",name="skill_source[name]",value=skill_source.name,id='skill_source_name',required)
         div.invalid-feedback Please choose a valid name
 
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_source_type_id") Type
-        select.custom-select.select2(name="skill_source[type_id]",id="skill_source_type_id" data-placeholder='Source Type')
+        select.form-select.select2(name="skill_source[type_id]",id="skill_source_type_id" data-placeholder='Source Type')
             option
             for type in skill_source_types
                 option(value=type.id selected=skill_source.type_id===type.id)= capitalize(type.name)
@@ -17,21 +17,20 @@ if (backto)
     .col
         label.control-label(for="skill_source_cost") Cost
         .input-group
-            input.form-control.text-right.pr-3(type="number",placeholder="Cost",name="skill_source[cost]",value=skill_source.cost,id='skill_source_cost')
-            .input-group-append
-                span.input-group-text CP
+            input.form-control.text-right.pe-3(type="number",placeholder="Cost",name="skill_source[cost]",value=skill_source.cost,id='skill_source_cost')
+            span.input-group-text CP
 
-.form-row.my-2
+.row.my-2
     .col
-        .custom-control.custom-switch
-            input.custom-control-input(type="checkbox", name="skill_source[required]", id="skill_source_required", checked=skill_source.required)
-            label.custom-control-label(for="skill_source_required") Required
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_source[required]", id="skill_source_required", checked=skill_source.required)
+            label.form-check-label(for="skill_source_required") Required
     .col
-        .custom-control.custom-switch
-            input.custom-control-input(type="checkbox", name="skill_source[display_to_pc]", id="skill_source_display_to_pc", checked=skill_source.display_to_pc)
-            label.custom-control-label(for="skill_source_display_to_pc") Display to PCs
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_source[display_to_pc]", id="skill_source_display_to_pc", checked=skill_source.display_to_pc)
+            label.form-check-label(for="skill_source_display_to_pc") Display to PCs
 
-.form-row.my-2
+.row.my-2
     .col-md-9
         label.control-label(for="skill_source_requires") Prereqs
         select.form-control.select2(multiple, name="skill_source[requires]",id="skill_source_requires" data-placeholder='Prereqs')
@@ -42,7 +41,7 @@ if (backto)
         label.control-label(for="skill_source_require_num") Number of Prereqs
         input.form-control.text-right#skill_source_require_num(type="number",placeholder="Usually 1",name="skill_source[require_num]",value=skill_source.require_num)
 
-.form-row.my-2
+.row.my-2
     .col
         label.control-label(for="skill_source_conflicts") Conflicts
         select.form-control.select2(multiple, name="skill_source[conflicts]",id="skill_source_conflicts" data-placeholder='Conflicts')
@@ -50,7 +49,7 @@ if (backto)
                 if source.id !== skill_source.id
                     option(value=source.id selected=_.indexOf(skill_source.conflicts, source.id)!== -1) #{capitalize(source.type.name)}: #{source.name}
 
-.form-row.my-2.provides-row
+.row.my-2.provides-row
     .col
         label.control-label(for="skill_provides_0_type") Provides
         select.form-control.clearable-select2.skill-provides-type(name="skill_source[provides][0][type]", id="skill_provides_0_type" data-placeholder="Provides Type")
@@ -65,16 +64,16 @@ if (backto)
         label.control-label(for="skill_provides_0_value") Value
         input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill_source[provides][0][value]",value=skill_source.provides[0].value,id='skill_provides_0_value')
 
-.form-row.my-2
+.row.my-2
     .col
         +markdownEditor('Description (Player Facing)', 'skill_source_description', 'skill_source[description]', 5, 100, skill_source.description, true)
 
-.form-row.my-2
+.row.my-2
     .col
         +markdownEditor('Notes (GM Only)', 'skill_source_notes', 'skill_source[notes]', 5, 80, skill_source.notes)
 
 
-.form-row.my-2
+.row.my-2
     .col
         button.btn.btn-primary(type="submit")= skill_source.id?'Update':'Create'
         a.btn.btn-link(href="/skill_source") Cancel

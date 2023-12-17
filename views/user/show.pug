@@ -5,55 +5,55 @@ include ../partials/character.pug
 block content
     h2.d-inline= user.name
 
-    h4.d-inline.ml-4
+    h4.d-inline.ms-4
         a(href=`mailto:${user.email}`)=user.email
-    h3.float-right
-        span.badge.badge-info=user.type
+    h3.float-end
+        span.badge.text-bg-info=user.type
     
     .row.my-2
         .col
             if user.staff_drive_folder
-                a.btn.btn-outline-info.mr-2(
+                a.btn.btn-outline-info.me-2(
                     href=user.staff_drive_folder
                     target="_blank"
-                    data-toggle="tooltip"
+                    data-bs-toggle="tooltip"
                     title="Open Player's Staff Folder"
                 )
-                    i.fab.fa-google-drive.mr-1
+                    i.fab.fa-google-drive.me-1
                     | Staff Drive
-                    i.fa.fa-external-link.ml-1
+                    i.fa.fa-external-link.ms-1
 
             if user.drive_folder
-                a.btn.btn-outline-info.mr-2(
+                a.btn.btn-outline-info.me-2(
                     href=user.drive_folder
                     target="_blank"
-                    data-toggle="tooltip"
+                    data-bs-toggle="tooltip"
                     title="Open Player's Drive Folder"
                 )
-                    i.fab.fa-google-drive.mr-1
+                    i.fab.fa-google-drive.me-1
                     | Player Drive
-                    i.fa.fa-external-link.ml-1
+                    i.fa.fa-external-link.ms-1
 
 
             if !_.has(session, 'assumed_user')
-                a.btn.btn-outline-danger.mr-2(
+                a.btn.btn-outline-danger.me-2(
                     role="button",
                     href=`/user/${user.id}/assume`
                 )
-                    i.fas.fa-user-secret.mr-1
+                    i.fas.fa-user-secret.me-1
                     | Become User
 
-            a.btn.btn-outline-primary.mr-2(
+            a.btn.btn-outline-primary.me-2(
                 role="button"
                 href='/user/' + user.id + '/edit'
             )
-                i.fas.fa-edit.mr-1
+                i.fas.fa-edit.me-1
                 |  Edit User
     if user.notes
         .row.my-2
             .col
                 h3 Notes
-                != marked(user.notes)
+                != marked.parse(user.notes)
 
     .row.my-2
         .col

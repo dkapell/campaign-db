@@ -6,35 +6,35 @@ include ../partials/editor
 block content
     .row.my-2
         .col
-            h3.d-inline.mr-5.align-middle Skills
+            h3.d-inline.me-5.align-middle Skills
             span.d-inline-block.align-middle
-                a.btn.btn-outline-info.mr-3(href='/skill_source') Sources
+                a.btn.btn-outline-info.me-3(href='/skill_source') Sources
                 if checkPermission('gm')
-                    a.btn.btn-sm.btn-outline-info.mr-2(href='/skill_source_type') Source Types
-                    a.btn.btn-sm.btn-outline-info.mr-2(href='/skill_type') Types
-                    a.btn.btn-sm.btn-outline-info.mr-2(href='/skill_usage') Usages
-                    a.btn.btn-sm.btn-outline-info.mr-2(href='/skill_tag') Tags
-                    a.btn.btn-sm.btn-outline-info.mr-2(href='/audit') Change Log
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/skill_source_type') Source Types
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/skill_type') Types
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/skill_usage') Usages
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/skill_tag') Tags
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/audit') Change Log
                     if checkPermission('gm')
                         if (skills.filter(skill => { return skill.status.name === 'Ready'})).length
-                            a.btn.btn-sm.btn-outline-info.mr-2(href='/skill/review') Skill Review
+                            a.btn.btn-sm.btn-outline-info.me-2(href='/skill/review') Skill Review
         if checkPermission('gm')
             .col
-                .float-right
-                    a.btn.btn-outline-info.mr-2(href='/skill?export=true')
-                        i.fas.fa-download.mr-1
+                .float-end
+                    a.btn.btn-outline-info.me-2(href='/skill?export=true')
+                        i.fas.fa-download.me-1
                         | CSV
-                    a.btn.btn-outline-info.mr-2(href='/skill?export=true&player=true')
-                        i.fas.fa-download.mr-1
+                    a.btn.btn-outline-info.me-2(href='/skill?export=true&player=true')
+                        i.fas.fa-download.me-1
                         | Player CSV
 
     .row.my-2
         .col
             if checkPermission('gm')
-                a.btn.btn-outline-success.mr-2.skill-new-btn(href='/skill/new')
+                a.btn.btn-outline-success.me-2.skill-new-btn(href='/skill/new')
                     span(class="fa fa-plus")
                     |  New Skill
-            a.btn.btn-outline-info.mr-3(role="button" href='/skill/doc')
+            a.btn.btn-outline-info.me-3(role="button" href='/skill/doc')
                 i.fas.fa-file-alt
                 |  View as Document
 

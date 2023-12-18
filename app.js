@@ -39,6 +39,8 @@ const auditRouter = require('./routes/audit');
 const glossaryStatusRouter = require('./routes/glossary_status');
 const glossaryEntryRouter = require('./routes/glossary_entry');
 
+const rulebookRouter = require('./routes/rulebook');
+
 const mapRouter = require('./routes/map');
 
 const characterRouter = require('./routes/character');
@@ -211,6 +213,7 @@ app.use('/skill_status', skillStatusRouter);
 app.use('/audit', auditRouter);
 app.use('/glossary_status', glossaryStatusRouter);
 app.use('/glossary', glossaryEntryRouter);
+app.use('/rulebook', rulebookRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 

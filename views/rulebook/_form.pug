@@ -1,0 +1,64 @@
+.row.my-2
+    .col
+
+        label.control-label(for="rulebook_name") Name
+        input.form-control(type="text",placeholder="Name",name="rulebook[name]",value=rulebook.name,id='rulebook_name',required)
+        .invalid-feedback Please choose a valid name
+
+.row.my-2
+    .col
+        label.control-label(for="rulebook_drive_folder") Drive Folder ID
+        input.form-control(type="text",placeholder="Drive Folder Id",name="rulebook[drive_folder]",value=rulebook.drive_folder,id='rulebook_drive_folder',required)
+        .invalid-feedback Please specify a valid Drive folder ID
+        .form-text This is just the ID part of the URL, after the 'https://drive.google.com/drive/u/0/folders/' part.
+
+.row.my-2
+    .col
+        label.control-label(for="rulebook_display_order") Display Order
+        input.form-control(type="number",placeholder="Order",name="rulebook[display_order]",value=rulebook.display_order,id='rulebook_display_order',required)
+        div.invalid-feedback Please choose a valid display order
+
+
+.row.my-2
+    .col
+        label.control-label(for="rulebook_description") Description
+        textarea.form-control(name="rulebook[description]",id="rulebook_description",rows=3)
+            = rulebook.description
+
+if rulebook.data
+    .row.my-2
+    .col
+        label.control-label(for="rulebook_excludes") Excludes
+        for item of rulebook.data.files
+            -
+                let icon = "fa-file-alt"
+                if (item.mimeType === 'application/vnd.google-apps.spreadsheet'){
+                    icon = "fa-table"
+                }
+                let checked = false;
+                if (_.has(rulebook.excludes, item.id)){
+                    checked=true
+                }
+            .form-check
+                input.form-check-input(type="checkbox" value="true" id=`rulebook_exclude_file_${item.id}` name=`rulebook[excludes][${item.id}]` checked=checked)
+                label.form-check-label(for=`rulebook_exclude_file_${item.id}`)
+                    i.fa.me-1(class=icon)
+                    = item.name
+        for item of rulebook.data.children
+            -
+                let checked = false;
+                if (_.has(rulebook.excludes, item.id)){
+                    checked=true
+                }
+            .form-check
+                input.form-check-input(type="checkbox" value="true" id=`rulebook_exclude_file_${item.id}` name=`rulebook[excludes][${item.id}]` checked=checked)
+                label.form-check-label(for=`rulebook_exclude_file_${item.id}`)
+                    i.fa.fa-folder.me-1
+                    =item.name
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= rulebook.id?'Update':'Create'
+        a.btn.btn-link(href="/rulebook") Cancel
+
+

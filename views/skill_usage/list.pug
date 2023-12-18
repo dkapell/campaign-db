@@ -30,7 +30,8 @@ block content
                         td.dtr-control
                         td= skill_usage.name
                         td= skill_usage.display_order
-                        td= skill_usage.display_name?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_usage.display_name?'success':'warning'}`)=skill_usage.display_name?'Yes':'No'
                         td= skill_usage.description
                         if checkPermission('admin')
                             td.text-right

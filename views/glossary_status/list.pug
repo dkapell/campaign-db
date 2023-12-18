@@ -19,6 +19,7 @@ block content
                     th(data-priority="1") Name
                     th Display Order
                     th Display to Players?
+                    th Reviewable?
                     th Description
                     if checkPermission('admin')
                         th
@@ -32,7 +33,11 @@ block content
                             .badge.badge-pill.glossary-status(class=`text-bg-${glossary_status.class}`)
                                 = capitalize(glossary_status.name)
                         td= glossary_status.display_order
-                        td= glossary_status.display_to_pc?'Yes':'No'
+
+                        td
+                            .badge(class=`text-bg-${glossary_status.display_to_pc?'success':'warning'}`)=glossary_status.display_to_pc?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${glossary_status.reviewable?'success':'warning'}`)=glossary_status.reviewable?'Yes':'No'
                         td= glossary_status.description
                         if checkPermission('admin')
                             td.text-right

@@ -29,8 +29,10 @@ block content
                     tr(class='clickable-row', data-click-object='skill_tag' data-click-id=skill_tag.id)
                         td.dtr-control
                         td= skill_tag.name
-                        td= skill_tag.display_to_pc?'Yes':'No'
-                        td= skill_tag.on_sheet?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_tag.display_to_pc?'success':'warning'}`)=skill_tag.display_to_pc?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_tag.on_sheet?'success':'warning'}`)=skill_tag.on_sheet?'Yes':'No'
                         td
                             if skill_tag.color
                                 span.badge(class=`text-bg-${skill_tag.color}`)=capitalize(skill_tag.color)

@@ -2,7 +2,7 @@
 const validator = require('validator');
 const Model = require('../lib/Model');
 
-const tableFields = ['id', 'campaign_id', 'name', 'description', 'display_order', 'display_to_pc', 'class'];
+const tableFields = ['id', 'campaign_id', 'name', 'description', 'display_order', 'display_to_pc', 'class', 'reviewable'];
 
 const GlossaryStatus = new Model('glossary_statuses', tableFields, {
     order: ['display_order'],

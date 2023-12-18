@@ -42,11 +42,9 @@ jspm_packages
 # app specific
 output
 doc/scratchspace
-data
 public/javascripts/bundles
 public/javascripts/templates
 public/images/generated
 scripts/devtests
 credentials
-doc/generated
 TODO

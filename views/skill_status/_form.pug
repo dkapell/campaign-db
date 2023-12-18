@@ -23,11 +23,16 @@
         .form-check.form-switch
             input.form-check-input(type="checkbox", name="skill_status[purchasable]", id="skill_status_purchasable", checked=skill_status.purchasable)
             label.form-check-label(for="skill_status_purchasable") Purchasable
+.row.my-2
 
     .col
         .form-check.form-switch
             input.form-check-input(type="checkbox", name="skill_status[advanceable]", id="skill_status_advanceable", checked=skill_status.advanceable)
             label.form-check-label(for="skill_status_advanceable") Advanceable to next step
+    .col
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_status[reviewable]", id="skill_status_reviewable", checked=skill_status.reviewable)
+            label.form-check-label(for="skill_status_reviewable") Available for review
 
 .row.my-2
     .col

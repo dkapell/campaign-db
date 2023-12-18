@@ -143,6 +143,7 @@ create table skill_statuses(
     description     text,
     advanceable     boolean default true,
     purchasable     boolean default false,
+    reviewable      boolean default false,
     class           varchar(20) default 'secondary',
     primary key (id),
     CONSTRAINT skill_statuses_campaign_fk FOREIGN KEY (campaign_id)
@@ -235,6 +236,7 @@ create table glossary_statuses(
     display_to_pc   boolean default true,
     display_order   int,
     description     text,
+    reviewable      boolean default false,
     class           varchar(20) default 'secondary',
     primary key (id),
     CONSTRAINT glossary_statuses_campaign_fk FOREIGN KEY (campaign_id)

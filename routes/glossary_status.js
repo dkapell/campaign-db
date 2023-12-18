@@ -55,7 +55,8 @@ async function showNew(req, res, next){
             description: null,
             display_to_pc: false,
             display_order: maxVal +1,
-            class: 'secondary'
+            class: 'secondary',
+            reviewable: false,
         };
         res.locals.breadcrumbs = {
             path: [
@@ -112,8 +113,10 @@ async function create(req, res, next){
     const glossary_status = req.body.glossary_status;
 
     req.session.glossary_statusData = glossary_status;
-    if (!_.has(glossary_status, 'display_to_pc')){
-        glossary_status.display_to_pc = false;
+    for (const field of ['display_to_pc', 'reviewable']){
+        if (!_.has(glossary_status, field)){
+            glossary_status[field] = false;
+        }
     }
     glossary_status.campaign_id = req.campaign.id;
     try{
@@ -132,8 +135,10 @@ async function update(req, res, next){
     const id = req.params.id;
     const glossary_status = req.body.glossary_status;
     req.session.glossary_statusData = glossary_status;
-    if (!_.has(glossary_status, 'display_to_pc')){
-        glossary_status.display_to_pc = false;
+    for (const field of ['display_to_pc', 'reviewable']){
+        if (!_.has(glossary_status, field)){
+            glossary_status[field] = false;
+        }
     }
 
     try {

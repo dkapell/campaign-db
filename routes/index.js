@@ -39,7 +39,7 @@ async function showIndex(req, res, next){
     }
 
     res.locals.siteSection='home';
-    res.render('index', { title: 'Ritual Larp' });
+    res.render('index', { title: req.campaign.name });
 }
 function showCss(req, res, next){
     res.setHeader('content-type', 'text/css');

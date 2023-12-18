@@ -18,6 +18,7 @@ block content
                     th
                     th(data-priority="1") Name
                     th Display Order
+                    th Review?
                     th Display to Players?
                     th Purchasable
                     th Advanceable?
@@ -34,9 +35,14 @@ block content
                             .badge.badge-pill.skill-status(class=`text-bg-${skill_status.class}`)
                                 = capitalize(skill_status.name)
                         td= skill_status.display_order
-                        td= skill_status.display_to_pc?'Yes':'No'
-                        td= skill_status.purchasable?'Yes':'No'
-                        td= skill_status.advanceable?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_status.reviewable?'success':'warning'}`)=skill_status.reviewable?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_status.display_to_pc?'success':'warning'}`)=skill_status.display_to_pc?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_status.purchasable?'success':'warning'}`)=skill_status.purchasable?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_status.advanceable?'success':'warning'}`)=skill_status.advanceable?'Yes':'No'
 
                         td= skill_status.description
                         if checkPermission('admin')

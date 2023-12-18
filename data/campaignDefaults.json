@@ -1,0 +1,192 @@
+{
+    "glossary": {
+        "glossary_status":[
+            {
+                "name":"Idea",
+                "display_order": 1,
+                "display_to_pc": false,
+                "class": "secondary",
+                "description": "Initial idea for a glossary entry",
+                "reviewable": false
+            },
+            {
+                "name":"Drafted",
+                "display_order": 2,
+                "display_to_pc": false,
+                "class": "primary",
+                "description": "Drafted glossary entry",
+                "reviewable": false
+            },
+            {
+                "name":"Ready",
+                "display_order": 3,
+                "display_to_pc": false,
+                "class": "warning",
+                "description": "Ready for review",
+                "reviewable": true
+            },
+            {
+                "name":"Finalized",
+                "display_order": 4,
+                "display_to_pc": true,
+                "class": "success",
+                "description": "Approved/Public glossary entry",
+                "reviewable": false
+            },
+            {
+                "name":"Secret",
+                "display_order": 5,
+                "display_to_pc": false,
+                "class": "dark",
+                "description": "Approved/Secret glossary entry",
+                "reviewable": false
+            }
+        ]
+    },
+    "skills":{
+        "skill_source_type": [
+            {
+                "name": "open",
+                "display_order": 1
+            },
+            {
+                "name": "culture",
+                "display_order": 2
+            },
+            {
+                "name": "header",
+                "display_order": 3
+            }
+        ],
+        "skill_type": [
+            { "name": "Melee" },
+            { "name": "Ranged" },
+            { "name": "Healing" },
+            { "name": "Defense" },
+            { "name": "Support" },
+            { "name": "Crafting" },
+            { "name": "Info" },
+            { "name": "BSA" },
+            { "name": "Other" }
+        ],
+        "skill_usage": [
+            {
+                "name": "Weapon",
+                "description": "Weapon skill",
+                "display_order":1
+            },
+            {
+                "name": "Stats",
+                "description": "Provides a stat",
+                "display_order":2
+            },
+            {
+                "name": "Always",
+                "description": "Always active",
+                "display_order":3
+            },
+            {
+                "name": "At Will",
+                "description": "At-will combat skill",
+                "display_order":4
+            },
+            {
+                "name": "Regular",
+                "description": "Skill that takes stats to use",
+                "display_order":5
+            },
+            {
+                "name": "Twilight",
+                "description": "Resets at 6pm and 6am",
+                "display_order":6
+            },
+            {
+                "name": "Event",
+                "description": "X times per event",
+                "display_order":7
+            }
+        ],
+        "skill_status": [
+            {
+                "name": "Idea",
+                "description": "An idea for a skill",
+                "display_order": 1,
+                "display_to_pc": false,
+                "purchasable": false,
+                "advanceable": true,
+                "reviewable": false,
+                "class": "secondary"
+            },
+            {
+                "name": "Drafted",
+                "description": "Summary Ready for Review",
+                "display_order": 2,
+                "display_to_pc": false,
+                "purchasable": false,
+                "advanceable": true,
+                "reviewable": false,
+                "class": "info"
+            },
+            {
+                "name": "Accepted",
+                "description": "Summary Accepted, Needs final form",
+                "display_order": 3,
+                "display_to_pc": false,
+                "purchasable": false,
+                "advanceable": true,
+                "reviewable": false,
+                "class": "dark"
+            },
+            {
+                "name": "Ready",
+                "description": "In final form, Ready to be reviewed by Core Staff",
+                "display_order": 4,
+                "display_to_pc": false,
+                "purchasable": false,
+                "advanceable": false,
+                "reviewable": true,
+                "class": "warning"
+            },
+            {
+                "name": "Public",
+                "description": "Ready for PCs to view/buy",
+                "display_order": 5,
+                "display_to_pc": true,
+                "purchasable": true,
+                "advanceable": false,
+                "reviewable": true,
+                "class": "success"
+            },
+            {
+                "name": "Future",
+                "description": "Skills that are not yet available, but PCs can know about.",
+                "display_order": 6,
+                "display_to_pc": true,
+                "purchasable": false,
+                "advanceable": false,
+                "reviewable": false,
+                "class": "dark"
+            },
+            {
+                "name": "Secret",
+                "description": "Ready, but do not display to players.",
+                "display_order": 7,
+                "display_to_pc": false,
+                "purchasable": true,
+                "advanceable": false,
+                "reviewable": false,
+                "class": "secondary"
+            },
+            {
+                "name": "Delete Me",
+                "description": "Delete this Skill",
+                "display_order": 99,
+                "display_to_pc": false,
+                "purchasable": false,
+                "advanceable": false,
+                "reviewable": false,
+                "class": "danger"
+            }
+        ]
+    }
+}

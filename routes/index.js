@@ -1,28 +1,15 @@
 const express = require('express');
 const config = require('config');
 const Character = require('../lib/Character');
-const fs = require('fs/promises');
 const _ = require('underscore');
 const async = require('async');
+const rulebookHelper = require('../lib/rulebookHelper');
 
 /* GET home page. */
 async function showIndex(req, res, next){
     try {
 
-        const rulebookInclude = config.get('rulebook');
-
-        const rulebookAll = JSON.parse(await fs.readFile(__dirname + '/../doc/generated/rulebook.json'));
-        const rulebook = {
-            children: [],
-            files: rulebookAll.files
-        };
-
-        for (const child of rulebookAll.children){
-            if (_.findWhere(rulebookInclude.children, {id: child.id})){
-                rulebook.children.push(child);
-            }
-        }
-        res.locals.rulebook = rulebook;
+        res.locals.rulebooks =  await rulebookHelper.display(req.campaign.id);
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 

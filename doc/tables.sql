@@ -357,3 +357,20 @@ create table skill_reviews(
 CREATE INDEX skill_review_idx
     ON skill_reviews USING btree
     (skill_id ASC NULLS LAST);
+
+create table rulebooks(
+    id serial,
+    campaign_id int not null,
+    name varchar(255),
+    description text,
+    display_order int not null,
+    drive_folder varchar(255),
+    data jsonb,
+    excludes jsonb,
+    generated timestamp with time zone,
+    primary key(id),
+    CONSTRAINT rulebooks_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+

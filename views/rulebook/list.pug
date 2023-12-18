@@ -1,0 +1,82 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/rulebook/new')
+        span(class="fa fa-plus")
+        |  New Rulebook
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Display Order
+                    th Description
+                    th Last Generated
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for rulebook in rulebooks
+                    tr(class='clickable-row', data-click-object='rulebook' data-click-id=rulebook.id)
+                        td.dtr-control
+                        td= rulebook.name
+                        td= rulebook.display_order
+                        td= rulebook.description
+                        td= rulebook.generatedFormated
+                        
+                        if checkPermission('admin')
+                            td.text-right
+                                a.btn.btn-outline-info.btn-xs.action-btn.rebuild-btn.mx-2(
+                                    role="button",
+                                    url=`/rulebook/${rulebook.id}/rebuild`,
+                                    data-bs-toggle="tooltip"
+                                    title="Rebuild Rulebook"
+                                    data-back='/rulebook'
+                                    data-csrf=csrfToken
+                                    data-rulebookid=rulebook.id
+                                )
+                                    i.fas.fa-sync.fa-fw
+
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/rulebook/${rulebook.id}`,
+                                    data-back='/rulebook'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 500, 'hide': 100 },
+                placement:'auto'
+            });
+            $('.rebuild-btn').on('click', async function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                const $this = $(this);
+                const rulebookId = $this.data('rulebookid');
+                const csrfToken = $this.data('csrf');
+                const result = await fetch(`/rulebook/${rulebookId}/rebuild`, {
+                    method:'PUT',
+                        headers: {
+                        'CSRF-Token': csrfToken
+                    }
+                });
+
+            });
+        });
+
+

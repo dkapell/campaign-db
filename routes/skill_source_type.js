@@ -47,7 +47,7 @@ async function show(req, res, next){
 async function showNew(req, res, next){
     try{
 
-        const source_types = await req.models.skill_source_type.find();
+        const source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         const maxVal = _.max(_.pluck(source_types, 'display_order'));
         res.locals.skill_source_type = {
             name: null,

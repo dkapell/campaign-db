@@ -48,7 +48,7 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const glossary_statuses = await req.models.glossary_status.find();
+        const glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
         const maxVal = _.max(_.pluck(glossary_statuses, 'display_order'));
         res.locals.glossary_status = {
             name: null,

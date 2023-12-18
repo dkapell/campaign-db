@@ -3,6 +3,7 @@ const config = require('config');
 const models = require('../lib/models');
 const fs = require('fs/promises');
 
+const campaignId = 1;
 
 (async function main() {
     const content = (await fs.readFile(__dirname + '/../emails.txt')).toString();
@@ -16,11 +17,11 @@ const fs = require('fs/promises');
         users.push({name:parts[0], email:parts[1].replace(/\s+/, '')});
     }
     for (const person of users){
-        const user = await models.user.findOne({email:person.email});
+        const user = await models.user.findOne(campaignId, {email:person.email});
         if (user) {
             continue;
         }
-        await models.user.create({
+        await models.user.create(campaignId, {
             name: person.name,
             email: person.email,
             user_type: 'player',

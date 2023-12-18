@@ -1,5 +1,12 @@
-mixin rulebook(rulebook, depth=0)
+mixin allRulebooks(rulebooks)
+    ul.list-unstyled
+        each rulebook in rulebooks
+            li
+                if rulebook.length > 1
+                    h6= capitalize(rulebook.name)
+                +rulebook(rulebook.rulebook)
 
+mixin rulebook(rulebook, depth=0)
     ul.list-unstyled
 
         each file in rulebook.files

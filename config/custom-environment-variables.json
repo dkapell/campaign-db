@@ -10,7 +10,8 @@
             "url": "REDIS_URL",
             "tls": "REDIS_TLS"
         },
-        "cacheType": "CACHE_TYPE"
+        "cacheType": "CACHE_TYPE",
+        "fontAwesomeKit": "FONTAWESOME_KIT"
     },
     "auth": {
         "clientID": "GOOGLE_CLIENT_ID",

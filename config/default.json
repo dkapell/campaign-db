@@ -1,6 +1,6 @@
 {
     "app": {
-        "name": "Character DB",
+        "name": "Campaign DB",
         "debug": false,
         "dbURL": null,
         "dbSSL": false,
@@ -13,7 +13,8 @@
             "url": false,
             "tls": false
         },
-        "cacheType": "redis"
+        "cacheType": "redis",
+        "fontAwesomeKit": null
     },
     "auth": {
         "clientID": "clientID",

@@ -76,8 +76,7 @@ append content
                             | Characters
                     .list-group-item
                         h5 Documents
-                        - const configRulebook = config.get('rulebook');
-                        +rulebook(rulebook)
+                        +allRulebooks(rulebooks)
             .col-lg
                 if character
                     h1.h3 Character

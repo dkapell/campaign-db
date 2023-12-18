@@ -18,7 +18,7 @@ const tableFields = [
     'approved'
 ];
 
-const SkillReview = new Model('skill_review', tableFields, {
+const SkillReview = new Model('skill_reviews', tableFields, {
     order: ['created'],
     validator: validate,
     postSelect: fill

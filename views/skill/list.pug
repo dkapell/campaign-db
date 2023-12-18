@@ -16,7 +16,7 @@ block content
                     a.btn.btn-sm.btn-outline-info.me-2(href='/skill_tag') Tags
                     a.btn.btn-sm.btn-outline-info.me-2(href='/audit') Change Log
                     if checkPermission('gm')
-                        if (skills.filter(skill => { return skill.status.name === 'Ready'})).length
+                        if (skills.filter(skill => { return skill.status.reviewable})).length
                             a.btn.btn-sm.btn-outline-info.me-2(href='/skill/review') Skill Review
         if checkPermission('gm')
             .col

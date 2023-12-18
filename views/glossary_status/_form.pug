@@ -17,6 +17,10 @@
         .form-check.form-switch
             input.form-check-input(type="checkbox", name="glossary_status[display_to_pc]", id="glossary_status_display_to_pc", checked=glossary_status.display_to_pc)
             label.form-check-label(for="glossary_status_display_to_pc") Display to Players in Glossary
+    .col
+        .form-check.form-switch
+            input.form-check-input(type="checkbox", name="glossary_status[reviewable]", id="glossary_status_reviewable", checked=glossary_status.reviewable)
+            label.form-check-label(for="glossary_status_reviewable") Available for review
 
 .row.my-2
     .col

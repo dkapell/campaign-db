@@ -37,7 +37,7 @@ async function show(req, res, next){
         }
         const skills = await req.models.skill.find({source_id:id});
         await async.each(skills, async(skill) => {
-            if (skill.status.name === 'Ready'){
+            if (skill.status.reviewable){
                 const reviews = await req.models.skill_review.find({skill_id:skill.id, approved:true});
 
                 skill.approvals = reviews.filter(review => {return review.created > skill.updated;}).length;

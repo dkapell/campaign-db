@@ -103,6 +103,50 @@ async function listStatus(req, res, next){
     }
 }
 
+async function listReview(req, res, next){
+    try{
+        res.locals.sortEntries = glossaryHelper.sorter;
+        res.locals.wideMain = true;
+
+        const statuses = await req.models.glossary_status.find({reviewable:true, campaign_id:req.campaign.id});
+        if (!statuses.length){
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/glossary', name: 'Glossary'},
+                ],
+                current: 'Reviews'
+            };
+            res.locals.glossary_entries = [];
+            res.locals.glossary_status = {name: 'Not Found'};
+            res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
+            return res.render('glossary/list');
+
+        }
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/glossary', name: 'Glossary'},
+            ],
+            current: `Reviewable`
+        };
+
+        const glossary_entries = []
+        for (const status of statuses){
+            glossary_entries.push( await req.models.glossary_entry.find({status_id:status.id}));
+        }
+
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(_.flatten(glossary_entries, true), res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.listName = 'Reviewable';
+        res.locals.listType = 'status';
+        res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
+        res.locals.title += ' - Glossary - Reviewable';
+        res.render('glossary/list');
+    } catch (err){
+        next(err);
+    }
+}
+
 async function search(req, res, next){
     const query = req.query.query;
     try{
@@ -333,6 +377,7 @@ router.use(function(req, res, next){
 router.get('/', list);
 router.get('/new', permission('gm'), csrf(), showNew);
 router.get('/search', csrf(), search);
+router.get('/review', permission('contrib'), csrf(), listReview);
 router.get('/tag/:id*', csrf(), listTag);
 router.get('/status/:status', permission('contrib'), csrf(), listStatus);
 router.get('/:id/edit', permission('gm'), csrf(),showEdit);

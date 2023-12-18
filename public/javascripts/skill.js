@@ -229,21 +229,21 @@ function prepSkillTable(){
 
 
         const $editSwitch = $('<div>')
-            .addClass('custom-control')
-            .addClass('custom-switch')
+            .addClass('form-check')
+            .addClass('form-switch')
             .attr('title', 'Edit instead of view skills by clicking them')
             .tooltip({delay: { 'show': 500, 'hide': 100 }})
             .on('click', function(e){ $(this).blur();});
 
 
         $editSwitch.append($('<input>')
-            .addClass('custom-control-input')
+            .addClass('form-check-input')
             .attr('id', 'skillEditSwitch')
             .attr('type', 'checkbox')
             .prop('checked', localStorage.getItem('ritual-skill-edit-switch'))
         );
         $editSwitch.append($('<label>')
-            .addClass('custom-control-label')
+            .addClass('control-label')
             .attr('for', 'skillEditSwitch')
             .text('Edit Mode')
         );

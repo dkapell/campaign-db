@@ -18,7 +18,7 @@ async function list(req, res, next){
     try {
         const skills = await req.models.skill.find({campaign_id:req.campaign.id});
         await async.each(skills, async(skill) => {
-            if (skill.status.name === 'Ready'){
+            if (skill.status.reviewable){
                 const reviews = await req.models.skill_review.find({skill_id:skill.id, approved:true});
 
                 skill.approvals = reviews.filter(review => {return review.created > skill.updated;}).length;
@@ -489,11 +489,14 @@ async function showReview(req, res, next){
         ],
         current: 'Review'
     };
-    const status = req.query.status? req.query.status : 'Ready';
-    try {
-        const readyStatus = await req.models.skill_status.findOne({name: status, campaign_id:req.campaign.id});
 
-        const skills = (await req.models.skill.find({status_id:readyStatus.id})).sort(skillHelper.sorter);
+    try {
+        const readyStatuses = await req.models.skill_status.find({reviewable: true, campaign_id:req.campaign.id});
+        const readySkills = [];
+        for (const status of readyStatuses){
+            readySkills.push(await req.models.skill.find({status_id:status.id}))
+        }
+        const skills = _.flatten(readySkills).sort(skillHelper.sorter);
 
         res.locals.skills = await async.mapLimit(skills, 5, async (skill) => {
             if (skill.requires.length){
@@ -516,7 +519,7 @@ async function showReview(req, res, next){
             skill.updatedFormatted = moment(skill.updated).format('lll');
             return skill;
         });
-        res.locals.title += ` - Skill Review - ${status} Skills`;
+        res.locals.title += ` - Skill Review`;
         res.render('skill/review');
 
     } catch (err){

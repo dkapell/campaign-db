@@ -23,7 +23,6 @@
                                 a.dropdown-item(href='/skill') Skills
 
                             if checkPermission('contrib')
-                                .dropdown-divider
                                 a.dropdown-item(href='/character') Characters
 
                 if checkPermission('player') && !checkPermission('event')
@@ -43,19 +42,20 @@
                             a.dropdown-item(href='/skill/doc') Skills
 
 
-
-                li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
-                    a.nav-link.dropdown-toggle#worldbuildingDropdown(
-                        href='#'
-                        role='button'
-                        data-bs-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false") Setting
-                    .dropdown-menu(aria-labelledby="worldbuildingDropdown")
-                            if checkPermission('contrib') || checkPermission('player')
-                                a.dropdown-item(href='/glossary') Glossary
-                            if currentCampaign.display_map
-                                a.dropdown-item(href='/map') World Map
+                if currentCampaign.display_glossary || currentCampaign.display_map
+                    li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
+                        a.nav-link.dropdown-toggle#worldbuildingDropdown(
+                            href='#'
+                            role='button'
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false") Setting
+                        .dropdown-menu(aria-labelledby="worldbuildingDropdown")
+                                if currentCampaign.display_glossary
+                                    if checkPermission('contrib') || checkPermission('player')
+                                        a.dropdown-item(href='/glossary') Glossary
+                                if currentCampaign.display_map
+                                    a.dropdown-item(href='/map') World Map
 
                 if checkPermission('gm')
                     li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
@@ -69,8 +69,11 @@
                             a.dropdown-item(href='/user') Users
                             a.dropdown-item(href='/audit') Audits
                             if checkPermission('admin')
+                                .dropdown-divider
                                 a.dropdown-item(href='/skill_status') Skill Statuses
-                                a.dropdown-item(href='/glossary_status') Glossary Statuses
+                                if currentCampaign.display_glossary
+                                    a.dropdown-item(href='/glossary_status') Glossary Statuses
+                                .dropdown-divider
                                 a.dropdown-item(href=`/admin/campaign/${currentCampaign.id}`) Campaign Settings
                                 a.dropdown-item(href='/rulebook') Rulebooks
 

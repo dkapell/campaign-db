@@ -25,8 +25,12 @@
 .row.my-2
     .col
         .form-check.form-switch
-            input.form-check-input#campaign_display_map(type="checkbox", name="campaign[campaign_display_map]", checked=campaign.campaign_display_map)
+            input.form-check-input#campaign_display_map(type="checkbox", name="campaign[display_map]", checked=campaign.display_map)
             label.form-check-label(for="campaign_display_map") Display Map
+    .col
+        .form-check.form-switch
+            input.form-check-input#campaign_display_glossary(type="checkbox", name="campaign[display_glossary]", checked=campaign.display_glossary)
+            label.form-check-label(for="campaign_display_glossary") Display Glossary
 
 fieldset.mb-2.border.p-2.rounded
     label.h5 Display Options
@@ -83,6 +87,7 @@ fieldset.mb-2.border.p-2.rounded
         .col
             input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
 
-.row
-    button.btn.btn-primary(type="submit")= campaign.id?'Update':'Create'
-    a.btn.btn-link(href="/admin/campaign") Cancel
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= campaign.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/campaign") Cancel

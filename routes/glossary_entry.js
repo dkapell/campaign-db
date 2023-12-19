@@ -128,10 +128,10 @@ async function listReview(req, res, next){
                 { url: '/', name: 'Home'},
                 { url: '/glossary', name: 'Glossary'},
             ],
-            current: `Reviewable`
+            current: 'Reviewable'
         };
 
-        const glossary_entries = []
+        const glossary_entries = [];
         for (const status of statuses){
             glossary_entries.push( await req.models.glossary_entry.find({status_id:status.id}));
         }

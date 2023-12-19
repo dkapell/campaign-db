@@ -36,6 +36,8 @@ function showNew(req, res, next){
         css: null,
         intercode_login: false,
         default_to_player: false,
+        display_map: false,
+        display_glossary: true
     };
     res.locals.breadcrumbs = {
         path: [
@@ -83,11 +85,10 @@ async function create(req, res, next){
 
     req.session.campaignData = campaign;
 
-    if (!_.has(campaign, 'display_map')){
-        campaign.display_map = false;
-    }
-    if (!_.has(campaign, 'default_to_player')){
-        campaign.default_to_player = false;
+    for(const field of ['display_map', 'display_glossary', 'default_to_player']){
+        if (!_.has(campaign, field)){
+            campaign[field] = false;
+        }
     }
     campaign.created_by = req.user.id;
 
@@ -108,11 +109,10 @@ async function update(req, res, next){
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
 
-    if (!_.has(campaign, 'display_map')){
-        campaign.display_map = false;
-    }
-    if (!_.has(campaign, 'default_to_player')){
-        campaign.default_to_player = false;
+    for(const field of ['display_map', 'display_glossary', 'default_to_player']){
+        if (!_.has(campaign, field)){
+            campaign[field] = false;
+        }
     }
 
     try {

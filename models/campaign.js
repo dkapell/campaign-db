@@ -5,7 +5,7 @@ const cache = require('../lib/cache');
 
 const Model = require('../lib/Model');
 
-const tableFields = ['id', 'name', 'description', 'site', 'theme', 'css', 'created_by', 'created', 'updated', 'default_to_player', 'display_map', 'staff_drive_folder', 'npc_drive_folder', 'player_drive_folder', 'google_client_id', 'google_client_secret'];
+const tableFields = ['id', 'name', 'description', 'site', 'theme', 'css', 'created_by', 'created', 'updated', 'default_to_player', 'display_map', 'staff_drive_folder', 'npc_drive_folder', 'player_drive_folder', 'google_client_id', 'google_client_secret', 'display_glossary'];
 
 const Campaign = new Model('campaigns', tableFields, {
     order: ['name'],

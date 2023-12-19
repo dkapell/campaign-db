@@ -28,7 +28,10 @@ append content
         .row.my-2
             .col
                 h1.display-4
-                    a(href='/map')
+                    if currentCampaign.display_map
+                        a(href='/map')
+                            img.img-fluid.me-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
+                    else
                         img.img-fluid.me-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
                     =config.get('app.name')
 
@@ -68,15 +71,17 @@ append content
                         a.list-group-item.list-group-item-action(href='/skill/doc')
                             i.fa.fa-file-alt.me-1
                             | Skills
-                    a.list-group-item.list-group-item-action(href='/glossary')
-                            i.fa.fa-book.me-1
-                            | Glossary
+                    if currentCampaign.glossary
+                        a.list-group-item.list-group-item-action(href='/glossary')
+                                i.fa.fa-book.me-1
+                                | Glossary
                     a.list-group-item.list-group-item-action(href='/character')
                             i.fa.fa-users.me-1
                             | Characters
-                    .list-group-item
-                        h5 Documents
-                        +allRulebooks(rulebooks)
+                    if rulebooks.length
+                        .list-group-item
+                            h5 Documents
+                            +allRulebooks(rulebooks)
             .col-lg
                 if character
                     h1.h3 Character

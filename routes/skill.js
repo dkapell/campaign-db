@@ -494,7 +494,7 @@ async function showReview(req, res, next){
         const readyStatuses = await req.models.skill_status.find({reviewable: true, campaign_id:req.campaign.id});
         const readySkills = [];
         for (const status of readyStatuses){
-            readySkills.push(await req.models.skill.find({status_id:status.id}))
+            readySkills.push(await req.models.skill.find({status_id:status.id}));
         }
         const skills = _.flatten(readySkills).sort(skillHelper.sorter);
 
@@ -519,7 +519,7 @@ async function showReview(req, res, next){
             skill.updatedFormatted = moment(skill.updated).format('lll');
             return skill;
         });
-        res.locals.title += ` - Skill Review`;
+        res.locals.title += ' - Skill Review';
         res.render('skill/review');
 
     } catch (err){

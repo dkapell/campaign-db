@@ -11,6 +11,7 @@
         input.form-control(type="text",placeholder="Drive Folder Id",name="rulebook[drive_folder]",value=rulebook.drive_folder,id='rulebook_drive_folder',required)
         .invalid-feedback Please specify a valid Drive folder ID
         .form-text This is just the ID part of the URL, after the 'https://drive.google.com/drive/u/0/folders/' part.
+        .form-text Make sure this folder is public, or shared with #{drive_user} as a Viewer.
 
 .row.my-2
     .col

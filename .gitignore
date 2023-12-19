@@ -48,3 +48,4 @@ public/images/generated
 scripts/devtests
 credentials
 TODO
+*.todo

@@ -1,18 +1,18 @@
 const express = require('express');
 const csrf = require('csurf');
 const _ = require('underscore');
+const config = require('config');
 const moment = require('moment');
 const permission = require('../lib/permission');
-const Drive = require('../lib/Drive');
 const validator = require('validator');
-const rulebookHelper = function(){};
+const rulebookHelper = require('../lib/rulebookHelper');
 
 /* GET rulebooks listing. */
 async function list(req, res, next){
     res.locals.breadcrumbs = {
         path: [
             { url: '/', name: 'Home'},
-            { url: `/Campaign/${req.campaign.id}`, name: 'Campaign'},
+            { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
         ],
         current: 'Rulebooks'
     };
@@ -43,7 +43,7 @@ async function show(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: `/Campaign/${req.campaign.id}`, name: 'Campaign'},
+                { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
                 { url: '/rulebook', name: 'Rulebooks'},
             ],
             current: rulebook.name
@@ -70,7 +70,7 @@ async function showNew(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: `/Campaign/${req.campaign.id}`, name: 'Campaign'},
+                { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
                 { url: '/rulebook', name: 'Rulebooks'},
             ],
             current: 'New'
@@ -83,6 +83,7 @@ async function showNew(req, res, next){
             delete req.session.rulebookData;
         }
         res.locals.title += ' - New Rulebook';
+        res.locals.drive_user = config.get('drive.credentials.client_email');
         res.render('rulebook/new');
     } catch (err){
         next(err);
@@ -106,12 +107,13 @@ async function showEdit(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: `/Campaign/${req.campaign.id}`, name: 'Campaign'},
+                { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
                 { url: '/rulebook', name: 'Rulebooks'},
             ],
             current: 'Edit: ' + rulebook.name
         };
         res.locals.title += ` - Edit Rulebook - ${rulebook.name}`;
+        res.locals.drive_user = config.get('drive.credentials.client_email');
         res.render('rulebook/edit');
     } catch(err){
         next(err);
@@ -132,7 +134,7 @@ async function create(req, res, next){
         delete req.session.rulebookData;
         req.flash('success', 'Created Rulebook ' + rulebook.name);
 
-        await generate(req, id);
+        await rulebookHelper.generate(id);
         res.redirect('/rulebook');
     } catch (err) {
         req.flash('error', err.toString());
@@ -143,11 +145,9 @@ async function create(req, res, next){
 async function update(req, res, next){
     const id = req.params.id;
     const rulebook = req.body.rulebook;
-    console.log(JSON.stringify(req.body, null, 2));
     req.session.rulebookData = rulebook;
     delete rulebook.data;
     delete rulebook.generated;
-    console.log(rulebook.excludes);
     if (!_.has(rulebook, 'excludes')){
         rulebook.excludes = [];
     }
@@ -161,7 +161,7 @@ async function update(req, res, next){
         await req.models.rulebook.update(id, rulebook);
         await req.audit('rulebook', id, 'update', {old: current, new:rulebook});
         delete req.session.rulebookData;
-        //await generate(req, id);
+        await rulebookHelper.generate(id);
         req.flash('success', 'Updated Rulebook ' + rulebook.name);
         res.redirect('/rulebook');
     } catch(err) {
@@ -194,23 +194,13 @@ async function rebuild(req, res, next){
         if (!rulebook || rulebook.campaign_id !== req.campaign.id){
             throw new Error('Invalid Rulebook');
         }
-        await generate(req, id);
+        await rulebookHelper.generate(id);
+        await req.audit('rulebook', rulebook.id, 'rebuild');
         req.flash('success', 'Rebuilt Rulebook');
         res.redirect('/rulebook');
     } catch(err) {
         return next(err);
     }
-}
-
-async function generate(req, rulebookId){
-    const rulebook = await req.models.rulebook.get(rulebookId);
-    if (!rulebook.drive_folder){
-        return;
-    }
-    rulebook.data = await Drive.listAll(rulebook.drive_folder, null, true);
-    rulebook.generated = new Date();
-    await req.models.rulebook.update(rulebookId, rulebook);
-    return req.audit('rulebook', rulebookId, 'rebuild');
 }
 
 const router = express.Router();

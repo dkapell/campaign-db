@@ -29,6 +29,7 @@ create table campaigns (
     created_by int,
     default_to_player boolean default false,
     display_map boolean default false,
+    display_glossary boolean default true,
     staff_drive_folder varchar(255),
     npc_drive_folder varchar(255),
     player_drive_folder varchar(255),

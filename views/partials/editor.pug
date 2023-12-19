@@ -54,6 +54,9 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, preview
                 small.form-text.text-muted
                     a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown Reference
                         i.fas.fa-external-link-alt.ms-1
+                    if checkPermission('gm')
+                        a.ms-4(href='/image' target='_blank') Image List
+                            i.fas.fa-external-link-alt.ms-1
 
             .tab-pane.fade(
                 id=`${id}-preview`

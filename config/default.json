@@ -22,6 +22,11 @@
         "callbackURL": "http://localhost:3000/auth/google/callback",
         "httpsAlways": false
     },
+    "aws": {
+        "accessKeyId": "accessKeyId",
+        "secretKey": "secretKey",
+        "imageBucket": "imageBucket"
+    },
     "drive": {
         "credentials": {},
         "root": null

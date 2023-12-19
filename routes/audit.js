@@ -55,8 +55,6 @@ async function query(req, res, next){
             options.order.push(orderStr);
         }
     }
-    console.log(options);
-
     const response = {
         draw: Number(req.query.draw)
     };

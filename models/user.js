@@ -110,8 +110,6 @@ exports.update = async function(campaignId, id, data){
     let query = 'update users set ';
     query += queryUpdates.join(', ');
     query += ' where id = $1';
-    console.log(query);
-    console.log(queryData);
     if (queryData.length > 1){
         await database.query(query, queryData);
         await cache.invalidate('user', id);

@@ -38,6 +38,7 @@ function showNew(req, res, next){
         default_to_player: false,
         display_map: false,
         display_glossary: true
+
     };
     res.locals.breadcrumbs = {
         path: [
@@ -73,6 +74,8 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + campaign.name
         };
+        res.locals.websiteImages = await req.models.image.find({campaign_id:id, type:'website'});
+        res.locals.faviconImages = await req.models.image.find({campaign_id:id, type:'favicon'});
         res.locals.themes = _.keys(config.get('themes'));
         res.render('admin/campaign/edit');
     } catch(err){
@@ -109,7 +112,7 @@ async function update(req, res, next){
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
 
-    for(const field of ['display_map', 'display_glossary', 'default_to_player']){
+    for(const field of ['display_map', 'display_glossary', 'default_to_player', 'image_id', 'favicon_id']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
@@ -155,7 +158,6 @@ async function checkPermission(req, res, next){
         return next();
     }
     const siteUser = await req.models.user.get(id, user.id);
-    console.log(siteUser);
     if (siteUser.type === 'admin'){
         return next();
     }

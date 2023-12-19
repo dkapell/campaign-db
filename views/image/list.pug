@@ -1,0 +1,79 @@
+extends ../layout
+
+block content
+    if checkPermission('gm')
+        a.btn.btn-outline-success(href='/image/new')
+            span(class="fa fa-plus")
+            |  New Image
+
+    .border.rounded.p-2.my-3
+        .row
+            .col
+                h5.my-0 Filter:
+
+            for type in ['favicon', 'website', 'content', 'map']
+                .col
+                    .form-check.form-switch
+                        input.form-check-input.image-filter(type="checkbox", id=`image-type-filter-${type}` checked=type==='content'?true:false data-type=type)
+                        label.form-check-label(for=`image-type-filter-${type}`)=capitalize(type)
+                            .badge.text-bg-info.ms-1.rounded-pill=imageCounts[type]?imageCounts[type]:0
+
+    .row.row-cols-1.row-cols-md-4.pt-2
+        for image in images
+            .col.mb-4(class=`image-type-${image.type}`)
+                .card
+                    .card-header
+                        .badge.text-bg-info.float-end=capitalize(image.type)
+                        .card-title
+                            h5= image.display_name?image.display_name:image.name
+                            .badge.text-bg-primary.float-end=image.status
+                            .small= image.display_name?image.name:''
+
+                    img.card-img-top(src=image.url alt=image.display_name?image.display_name:image.name)
+                    .card-body
+                        if image.description
+                            p.mt-2.card-text=image.description
+
+                    if checkPermission('gm')
+                        .card-footer
+                            span.float-start
+                                strong.me-2 Id: #{image.id}
+                                if type === 'content'
+                                    a.btn.btn-outline-info.btn-sm.me-2.copy-img-btn(
+                                        role="button",
+                                        href='#'
+                                        data-name=image.display_name
+                                        data-url=image.url
+                                        data-bs-toggle="tooltip"
+                                        title="Copy Markdown to Clipboard"
+                                    )
+                                        i.fas.fa-copy.fa-fw
+
+                            span.float-end
+                                a.btn.btn-outline-info.btn-sm.me-2(
+                                    role="button",
+                                    href=`/image/${image.id}`
+                                    data-bs-toggle="tooltip"
+                                    title="Edit image"
+                                )
+                                    i.fas.fa-edit.fa-fw
+                                if checkPermission('admin')
+                                    a.btn.btn-outline-danger.btn-sm.delete-btn(
+                                        role="button",
+                                        url=`/image/${image.id}`,
+                                        data-back='/image'
+                                        data-bs-toggle="tooltip"
+                                        title="Delete image"
+                                    )
+                                        i.fas.fa-trash.fa-fw
+
+append scripts
+    script(src='/javascripts/image.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 300, 'hide': 100 },
+                placement:'auto'
+            });
+        });
+

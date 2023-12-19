@@ -43,6 +43,8 @@ const rulebookRouter = require('./routes/rulebook');
 
 const mapRouter = require('./routes/map');
 
+const imageRouter = require('./routes/image');
+
 const characterRouter = require('./routes/character');
 const app = express();
 
@@ -216,6 +218,7 @@ app.use('/glossary', glossaryEntryRouter);
 app.use('/rulebook', rulebookRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
+app.use('/image', imageRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

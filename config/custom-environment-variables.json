@@ -18,6 +18,11 @@
         "clientSecret": "GOOGLE_CLIENT_SECRET",
         "callbackURL": "CALLBACK_URL"
     },
+    "aws": {
+        "accessKeyId": "AWS_ACCESSKEY",
+        "secretKey": "AWS_SECRET",
+        "imageBucket": "IMAGE_BUCKET"
+    },
     "drive": {
         "credentials": {
             "__name": "DRIVE_CREDS",

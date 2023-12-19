@@ -23,6 +23,8 @@ create table campaigns (
     id serial,
     name varchar(80) not null,
     description text,
+    image_id int,
+    favicon_id int,
     site varchar(255) unique,
     theme varchar(80),
     css text,
@@ -377,3 +379,23 @@ create table rulebooks(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type image_type as ENUM(
+    'favicon',
+    'website',
+    'content',
+    'map'
+);
+
+create table images (
+    id              serial,
+    campaign_id     int not null,
+    name            varchar(255) not null,
+    display_name    varchar(255),
+    type            image_type default 'content' not null,
+    description     text,
+    status          varchar(20) default 'new' not null,
+    primary key (id),
+    CONSTRAINT images_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);

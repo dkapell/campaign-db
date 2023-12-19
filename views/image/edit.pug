@@ -1,0 +1,55 @@
+extends ../layout
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header= 'Edit Image: ' + image.name
+                .card-body
+                    .row.my-2
+                        .col
+                            image.mx-auto.d-block.img-fluid(src=image.url)
+                    .row
+                        .col
+                            form.form.needs-validation(method="POST" action="/image/" + image.id novalidate)
+                                input(type="hidden", name="_method",  value="PUT")
+                                input(type="hidden", name='_csrf',value=csrfToken)
+                                input(type="hidden", name='image[id]',value=image.id)
+
+                                .row.my-2
+                                    .col
+                                        label.control-label(for="image_display_name") Display Name
+                                        input.form-control(type="text",placeholder="Name",name="image[display_name]",value=image.display_name,id='image_display_name')
+
+                                .row.my-2
+                                    .col
+                                        label.control-label(for="image_type") Image Type
+                                        select.form-select.select2#image_type(name="image[type]" data-placeholder='Image Type')
+                                            option
+                                            for type in ['favicon', 'website', 'content', 'map']
+                                                option(value=type selected=image.type === type)= capitalize(type)
+
+                                .row.my-2
+                                    .col
+
+                                        label.control-label(for="image_description") Description
+                                        textarea.form-control(name="image[description]",id="image_description",rows=3) #{image.description}
+
+
+                                .row.my-2
+                                    .col
+                                        button.btn.btn-primary(type="submit") Update
+                                        a.btn.btn-link(href="/image") Cancel
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/image.js')
+    script.
+        $(function(){
+             $('.select2').select2({
+                theme:'bootstrap-5',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+        });
+

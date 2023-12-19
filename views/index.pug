@@ -19,21 +19,23 @@ append content
                 div !{marked.parse(currentCampaign.description,  {breaks: true})}
 
             .col-lg.d-none.d-lg-block
-                if currentCampaign.display_map
-                    a(href='/map')
-                        img.img-fluid(src='/images/ritual-logo-mq-round.png')
-                else
-                    img.img-fluid(src='/images/ritual-logo-mq-round.png')
+                if currentCampaign.image
+                    if currentCampaign.display_map
+                        a(href='/map')
+                            img.img-fluid(src=currentCampaign.image.url)
+                    else
+                        img.img-fluid(src=currentCampaign.image.url)
     else
         .row.my-2
             .col
                 h1.display-4
-                    if currentCampaign.display_map
-                        a(href='/map')
-                            img.img-fluid.me-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
-                    else
-                        img.img-fluid.me-2(src='/images/ritual-logo-lq-round.png' style="max-height:100px")
-                    =config.get('app.name')
+                    if currentCampaign.image
+                        if currentCampaign.display_map
+                            a(href='/map')
+                                img.img-fluid.me-2(src=currentCampaign.image.url style="max-height:100px")
+                        else
+                            img.img-fluid.me-2(src=currentCampaign.image.url style="max-height:100px")
+                        =config.get('app.name')
 
         .row.my-2
             .col-lg
@@ -71,7 +73,7 @@ append content
                         a.list-group-item.list-group-item-action(href='/skill/doc')
                             i.fa.fa-file-alt.me-1
                             | Skills
-                    if currentCampaign.glossary
+                    if currentCampaign.display_glossary
                         a.list-group-item.list-group-item-action(href='/glossary')
                                 i.fa.fa-book.me-1
                                 | Glossary

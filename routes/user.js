@@ -13,7 +13,7 @@ async function list(req, res, next){
         current: 'Users'
     };
     try {
-        if (req.campaign.id){
+        if (!req.campaign.default_site){
             res.locals.users = await req.models.user.find(req.campaign.id, {});
             res.locals.title += ' - Users';
             res.render('user/list', { pageTitle: 'Users' });
@@ -31,6 +31,7 @@ async function list(req, res, next){
                 });
                 return user;
             });
+            console.log(res.locals.users);
             res.locals.campaigns = campaigns;
             res.render('admin/user/list', { pageTitle: 'All Users' });
         }

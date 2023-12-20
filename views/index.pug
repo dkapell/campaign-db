@@ -4,22 +4,14 @@ include ./partials/rulebook
 include ./partials/character
 
 append content
-    if !currentCampaign.id
+    if currentCampaign.default_site || !activeUser
         .row
-            .col-lg-8
-                h1.display-2=config.get('app.name')
-                p.ps-2
-                    | This is the root site of #{config.get('app.name')}
-
-    else if !activeUser
-        .row
-            .col-lg-8
+            .col-lg
                 h1.display-2=currentCampaign.name
 
                 div !{marked.parse(currentCampaign.description,  {breaks: true})}
-
-            .col-lg.d-none.d-lg-block
-                if currentCampaign.image
+            if currentCampaign.image
+                .col-lg-4.d-none.d-lg-block
                     if currentCampaign.display_map && mapCount
                         a(href='/map')
                             img.img-fluid(src=currentCampaign.image.url)
@@ -35,7 +27,7 @@ append content
                                 img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         else
                             img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
-                        =config.get('app.name')
+                        =currentCampaign.name
 
         .row.my-2
             .col-lg

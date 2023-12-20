@@ -16,6 +16,13 @@
         label.control-label(for="campaign_description") Description (Front page)
         +htmlEditor('campaign_description', 'campaign[description]', 4, 200, campaign.description, true)
 
+if currentCampaign.default_site
+    .row.my-2
+        .col
+            .form-check.form-switch
+                input.form-check-input#campaign_default_site(type="checkbox", name="campaign[default_site]", checked=campaign.default_site)
+                label.form-check-label(for="campaign_default_site") Default Site
+
 .row.my-2
     .col
         .form-check.form-switch
@@ -48,7 +55,7 @@ fieldset.mb-2.border.p-2.rounded
             .col-md-3
                 label.control-label(for="campaign_image") Campaign Image (front page)
             .col
-                select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image", required)
+                select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image")
                     option
                     for image in websiteImages
                         option(value=image.id, selected=campaign.image_id===image.id)= image.name
@@ -58,7 +65,7 @@ fieldset.mb-2.border.p-2.rounded
             .col-md-3
                 label.control-label(for="campaign_favicon") Favicon(Browser Tab)
             .col
-                select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon", required)
+                select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon")
                     option
                     for image in faviconImages
                         option(value=image.id, selected=campaign.favicon_id===image.id)= image.name

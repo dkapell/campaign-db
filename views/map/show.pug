@@ -6,7 +6,7 @@ block content
             h1= map.name
     if map.description
         .row
-            .col !{marked(map.description)}
+            .col !{marked.parse(map.description,  {breaks: true})}
     .row
         .col
             #toolbarDiv(class=`${checkPermission(gm)?'':'py-4'}`)

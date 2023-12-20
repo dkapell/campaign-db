@@ -28,6 +28,10 @@ async function list(req, res, next){
 }
 
 function showNew(req, res, next){
+    if (!res.campaign.default_site){
+        req.flash('error', 'Must be on admin site to create new campaign');
+        return res.redirect('/');
+    }
     res.locals.campaign = {
         name: null,
         description: null,
@@ -37,8 +41,8 @@ function showNew(req, res, next){
         intercode_login: false,
         default_to_player: false,
         display_map: false,
-        display_glossary: true
-
+        display_glossary: true,
+        default_site:false
     };
     res.locals.breadcrumbs = {
         path: [
@@ -84,6 +88,10 @@ async function showEdit(req, res, next){
 }
 
 async function create(req, res, next){
+    if (!res.campaign.default_site){
+        req.flash('error', 'Must be on admin site to create new campaign');
+        return res.redirect('/');
+    }
     const campaign = req.body.campaign;
 
     req.session.campaignData = campaign;
@@ -93,6 +101,7 @@ async function create(req, res, next){
             campaign[field] = false;
         }
     }
+
     campaign.created_by = req.user.id;
 
     try{
@@ -111,12 +120,21 @@ async function update(req, res, next){
     const id = req.params.id;
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
-
-    for(const field of ['display_map', 'display_glossary', 'default_to_player', 'image_id', 'favicon_id']){
+    for(const field of ['display_map', 'display_glossary', 'default_to_player', 'default_site']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
     }
+    for(const field of ['image_id', 'favicon_id']){
+        if (!_.has(campaign, field) || campaign[field] === ''){
+            campaign[field] = null;
+        }
+    }
+    if (!req.campaign.default_site){
+        delete campaign.default_site;
+    }
+
+    console.log(campaign);
 
     try {
         const current = await req.models.campaign.get(id);

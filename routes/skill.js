@@ -30,7 +30,7 @@ async function list(req, res, next){
                 forPlayers = true;
             }
             const output = await skillHelper.getCSV(skills, forPlayers);
-            res.attachment('Ritual Skills.csv');
+            res.attachment(`${req.campaign.name} Skills.csv`);
             res.end(output);
         } else {
             res.locals.skills = skills;

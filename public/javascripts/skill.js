@@ -21,7 +21,7 @@ $(function(){
         makeColumnsResponsive();
     });
 
-    if (localStorage.getItem('ritual-skill-delete-switch') === 'true'){
+    if (localStorage.getItem('cdb-skill-delete-switch') === 'true'){
         $('#skillDeleteSwitch').prop('checked', true);
     } else {
         $('#skillDeleteSwitch').prop('checked', false);
@@ -65,16 +65,16 @@ function clickRow(e){
 
 function skillDeleteSwitch(e){
     if ($(this).prop('checked')){
-        localStorage.setItem('ritual-skill-delete-switch', 'true');
+        localStorage.setItem('cdb-skill-delete-switch', 'true');
     } else {
-        localStorage.removeItem('ritual-skill-delete-switch');
+        localStorage.removeItem('cdb-skill-delete-switch');
     }
     toggleDeleteButtons();
     $('.skill-table').DataTable().columns.adjust().responsive.recalc();
 }
 
 function toggleDeleteButtons(){
-    if (localStorage.getItem('ritual-skill-delete-switch') === 'true'){
+    if (localStorage.getItem('cdb-skill-delete-switch') === 'true'){
         $('.delete-btn').show();
         $('.advance-btn').show();
     } else {
@@ -240,7 +240,7 @@ function prepSkillTable(){
             .addClass('form-check-input')
             .attr('id', 'skillEditSwitch')
             .attr('type', 'checkbox')
-            .prop('checked', localStorage.getItem('ritual-skill-edit-switch'))
+            .prop('checked', localStorage.getItem('cdb-skill-edit-switch'))
         );
         $editSwitch.append($('<label>')
             .addClass('control-label')
@@ -258,16 +258,16 @@ function prepSkillTable(){
 
         $('.dataTables_length').append($editSwitchContainer);
 
-        if (localStorage.getItem('ritual-skill-edit-switch') === 'true'){
+        if (localStorage.getItem('cdb-skill-edit-switch') === 'true'){
             $('#editSwitchContainer').addClass('bg-warning').addClass('text-white');
         }
 
         $editSwitch.on('change', function(e){
             if ($(this).find('input').prop('checked')){
-                localStorage.setItem('ritual-skill-edit-switch', 'true');
+                localStorage.setItem('cdb-skill-edit-switch', 'true');
                 $('#editSwitchContainer').addClass('bg-warning').addClass('text-white');
             } else {
-                localStorage.removeItem('ritual-skill-edit-switch');
+                localStorage.removeItem('cdb-skill-edit-switch');
                 $('#editSwitchContainer').removeClass('bg-warning').removeClass('text-white');
             }
         });

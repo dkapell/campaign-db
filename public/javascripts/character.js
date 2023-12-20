@@ -6,7 +6,7 @@
 'use strict';
 
 $(function(){
-    if (localStorage.getItem('ritual-skill-show-skill-descriptions') === 'true'){
+    if (localStorage.getItem('cdb-skill-show-skill-descriptions') === 'true'){
         $('#showSkillDescriptions').prop('checked', true);
     } else {
         $('#showSkillDescriptions').prop('checked', false);
@@ -80,7 +80,7 @@ async function showCharacterSheet(characterId){
     data.marked = marked;
 
     $('#character').html(charactersheetTemplate(data));
-    if (localStorage.getItem('ritual-skill-show-skill-descriptions') === 'true'){
+    if (localStorage.getItem('cdb-skill-show-skill-descriptions') === 'true'){
         $('#showSkillDescriptions').prop('checked', true);
     } else {
         $('#showSkillDescriptions').prop('checked', false);
@@ -152,15 +152,15 @@ async function showCp(characterId){
 
 function skillDescriptionsSwitch(e){
     if ($(this).prop('checked')){
-        localStorage.setItem('ritual-skill-show-skill-descriptions', 'true');
+        localStorage.setItem('cdb-skill-show-skill-descriptions', 'true');
     } else {
-        localStorage.removeItem('ritual-skill-show-skill-descriptions');
+        localStorage.removeItem('cdb-skill-show-skill-descriptions');
     }
     toggleSkillDescriptions();
 }
 
 function toggleSkillDescriptions(){
-    if (localStorage.getItem('ritual-skill-show-skill-descriptions') === 'true'){
+    if (localStorage.getItem('cdb-skill-show-skill-descriptions') === 'true'){
         $('.skill-description').show();
     } else {
         $('.skill-description').hide();

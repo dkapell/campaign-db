@@ -25,6 +25,8 @@ block content
                         td.dtr-expand
                         td
                             a(href='/admin/campaign/' + campaign.id)= campaign.name
+                            if campaign.default_site
+                                .badge.text-bg-success.ms-2 Default Site
                         td
                             if campaign.site
                                 a.action-btn(target='_blank' href=`${campaign.site.match(/:/)?'http://':'https://'}${campaign.site}`)

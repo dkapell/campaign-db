@@ -19,9 +19,11 @@ block content
                     tr
                         td= user.name
                         td= user.email
-                        td= user.site_admin?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${user.site_admin?'success':'warning'}`)=user.site_admin?'Yes':'No'
+
                         td(data-search=(_.pluck(user.campaigns, 'name')).join(','))
-                            =(user.campaigns.map(function(game){ return `${campaign.name}: ${campaign.type}`})).join(', ')
+                            =(user.campaigns.map(function(campaign){ return `${campaign.name}: ${campaign.type}`})).join(', ')
                         td.text-right
                             a.btn.btn-outline-danger.btn-xs.delete-btn(
                                 role="button",

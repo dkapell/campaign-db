@@ -29,6 +29,7 @@ create table campaigns (
     theme varchar(80),
     css text,
     created_by int,
+    default_site boolean default false,
     default_to_player boolean default false,
     display_map boolean default false,
     display_glossary boolean default true,

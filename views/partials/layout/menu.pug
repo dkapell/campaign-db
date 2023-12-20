@@ -1,6 +1,6 @@
 .container
 
-    a.navbar-brand(href='/')= config.get('app.name')
+    a.navbar-brand(href='/')= currentCampaign.name
     button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation")
         span.navbar-toggler-icon
 
@@ -9,7 +9,7 @@
             li.nav-item(class= siteSection==='home'?"active":null)
                 a.nav-link(href="/") Home
                     span.sr-only (current)
-            if currentCampaign.id
+            if !currentCampaign.default_site
                 if checkPermission('event')
                     li.nav-item.dropdown(class= siteSection==='gm'?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
@@ -58,7 +58,7 @@
                                     if checkPermission('contrib')
                                         a.dropdown-item(href='/map/list') Maps
                                     else if mapCount
-                                        a.dropdown-item(href='/map') World Map
+                                        a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
 
                 if checkPermission('gm')
                     li.nav-item.dropdown(class= siteSection==='admin'?"active":null)

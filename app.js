@@ -122,13 +122,18 @@ app.use(audit());
 app.use(async function(req, res, next){
     let campaign = await models.campaign.getBySite(req.headers.host);
     if (!campaign){
+        campaign = await models.campaign.findOne({default_site: true});
+    }
+    if (!campaign){
         campaign = {
             id: 0,
             name: `${config.get('app.name')} Admin Site`,
             theme: 'Flatly',
             css: '',
             site: req.headers.host,
-            default_to_player: false
+            default_to_player: false,
+            default_site:true,
+            description: `This is the root site of ${config.get('app.name')}`
         };
     }
     req.campaign = campaign;

@@ -8,7 +8,28 @@ const models = {
     image: require('./image')
 };
 
-const tableFields = ['id', 'name', 'description', 'site', 'image_id', 'favicon_id', 'theme', 'css', 'created_by', 'created', 'updated', 'default_to_player', 'display_map', 'staff_drive_folder', 'npc_drive_folder', 'player_drive_folder', 'google_client_id', 'google_client_secret', 'display_glossary'];
+const tableFields = [
+    'id',
+    'name',
+    'description',
+    'site',
+    'image_id',
+    'favicon_id',
+    'theme',
+    'css',
+    'created_by',
+    'created',
+    'updated',
+    'default_site',
+    'default_to_player',
+    'display_map',
+    'staff_drive_folder',
+    'npc_drive_folder',
+    'player_drive_folder',
+    'google_client_id',
+    'google_client_secret',
+    'display_glossary'
+];
 
 const Campaign = new Model('campaigns', tableFields, {
     order: ['name'],

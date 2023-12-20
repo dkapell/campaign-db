@@ -6,8 +6,22 @@ $(document).ready(function () {
     $('.copy-img-btn').on('click', copyImageMarkdown);
     $('.image-filter').on('change', updateImageFilter);
     loadImageFilter();
+    $('.delete-img-btn').confirmation({
+        title: 'Delete this item'
+    }).on('click', deleteImage);
 
 });
+
+async function deleteImage(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+    const url = $this.attr('url');
+    const result = await fetch(url, {method:'DELETE'});
+    if($this.attr('data-back')){
+        location = $this.attr('data-back');
+    }
+}
 
 async function copyImageMarkdown(e){
     e.preventDefault();

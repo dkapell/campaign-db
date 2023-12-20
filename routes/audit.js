@@ -6,6 +6,7 @@ const permission = require('../lib/permission');
 const validator = require('validator');
 const async = require('async');
 const skillHelper = require('../lib/skillHelper');
+const models = require('../lib/models');
 
 /* GET audits listing. */
 async function list(req, res, next){
@@ -75,6 +76,8 @@ async function query(req, res, next){
             audit.createdFormated = moment(audit.created).format('lll');
             if (audit.object_type === 'skill'){
                 audit.diff = await skillHelper.diff(audit.data.old, audit.data.new);
+            } else if (audit.data) {
+                audit.diff = await objectDiff(audit.object_type, audit.data.old, audit.data.new);
             }
             return audit;
         });
@@ -107,6 +110,60 @@ async function show(req, res, next){
     } catch(err){
         next(err);
     }
+}
+
+async function objectDiff(type, oldObject, newObject){
+    const fields = models[type].fields;
+    const skipFields = models[type].options.skipAuditFields;
+    const changes = [];
+    if (!oldObject){
+        changes.push({
+            field: capitalize(type),
+            type: 'status',
+            status: 'Created'
+        });
+        return changes;
+    }
+    if (!newObject){
+        changes.push({
+            field: capitalize(type),
+            type: 'status',
+            status: 'Deleted'
+        });
+        return changes;
+    }
+    for (const field of fields){
+        if (field === 'campaign_id'){
+            continue;
+        }
+        if (_.indexOf(skipFields, field) !== -1){
+            continue;
+        }
+
+        if (newObject[field] != oldObject[field]){
+            const oldVal = oldObject[field];
+            const newVal = newObject[field];
+            if (oldVal === true && newVal === 'on'){
+                continue;
+            }
+            if (_.isNull(oldVal) && newVal === ''){
+                continue;
+            }
+
+            changes.push({
+                field: capitalize(field),
+                type: 'field',
+                old: oldObject[field],
+                new: newObject[field]
+            });
+        }
+    }
+    return changes;
+
+}
+
+function capitalize(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 const router = express.Router();

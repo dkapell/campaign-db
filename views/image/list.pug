@@ -28,14 +28,23 @@ block content
                             h5= image.display_name?image.display_name:image.name
                             .badge.text-bg-primary.float-end=image.status
                             .small= image.display_name?image.name:''
+                        .row
+                            .col
+                                if image.height && image.width
+                                    span.float-start
+                                        .small #{image.width}x#{image.height}px
+                                if image.size
+                                    span.float-end
+                                        .small= image.sizePrint
 
-                    img.card-img-top(src=image.url alt=image.display_name?image.display_name:image.name)
+                    img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
                     .card-body
                         if image.description
                             p.mt-2.card-text=image.description
 
                     if checkPermission('gm')
                         .card-footer
+
                             span.float-start
                                 strong.me-2 Id: #{image.id}
                                 if type === 'content'
@@ -58,7 +67,7 @@ block content
                                 )
                                     i.fas.fa-edit.fa-fw
                                 if checkPermission('admin')
-                                    a.btn.btn-outline-danger.btn-sm.delete-btn(
+                                    a.btn.btn-outline-danger.btn-sm.delete-img-btn(
                                         role="button",
                                         url=`/image/${image.id}`,
                                         data-back='/image'

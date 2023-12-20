@@ -45,5 +45,8 @@
             "description": "A fresh feel"
         }
 
+    },
+    "images": {
+        "thumbnailSize": 200
     }
 }

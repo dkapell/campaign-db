@@ -1,0 +1,68 @@
+extends ../layout
+
+block content
+    if checkPermission('gm')
+        a.btn.btn-outline-success.my-2(href='/map/new')
+            span(class="fa fa-plus")
+            |  New Map
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .sr-only Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "asc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Display to PCs?
+                    th Description
+                    th Image
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for map in maps
+                    tr(class='clickable-row', data-click-object='map' data-click-id=map.id)
+                        td.dtr-control
+                        td= map.name
+                        td
+                            .badge(class=`text-bg-${map.display_to_pc?'success':'warning'}`)=map.display_to_pc?'Yes':'No'
+                        td= map.description
+                        td= map.image?map.image.name:'None'
+                        
+                        if checkPermission('gm')
+                            td.text-right
+                                a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
+                                    role="button",
+                                    href=`/map/${map.id}/edit`
+                                    title="Edit Map"
+                                    data-bs-toggle="tooltip"
+                                )
+                                    i.fas.fa-edit.fa-fw
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/map/${map.id}`,
+                                    data-back='/map'
+                                    title="Delete Map"
+                                    data-bs-toggle="tooltip"
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 500, 'hide': 100 },
+                placement:'auto'
+            });
+        });
+
+

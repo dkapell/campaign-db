@@ -37,7 +37,8 @@ block content
                                     span.float-end
                                         .small= image.sizePrint
 
-                    img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
+                    a(href=image.url target='_blank')
+                        img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
                     .card-body
                         if image.description
                             p.mt-2.card-text=image.description

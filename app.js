@@ -18,6 +18,8 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const models = require('./lib/models');
 const permission = require('./lib/permission');
 const audit = require('./lib/audit');
+const mapHelper = require('./lib/mapHelper');
+
 
 
 
@@ -186,7 +188,7 @@ async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb)
 }
 
 // Set common helpers for the view
-app.use(function(req, res, next){
+app.use(async function(req, res, next){
     res.locals.config = config;
     res.locals.session = req.session;
     res.locals.siteName = req.campaign.name;
@@ -198,6 +200,7 @@ app.use(function(req, res, next){
     res.locals.capitalize = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
+    res.locals.mapCount = await mapHelper.countPCVisible(req.campaign.id);
     next();
 });
 

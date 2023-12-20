@@ -20,7 +20,7 @@ append content
 
             .col-lg.d-none.d-lg-block
                 if currentCampaign.image
-                    if currentCampaign.display_map
+                    if currentCampaign.display_map && mapCount
                         a(href='/map')
                             img.img-fluid(src=currentCampaign.image.url)
                     else
@@ -30,11 +30,11 @@ append content
             .col
                 h1.display-4
                     if currentCampaign.image
-                        if currentCampaign.display_map
+                        if currentCampaign.display_map && mapCount
                             a(href='/map')
-                                img.img-fluid.me-2(src=currentCampaign.image.url style="max-height:100px")
+                                img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         else
-                            img.img-fluid.me-2(src=currentCampaign.image.url style="max-height:100px")
+                            img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         =config.get('app.name')
 
         .row.my-2

@@ -7,5 +7,3 @@
 ./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/character views/character/templates/*.pug
 
 ./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates views/clientPartials/*.pug
-
-node ./scripts/generateRulebook.js

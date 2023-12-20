@@ -26,7 +26,8 @@ async function list(req, res, next){
 function showNew(req, res, next){
     res.locals.image = {
         display_name: null,
-        description:null
+        description:null,
+        type: 'content'
     };
     res.locals.breadcrumbs = {
         path: [
@@ -73,7 +74,7 @@ async function showEdit(req, res, next){
 
 async function update(req, res, next){
     const id = req.params.id;
-    const image = req.body.image;
+    let image = req.body.image;
     req.session.imageData = image;
 
     try {
@@ -84,9 +85,18 @@ async function update(req, res, next){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-
+        if (current.status === 'new' && image.status === 'ready'){
+            console.log('getting metatdata for ' + imageHelper.getKey(current));
+            const details = await imageHelper.getImageDetails(current);
+            if (details){
+                image.size = details.size;
+                image.width = details.width;
+                image.height = details.height;
+            }
+        }
         await req.models.image.update(id, image);
         delete req.session.imageData;
+        await imageHelper.buildThumbnail(current);
         req.flash('success', 'Updated Image ' + image.name);
         res.redirect('/image');
     } catch(err) {
@@ -110,6 +120,7 @@ async function remove(req, res, next){
         }
         await req.models.image.delete(id);
         await imageHelper.remove(imageHelper.getKey(current));
+        await imageHelper.remove(imageHelper.getThumbnailKey(current));
         req.flash('success', 'Removed Image');
         res.redirect('/image');
     } catch(err) {

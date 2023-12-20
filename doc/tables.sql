@@ -394,6 +394,9 @@ create table images (
     type            image_type default 'content' not null,
     description     text,
     status          varchar(20) default 'new' not null,
+    size            int,
+    width           int,
+    height          int,
     primary key (id),
     CONSTRAINT images_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

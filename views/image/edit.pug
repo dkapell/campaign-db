@@ -24,7 +24,7 @@ block content
                                 .row.my-2
                                     .col
                                         label.control-label(for="image_type") Image Type
-                                        select.form-select.select2#image_type(name="image[type]" data-placeholder='Image Type')
+                                        select.form-select.select2#image_type(name="image[type]" data-placeholder='Image Type' required)
                                             option
                                             for type in ['favicon', 'website', 'content', 'map']
                                                 option(value=type selected=image.type === type)= capitalize(type)

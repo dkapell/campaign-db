@@ -10,7 +10,9 @@ const models = {
     skill_type: require('./skill_type'),
     skill_tag: require('./skill_tag'),
     user: require('./user'),
-    character: require('./character')
+    character: require('./character'),
+    map: require('./map'),
+    rulebook: require('./rulebook')
 };
 
 const tableFields =  ['id', 'campaign_id', 'user_id', 'object_type', 'object_id', 'action', 'data'];
@@ -76,7 +78,7 @@ async function fill(record){
     if (record.user_id === -1){
         record.user = {name:'unknown'};
     } else {
-        record.user = await models.user.get(record.user_id);
+        record.user = await models.user.get(record.campaign_id, record.user_id);
     }
 
     return record;

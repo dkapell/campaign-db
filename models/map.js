@@ -18,10 +18,16 @@ const tableFields = [
     'image_id'
 ];
 
+const skipAuditFields = [
+    'uuid',
+    'status'
+];
+
 const Map = new Model('maps', tableFields, {
     order: ['name'],
     validator: validate,
-    postSelect: fill
+    postSelect: fill,
+    skipAuditFields: skipAuditFields
 });
 
 module.exports = Map;

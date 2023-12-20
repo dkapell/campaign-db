@@ -3,10 +3,12 @@ const validator = require('validator');
 const Model = require('../lib/Model');
 
 const tableFields = ['id', 'campaign_id', 'name', 'description', 'display_order', 'drive_folder', 'data', 'excludes', 'generated'];
+const skipAuditFields = [ 'data', 'generated'];
 
 const Rulebook = new Model('rulebooks', tableFields, {
     validator: validate,
-    order: ['display_order']
+    order: ['display_order'],
+    skipAuditFields:skipAuditFields
 });
 
 module.exports = Rulebook;

@@ -1,0 +1,16 @@
+extends ../layout
+
+append content
+    .row.row-cols-1.row-cols-md-4.pt-2
+        for map in maps
+            .col.mb-4
+                .card.h-100
+                    .card-header
+                        .card-title
+                            h5= map.name
+
+                    a(href=`/map/${map.id}`)
+                        img.card-img-top(src=map.image.thumbnailUrl alt=map.name)
+                    .card-body
+                        if map.description
+                            p.mt-2.card-text=map.description

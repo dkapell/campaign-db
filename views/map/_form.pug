@@ -1,0 +1,34 @@
+.row.my-2
+    .col
+
+        label.control-label(for="map_name") Name
+        input.form-control(type="text",placeholder="Name",name="map[name]",value=map.name,id='map_name',required)
+        .invalid-feedback Please choose a valid name
+
+if images.length
+    .row.my-2
+        .col
+            label.control-label(for="map_image") Map Image
+            select.form-select.select2#map_image(name="map[image_id]" data-placeholder="Image", required)
+                option
+                for image in images
+                    option(value=image.id, selected=map.image_id===image.id)= image.name
+        
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#map_display_to_pc(type="checkbox", name="map[display_to_pc]", checked=map.display_to_pc)
+            label.form-check-label(for="map_display_to_pc") Display to PCs
+
+.row.my-2
+    .col
+        label.control-label(for="map_description") Description
+        +markdownEditor('Description', 'map_description', 'map[description]', 4, 100, map.description, true)
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= map.id?'Update':'Create'
+        a.btn.btn-link(href="/map") Cancel
+
+

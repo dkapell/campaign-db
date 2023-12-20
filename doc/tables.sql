@@ -402,3 +402,18 @@ create table images (
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+create table maps (
+    id              serial,
+    uuid            uuid,
+    campaign_id     int not null,
+    name            varchar(255) not null,
+    description     text,
+    display_to_pc   boolean default false,
+    image_id        int,
+    status          varchar default 'new',
+    primary key (id),
+    CONSTRAINT maps_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);

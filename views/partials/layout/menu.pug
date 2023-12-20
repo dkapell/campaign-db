@@ -55,7 +55,10 @@
                                     if checkPermission('contrib') || checkPermission('player')
                                         a.dropdown-item(href='/glossary') Glossary
                                 if currentCampaign.display_map
-                                    a.dropdown-item(href='/map') World Map
+                                    if checkPermission('contrib')
+                                        a.dropdown-item(href='/map/list') Maps
+                                    else if mapCount
+                                        a.dropdown-item(href='/map') World Map
 
                 if checkPermission('gm')
                     li.nav-item.dropdown(class= siteSection==='admin'?"active":null)

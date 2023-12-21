@@ -28,7 +28,9 @@ const tableFields = [
     'player_drive_folder',
     'google_client_id',
     'google_client_secret',
-    'display_glossary'
+    'display_glossary',
+    'body_font',
+    'header_font'
 ];
 
 const Campaign = new Model('campaigns', tableFields, {

@@ -42,7 +42,9 @@ function showNew(req, res, next){
         default_to_player: false,
         display_map: false,
         display_glossary: true,
-        default_site:false
+        default_site:false,
+        body_font: null,
+        header_font: null,
     };
     res.locals.breadcrumbs = {
         path: [
@@ -133,8 +135,6 @@ async function update(req, res, next){
     if (!req.campaign.default_site){
         delete campaign.default_site;
     }
-
-    console.log(campaign);
 
     try {
         const current = await req.models.campaign.get(id);

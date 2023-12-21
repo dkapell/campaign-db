@@ -9,6 +9,18 @@ head
     title= title
     block styles
         link(rel='stylesheet' href=`/stylesheets/themes/${cssTheme}/theme.css`)
+
+        -
+            let fonts = [];
+            if (currentCampaign.body_font && currentCampaign.body_font !== ''){
+                fonts.push(`${currentCampaign.body_font.replace(/\s+/, '+')}:400,400i,700,700i`);
+            }
+            if (currentCampaign.header_font && currentCampaign.header_font !== ''){
+                fonts.push(`${currentCampaign.header_font.replace(/\s+/, '+')}:400,700`);
+            }
+        if fonts.length
+            link(rel="stylesheet" href=`https://fonts.googleapis.com/css?family=${fonts.join('|')}`)
+
         link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Lato:400,400i,700,700i")
 
         link(rel='stylesheet' href='https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css')
@@ -20,4 +32,15 @@ head
 
         link(rel='stylesheet' href='/stylesheets/style.css')
         link(rel='stylesheet' href=`/stylesheets/themes/${cssTheme}/style.css`)
+        if currentCampaign.body_font && currentCampaign.body_font !== ''
+            style.
+                body, .popover {
+                    font-family: #{currentCampaign.body_font}, sans-serif;
+                }
+
+        if currentCampaign.header_font && currentCampaign.header_font !== ''
+            style.
+                .lead, h1, h2, h3, h4, h5, .blockquote, .navbar{
+                    font-family:  #{currentCampaign.header_font}, sans-serif;
+                }
         link(rel='stylesheet' href=`/css`)

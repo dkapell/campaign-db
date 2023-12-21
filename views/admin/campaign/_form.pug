@@ -23,95 +23,124 @@ if currentCampaign.default_site
                 input.form-check-input#campaign_default_site(type="checkbox", name="campaign[default_site]", checked=campaign.default_site)
                 label.form-check-label(for="campaign_default_site") Default Site
 
-.row.my-2
-    .col
-        .form-check.form-switch
-            input.form-check-input#campaign_default_to_player(type="checkbox", name="campaign[default_to_player]", checked=campaign.default_to_player)
-            label.form-check-label(for="campaign_default_to_player") Default new users to Players
-
-.row.my-2
-    .col
-        .form-check.form-switch
-            input.form-check-input#campaign_display_map(type="checkbox", name="campaign[display_map]", checked=campaign.display_map)
-            label.form-check-label(for="campaign_display_map") Display Map
-    .col
-        .form-check.form-switch
-            input.form-check-input#campaign_display_glossary(type="checkbox", name="campaign[display_glossary]", checked=campaign.display_glossary)
-            label.form-check-label(for="campaign_display_glossary") Display Glossary
 
 fieldset.mb-2.border.p-2.rounded
-    label.h5 Display Options
+    label.h5.w-100#design-heading(data-bs-toggle="collapse" data-bs-target="#design-container" aria-expanded="false" area-controls="design-container") Display Options
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
 
-    .row.my-2
-        .col-md-3
-            label.control-label(for="campaign_theme") Theme
-        .col
-            select.form-select.select2#campaign_theme(name="campaign[theme]" data-placeholder="Theme", required)
-                option
-                for theme in themes
-                    option(value=theme, selected=campaign.theme===theme)= theme
-    if websiteImages
+    #design-container.collapse(aria-labeledby='design-heading')
+        .row.my-2
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_map(type="checkbox", name="campaign[display_map]", checked=campaign.display_map)
+                    label.form-check-label(for="campaign_display_map") Display Map
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_glossary(type="checkbox", name="campaign[display_glossary]", checked=campaign.display_glossary)
+                    label.form-check-label(for="campaign_display_glossary") Display Glossary
+
         .row.my-2
             .col-md-3
-                label.control-label(for="campaign_image") Campaign Image (front page)
+                label.control-label(for="campaign_theme") Theme
             .col
-                select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image")
+                select.form-select.select2#campaign_theme(name="campaign[theme]" data-placeholder="Theme", required)
                     option
-                    for image in websiteImages
-                        option(value=image.id, selected=campaign.image_id===image.id)= image.name
+                    for theme in themes
+                        option(value=theme, selected=campaign.theme===theme)= theme
+        if websiteImages
+            .row.my-2
+                .col-md-3
+                    label.control-label(for="campaign_image") Campaign Image (front page)
+                .col
+                    select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image")
+                        option
+                        for image in websiteImages
+                            option(value=image.id, selected=campaign.image_id===image.id)= image.name
 
-    if faviconImages
+        if faviconImages
+            .row.my-2
+                .col-md-3
+                    label.control-label(for="campaign_favicon") Favicon(Browser Tab)
+                .col
+                    select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon")
+                        option
+                        for image in faviconImages
+                            option(value=image.id, selected=campaign.favicon_id===image.id)= image.name
         .row.my-2
             .col-md-3
-                label.control-label(for="campaign_favicon") Favicon(Browser Tab)
+                label.control-label(for="campaign_header_font") Header Font
             .col
-                select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon")
-                    option
-                    for image in faviconImages
-                        option(value=image.id, selected=campaign.favicon_id===image.id)= image.name
+                input.form-control#campaign_header_font(name="campaign[header_font]",placeholder='Montserrat' value=campaign.header_font)
+                span.form-text A font name from
+                    a.mx-1(href='https://fonts.google.com' target="_blank") Google Fonts
+                        i.fas.fa-external-link.ms-2
+        .row.my-2
+            .col-md-3
+                label.control-label(for="campaign_body_font") Body Font
+            .col
+                input.form-control#campaign_body_font(name="campaign[body_font]",placeholder='Lato' value=campaign.body_font)
+                span.form-text A font name from
+                    a.mx-1(href='https://fonts.google.com' target="_blank") Google Fonts
+                        i.fas.fa-external-link.ms-2
 
-    .row.my-2
-        .col
-            label.control-label.w-100#css-heading(for="campaign_css", data-bs-toggle="collapse" data-bs-target="#css-container" aria-expanded="false" area-controls="css-container") Custom CSS
-                i.expand-text-shown.ms-4 (click to hide editor)
-                i.expand-text.ms-4 (click to show editor)
-                span.float-end.ps-2
-                    i.fa.fa-chevron-up
-                    i.fa.fa-chevron-down
+        .row.my-2
+            .col
+                label.control-label.w-100#css-heading(for="campaign_css", data-bs-toggle="collapse" data-bs-target="#css-container" aria-expanded="false" area-controls="css-container") Custom CSS
+                    i.expand-text-shown.ms-4 (click to hide editor)
+                    i.expand-text.ms-4 (click to show editor)
+                    span.float-end.ps-2
+                        i.fa.fa-chevron-up
+                        i.fa.fa-chevron-down
 
-            #css-container.collapse(aria-labeledby="css-heading")
-                +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
+                #css-container.collapse(aria-labeledby="css-heading")
+                    +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
 
 fieldset.mb-2.border.p-2.rounded
-    label.h5 Google Drive Options
-    .row.my-2
-        .col-md-4
-            label.control-label(for="campaign_staff_drive") Staff Drive Folder
-        .col
-            input.form-control#campaign_staff_drive(placeholder="URL",name="campaign[staff_drive_folder]",value=campaign.staff_drive_folder)
-    .row.my-2
-        .col-md-4
-            label.control-label(for="campaign_npc_drive") NPC Drive Folder
-        .col
-            input.form-control#campaign_npc_drive(placeholder="URL",name="campaign[npc_drive_folder]",value=campaign.npc_drive_folder)
-    .row.my-2
-        .col-md-4
-            label.control-label(for="campaign_player_drive") Player Drive Folder
-        .col
-            input.form-control#campaign_player_drive(placeholder="URL",name="campaign[player_drive_folder]",value=campaign.player_drive_folder)
+    label.h5.w-100#drive-heading(data-bs-toggle="collapse" data-bs-target="#drive-container" aria-expanded="false" area-controls="drive-container") Google Drive Options
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+    #drive-container.collapse(aria-labeledby="drive-heading")
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_staff_drive") Staff Drive Folder
+            .col
+                input.form-control#campaign_staff_drive(placeholder="URL",name="campaign[staff_drive_folder]",value=campaign.staff_drive_folder)
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_npc_drive") NPC Drive Folder
+            .col
+                input.form-control#campaign_npc_drive(placeholder="URL",name="campaign[npc_drive_folder]",value=campaign.npc_drive_folder)
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_player_drive") Player Drive Folder
+            .col
+                input.form-control#campaign_player_drive(placeholder="URL",name="campaign[player_drive_folder]",value=campaign.player_drive_folder)
 fieldset.mb-2.border.p-2.rounded
-    label.h5 Authentication Options
-    .row.my-2
+    label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" area-controls="authentication-container") Authentication Options
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+    #authentication-container.collapse(aria-labeledby="authentication-heading")
+        .row.my-2
 
-        .col-md-4
-            label.control-label(for="campaign_google_client_id") Google OAuth Client ID
-        .col
-            input.form-control#campaign_google_client_id(placeholder="OAuth Client ID",name="campaign[google_client_id]",value=campaign.google_client_id)
-    .row.my-2
-        .col-md-4
-            label.control-label(for="campaign_google_client_secret") Google OAuth Client Secret
-        .col
-            input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
+            .col-md-4
+                label.control-label(for="campaign_google_client_id") Google OAuth Client ID
+            .col
+                input.form-control#campaign_google_client_id(placeholder="OAuth Client ID",name="campaign[google_client_id]",value=campaign.google_client_id)
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_google_client_secret") Google OAuth Client Secret
+            .col
+                input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
+        .row.my-2
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_default_to_player(type="checkbox", name="campaign[default_to_player]", checked=campaign.default_to_player)
+                    label.form-check-label(for="campaign_default_to_player") Default new users to Players
+
 
 .row.my-2
     .col

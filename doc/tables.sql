@@ -40,6 +40,8 @@ create table campaigns (
     updated timestamp with time zone DEFAULT now(),
     google_client_id varchar(80),
     google_client_secret varchar(80),
+    body_font varchar(255),
+    header_font varchar(255),
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE

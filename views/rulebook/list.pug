@@ -63,10 +63,18 @@ append scripts
                 delay: { 'show': 500, 'hide': 100 },
                 placement:'auto'
             });
+
             $('.rebuild-btn').on('click', async function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 const $this = $(this);
+                $this.removeClass('btn-outline-info')
+                $this.addClass('btn-info');
+                $this.addClass('disabled');
+                $this.find('i').addClass('fa-spin');
+                $this.attr('data-bs-original-title', 'Rebuilding');
+                $this.tooltip('setContent', {title:'Rebuilding', trigger:'hover focus'});
+                $this.blur();
                 const rulebookId = $this.data('rulebookid');
                 const csrfToken = $this.data('csrf');
                 const result = await fetch(`/rulebook/${rulebookId}/rebuild`, {
@@ -75,7 +83,13 @@ append scripts
                         'CSRF-Token': csrfToken
                     }
                 });
+                const data = await result.json();
+                if (data.success){
+                    location.reload();
 
+                } else {
+                    console.error(data.message);
+                }
             });
         });
 

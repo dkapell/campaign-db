@@ -196,10 +196,11 @@ async function rebuild(req, res, next){
         }
         await rulebookHelper.generate(id);
         await req.audit('rulebook', rulebook.id, 'rebuild');
-        req.flash('success', 'Rebuilt Rulebook');
-        res.redirect('/rulebook');
+        return res.json({success:true});
+
     } catch(err) {
-        return next(err);
+        return res.json({success:false, message: err});
+
     }
 }
 

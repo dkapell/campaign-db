@@ -28,54 +28,57 @@ append content
                         else
                             img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         =currentCampaign.name
-
         .row.my-2
             .col-lg
-                h1.h3 Resources
-                .list-group.mb-2
-                    -
-                        let driveLink = null;
-                        if (currentCampaign.player_drive_folder){
-                            driveLink = currentCampaign.player_drive_folder;
-                        }
-                        if (checkPermission('gm') && currentCampaign.staff_drive_folder){
-                            driveLink = currentCampaign.staff_drive_folder;
-                        } else if (checkPermission('contrib') && currentCampaign.npc_drive_folder){
-                            driveLink = currentCampaign.npc_drive_folder
-                        }
-                    if driveLink
-                        a.list-group-item.list-group-item-action(href=driveLink target="_blank")
-                            i.fab.fa-google-drive.me-1
-                            | Google Drive
-                            i.fa.fa-external-link.ms-1
-                    - user = session.assumed_user ?  session.assumed_user : activeUser
-                    if user.drive_folder
-                        a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
-                            i.fab.fa-google-drive.me-1
-                            | Personal Drive Folder
-                            i.fa.fa-external-link.ms-1
-                    if checkPermission('contrib')
-                        if currentCampaign.player_drive_folder
-                            a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")
+                if checkPermission('player')
+                    h1.h3 Resources
+                    .list-group.mb-2
+                        -
+                            let driveLink = null;
+                            if (currentCampaign.player_drive_folder){
+                                driveLink = currentCampaign.player_drive_folder;
+                            }
+                            if (checkPermission('gm') && currentCampaign.staff_drive_folder){
+                                driveLink = currentCampaign.staff_drive_folder;
+                            } else if (checkPermission('contrib') && currentCampaign.npc_drive_folder){
+                                driveLink = currentCampaign.npc_drive_folder
+                            }
+                        if driveLink
+                            a.list-group-item.list-group-item-action(href=driveLink target="_blank")
                                 i.fab.fa-google-drive.me-1
-                                | Player Drive
-
+                                | Google Drive
                                 i.fa.fa-external-link.ms-1
-                    else
-                        a.list-group-item.list-group-item-action(href='/skill/doc')
-                            i.fa.fa-file-alt.me-1
-                            | Skills
-                    if currentCampaign.display_glossary
-                        a.list-group-item.list-group-item-action(href='/glossary')
-                                i.fa.fa-book.me-1
-                                | Glossary
-                    a.list-group-item.list-group-item-action(href='/character')
-                            i.fa.fa-users.me-1
-                            | Characters
-                    if rulebooks.length
-                        .list-group-item
-                            h5 Documents
-                            +allRulebooks(rulebooks)
+                        - user = session.assumed_user ?  session.assumed_user : activeUser
+                        if user.drive_folder
+                            a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
+                                i.fab.fa-google-drive.me-1
+                                | Personal Drive Folder
+                                i.fa.fa-external-link.ms-1
+                        if checkPermission('contrib')
+                            if currentCampaign.player_drive_folder
+                                a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")
+                                    i.fab.fa-google-drive.me-1
+                                    | Player Drive
+
+                                    i.fa.fa-external-link.ms-1
+                        else
+                            a.list-group-item.list-group-item-action(href='/skill/doc')
+                                i.fa.fa-file-alt.me-1
+                                | Skills
+                        if currentCampaign.display_glossary
+                            a.list-group-item.list-group-item-action(href='/glossary')
+                                    i.fa.fa-book.me-1
+                                    | Glossary
+                        a.list-group-item.list-group-item-action(href='/character')
+                                i.fa.fa-users.me-1
+                                | Characters
+                        if rulebooks.length
+                            .list-group-item
+                                h5 Documents
+                                +allRulebooks(rulebooks)
+                else
+                    p Not currently a player
+
             .col-lg
                 if character
                     h1.h3 Character

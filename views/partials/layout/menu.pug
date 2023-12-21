@@ -98,7 +98,7 @@
             if activeUser
                 li.nav-item.dropdown
                     a.nav-link.dropdown-toggle.px-4#userDropdown(
-                        class=session.gm_mode||session.player_mode || session.assumed_user?'bg-warning rounded-pill':''
+                        class=session.gm_mode||session.player_mode || session.admin_mode || session.assumed_user?'bg-warning rounded-pill':''
                         href='#'
                         role='button'
                         data-bs-toggle="dropdown"
@@ -114,11 +114,15 @@
                             a.dropdown-item(href="/user/revert")
                                 i.fas.fa-user-secret.fa-fw.me-1
                                 | Revert to #{activeUser.name}
-
+                        if checkPermission('site_admin')
+                            a.dropdown-item(href="/auth/admin")
+                                i.fas.fa-user-tie.fa-fw.me-1
+                                | #{session.admin_mode?'Disable':'Enable'} Admin Mode
                         if checkPermission('admin', true) && ! session.player_mode
                             a.dropdown-item(href="/auth/gm")
                                 i.fas.fa-user-tie.fa-fw.me-1
                                 | #{session.gm_mode?'Disable':'Enable'} GM Mode
+
                         if checkPermission('gm', true) && ! session.gm_mode
                             a.dropdown-item(href="/auth/player")
                                 i.far.fa-user.fa-fw.me-1

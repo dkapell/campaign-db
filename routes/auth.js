@@ -62,8 +62,20 @@ router.get('/logout',
         res.redirect('/');
     });
 
+router.get('/admin', permission('site_admin'),
+    function toggleAdminMode(req, res, next){
+        console.log(req.session);
+        if (req.session.admin_mode){
+            delete req.session.admin_mode;
+        } else if (res.locals.checkPermission('site_admin')){
+            req.session.admin_mode = true;
+        }
+        res.redirect('/');
+    });
+
 router.get('/gm', permission('gm'),
     function toggleGmMode(req, res, next){
+        console.log(req.session);
         if (req.session.gm_mode){
             delete req.session.gm_mode;
         } else {

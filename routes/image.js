@@ -96,7 +96,7 @@ async function update(req, res, next){
         }
         await req.models.image.update(id, image);
         delete req.session.imageData;
-        await imageHelper.buildThumbnail(current);
+        await imageHelper.buildThumbnail(await req.models.image.get(id));
         req.flash('success', 'Updated Image ' + image.name);
         res.redirect('/image');
     } catch(err) {

@@ -8,7 +8,6 @@
     "postinstall": "npm run bundle"
   },
   "dependencies": {
-    "@img/sharp-darwin-x64": "^0.33.1",
     "async": "^3.2.3",
     "aws-sdk": "^2.1524.0",
     "codemirror": "^5.65.0",
@@ -50,5 +49,8 @@
     "unzip-stream": "^0.3.1",
     "validator": "13.11",
     "vm": "^0.1.0"
+  },
+  "devDependencies": {
+     "@img/sharp-darwin-x64": "^0.33.1",
   }
 }

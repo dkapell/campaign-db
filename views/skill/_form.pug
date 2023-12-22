@@ -90,7 +90,7 @@ if checkPermission('gm')
                                     option(value=item.id selected=_.indexOf(skill.requires, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
                     .col-md-3
                         label.control-label(for="skill_require_num") Number of Prereqs
-                        input.form-control.text-right#skill_require_num(type="number",placeholder="Usually 1",name="skill[require_num]",value=skill.require_num)
+                        input.form-control.text-end#skill_require_num(type="number",placeholder="Usually 1",name="skill[require_num]",value=skill.require_num)
 
                 .row.my-2
                     .col

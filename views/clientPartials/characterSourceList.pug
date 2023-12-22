@@ -5,7 +5,7 @@ table.table.table-sm.table-striped
             th Cost
             th Skills
             if allowedEdit
-                th.text-right Actions
+                th.text-end Actions
     tbody
         each source in sources
             tr
@@ -36,7 +36,7 @@ table.table.table-sm.table-striped
                         = source.character_cost
                 td= source.character_skills.length
                 if allowedEdit
-                    td.text-right
+                    td.text-end
                         if source.removable
                             a.btn.btn-outline-danger.btn-xs.delete-source-btn(
                                 title='Remove Header'

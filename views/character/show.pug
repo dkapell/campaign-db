@@ -17,7 +17,7 @@ block content
                 .col-sm
                     h4= character.user.name
 
-        .col-md.order-md-3.text-right
+        .col-md.order-md-3.text-end
             .row
                 .col
                     if allowedEdit
@@ -29,14 +29,14 @@ block content
                             i.fas.fa-file-alt
                             |  Download PDF
                         a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
-                            .sr-only Toggle Dropdown
+                            .visually-hidden Toggle Dropdown
                         .dropdown-menu.py-1
                             a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
                                 i.fas.fa-file
                                 |  With Skill Descriptions
 
             .row
-                .col.text-right
+                .col.text-end
 
 
                     h4.text-info.mt-2
@@ -88,7 +88,7 @@ block content
                     #character-source-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
                     .col-sm-6.offset-sm-3.text-center#character-source-table-loading
                         .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                            .sr-only Table is Loading
+                            .visually-hidden Table is Loading
 
             .row.my-3
                 .col
@@ -102,13 +102,13 @@ block content
                         #character-skill-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
                     .col-sm-6.offset-sm-3.text-center#character-skill-table-loading
                         .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                            .sr-only Table is Loading
+                            .visually-hidden Table is Loading
 
         .tab-pane.fade.character-history#history(role="tabpanel" aria-labelledby="history-tab")
             #character-audits-table(data-characterid=character.id)
             .col-sm-6.offset-sm-3.text-center#character-audits-table-loading
                 .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                    .sr-only Table is Loading
+                    .visually-hidden Table is Loading
 
     +characterModal()
 

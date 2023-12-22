@@ -159,7 +159,7 @@ mixin cardDoc(card)
                                     strong.me-1 Then:
                                     |  #{card.min_years} year#{card.min_years!==1?'s':''} pass#{card.min_years===1?'es':''}
                 if checkPermission('gm')
-                    .float-end.text-right
+                    .float-end.text-end
                         a.btn.btn-outline-secondary.btn-sm.card-edit-btn.invisible(href=`/card/${card.id}/edit?backto=document` title='Edit Card' data-bs-toggle="tooltip")
                             i.fas.fa-edit
 

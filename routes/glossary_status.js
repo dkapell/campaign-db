@@ -14,6 +14,7 @@ async function list(req, res, next){
         current: 'Statuses'
     };
     try {
+        res.locals.csrfToken = req.csrfToken();
         res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Glossary Statuses';
         res.render('glossary_status/list', { pageTitle: 'Glossary Statuses' });
@@ -54,7 +55,6 @@ async function showNew(req, res, next){
             name: null,
             description: null,
             display_to_pc: false,
-            display_order: maxVal +1,
             class: 'secondary',
             reviewable: false,
         };
@@ -120,6 +120,10 @@ async function create(req, res, next){
     }
     glossary_status.campaign_id = req.campaign.id;
     try{
+        const glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
+        const maxVal = _.max(_.pluck(glossary_statuses, 'display_order')) + 1;
+        glossary_status.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         const id = await req.models.glossary_status.create(glossary_status);
         await req.audit('glossary_status', id, 'create', {new:glossary_status});
         delete req.session.glossary_statusData;
@@ -175,6 +179,22 @@ async function remove(req, res, next){
     }
 }
 
+async function reorder(req, res, next){
+    try {
+        for (const update of req.body){
+            const glossary_status = await req.models.glossary_status.get(update.id);
+            if (!glossary_status || glossary_status.campaign_id !== req.campaign.id){
+                throw new Error ('Invalid record');
+            }
+            glossary_status.display_order = update.display_order;
+            await req.models.glossary_status.update(update.id, glossary_status);
+        }
+        res.json({success:true});
+    }catch (err) {
+        return next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(permission('admin'));
@@ -183,11 +203,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', list);
+router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
 router.get('/:id', csrf(), showEdit);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
+router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
 router.delete('/:id', remove);
 

@@ -28,7 +28,7 @@ mixin characterSkill(skill, showDescription=false)
                 else
                     | #{skill.next_cost} CP
 
-            .col.float-end.text-right.skill-source
+            .col.float-end.text-end.skill-source
                 strong= skill.source.name
         .row.skill-summary
             .col
@@ -62,7 +62,7 @@ mixin characterSource(source)
                     .badge.text-bg-info.me-1 required
             .col.source-cost #{source.cost} CP
 
-            .col.float-end.text-right.source-type
+            .col.float-end.text-end.source-type
                 strong= capitalize(source.type.name)
         if source.description
             .row.source-description
@@ -141,7 +141,7 @@ mixin characterSheet(character)
         .col-md
             .row
                 .col
-                    .text-right.pt-0
+                    .text-end.pt-0
                         .form-check.form-switch
                             input.form-check-input#showSkillDescriptions(type="checkbox" checked)
                             label.form-check-label(for="showSkillDescriptions") Show Skill Descriptions
@@ -236,7 +236,7 @@ mixin characterTable(characters, forPlayer, showActive=false)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
+                .visually-hidden Table is Loading
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
             data-order=forPlayer?'[[2, "desc"]]':'[[1, "asc"]]'
             style="display: none"
@@ -353,7 +353,7 @@ mixin characterListItem(character, forPlayer, extended, showActive)
             .row.mt-1
                 .col
                     | Updated: #{moment(character.updated).format('MMM Do YYYY, h:mm a')}
-                .col.text-right
+                .col.text-end
                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                         role="button",
                         title="View/Edit Character"

@@ -7,7 +7,7 @@ block content
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
+                .visually-hidden Table is Loading
         table.table.table-striped.table-filtered.table-hover.my-3.dt-responsive.nowrap.table-sm.data-table.w-100( style="display: none")
             thead
                 tr
@@ -39,7 +39,7 @@ block content
                         td= campaign.default_to_player?'Player':'None'
                         td=campaign.user?campaign.user.name:'System'
 
-                        td.text-right
+                        td.text-end
 
                             a.btn.btn-outline-danger.btn-xs.delete-btn(
                                 role="button",

@@ -39,7 +39,7 @@ block content
                     | Actions
 
         if checkPermission('admin')
-            .col-sm.text-right
+            .col-sm.text-end
                 .form-check.form-switch
                     input.form-check-input#skillDeleteSwitch(type="checkbox")
                     label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
@@ -48,7 +48,7 @@ block content
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
+                .visually-hidden Table is Loading
         table.table.table-striped.skill-table.table-hover.my-3.dt-responsive.nowrap.table-sm.topsort.w-100(
             data-order='[[0, "asc"]]'
             style="display: none"
@@ -89,7 +89,7 @@ block content
                                 else
                                     | #{skill_source.conflicts.length} Conflicts
 
-                        td.text-right
+                        td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn(
                                     role="button",
                                     href=`/skill_source/${skill_source.id}/edit?backto=list`

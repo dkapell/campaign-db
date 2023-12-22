@@ -36,13 +36,6 @@
 
 .row.my-2
     .col
-        label.control-label(for="skill_status_display_order") Display Order
-        input.form-control(type="number",placeholder="Order",name="skill_status[display_order]",value=skill_status.display_order,id='skill_status_display_order',required)
-        div.invalid-feedback Please choose a valid display order
-
-
-.row.my-2
-    .col
         label.control-label(for="skill_status_description") Description
         textarea.form-control(name="skill_status[description]",id="skill_status_description",rows=3)
             = skill_status.description

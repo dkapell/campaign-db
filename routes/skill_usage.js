@@ -14,6 +14,7 @@ async function list(req, res, next){
         current: 'Usages'
     };
     try {
+        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Skill Usages';
         res.render('skill_usage/list', { pageTitle: 'Skill Usages' });
@@ -47,13 +48,10 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
-        const maxVal = _.max(_.pluck(skill_usages, 'display_order'));
         res.locals.skill_usage = {
             name: null,
             description: null,
             display_name: true,
-            display_order: maxVal +1
         };
         res.locals.breadcrumbs = {
             path: [
@@ -115,6 +113,10 @@ async function create(req, res, next){
     }
     skill_usage.campaign_id = req.campaign.id;
     try{
+        const skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
+        const maxVal = _.max(_.pluck(skill_usages, 'display_order')) +1;
+        skill_usage.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         const id = await req.models.skill_usage.create(skill_usage);
         await req.audit('skill_usage', id, 'create', {new:skill_usage});
         delete req.session.skill_usageData;
@@ -168,6 +170,23 @@ async function remove(req, res, next){
     }
 }
 
+async function reorder(req, res, next){
+    try {
+        for (const update of req.body){
+            console.log(update);
+            const skill_usage = await req.models.skill_usage.get(update.id);
+            if (!skill_usage || skill_usage.campaign_id !== req.campaign.id){
+                throw new Error ('Invalid record');
+            }
+            skill_usage.display_order = update.display_order;
+            await req.models.skill_usage.update(update.id, skill_usage);
+        }
+        res.json({success:true});
+    }catch (err) {
+        return next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(permission('gm'));
@@ -176,11 +195,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', list);
+router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
 router.get('/:id', csrf(), showEdit);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
+router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
 router.delete('/:id', permission('admin'), remove);
 

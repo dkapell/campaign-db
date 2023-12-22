@@ -24,13 +24,6 @@
 
 .row.my-2
     .col
-        label.control-label(for="glossary_status_display_order") Display Order
-        input.form-control(type="number",placeholder="Order",name="glossary_status[display_order]",value=glossary_status.display_order,id='glossary_status_display_order',required)
-        div.invalid-feedback Please choose a valid display order
-
-
-.row.my-2
-    .col
         label.control-label(for="glossary_status_description") Description
         textarea.form-control(name="glossary_status[description]",id="glossary_status_description",rows=3)
             = glossary_status.description

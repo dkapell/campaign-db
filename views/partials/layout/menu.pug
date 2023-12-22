@@ -8,7 +8,7 @@
         ul.navbar-nav.me-auto
             li.nav-item(class= siteSection==='home'?"active":null)
                 a.nav-link(href="/") Home
-                    span.sr-only (current)
+                    span.visually-hidden (current)
             if !currentCampaign.default_site
                 if checkPermission('event')
                     li.nav-item.dropdown(class= siteSection==='gm'?"active":null)

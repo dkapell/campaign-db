@@ -9,7 +9,7 @@ block content
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
+                .visually-hidden Table is Loading
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
             data-order='[[2, "asc"]]'
             style="display: none"
@@ -36,7 +36,7 @@ block content
                         td= map.image?map.image.name:'None'
                         
                         if checkPermission('gm')
-                            td.text-right
+                            td.text-end
                                 a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
                                     role="button",
                                     href=`/map/${map.id}/edit`

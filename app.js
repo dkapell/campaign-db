@@ -92,9 +92,9 @@ const sessionConfig = {
 };
 
 if (config.get('app.sessionType') === 'redis'){
-    const RedisStore = require("connect-redis").default
+    const RedisStore = require('connect-redis').default;
 
-//    const RedisStore = require('connect-redis')(session);
+    //    const RedisStore = require('connect-redis')(session);
     let redisClient = null;
     if (config.get('app.redis.url')){
         const options = {};
@@ -105,7 +105,7 @@ if (config.get('app.sessionType') === 'redis'){
     } else {
         redisClient = redis.createClient();
     }
-    redisClient.connect().catch(console.error)
+    redisClient.connect().catch(console.error);
     sessionConfig.store = new RedisStore({ client: redisClient });
     sessionConfig.resave = true;
 }

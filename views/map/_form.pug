@@ -20,6 +20,10 @@ if images.length
         .form-check.form-switch
             input.form-check-input#map_display_to_pc(type="checkbox", name="map[display_to_pc]", checked=map.display_to_pc)
             label.form-check-label(for="map_display_to_pc") Display to PCs
+    .col
+        .form-check.form-switch
+            input.form-check-input#map_rebuild(type="checkbox", name="map[rebuild]", checked=map.rebuild)
+            label.form-check-label(for="map_rebuild") Rebuild map tiles
 
 .row.my-2
     .col

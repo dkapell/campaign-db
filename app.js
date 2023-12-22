@@ -95,16 +95,15 @@ if (config.get('app.sessionType') === 'redis'){
     const RedisStore = require('connect-redis').default;
 
     let redisClient = null;
-    console.log(config.get('app.redis.url'));
     if (config.get('app.redis.url')){
-        const options = {};
+        const options = {
+            url: config.get('app.redis.url')
+        };
         if (config.get('app.redis.tls')){
             options.tls = {rejectUnauthorized: false};
         }
-        console.log('using url')
-        redisClient = redis.createClient(config.get('app.redis.url'), options);
+        redisClient = redis.createClient(options);
     } else {
-        console.log('not using url')
         redisClient = redis.createClient();
     }
     redisClient.connect().catch(console.error);

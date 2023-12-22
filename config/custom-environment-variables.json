@@ -16,7 +16,8 @@
     "auth": {
         "clientID": "GOOGLE_CLIENT_ID",
         "clientSecret": "GOOGLE_CLIENT_SECRET",
-        "callbackURL": "CALLBACK_URL"
+        "callbackURL": "CALLBACK_URL",
+        "httpsAlways": "OAUTH_HTTPS_ALWAYS"
     },
     "aws": {
         "accessKeyId": "AWS_ACCESSKEY",

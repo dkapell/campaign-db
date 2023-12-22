@@ -107,7 +107,7 @@ if (config.get('app.sessionType') === 'redis'){
         redisClient = redis.createClient();
     }
     redisClient.on('connect', function() {
-        console.log(`Using redis for sessions`);
+        console.log('Using redis for sessions');
     });
     redisClient.on('error', err => {
         console.log('Error ' + err);

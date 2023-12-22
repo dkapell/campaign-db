@@ -25,6 +25,7 @@
     "google-auth-library": "^9.4.1",
     "googleapis": "^129.0.0",
     "http-errors": "^2.0.0",
+    "limiter": "^2.1.0",
     "markdown": "^0.5.0",
     "marked": "^11.1.0",
     "method-override": "^3.0.0",

@@ -101,8 +101,10 @@ if (config.get('app.sessionType') === 'redis'){
         if (config.get('app.redis.tls')){
             options.tls = {rejectUnauthorized: false};
         }
+        console.log('using url')
         redisClient = redis.createClient(config.get('app.redis.url'), options);
     } else {
+        console.log('not using url')
         redisClient = redis.createClient();
     }
     redisClient.connect().catch(console.error);

@@ -94,8 +94,8 @@ const sessionConfig = {
 if (config.get('app.sessionType') === 'redis'){
     const RedisStore = require('connect-redis').default;
 
-    //    const RedisStore = require('connect-redis')(session);
     let redisClient = null;
+    console.log(config.get('app.redis.url'));
     if (config.get('app.redis.url')){
         const options = {};
         if (config.get('app.redis.tls')){

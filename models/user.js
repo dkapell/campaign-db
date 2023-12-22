@@ -216,11 +216,9 @@ async function postSave(id, data, campaignId){
             }
         }
         if (changed){
-            console.log(campaign_user);
             await models.campaign_user.update(campaign_user.id, campaign_user);
         }
     } else {
-        console.log('here3');
         campaign_user = {
             user_id: id,
             campaign_id: campaignId,

@@ -51,6 +51,10 @@
     "vm": "^0.1.0"
   },
   "devDependencies": {
-     "@img/sharp-darwin-x64": "^0.33.1",
-  }
+     "@img/sharp-darwin-x64": "^0.33.1"
+  },
+  "engines": {
+    "node": "18.19.x",
+    "npm": "10.2.x"
+  },
 }

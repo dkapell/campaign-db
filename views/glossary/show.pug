@@ -11,7 +11,7 @@ block content
         a.btn.btn-sm.btn-outline-info.ms-2(href=`/glossary/${glossary_entry.id}/edit`)
             i.fas.fa-edit.me-1
             | Edit
-        .float-end.text-right.d-inline
+        .float-end.text-end.d-inline
             if glossary_entry.status
                 h1.badge.badge-pill.skill-status(class=`text-bg-${glossary_entry.status.class}`)
                     = capitalize(glossary_entry.status.name)

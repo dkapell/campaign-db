@@ -57,13 +57,12 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const rulebooks = await req.models.rulebook.find({campaign_id:req.campaign.id});
-        let maxVal = _.max(_.pluck(rulebooks, 'display_order'));
+
         res.locals.rulebook = {
             name: null,
             description: null,
             drive_folder: null,
-            display_order: _.isFinite(maxVal)?maxVal + 1:1,
+
             excludes: []
         };
 
@@ -129,6 +128,10 @@ async function create(req, res, next){
     delete rulebook.generated;
 
     try{
+        const rulebooks = await req.models.rulebook.find({campaign_id:req.campaign.id});
+        let maxVal = _.max(_.pluck(rulebooks, 'display_order'));
+        rulebook.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         const id = await req.models.rulebook.create(rulebook);
         await req.audit('rulebook', id, 'create', {new:rulebook});
         delete req.session.rulebookData;
@@ -204,6 +207,23 @@ async function rebuild(req, res, next){
     }
 }
 
+async function reorder(req, res, next){
+    try {
+        for (const update of req.body){
+            const rulebook = await req.models.rulebook.get(update.id);
+            if (!rulebook || rulebook.campaign_id !== req.campaign.id){
+                throw new Error ('Invalid record');
+            }
+            rulebook.display_order = update.display_order;
+            await req.models.rulebook.update(update.id, rulebook);
+        }
+        res.json({success:true});
+    }catch (err) {
+        return next(err);
+    }
+}
+
+
 const router = express.Router();
 
 router.use(permission('admin'));
@@ -217,6 +237,7 @@ router.get('/new', csrf(), showNew);
 router.get('/:id', csrf(), showEdit);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
+router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
 router.put('/:id/rebuild', csrf(), rebuild);
 router.delete('/:id', remove);

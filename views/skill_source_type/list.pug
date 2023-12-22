@@ -8,27 +8,33 @@ block content
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
+                .visually-hidden Table is Loading
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
-            data-order='[[2, "asc"]]'
             style="display: none"
+            data-orderable-object='skill_source_type'
+            data-csrf=csrfToken
+            class=checkPermission('admin')?'table-orderable':''
             )
             thead
                 tr
                     th
+                    if checkPermission('admin')
+                        th.sort-handle
+                    th Order
                     th(data-priority="1") Name
                     th Number Free
-                    th Display Order
                     th
 
             tbody
                 for skill_source_type in skill_source_types
                     tr(class='clickable-row', data-click-object='skill_source_type' data-click-id=skill_source_type.id)
                         td.dtr-control
+                        if checkPermission('admin')
+                            td= skill_source_type.id
+                        td= skill_source_type.display_order
                         td= capitalize(skill_source_type.name)
                         td= skill_source_type.num_free
-                        td= skill_source_type.display_order
-                        td.text-right
+                        td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
                                     role="button",
                                     href=`/skill_source_type/${skill_source_type.id}/edit`,

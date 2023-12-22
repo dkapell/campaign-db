@@ -72,7 +72,7 @@ mixin entryLayout(entry, anchor)
                 a(href=`/glossary/tag/${tag.id}/${tag.name}`)
                     span.badge.text-bg-secondary.mx-1= tag.name
             if checkPermission('contrib')
-                .float-end.text-right
+                .float-end.text-end
                     if checkPermission('gm')
                         a.btn.btn-sm.btn-outline-info.me-2.entry-edit-btn.invisible(href=`/glossary/${entry.id}/edit` data-bs-toggle="tooltip" title=`Edit ${entry.name}`)
                             i.fas.fa-edit

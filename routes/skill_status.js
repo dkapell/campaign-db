@@ -14,6 +14,7 @@ async function list(req, res, next){
         current: 'Statuses'
     };
     try {
+        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_statuss = await req.models.skill_status.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Skill Statuses';
         res.render('skill_status/list', { pageTitle: 'Skill Statuses' });
@@ -47,13 +48,10 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const skill_statuses = await req.models.skill_status.find({campaign_id:req.campaign.id});
-        const maxVal = _.max(_.pluck(skill_statuses, 'display_order'));
         res.locals.skill_status = {
             name: null,
             description: null,
             display_to_pc: false,
-            display_order: maxVal +1,
             class: 'secondary',
             advanceable: true,
             purchasable: false,
@@ -122,6 +120,10 @@ async function create(req, res, next){
     skill_status.campaign_id = req.campaign.id;
 
     try{
+        const skill_statuses = await req.models.skill_status.find({campaign_id:req.campaign.id});
+        const maxVal = _.max(_.pluck(skill_statuses, 'display_order')) + 1;
+        skill_status.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         const id = await req.models.skill_status.create(skill_status);
         await req.audit('skill_status', id, 'create', {new:skill_status});
         delete req.session.skill_statusData;
@@ -170,9 +172,25 @@ async function remove(req, res, next){
         }
         await req.models.skill_status.delete(id);
         await req.audit('skill_status', id, 'delete', {old: current});
-        req.flash('success', 'Removed Statueses');
+        req.flash('success', 'Removed Status');
         res.redirect('/skill_status');
     } catch(err) {
+        return next(err);
+    }
+}
+
+async function reorder(req, res, next){
+    try {
+        for (const update of req.body){
+            const skill_status = await req.models.skill_status.get(update.id);
+            if (!skill_status || skill_status.campaign_id !== req.campaign.id){
+                throw new Error ('Invalid record');
+            }
+            skill_status.display_order = update.display_order;
+            await req.models.skill_status.update(update.id, skill_status);
+        }
+        res.json({success:true});
+    }catch (err) {
         return next(err);
     }
 }
@@ -185,11 +203,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', list);
+router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
 router.get('/:id', csrf(), showEdit);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
+router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
 router.delete('/:id', remove);
 

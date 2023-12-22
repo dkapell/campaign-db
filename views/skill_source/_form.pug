@@ -17,7 +17,7 @@ if (backto)
     .col
         label.control-label(for="skill_source_cost") Cost
         .input-group
-            input.form-control.text-right.pe-3(type="number",placeholder="Cost",name="skill_source[cost]",value=skill_source.cost,id='skill_source_cost')
+            input.form-control.text-end.pe-3(type="number",placeholder="Cost",name="skill_source[cost]",value=skill_source.cost,id='skill_source_cost')
             span.input-group-text CP
 
 .row.my-2
@@ -39,7 +39,7 @@ if (backto)
                     option(value=source.id selected=_.indexOf(skill_source.requires, source.id) !== -1) #{capitalize(source.type.name)}: #{source.name}
     .col-md-3
         label.control-label(for="skill_source_require_num") Number of Prereqs
-        input.form-control.text-right#skill_source_require_num(type="number",placeholder="Usually 1",name="skill_source[require_num]",value=skill_source.require_num)
+        input.form-control.text-end#skill_source_require_num(type="number",placeholder="Usually 1",name="skill_source[require_num]",value=skill_source.require_num)
 
 .row.my-2
     .col

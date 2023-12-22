@@ -101,7 +101,7 @@ select.value-selector{
 
 
 
-.skill-status, .glossary_entry-status, .card-deck-type{
+.skill-status, .glossary-status, .glossary_entry-status{
   font-size: 0.8rem;
 }
 .btn-xs
@@ -118,10 +118,6 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
 }
 .skill_document > .source-description {
   font-size:1.1rem;
-}
-
-.card-option{
-    font-size: 1.2rem;
 }
 
 .section-nav {

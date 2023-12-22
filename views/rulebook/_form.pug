@@ -15,13 +15,6 @@
 
 .row.my-2
     .col
-        label.control-label(for="rulebook_display_order") Display Order
-        input.form-control(type="number",placeholder="Order",name="rulebook[display_order]",value=rulebook.display_order,id='rulebook_display_order',required)
-        div.invalid-feedback Please choose a valid display order
-
-
-.row.my-2
-    .col
         label.control-label(for="rulebook_description") Description
         textarea.form-control(name="rulebook[description]",id="rulebook_description",rows=3)
             = rulebook.description

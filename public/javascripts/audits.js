@@ -129,7 +129,6 @@ function clickRow(e){
 
 
 function diffFormatter(diffRow){
-    console.log(diffRow);
     switch(diffRow.type){
         case 'status':
             return `<strong>${diffRow.field} ${diffRow.status}</strong>`;

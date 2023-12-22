@@ -75,7 +75,6 @@ router.get('/admin', permission('site_admin'),
 
 router.get('/gm', permission('gm'),
     function toggleGmMode(req, res, next){
-        console.log(req.session);
         if (req.session.gm_mode){
             delete req.session.gm_mode;
         } else {

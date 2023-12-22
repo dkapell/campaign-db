@@ -106,7 +106,17 @@ if (config.get('app.sessionType') === 'redis'){
     } else {
         redisClient = redis.createClient();
     }
-    redisClient.connect().catch(console.error);
+    redisClient.on('connect', function() {
+        console.log(`Using ${redisType} for Sessions`);
+    });
+    redisClient.on('error', err => {
+        console.log('Error ' + err);
+    });
+
+    (async() => {
+        await redisClient.connect().catch(console.error);
+    })();
+
     sessionConfig.store = new RedisStore({ client: redisClient });
     sessionConfig.resave = true;
 }

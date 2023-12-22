@@ -173,7 +173,6 @@ async function remove(req, res, next){
 async function reorder(req, res, next){
     try {
         for (const update of req.body){
-            console.log(update);
             const skill_usage = await req.models.skill_usage.get(update.id);
             if (!skill_usage || skill_usage.campaign_id !== req.campaign.id){
                 throw new Error ('Invalid record');

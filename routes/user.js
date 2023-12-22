@@ -31,7 +31,6 @@ async function list(req, res, next){
                 });
                 return user;
             });
-            console.log(res.locals.users);
             res.locals.campaigns = campaigns;
             res.render('admin/user/list', { pageTitle: 'All Users' });
         }
@@ -149,7 +148,6 @@ async function update(req, res, next){
         const current = await req.models.user.get(req.campaign.id, id);
 
         const currentUser = req.session.assumed_user ? req.session.assumed_user: req.user;
-        console.log(currentUser);
         if (! (currentUser.type === 'admin' || current.site_admin)){
             delete user.name;
             delete user.email;

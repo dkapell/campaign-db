@@ -252,7 +252,7 @@ function prepSkillTable(){
             .attr('id', 'editSwitchContainer')
             .addClass('rounded-pill')
             .addClass('px-2')
-            .addClass('py-0')
+            .addClass('pt-1')
             .addClass('float-end')
             .append($editSwitch);
 
@@ -265,10 +265,10 @@ function prepSkillTable(){
         $editSwitch.on('change', function(e){
             if ($(this).find('input').prop('checked')){
                 localStorage.setItem('cdb-skill-edit-switch', 'true');
-                $('#editSwitchContainer').addClass('bg-warning').addClass('text-white');
+                $('#editSwitchContainer').addClass('text-bg-warning');
             } else {
                 localStorage.removeItem('cdb-skill-edit-switch');
-                $('#editSwitchContainer').removeClass('bg-warning').removeClass('text-white');
+                $('#editSwitchContainer').removeClass('text-bg-warning');
             }
         });
     }
@@ -501,7 +501,7 @@ function updateTable(data){
         tableRow.attr('data-click-object', 'skill');
         tableRow.attr('data-click-id', skill.id);
 
-        tableRow.find('td:last-child').addClass('text-right');
+        tableRow.find('td:last-child').addClass('text-end');
 
         if ($('.skill-table').data('showsource')) {
             tableRow.find('td:nth-child(2)').addClass('font-italic');

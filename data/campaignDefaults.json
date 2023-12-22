@@ -180,7 +180,7 @@
             {
                 "name": "Delete Me",
                 "description": "Delete this Skill",
-                "display_order": 99,
+                "display_order": 8,
                 "display_to_pc": false,
                 "purchasable": false,
                 "advanceable": false,

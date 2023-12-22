@@ -14,6 +14,7 @@ async function list(req, res, next){
         current: 'Source Types'
     };
     try {
+        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id: req.campaign.id});
         res.locals.title += ' - Skill Source Types';
         res.render('skill_source_type/list', { pageTitle: 'Skill Source Types' });
@@ -47,11 +48,9 @@ async function show(req, res, next){
 async function showNew(req, res, next){
     try{
 
-        const source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
-        const maxVal = _.max(_.pluck(source_types, 'display_order'));
+
         res.locals.skill_source_type = {
             name: null,
-            display_order: maxVal + 1,
             num_free: 0
         };
         res.locals.breadcrumbs = {
@@ -112,6 +111,10 @@ async function create(req, res, next){
     skill_source_type.campaign_id = req.campaign.id;
 
     try{
+        const source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
+        const maxVal = _.max(_.pluck(source_types, 'display_order')) + 1;
+        skill_source_type.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         const id = await req.models.skill_source_type.create(skill_source_type);
         await req.audit('skill_source_type', id, 'create', {new:skill_source_type});
         delete req.session.skill_source_typeData;
@@ -162,6 +165,22 @@ async function remove(req, res, next){
     }
 }
 
+async function reorder(req, res, next){
+    try {
+        for (const update of req.body){
+            const skill_source_type = await req.models.skill_source_type.get(update.id);
+            if (!skill_source_type || skill_source_type.campaign_id !== req.campaign.id){
+                throw new Error ('Invalid record');
+            }
+            skill_source_type.display_order = update.display_order;
+            await req.models.skill_source_type.update(update.id, skill_source_type);
+        }
+        res.json({success:true});
+    }catch (err) {
+        return next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(permission('gm'));
@@ -170,11 +189,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', list);
+router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
 router.get('/:id', csrf(), showEdit);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
+router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
 router.delete('/:id', permission('admin'), remove);
 

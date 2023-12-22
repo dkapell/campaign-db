@@ -33,7 +33,7 @@ mixin skillList(skills, showSource, backto)
                         i.fas.fa-eye.fa-fw.me-1.col-indicator
                         | Actions
         if checkPermission('admin')
-            .col-sm.text-right
+            .col-sm.text-end
                 .form-check.form-switch
                     input.form-check-input#skillDeleteSwitch(type="checkbox")
                     label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
@@ -78,7 +78,7 @@ mixin skillList(skills, showSource, backto)
             .table-responsive.my-2
                 .col-sm-6.offset-sm-3.text-center#tableLoading
                     .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                        .sr-only Table is Loading
+                        .visually-hidden Table is Loading
                 table.table.table-striped.skill-table.table-hover.my-3.dt-responsive.nowrap.table-sm.topsort.table-bordered.w-100#skill-table(
                     data-order=showSource?'[[0, "asc"],[3, "asc"]]':'[[0, "asc"],[2, "asc"]]'
                     data-showedittoggle=true
@@ -131,7 +131,7 @@ mixin skillList(skills, showSource, backto)
                                         .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
                                             = capitalize(skill.status.name)
 
-                                td.text-right
+                                td.text-end
                                     if skill.approvals
                                         .badge.text-bg-info.me-1(data-bs-toggle="tooltip" title="Approvals")=skill.approvals
                                     if (skill.description)

@@ -8,16 +8,18 @@ block content
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .sr-only Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
-            data-order='[[2, "asc"]]'
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-orderable(
             style="display: none"
+            data-orderable-object='rulebook'
+            data-csrf=csrfToken
             )
             thead
                 tr
                     th
+                    th.sort-handle
+                    th Order
                     th(data-priority="1") Name
-                    th Display Order
                     th Description
                     th Last Generated
                     if checkPermission('admin')
@@ -28,13 +30,14 @@ block content
                 for rulebook in rulebooks
                     tr(class='clickable-row', data-click-object='rulebook' data-click-id=rulebook.id)
                         td.dtr-control
-                        td= rulebook.name
+                        td= rulebook.id
                         td= rulebook.display_order
+                        td= rulebook.name
                         td= rulebook.description
                         td= rulebook.generatedFormated
                         
                         if checkPermission('admin')
-                            td.text-right
+                            td.text-end
                                 a.btn.btn-outline-info.btn-xs.action-btn.rebuild-btn.mx-2(
                                     role="button",
                                     url=`/rulebook/${rulebook.id}/rebuild`,

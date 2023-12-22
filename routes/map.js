@@ -97,7 +97,8 @@ async function showNew(req, res, next){
             name: null,
             description: null,
             image_id: null,
-            display_to_pc: false
+            display_to_pc: false,
+            rebuild: false
         };
 
         res.locals.breadcrumbs = {
@@ -170,8 +171,6 @@ async function create(req, res, next){
         await req.audit('map', id, 'create', {new:map});
         delete req.session.mapData;
         req.flash('success', 'Created Map ' + map.name);
-
-        await mapHelper.build(id);
         res.redirect('/map/list');
     } catch (err) {
         req.flash('error', err.toString());
@@ -191,22 +190,24 @@ async function update(req, res, next){
             map[field] = null;
         }
     }
+
+    if (map.rebuild){
+        map.status = 'new';
+    }
+
     try {
         const current = await req.models.map.get(id);
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+        if (Number(current.image_id) !== Number(map.image_id)){
+            map.status = 'new'
+        }
 
         await req.models.map.update(id, map);
         await req.audit('map', id, 'update', {old: current, new:map});
         delete req.session.mapData;
-        if (Number(current.image_id) !== Number(map.image_id)){
-            await mapHelper.clean(id);
-            await mapHelper.build(id);
-            req.flash('success', 'Updated and Rebuilt Map ' + map.name);
-        } else {
-            req.flash('success', 'Updated Map ' + map.name);
-        }
+        req.flash('success', 'Updated Map ' + map.name);
         res.redirect('/map/list');
     } catch(err) {
         req.flash('error', err.toString());

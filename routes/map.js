@@ -201,7 +201,7 @@ async function update(req, res, next){
             throw new Error('Can not edit record from different campaign');
         }
         if (Number(current.image_id) !== Number(map.image_id)){
-            map.status = 'new'
+            map.status = 'new';
         }
 
         await req.models.map.update(id, map);

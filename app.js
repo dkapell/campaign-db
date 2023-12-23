@@ -139,6 +139,7 @@ app.use(async function(req, res, next){
         campaign = await models.campaign.findOne({default_site: true});
     }
     if (!campaign){
+        console.log('using site defaults');
         campaign = {
             id: 0,
             name: `${config.get('app.name')} Admin Site`,

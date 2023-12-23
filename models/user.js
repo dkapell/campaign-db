@@ -6,7 +6,8 @@ const cache = require('../lib/cache');
 const validator = require('validator');
 
 const models = {
-    campaign_user: require('./campaign_user')
+    campaign_user: require('./campaign_user'),
+    campaign: require('./campaign')
 };
 
 const tableFields = ['name', 'email', 'google_id', 'site_admin'];
@@ -215,7 +216,7 @@ async function postSave(id, data, campaignId){
             await models.campaign_user.update(campaign_user.id, campaign_user);
         }
     } else {
-        const campaign = await req.models.campaign.get(campaignId);
+        const campaign = await models.campaign.get(campaignId);
         campaign_user = {
             user_id: id,
             campaign_id: campaignId,

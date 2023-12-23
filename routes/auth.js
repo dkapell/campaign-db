@@ -58,8 +58,10 @@ router.get('/google/callback',
 
 router.get('/logout',
     function logout(req, res, next){
-        req.logout();
-        res.redirect('/');
+        req.logout(req.user, err => {
+            if(err) return next(err);
+            res.redirect("/");
+        });
     });
 
 router.get('/admin', permission('site_admin'),

@@ -15,10 +15,18 @@ const models = {
     rulebook: require('./rulebook')
 };
 
-const tableFields =  ['id', 'campaign_id', 'user_id', 'object_type', 'object_id', 'action', 'data'];
+const tableFields =  ['id',
+    'campaign_id',
+    'user_id',
+    'object_type',
+    'object_id',
+    'action',
+    'data',
+    'created'
+];
 
 const Audit = new Model('audits', tableFields, {
-    order: ['display_order'],
+    order: ['created asc' ],
     postSelect: fill
 });
 

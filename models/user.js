@@ -191,11 +191,7 @@ async function postSelect(user, campaignId){
         user.drive_folder = campaign_user.drive_folder;
         user.staff_drive_folder = campaign_user.staff_drive_folder;
     } else {
-        if (user.site_admin){
-            user.type = 'admin';
-        } else {
-            user.type = 'none';
-        }
+        user.type = 'none';
         user.campaignType = 'unset';
     }
 

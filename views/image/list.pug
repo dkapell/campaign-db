@@ -21,7 +21,7 @@ block content
     .row.row-cols-1.row-cols-md-6.pt-2
         for image in images
             .col.mb-4(class=`image-type-${image.type}`)
-                .card
+                .card.h-100
                     .card-header
                         .badge.text-bg-info.float-end=capitalize(image.type)
                         .card-title

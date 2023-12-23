@@ -26,9 +26,10 @@
                                 a.dropdown-item(href='/character') Characters
 
                 if checkPermission('player') && !checkPermission('event')
-                    li.nav-item
-                        a.nav-link(href=config.get('drive.folders.player') target="_blank") Google Drive
-                                i.fa.fa-external-link.ms-1
+                    if (currentCampaign.player_folder)
+                        li.nav-item
+                            a.nav-link(href=currentCampaign.player_folder) target="_blank") Google Drive
+                                    i.fa.fa-external-link.ms-1
                     li.nav-item.dropdown(class= siteSection==='character'?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'

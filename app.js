@@ -198,8 +198,7 @@ async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb)
         const user = await models.user.findOrCreate(req.campaign.id, {
             name: profile.displayName,
             google_id: profile.id,
-            email: profile.emails[0].value,
-            type: req.campaign.default_to_player?'player':'none'
+            email: profile.emails[0].value
         });
         cb(null, user);
     } catch (err) {

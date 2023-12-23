@@ -215,10 +215,11 @@ async function postSave(id, data, campaignId){
             await models.campaign_user.update(campaign_user.id, campaign_user);
         }
     } else {
+        const campaign = await req.models.campaign.get(campaignId);
         campaign_user = {
             user_id: id,
             campaign_id: campaignId,
-            type: 'none'
+            type: campaign.default_to_player?'player':'none'
         };
         for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes']){
             if (_.has(data, field)){

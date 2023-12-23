@@ -49,7 +49,7 @@ block content
                             span.float-start
                                 strong.me-2 Id: #{image.id}
                                 if image.type === 'content'
-                                    a.btn.btn-outline-info.btn-sm.me-2.copy-img-btn(
+                                    a.btn.btn-outline-info.btn-xs.me-2.copy-img-btn(
                                         role="button",
                                         href='#'
                                         data-name=image.display_name
@@ -60,7 +60,7 @@ block content
                                         i.fas.fa-copy.fa-fw
 
                             span.float-end
-                                a.btn.btn-outline-info.btn-sm.me-2(
+                                a.btn.btn-outline-info.btn-xs.me-2(
                                     role="button",
                                     href=`/image/${image.id}`
                                     data-bs-toggle="tooltip"
@@ -68,7 +68,7 @@ block content
                                 )
                                     i.fas.fa-edit.fa-fw
                                 if checkPermission('admin')
-                                    a.btn.btn-outline-danger.btn-sm.delete-img-btn(
+                                    a.btn.btn-outline-danger.btn-xs.delete-img-btn(
                                         role="button",
                                         url=`/image/${image.id}`,
                                         data-back='/image'

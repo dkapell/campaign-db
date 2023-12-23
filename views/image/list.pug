@@ -18,7 +18,7 @@ block content
                         label.form-check-label(for=`image-type-filter-${type}`)=capitalize(type)
                             .badge.text-bg-info.ms-1.rounded-pill=imageCounts[type]?imageCounts[type]:0
 
-    .row.row-cols-1.row-cols-md-4.pt-2
+    .row.row-cols-1.row-cols-md-6.pt-2
         for image in images
             .col.mb-4(class=`image-type-${image.type}`)
                 .card

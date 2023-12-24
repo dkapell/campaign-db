@@ -36,7 +36,7 @@ block content
                                     span.float-end
                                         .small= image.sizePrint
 
-                    div.position-relative
+                    div.position-relative.border-bottom.border-light
                         a(href=image.url target='_blank')
                             img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
                         .badge.position-absolute.top-0.end-0.mt-1.me-1(class=image.status==='ready'?'text-bg-success':'text-bg-danger')=image.status

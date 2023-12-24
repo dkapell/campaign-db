@@ -16,7 +16,7 @@ async function list(req, res, next){
     try {
         const images = await req.models.image.find({campaign_id: req.campaign.id});
         res.locals.imageCounts = _.countBy(images, 'type');
-        res.locals.images = images;
+        res.locals.images = images.sort(imageHelper.sorter);
         res.render('image/list', { pageTitle: 'Images' });
     } catch (err){
         next(err);

@@ -46,7 +46,7 @@ mixin sourceDoc(source, backto)
         h2.h4 Skills
         ul.list-unstyled.ms-4
             for skill in source.skills
-                if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc
+                if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
 
                     li
                         strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} cp)
@@ -57,9 +57,9 @@ mixin sourceDoc(source, backto)
 
 mixin skillList(skills, backto)
     ul.list-unstyled
-    for skill in skills
-        if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc
-            +skillDoc(skill, backto)
+        for skill in skills
+            if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
+                +skillDoc(skill, backto)
 
 
 

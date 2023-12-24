@@ -18,7 +18,7 @@ block content
                         label.form-check-label(for=`image-type-filter-${type}`)=capitalize(type)
                             .badge.text-bg-info.ms-1.rounded-pill=imageCounts[type]?imageCounts[type]:0
 
-    .row.row-cols-1.row-cols-md-6.pt-2
+    .row.row-cols-1.row-cols-md-5.pt-2
         for image in images
             .col.mb-4(class=`image-type-${image.type}`)
                 .card.h-100
@@ -26,7 +26,6 @@ block content
                         .badge.text-bg-info.float-end=capitalize(image.type)
                         .card-title
                             h5= image.display_name?image.display_name:image.name
-                            .badge.text-bg-primary.float-end=image.status
                             .small= image.display_name?image.name:''
                         .row
                             .col
@@ -37,8 +36,10 @@ block content
                                     span.float-end
                                         .small= image.sizePrint
 
-                    a(href=image.url target='_blank')
-                        img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
+                    div.position-relative
+                        a(href=image.url target='_blank')
+                            img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
+                        .badge.position-absolute.top-0.end-0.mt-1.me-1(class=image.status==='ready'?'text-bg-success':'text-bg-danger')=image.status
                     .card-body
                         if image.description
                             p.mt-2.card-text=image.description
@@ -52,7 +53,7 @@ block content
                                     a.btn.btn-outline-info.btn-xs.me-2.copy-img-btn(
                                         role="button",
                                         href='#'
-                                        data-name=image.display_name
+                                        data-name=image.display_name?image.display_name:image.name
                                         data-url=image.url
                                         data-bs-toggle="tooltip"
                                         title="Copy Markdown to Clipboard"

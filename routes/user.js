@@ -14,7 +14,10 @@ async function list(req, res, next){
     };
     try {
         if (!req.campaign.default_site){
-            res.locals.users = await req.models.user.find(req.campaign.id, {});
+            const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
+            res.locals.users = await async.map(campaign_users, async (campaign_user) => {
+                return req.models.user.get(req.campaign.id, campaign_user.user_id);
+            });
             res.locals.title += ' - Users';
             res.render('user/list', { pageTitle: 'Users' });
         } else {
@@ -129,7 +132,7 @@ async function create(req, res, next){
     req.session.userData = user;
 
     try{
-        await req.models.user.create(req.campaign.id, user);
+        await req.models.user.findOrCreate(req.campaign.id, user, true);
         delete req.session.userData;
         req.flash('success', 'Created User ' + user.name);
         res.redirect('/user');

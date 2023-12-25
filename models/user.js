@@ -135,10 +135,13 @@ exports.delete = async  function(campaignId, id){
     }
 };
 
-exports.findOrCreate = async function(campaignId, data){
+exports.findOrCreate = async function(campaignId, data, noNameUpdate){
     let user = await exports.findOne(campaignId, {google_id: data.google_id});
     if (user) {
         for (const field in data){
+            if (field === 'name' && noNameUpdate){
+                continue;
+            }
             if (_.has(user, field)){
                 user[field] = data[field];
             }
@@ -151,6 +154,9 @@ exports.findOrCreate = async function(campaignId, data){
 
         if (user) {
             for (const field in data){
+                if (field === 'name' && noNameUpdate){
+                    continue;
+                }
                 if (_.has(user, field)){
                     user[field] = data[field];
                 }
@@ -159,9 +165,9 @@ exports.findOrCreate = async function(campaignId, data){
             return await exports.get(campaignId, user.id);
 
         } else {
-            const id = await exports.create(data);
+            const id = await exports.create(campaignId, data);
 
-            return await exports.get(campaignId, user.id);
+            return await exports.get(campaignId, id);
         }
     }
 };

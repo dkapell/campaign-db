@@ -90,7 +90,7 @@ async function showEdit(req, res, next){
 }
 
 async function create(req, res, next){
-    if (!res.campaign.default_site){
+    if (!req.campaign.default_site){
         req.flash('error', 'Must be on admin site to create new campaign');
         return res.redirect('/');
     }

@@ -43,7 +43,7 @@
                             a.dropdown-item(href='/skill/doc') Skills
 
 
-                if (currentCampaign.display_glossary && checkPermission('player') || currentCampaign.display_map
+                if (currentCampaign.display_glossary && checkPermission('player')) || currentCampaign.display_map
                     li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
                         a.nav-link.dropdown-toggle#worldbuildingDropdown(
                             href='#'

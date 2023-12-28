@@ -325,6 +325,8 @@ async function update(req, res, next){
             throw new Error('Can not edit record from different campaign');
         }
 
+        glossary_entry.campaign_id = req.campaign.id;
+
         await req.models.glossary_entry.update(id, glossary_entry);
         await req.audit('glossary_entry', id, 'update', {old: current, new:glossary_entry});
         delete req.session.glossary_entryData;

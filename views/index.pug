@@ -54,6 +54,14 @@ append content
                                 i.fab.fa-google-drive.me-1
                                 | Personal Drive Folder
                                 i.fa.fa-external-link.ms-1
+
+                        if checkPermission('gm')
+                            if currentCampaign.npc_drive_folder
+                                a.list-group-item.list-group-item-action(href=currentCampaign.npc_drive_folder  target="_blank")
+                                    i.fab.fa-google-drive.me-1
+                                    |  NPC Drive
+
+                                    i.fa.fa-external-link.ms-1
                         if checkPermission('contrib')
                             if currentCampaign.player_drive_folder
                                 a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")

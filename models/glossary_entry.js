@@ -91,7 +91,7 @@ async function saveTags(entry_id, data){
 
     newTags = await async.map(newTags, async tagId => {
         if (isNaN(tagId)){
-            const tag = await models.tag.find({name:tagId});
+            const tag = await models.tag.getByName(tagId, data.campaign_id);
             return tag.id;
         }
         return Number(tagId);

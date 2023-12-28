@@ -210,7 +210,7 @@ function prepSkillTable(){
     });
 
     $('.dataTables_filter').find('label').append($('<button>')
-        .append($('<i>').addClass('fa').addClass('fa-times-circle').addClass('pr-2'))
+        .append($('<i>').addClass('fa').addClass('fa-times-circle').addClass('pe-2'))
         .append('Clear Filters')
         .addClass('float-end')
         .addClass('btn')

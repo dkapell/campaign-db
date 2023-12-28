@@ -29,10 +29,6 @@ if !activeRequired
 if checkPermission('contrib')
     .row.my-2
         .col
-            label.control-label(for="character_foreordainment") Foreordainment (Currently Staff Only)
-            input.form-control(type="text",placeholder="Name",name="character[foreordainment]",value=character.foreordainment,id='character_foreordainment')
-    .row.my-2
-        .col
             label.control-label(for="character_extra_traits") Extra Traits (comma-seperated)
             input.form-control(type="text",placeholder="Traits",name="character[extra_traits]",value=character.extra_traits,id='character_extra_traits')
 

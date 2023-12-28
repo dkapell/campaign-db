@@ -44,13 +44,22 @@ async function list(req, res, next){
 }
 
 async function listDoc(req, res, next){
-    res.locals.breadcrumbs = {
-        path: [
-            { url: '/', name: 'Home'},
-            { url: '/skill', name: 'Skills'},
-        ],
-        current: 'Document'
-    };
+    if (res.locals.checkPermission('npc')){
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/skill', name: 'Skills'},
+            ],
+            current: 'Document'
+        };
+     } else{
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+            ],
+            current: 'Skills'
+        };
+    }
     try {
         const sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.sources = await async.map(sources, async (source) => {

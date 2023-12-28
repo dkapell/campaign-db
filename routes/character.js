@@ -249,6 +249,7 @@ async function create(req, res, next){
         if (user.type === 'player' || !characterData.user_id){
             characterData.user_id = user.id;
         }
+        characterData.campaign_id = req.campaign.id;
         const character = new Character(characterData);
         await character.init();
 

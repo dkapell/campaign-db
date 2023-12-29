@@ -154,7 +154,12 @@ app.use(async function(req, res, next){
     req.campaign = campaign;
 
     res.locals.currentCampaign = campaign;
-    res.locals.cssTheme = config.get(`themes.${campaign.theme}.dir`);
+    const theme = config.get(`themes.${campaign.theme}`);
+    if (theme.default){
+        res.locals.cssTheme = false;
+    } else {
+        res.locals.cssTheme = theme.dir;
+    }
 
     req.session.campaignId = campaign.id;
     if (req.campaign.google_client_id && req.campaign.google_client_secret){

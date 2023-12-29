@@ -28,12 +28,14 @@ block content
                         a.btn.btn-outline-info.btn-sm(role="button" href='/character/' + character.id + '/pdf')
                             i.fas.fa-file-alt
                             |  Download PDF
-                        a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false")
+
+                        a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
                             .visually-hidden Toggle Dropdown
-                        .dropdown-menu.py-1
-                            a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
-                                i.fas.fa-file
-                                |  With Skill Descriptions
+                        ul.dropdown-menu.py-1
+                            li
+                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
+                                    i.fas.fa-file
+                                    |  With Skill Descriptions
 
             .row
                 .col.text-end

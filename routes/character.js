@@ -25,7 +25,7 @@ async function list(req, res, next){
             const characters = await req.models.character.find({campaign_id:req.campaign.id});
             res.locals.characters = await async.map(characters, async (character) => {
                 if (character.user_id){
-                    character.user = await req.models.user.get(Number(character.user_id));
+                    character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
                 }
                 return character;
             });
@@ -252,6 +252,8 @@ async function create(req, res, next){
         characterData.campaign_id = req.campaign.id;
         const character = new Character(characterData);
         await character.init();
+
+
 
         if (user.type === 'player' && (await req.models.character.find({user_id: user.id})).length === 1){
             await character.activate();

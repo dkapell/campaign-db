@@ -24,7 +24,7 @@ async function showIndex(req, res, next){
             const characters =  await req.models.character.find({active:true});
             await async.map(characters, async(character) => {
                 if (character.user_id){
-                    character.user = await req.models.user.get(Number(character.user_id));
+                    character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
                 }
                 return character;
             });

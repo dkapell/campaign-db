@@ -86,7 +86,7 @@ async function update(req, res, next){
             throw new Error('Can not edit record from different campaign');
         }
         if (current.status === 'new' && image.status === 'ready'){
-            console.log('getting metatdata for ' + imageHelper.getKey(current));
+            console.log('getting metadata for ' + imageHelper.getKey(current));
             const details = await imageHelper.getImageDetails(current);
             if (details){
                 image.size = details.size;

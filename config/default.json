@@ -43,8 +43,11 @@
         "Mintly": {
             "dir": "mintly",
             "description": "A fresh feel"
+        },
+        "Bootstrap Default":{
+            "default": true,
+            "description": "Default bootstrap theme"
         }
-
     },
     "images": {
         "thumbnailSize": 300

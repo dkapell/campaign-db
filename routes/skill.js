@@ -52,7 +52,7 @@ async function listDoc(req, res, next){
             ],
             current: 'Document'
         };
-     } else{
+    } else{
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},

@@ -40,7 +40,7 @@ block content
 
         if checkPermission('admin')
             .col-sm.text-end
-                .form-check.form-switch
+                .form-check.form-switch.form-check-reverse
                     input.form-check-input#skillDeleteSwitch(type="checkbox")
                     label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
 
@@ -76,8 +76,11 @@ block content
                         td(data-sort=skill_source.type.display_order)= capitalize(skill_source.type.name)
                         td #{skill_source.cost} CP
                         td= skill_source.skills.length
-                        td=skill_source.required?'Yes':'No'
-                        td=skill_source.display_to_pc?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_source.required?'success':'warning'}`)=skill_source.required?'Yes':'No'
+
+                        td
+                            .badge(class=`text-bg-${skill_source.display_to_pc?'success':'warning'}`)=skill_source.display_to_pc?'Yes':'No'
                         td
                             if skill_source.requires && _.isArray(skill_source.requires)
                                 =skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')

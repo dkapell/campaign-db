@@ -35,7 +35,7 @@ function validate(data){
 
 async function fill(record){
     if (record.user_id){
-        record.user = await models.user.get(record.user_id);
+        record.user = await models.user.get(record.campaign_id, record.user_id);
     } else {
         record.user = null;
     }

@@ -73,6 +73,8 @@ create table skill_source_types(
     name            varchar(80) not null,
     display_order   int not null,
     num_free        int default 0,
+    display_on_sheet  boolean default true,
+    display_in_header  boolean default false,
     primary key (id),
     CONSTRAINT skill_source_types_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

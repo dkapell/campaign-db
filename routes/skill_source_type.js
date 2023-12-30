@@ -51,7 +51,9 @@ async function showNew(req, res, next){
 
         res.locals.skill_source_type = {
             name: null,
-            num_free: 0
+            num_free: 0,
+            display_on_sheet: true,
+            display_in_header: false
         };
         res.locals.breadcrumbs = {
             path: [
@@ -110,6 +112,12 @@ async function create(req, res, next){
     req.session.skill_source_typeData = skill_source_type;
     skill_source_type.campaign_id = req.campaign.id;
 
+    for (const field of ['display_in_header', 'display_on_sheet']){
+        if (!_.has(skill_source_type, field)){
+            skill_source_type[field] = false;
+        }
+    }
+
     try{
         const source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         const maxVal = _.max(_.pluck(source_types, 'display_order')) + 1;
@@ -130,6 +138,12 @@ async function update(req, res, next){
     const id = req.params.id;
     const skill_source_type = req.body.skill_source_type;
     req.session.skill_source_typeData = skill_source_type;
+
+    for (const field of ['display_in_header', 'display_on_sheet']){
+        if (!_.has(skill_source_type, field)){
+            skill_source_type[field] = false;
+        }
+    }
 
     try {
         const current = await req.models.skill_source_type.get(id);

@@ -34,7 +34,7 @@ mixin skillList(skills, showSource, backto)
                         | Actions
         if checkPermission('admin')
             .col-sm.text-end
-                .form-check.form-switch
+                .form-check.form-switch.form-check-reverse
                     input.form-check-input#skillDeleteSwitch(type="checkbox")
                     label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
     .row-my-2

@@ -54,7 +54,7 @@ mixin characterSkill(skill, showDescription=false)
 
 
 mixin characterSource(source)
-    .character-ource
+    .character-source
         .row
             .col-md-8.source-name
                 i.me-2= source.name
@@ -134,6 +134,8 @@ mixin characterSheet(character)
                 h5.py-2.card-header Headers
                 ul.card-text.list-group.list-group-flush
                     each source in character.sources
+                        if !source.type.display_on_sheet
+                            - continue
                         li.py-2.list-group-item=source.name
                             if source.character_cost
                                 span.ms-1.float-end #{source.character_cost} CP
@@ -141,10 +143,12 @@ mixin characterSheet(character)
         .col-md
             .row
                 .col
-                    .text-end.pt-0
-                        .form-check.form-switch
-                            input.form-check-input#showSkillDescriptions(type="checkbox" checked)
-                            label.form-check-label(for="showSkillDescriptions") Show Skill Descriptions
+
+                    .form-check.form-switch.pt-0.form-check-reverse
+                        input.form-check-input#showSkillDescriptions(type="checkbox" checked)
+                        label.form-check-label(for="showSkillDescriptions") Show Skill Descriptions
+            .row
+                .col
 
                     - const grouped = _.groupBy(character.provides.skills, 'usage_id')
                     each group, type in grouped
@@ -300,33 +304,29 @@ mixin characterCard(character)
         .card
             .card-header
                 .float-end
-                    a.btn.btn-outline-info(href=`/character/${character.id}` title='View Character')
+                    a.btn.btn-sm.btn-outline-info(href=`/character/${character.id}` title='View Character')
                         i.fas.fa-eye
-                h4= character.name
+                .d-block
+                    h4.d-inline= character.name
+                        h3.align-text-top.d-inline.badge.rounded-pill.text-bg-info.ms-3 #{character.cp} CP
+
             .card-body
 
                 dl.row
-                    each source in character.sources
-                        if source.type.name === 'path'
-                            dt.col-sm-4 Path
-                            dd.col-sm-8.mb-0= source.name
-                    each source in character.sources
-                        if source.type.name === 'tradition'
-                            dt.col-sm-4 Tradition
-                            dd.col-sm-8.mb-0= source.name
-                    each source in character.sources
-                        if source.type.name === 'culture'
-                            dt.col-sm-4 Culture
-                            dd.col-sm-8.mb-0= source.name
-                    if character.foreordainment
-                        dt.col-sm-4 Foreordainment
-                        dd.col-sm-8.mb-0= character.foreordainment
                     -
-                        const byways = character.sources.filter(source => {
-                            return source.type.name === 'byway'
-                        })
-                    dt.col-sm-4 Byways
-                    dd.col-sm-8.mb-0= (_.pluck(byways, 'name')).join(', ')
+                        const sources = _.groupBy(character.sources, (item) => {
+                            if (!item.type.display_on_sheet){
+                                return 'skip';
+                            }
+                            return item.type.name
+                        });
+                    each source,name in sources
+                        if name === 'skip'
+                            - continue
+                        dt.col-sm-4=  capitalize(name)
+                        dd.col-sm-8.mb-0= _.pluck(source, 'name').join(', ')
+
+
 
 mixin characterList(characters, forPlayer=false, extended=false, showActive=false)
     ul.list-group

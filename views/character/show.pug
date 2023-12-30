@@ -4,7 +4,7 @@ include ../partials/character
 
 block content
     .row.my-3
-        .col-md-5
+        .col-md-6
             h3.d-inline= character.name
                 if character.active
                     span.d-inline.text-success.ms-2(
@@ -48,18 +48,18 @@ block content
 
         .col-md
             dl.row
-                each source in character.sources
-                    if source.type.name === 'path'
-                        dt.col-sm-4 Path
-                        dd.col-sm-8.mb-0= source.name
-                each source in character.sources
-                    if source.type.name === 'tradition'
-                        dt.col-sm-4 Tradition
-                        dd.col-sm-8.mb-0= source.name
-                each source in character.sources
-                    if source.type.name === 'culture'
-                        dt.col-sm-4 Culture
-                        dd.col-sm-8.mb-0= source.name
+                -
+                    const sources = _.groupBy(character.sources, (item) => {
+                        if (!item.type.display_in_header){
+                            return 'skip';
+                        }
+                        return item.type.name
+                    });
+                each source,name in sources
+                    if name === 'skip'
+                        - continue
+                    dt.col-sm-4=  capitalize(name)
+                    dd.col-sm-8.mb-0= _.pluck(source, 'name').join(', ')
 
 
 

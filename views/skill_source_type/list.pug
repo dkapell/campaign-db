@@ -23,6 +23,8 @@ block content
                     th Order
                     th(data-priority="1") Name
                     th Number Free
+                    th Display on Sheet
+                    th Display in Header
                     th
 
             tbody
@@ -34,6 +36,10 @@ block content
                         td= skill_source_type.display_order
                         td= capitalize(skill_source_type.name)
                         td= skill_source_type.num_free
+                        td
+                            .badge(class=`text-bg-${skill_source_type.display_on_sheet?'success':'warning'}`)=skill_source_type.display_on_sheet?'Yes':'No'
+                        td
+                            .badge(class=`text-bg-${skill_source_type.display_in_header?'success':'warning'}`)=skill_source_type.display_in_header?'Yes':'No'
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
                                     role="button",

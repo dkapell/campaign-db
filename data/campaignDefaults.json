@@ -47,7 +47,10 @@
         "skill_source_type": [
             {
                 "name": "open",
-                "display_order": 1
+                "display_order": 1,
+                "display_on_sheet": false,
+                "display_in_header": false
+
             },
             {
                 "name": "culture",

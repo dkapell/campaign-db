@@ -72,12 +72,12 @@ mixin characterSource(source)
 mixin characterSheet(character)
     .row
         .col-md-4.mt-4
-            if _.keys(character.provides.stats).length
+            if _.keys(character.provides.attributes).length
                 .card.mb-3
                     h5.py-2.card-header Attributes
                     ul.card-text.list-group.list-group-flush
-                        each val, stat in character.provides.stats
-                            li.py-2.list-group-item=stat
+                        each val, attribute in character.provides.attributes
+                            li.py-2.list-group-item=attribute
                                 span.ms-1.float-end= val
 
             if _.keys(character.provides.traits).length

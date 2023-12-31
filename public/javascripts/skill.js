@@ -642,9 +642,9 @@ function prepSkillForm($form){
 function toggleProvidesFields($row){
     const type = $row.find('.skill-provides-type').val();
     switch (type){
-        case 'stat':
-            $row.find('.skill-provides-name').attr('disabled', false).attr('placeholder', 'Stat Name or [List, Of, Options]');
-            $row.find('.skill-provides-value').attr('disabled', false).attr('placeholder', 'Stat Value');
+        case 'attribute':
+            $row.find('.skill-provides-name').attr('disabled', false).attr('placeholder', 'Attribute Name or [List, Of, Options]');
+            $row.find('.skill-provides-value').attr('disabled', false).attr('placeholder', 'Attribute Value');
             break;
         case 'style':
         case 'language':

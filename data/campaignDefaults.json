@@ -79,8 +79,8 @@
                 "display_order":1
             },
             {
-                "name": "Stats",
-                "description": "Provides a stat",
+                "name": "Attribute",
+                "description": "Provides an Attribute",
                 "display_order":2
             },
             {
@@ -95,7 +95,7 @@
             },
             {
                 "name": "Regular",
-                "description": "Skill that takes stats to use",
+                "description": "Skill that takes Atributes to use",
                 "display_order":5
             },
             {

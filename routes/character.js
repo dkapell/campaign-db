@@ -140,7 +140,7 @@ async function showPdf(req, res, next){
 
         pdf.pipe(res);
         res.set('Content-Type', 'application/pdf');
-        res.attachment(`${character.name}.pdf`);
+        res.attachment(`${character.name.replace(/\//,'_')}.pdf`);
         pdf.end();
 
     } catch(err){

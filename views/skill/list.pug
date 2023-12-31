@@ -14,6 +14,7 @@ block content
                     a.btn.btn-sm.btn-outline-info.me-2(href='/skill_type') Types
                     a.btn.btn-sm.btn-outline-info.me-2(href='/skill_usage') Usages
                     a.btn.btn-sm.btn-outline-info.me-2(href='/skill_tag') Tags
+                    a.btn.btn-sm.btn-outline-info.me-2(href='/attribute') Attributes
                     a.btn.btn-sm.btn-outline-info.me-2(href='/audit') Change Log
                     if checkPermission('gm')
                         if (skills.filter(skill => { return skill.status.reviewable})).length

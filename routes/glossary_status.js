@@ -121,7 +121,7 @@ async function create(req, res, next){
     glossary_status.campaign_id = req.campaign.id;
     try{
         const glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
-        const maxVal = _.max(_.pluck(glossary_statuses, 'display_order')) + 1;
+        const maxVal = _.max(_.pluck(glossary_statuses, 'display_order'));
         glossary_status.display_order = _.isFinite(maxVal)?maxVal + 1:1;
 
         const id = await req.models.glossary_status.create(glossary_status);

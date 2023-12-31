@@ -364,6 +364,19 @@ create table skill_reviews(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create table attributes(
+    id serial,
+    campaign_id int not null,
+    name varchar(80) not null,
+    description text,
+    initial int default 0,
+    display_order   int,
+    primary key (id),
+    CONSTRAINT attributes_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 CREATE INDEX skill_review_idx
     ON skill_reviews USING btree
     (skill_id ASC NULLS LAST);

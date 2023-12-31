@@ -413,7 +413,9 @@ function displayDetails(object, selected){
             case 'trait':
                 if (object.provides[0].value === 'custom'){
                     $('.provides-options-text').find('label').text('Trait');
-                    $('#provides_value_text').val(selected.details.trait);
+                    if(selected){
+                        $('#provides_value_text').val(selected.details.trait);
+                    }
                     $('.provides-options-select').hide();
                     $('#provides_value_select').attr('required', false);
                     $('#provides_value_text').attr('required', true);
@@ -627,7 +629,7 @@ async function submitModal(e) {
     const result = await request.json();
 
     if (!result.success){
-        console.error(result.error);
+        console.trace(result.error);
         $modal.modal('hide');
     }
     $modal.modal('hide');

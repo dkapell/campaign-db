@@ -20,9 +20,7 @@ const permission = require('./lib/permission');
 const audit = require('./lib/audit');
 const mapHelper = require('./lib/mapHelper');
 
-
-
-
+// Routers
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const authRouter = require('./routes/auth');
@@ -35,6 +33,8 @@ const skillTypeRouter = require('./routes/skill_type');
 const skillUsageRouter = require('./routes/skill_usage');
 const skillTagRouter = require('./routes/skill_tag');
 const skillStatusRouter = require('./routes/skill_status');
+
+const attributeRouter = require('./routes/attribute');
 
 const auditRouter = require('./routes/audit');
 
@@ -239,6 +239,7 @@ app.use('/skill_type', skillTypeRouter);
 app.use('/skill_usage', skillUsageRouter);
 app.use('/skill_tag', skillTagRouter);
 app.use('/skill_status', skillStatusRouter);
+app.use('/attribute', attributeRouter);
 app.use('/audit', auditRouter);
 app.use('/glossary_status', glossaryStatusRouter);
 app.use('/glossary', glossaryEntryRouter);

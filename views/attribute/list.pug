@@ -1,11 +1,14 @@
 extends ../layout
 
 block content
+    p.my-1 By defining attributes here, you can set a starting value (handy for Vitality, and Attributes used for powering Skills), and specify the order they appear on character sheets.
+
+    p.my-1 Attributes provided by Skills that are not configured here will be listed in alphabetic order after the ones here.
+
     a.btn.btn-outline-success.my-2(href='/attribute/new')
         span(class="fa fa-plus")
         |  New Attribute
-
-    .table-responsive
+    .table-responsive.mt-2
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading

@@ -114,7 +114,7 @@ async function create(req, res, next){
     skill_usage.campaign_id = req.campaign.id;
     try{
         const skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
-        const maxVal = _.max(_.pluck(skill_usages, 'display_order')) +1;
+        const maxVal = _.max(_.pluck(skill_usages, 'display_order'));
         skill_usage.display_order = _.isFinite(maxVal)?maxVal + 1:1;
 
         const id = await req.models.skill_usage.create(skill_usage);

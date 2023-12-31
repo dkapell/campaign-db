@@ -1,0 +1,25 @@
+.row.my-2
+    .col
+        label.control-label(for="attribute_name") Name
+        input.form-control(type="text",placeholder="Name",name="attribute[name]",value=attribute.name,id='attribute_name',required)
+        div.invalid-feedback Please choose a valid name
+
+.row.my-2
+     .col
+        label.control-label(for="attribute_initial") Initial Quantity
+        input.form-control(type="number",placeholder="Quantity",name="attribute[initial]",value=attribute.initial,id='attribute_initial',required)
+        div.invalid-feedback Please specify a valid quantity
+   
+
+.row.my-2
+    .col
+        label.control-label(for="attribute_description") Description
+        textarea.form-control(name="attribute[description]",id="attribute_description",rows=3)
+            = attribute.description
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= attribute.id?'Update':'Create'
+        a.btn.btn-link(href="/attribute") Cancel
+
+

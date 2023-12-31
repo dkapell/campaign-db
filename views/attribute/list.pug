@@ -1,0 +1,50 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/attribute/new')
+        span(class="fa fa-plus")
+        |  New Attribute
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-orderable(
+            style="display: none"
+            data-orderable-object='attribute'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th.sort-handle
+                    th.col-1 Order
+                    th(data-priority="1") Name
+                    th Initial Qty
+                    th Description
+                    if checkPermission('admin')
+                        th
+
+
+            tbody
+                for attribute in attributes
+                    tr(class='clickable-row', data-click-object='attribute' data-click-id=attribute.id)
+                        td.dtr-control
+                        td= attribute.id
+                        td= attribute.display_order
+                        td= attribute.name
+                        td= attribute.initial
+                        td= attribute.description
+                        if checkPermission('admin')
+                            td.text-end
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/attribute/${attribute.id}`,
+                                    data-back='/attribute'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

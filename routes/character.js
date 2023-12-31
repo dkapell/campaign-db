@@ -482,6 +482,7 @@ async function addSkill(req, res, next){
             await req.audit('character', character.id, 'add skill', {skill: skillId, details: {new: details}});
             return res.json({success:true, skill: await character.skill(characterSkillId)});
         } catch (err){
+            console.trace(err);
             return res.json({success:false, error: err});
         }
     } catch (err){

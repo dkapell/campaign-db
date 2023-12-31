@@ -62,7 +62,7 @@ if (backto)
 
 .row.my-2
     .col
-        +markdownEditor('Description (Player visible)', 'skill_description', 'skill[description]', 5, 100, skill.description, true, null, false, disabled=!checkPermission('gm'))
+        +markdownEditor('Description (Player visible)', 'skill_description', 'skill[description]', 5, 100, skill.description, true, {showImageLink: checkPermission('gm'), disabled:!checkPermission('gm')})
 
 .row.my-2
     .col

@@ -28,7 +28,7 @@ if images.length
 .row.my-2
     .col
         label.control-label(for="map_description") Description
-        +markdownEditor('Description', 'map_description', 'map[description]', 4, 100, map.description, true)
+        +markdownEditor('Description', 'map_description', 'map[description]', 4, 100, map.description, true, {showImageLink: checkPermission('gm')})
 
 .row.my-2
     .col

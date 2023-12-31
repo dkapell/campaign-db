@@ -41,7 +41,7 @@ if (backto)
 
 .row.my-2
     .col
-        +markdownEditor('Content', 'glossary_entry_content', 'glossary_entry[content]', 10, 300, glossary_entry.content, true, '/glossary/preview')
+        +markdownEditor('Content', 'glossary_entry_content', 'glossary_entry[content]', 10, 300, glossary_entry.content, true, {previewUrl: '/glossary/preview', showImageLink: checkPermission('gm')})
 
 .row.my-1
     .col

@@ -66,7 +66,7 @@ if (backto)
 
 .row.my-2
     .col
-        +markdownEditor('Description (Player Facing)', 'skill_source_description', 'skill_source[description]', 5, 100, skill_source.description, true)
+        +markdownEditor('Description (Player Facing)', 'skill_source_description', 'skill_source[description]', 5, 100, skill_source.description, true, {showImageLink: checkPermission('gm')})
 
 .row.my-2
     .col

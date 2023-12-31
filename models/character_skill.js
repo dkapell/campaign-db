@@ -8,7 +8,6 @@ const models = {
 
 const tableFields = [
     'id',
-    'campaign_id',
     'character_id',
     'skill_id',
     'details',

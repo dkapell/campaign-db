@@ -7,3 +7,11 @@ table {
 .table>:not(caption)>*>* {
     color: white;
 }
+.editor-preview {
+    color: black;
+    background-color: #ddd !important;
+}
+#skill-description {
+    color: black;
+    background-color: #ddd;
+}

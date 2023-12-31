@@ -274,7 +274,7 @@ mixin characterTable(characters, forPlayer, showActive=false)
                                 if character.active
                                     .badge.text-bg-success.badge-pill Active
                         td= character.cp
-                        td= moment(character.updated).format('MMM Do YYYY, h:mm a')
+                        td(data-sort=moment(character.updated).unix())= moment(character.updated).format('MMM Do YYYY, h:mm a')
                         td
                             a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                                 role="button",

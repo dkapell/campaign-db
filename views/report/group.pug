@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col
+            select.form-select.complex-select2#report_group_character_picker(name="characters" data-placeholder='Select Character' multiple)
+                option
+                for character in characters
+                    option(
+                        value=character.id
+                        title=character.name
+                        data-text=`<strong>${character.name}</strong> (<i>${character.user.name}</i>)`
+                        data-html=`<span class='float-end badge text-bg-info'>${character.user.type}</span><strong>${character.name}</strong> (<i>${character.user.name}</i>)`
+                    ) #{character.name} (#{character.user.name})
+
+    .row.my-1
+        .col#report-attributes
+        .col#report-diagnose
+    .row.my-1
+        .col#report-styles
+        .col#report-languages
+    .row.my-1
+        .col#report-traits
+    .row.my-2
+        .col#report-skills
+
+append scripts
+    script(src='/javascripts/templates/report/attributes.js')
+    script(src='/javascripts/templates/report/diagnose.js')
+    script(src='/javascripts/templates/report/styles.js')
+    script(src='/javascripts/templates/report/languages.js')
+    script(src='/javascripts/templates/report/traits.js')
+    script(src='/javascripts/templates/report/skills.js')
+
+    script(src='/javascripts/report.js')

@@ -1,0 +1,15 @@
+mixin reportCharacters(data)
+    .card.mb-3
+        h5.py-2.card-header Attributes
+            span.ms-1.float-end Min/Avg/Max
+
+mixin reportAttributes(attributes)
+    - console.log(attributes)
+    .card.mb-3
+        h5.py-2.card-header Attributes
+            span.ms-1.float-end Min/Avg/Max
+        ul.card-text.list-group.list-group-flush
+            each attribute in attributes
+                li.py-2.list-group-item=attribute.name
+                    span.ms-1.float-end #{attribute.values.min}/#{attribute.values.avg}/#{attribute.values.max}
+

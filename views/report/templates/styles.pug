@@ -1,0 +1,22 @@
+block content
+    .card.mb-3
+        h5.py-2.card-header(data-bs-toggle="collapse" href="#report-styles-body" aria-expanded="false") Weapon Styles
+            span.badge.rounded-pill.text-bg-danger.mx-2=_.keys(styles).length
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+        ul.card-text.list-group.list-group-flush.collapse#report-styles-body
+            if !_.keys(styles).length
+                li.py-2.list-group-item
+                    i No Weapon Styles
+            each value, style in styles
+                li.py-2.list-group-item=style
+                    span.ms-1.float-end.text-small
+                        if characters.length === value.length
+                            i All
+                        else
+                            -
+                                const charNames = value.map(e => {
+                                    return (_.findWhere(characters, {id:e})).name
+                                });
+                            = charNames.join(', ')

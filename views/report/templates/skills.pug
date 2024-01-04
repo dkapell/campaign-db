@@ -1,0 +1,46 @@
+include ../../partials/report
+include ../../partials/skills
+
+block content
+    .row.my-2
+        .col
+            .d-flex.align-items-start
+                .nav.flex-column.nav-pills.me-3#report-skills-tab(role="tablist" aria-orientation="vertical")
+                    for skillList, tag in skills
+                        button.nav-link(
+                            id=`report-skill-${tag.replace(/[^\w]/, '')}-tab`
+                            data-bs-toggle="pill"
+                            data-bs-target=`#report-skill-${tag.replace(/[^\w]/, '')}`
+                            type="button"
+                            role="tab"
+                            aria-controls=`report-skill-${tag.replace(/[^\w]/, '')}`
+                            aria-selected="true"
+                            )= tag
+                            span.badge.rounded-pill.text-bg-danger.ms-2.float-end= skillList.length
+
+                .tab-content.col#report-skills-tabContent
+                    for skillList, tag in skills
+                        .tab-pane.fade(
+                            id=`report-skill-${tag.replace(/[^\w]/, '')}`
+                            role="tabpanel"
+                            aria-labelledby=`report-skill-${tag.replace(/[^\w]/, '')}-tab`
+                            tabindex="0"
+                            )
+                            .card.mb-3
+                                h5.py-2.card-header= tag
+                                .accordion.accordion-flush.card-text(id=`skill-${tag.replace(/[^\w]/, '')}-accordion`)
+                                    each skill in skillList
+                                        .accordion-item
+                                            .h2.accordion-header
+                                                button.accordion-button.collapsed(
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target=`#skill-${tag.replace(/[^\w]/, '')}-${skill.id}`
+                                                    aria-expanded="false"
+                                                    aria-controls=`skill-${tag.replace(/[^\w]/, '')}-${skill.id}`
+                                                    )
+                                                    .text-nowrap= skill.name
+                                                    small.ms-4.expand-text!=marked.parseInline(skill.summary)
+                                            .accordion-collapse.collapse(id=`skill-${tag.replace(/[^\w]/, '')}-${skill.id}` data-bs-parent=`#skill-${tag.replace(/[^\w]/, '')}-accordion`)
+                                                .accordion-body
+                                                    +skillDisplay(skill)

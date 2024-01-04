@@ -48,13 +48,15 @@
             "name": "Vitality",
             "description": "Amount of hits that can be taken",
             "initial": 2,
-            "display_order": 1
+            "display_order": 1,
+            "toughness": true
         },
         {
             "name": "Armor",
             "description": "Refreshable protection above Vitality",
             "initial": 0,
-            "display_order": 2
+            "display_order": 2,
+            "toughness": true
         }
     ],
     "skills":{

@@ -48,6 +48,9 @@ const mapRouter = require('./routes/map');
 const imageRouter = require('./routes/image');
 
 const characterRouter = require('./routes/character');
+
+const reportRouter = require('./routes/report');
+
 const app = express();
 
 // if running in SSL Only mode, redirect to SSL version
@@ -247,6 +250,7 @@ app.use('/rulebook', rulebookRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/image', imageRouter);
+app.use('/report', reportRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

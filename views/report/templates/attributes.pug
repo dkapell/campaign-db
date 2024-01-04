@@ -1,0 +1,21 @@
+block content
+    .card.mb-3
+        h5.py-2.card-header(data-bs-toggle="collapse" href="#report-attributes-body" aria-expanded="false") Attributes
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+            small.mx-1.float-end Min/
+                strong Avg
+                | /Max
+        ul.card-text.list-group.list-group-flush.collapse#report-attributes-body
+            if !attributes.length
+                li.py-2.list-group-item
+                    i No Attributes
+
+            each attribute in attributes
+                li.py-2.list-group-item=attribute.name
+                    if attribute.internal
+                        .badge.text-bg-info.ms-2 Internal
+                    span.ms-1.float-end #{attribute.values.min}/
+                        strong #{attribute.values.avg}
+                        | /#{attribute.values.max}

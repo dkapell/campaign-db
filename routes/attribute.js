@@ -109,8 +109,10 @@ async function create(req, res, next){
     const attribute = req.body.attribute;
 
     req.session.attributeData = attribute;
-    if (!_.has(attribute, 'display_name')){
-        attribute.display_name = false;
+    for (const field of ['toughness', 'calculated']){
+        if (!_.has(attribute, field)){
+            attribute[field] = false;
+        }
     }
     attribute.campaign_id = req.campaign.id;
     try{
@@ -133,8 +135,10 @@ async function update(req, res, next){
     const id = req.params.id;
     const attribute = req.body.attribute;
     req.session.attributeData = attribute;
-    if (!_.has(attribute, 'display_name')){
-        attribute.display_name = false;
+    for (const field of ['toughness', 'calculated']){
+        if (!_.has(attribute, field)){
+            attribute[field] = false;
+        }
     }
 
     try {

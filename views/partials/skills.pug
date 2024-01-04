@@ -191,3 +191,42 @@ mixin skillModal()
                 .modal-footer
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
                     button.btn.btn-primary.save-btn(type="submit") Save
+
+mixin skillDisplay(skill)
+    .row.my-1
+        .col
+            if skill.type
+                span.skill-usage.me-2.d-inline
+                    strong.me-2 Type:
+                    =skill.type.name
+            if skill.usage && skill.usage.display_name
+                span.skill-usage.me-2.d-inline
+                    strong.me-2 Usage:
+                    = skill.usage.name
+            if skill.tags
+                span.skill-tags.ms-3
+                    for tag in skill.tags
+                        span.badge.me-1(class=`text-bg-${tag.color?tag.color:'primary'}`)= tag.name
+            .float-end=skill.source.name
+
+    .row.my-1
+        .col
+            .skill-summary!= marked.parseInline(skill.summary)
+
+    .row.my-1
+        .col
+            .skill-description!= marked.parseInline(skill.description)
+
+    if skill.characters
+        .row
+            .col
+                .characters
+                    strong.me-2 Characters:
+                    if characters.length === skill.characters.length
+                        i All
+                    else
+                        -
+                            const charNames = skill.characters.map(e => {
+                                return (_.findWhere(characters, {id:e})).name
+                            });
+                        = charNames.join(', ')

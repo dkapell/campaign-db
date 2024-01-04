@@ -24,6 +24,7 @@ block content
                     th.col-1 Order
                     th(data-priority="1") Name
                     th Initial Qty
+                    th Toughness?
                     th Description
                     if checkPermission('admin')
                         th
@@ -37,6 +38,9 @@ block content
                         td= attribute.display_order
                         td= attribute.name
                         td= attribute.initial
+                        td
+                            .badge(class=`text-bg-${attribute.toughness?'success':'warning'}`)=attribute.toughness?'Yes':'No'
+
                         td= attribute.description
                         if checkPermission('admin')
                             td.text-end

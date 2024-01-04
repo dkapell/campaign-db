@@ -1,21 +1,24 @@
 .row.my-2
     .col
         label.control-label(for="attribute_name") Name
-        input.form-control(type="text",placeholder="Name",name="attribute[name]",value=attribute.name,id='attribute_name',required)
+        input.form-control#attribute_name(type="text",placeholder="Name",name="attribute[name]",value=attribute.name, required)
         div.invalid-feedback Please choose a valid name
 
 .row.my-2
      .col
         label.control-label(for="attribute_initial") Initial Quantity
-        input.form-control(type="number",placeholder="Quantity",name="attribute[initial]",value=attribute.initial,id='attribute_initial',required)
+        input.form-control#attribute_initial(type="number",placeholder="Quantity",name="attribute[initial]",value=attribute.initial,required)
         div.invalid-feedback Please specify a valid quantity
-   
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#attribute_toughness(type="checkbox", name="attribute[toughness]", checked=attribute.toughness)
+            label.form-check-label(for="attribute_toughness") This Attribute is part of the Toughness calculation
 
 .row.my-2
     .col
         label.control-label(for="attribute_description") Description
-        textarea.form-control(name="attribute[description]",id="attribute_description",rows=3)
-            = attribute.description
+        +markdownEditor('Description', 'attribute_description', 'attribute[description]', 3, 20, attribute.description, true)
 
 .row.my-2
     .col

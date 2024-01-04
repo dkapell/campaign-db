@@ -371,6 +371,9 @@ create table attributes(
     description text,
     initial int default 0,
     display_order   int,
+    toughness boolean default false,
+    calculated boolean default false,
+    calculation jsonb,
     primary key (id),
     CONSTRAINT attributes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

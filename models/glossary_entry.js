@@ -31,7 +31,7 @@ GlossaryEntry.listByTag = async function(tagId){
 };
 
 GlossaryEntry.search = async function(campaignId, searchQuery){
-    const query = 'select * from glossary_entries where campaignId = $1 and (name like $2 or content like $2)';
+    const query = 'select * from glossary_entries where campaign_id = $1 and (name like $2 or content like $2)';
     const result = await database.query(query, [campaignId, `%${searchQuery}%`]);
     return async.mapLimit(result.rows, 10, fill);
 };

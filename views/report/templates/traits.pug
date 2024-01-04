@@ -1,0 +1,37 @@
+block content
+    .card.mb-3
+        h5.py-2.card-header(data-bs-toggle="collapse" href="#report-traits-body" aria-expanded="false") Traits
+            span.badge.rounded-pill.text-bg-danger.mx-2
+                -
+                    const typeCount = _.keys(traits).length
+                    let count = 0
+                    for (const key in traits){
+                        count += _.keys(traits[key]).length
+                    }
+                if (typeCount > 1)
+                    | #{typeCount} | #{count}
+                else
+                    | #{count}
+
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+
+        ul.card-text.list-group.list-group-flush.collapse#report-traits-body
+            if !_.keys(traits).length
+                li.py-2.list-group-item
+                    i No Traits
+            each list, type in traits
+                li.py-2.list-group-item
+                    strong= type
+                each value, trait in list
+                    li.py-2.ps-4.list-group-item=trait
+                        span.ms-1.float-end.text-small
+                            if characters.length === value.length
+                                i All
+                            else
+                                -
+                                    const charNames = value.map(e => {
+                                        return (_.findWhere(characters, {id:e})).name
+                                    });
+                                = charNames.join(', ')

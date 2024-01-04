@@ -9,7 +9,10 @@ const tableFields = [
     'name',
     'description',
     'initial',
-    'display_order'
+    'display_order',
+    'calculated',
+    'toughness',
+    'calculation'
 ];
 
 const Attribute = new Model('attributes', tableFields, {

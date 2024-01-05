@@ -87,11 +87,15 @@ async function update(req, res, next){
         }
         if (current.status === 'new' && image.status === 'ready'){
             console.log('getting metadata for ' + imageHelper.getKey(current));
-            const details = await imageHelper.getImageDetails(current);
-            if (details){
-                image.size = details.size;
-                image.width = details.width;
-                image.height = details.height;
+            try {
+                const details = await imageHelper.getImageDetails(current);
+                if (details){
+                    image.size = details.size;
+                    image.width = details.width;
+                    image.height = details.height;
+                }
+            } catch (e){
+                console.log(`unsupported image format for ${image.id}:${image.name}`)
             }
         }
         await req.models.image.update(id, image);

@@ -2,7 +2,7 @@
 const validator = require('validator');
 const Model = require('../lib/Model');
 
-const tableFields = ['id', 'campaign_id', 'name', 'description', 'display_to_pc', 'on_sheet', 'color'];
+const tableFields = ['id', 'campaign_id', 'name', 'description', 'display_to_pc', 'on_sheet', 'color', 'type'];
 
 const SkillTag = new Model('skill_tags', tableFields, {
     validator: validate

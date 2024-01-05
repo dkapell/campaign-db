@@ -1,7 +1,7 @@
 'use strict';
 (function ( $ ) {
     $.fn.confirmation = function confirmation(options){
-        this.on('click', function(e){
+        this.off('click.confirmation').on('click.confirmation', function(e){
             if(confirm(options.title)){
                 return;
             } else {

@@ -1,33 +1,39 @@
 .row.my-2
     .col
         label.control-label(for="skill_tag_name") Name
-        input.form-control(type="text",placeholder="Name",name="skill_tag[name]",value=skill_tag.name,id='skill_tag_name',required)
+        input.form-control#skill_tag_name(type="text" placeholder="Name" name="skill_tag[name]" value=skill_tag.name required)
         div.invalid-feedback Please choose a valid name
+.row.my-2
+    .col
+        label.control-label(for="skill_tag_type") Type
+        select.form-select.select2#skill_tag_type(name="skill_tag[type]", data-placeholder='Type' required)
+            option
+            for type in ['delivery', 'activation', 'effect', 'campaign', 'meta']
+                option(value=type selected=skill_tag.type===type)= capitalize(type)
 
 .row.my-2
     .col
         .form-check.form-switch
-            input.form-check-input(type="checkbox", name="skill_tag[display_to_pc]", id="skill_tag_display_to_pc", checked=skill_tag.display_to_pc)
+            input.form-check-input#skill_tag_display_to_pc(type="checkbox" name="skill_tag[display_to_pc]" checked=skill_tag.display_to_pc)
             label.form-check-label(for="skill_tag_display_to_pc") Display Tag to Players in Skill Documents
 
     .col
         .form-check.form-switch
-            input.form-check-input(type="checkbox", name="skill_tag[on_sheet]", id="skill_tag_on_sheet", checked=skill_tag.on_sheet)
+            input.form-check-input#skill_tag_on_sheet(type="checkbox" name="skill_tag[on_sheet]" checked=skill_tag.on_sheet)
             label.form-check-label(for="skill_tag_on_sheet") Display Tag on PDF Sheets
 
 .row.my-2
     .col
         label.control-label(for="skill_tag_color") Color
-        select.form-select.select2(name="skill_tag[color]",id="skill_tag_color" data-placeholder='Color')
+        select.form-select.select2#skill_tag_color(name="skill_tag[color]" data-placeholder='Color')
             option
             for type in ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark']
                 option(value=type selected=skill_tag.color===type)= capitalize(type)
 
-
 .row.my-2
     .col
         label.control-label(for="skill_tag_description") Description
-        textarea.form-control(name="skill_tag[description]",id="skill_tag_description",rows=3)
+        textarea.form-control#skill_tag_description(name="skill_tag[description]" rows=3)
             = skill_tag.description
 
 .row.my-2

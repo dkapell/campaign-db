@@ -128,6 +128,15 @@ create table skill_usages(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type skill_tag_type as enum(
+    'delivery',
+    'activation',
+    'effect',
+    'campaign',
+    'meta'
+);
+
+
 create table skill_tags(
     id              serial,
     campaign_id     int not null,
@@ -136,6 +145,7 @@ create table skill_tags(
     display_to_pc   boolean default true,
     on_sheet        boolean default true,
     color           varchar(80),
+    type            skill_tag_type not null default 'campaign',
     primary key (id),
     CONSTRAINT skill_tags_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

@@ -91,6 +91,42 @@ exports.list = async function(campaignId){
     return exports.find(campaignId, {});
 };
 
+exports.search = async function search(conditions){
+    const queryParts = [];
+    const queryData = [];
+
+    for (const field of ['campaign_id', 'usage_id', 'source_id', 'type_id', 'status_id'] ){
+        if (_.has(conditions, field)){
+            queryParts.push(field + ' = $' + (queryParts.length+1));
+            queryData.push(conditions[field]);
+        }
+    }
+
+    if (_.has(conditions, 'search')){
+        queryParts.push(`UPPER(name) like UPPER($${queryParts.length+1})`);
+        queryData.push(`%${conditions.search}%`);
+    }
+    let query = 'select skills.*, array_agg(tag_id) tags from skills left join skill_tags_xref on skills.id = skill_tags_xref.skill_id';
+    if (queryParts.length){
+        query += ' where ' + queryParts.join(' and ');
+    }
+    query += ' group by skills.id';
+    query += ' order by name';
+    const result = await database.query(query, queryData);
+    const data = {
+        tags: await models.tag.list()
+    };
+    if (result.rows.length > 5){
+        data.sources = await models.source.list();
+        data.usages = await models.usage.list();
+        data.statuses = await models.status.list();
+        data.types = await models.type.list();
+    }
+    return async.mapSeries(result.rows, async(row) => {
+        return fill(row, data);
+    });
+};
+
 exports.create = async function(data, cb){
     if (! validate(data)){
         throw new Error('Invalid Data');

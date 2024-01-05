@@ -1,0 +1,73 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col-md
+            label(for=report_skill_skill_source) Source
+            select.form-select.select2#report_skill_skill_source(name="skill_source" data-placeholder='Source')
+                option(value=-1 selected) All
+                for source in skill_sources
+                    option( value=source.id )= source.name
+
+        .col-md
+            label(for=report_skill_skill_tag) Tag
+            select.form-select.select2#report_skill_skill_tag(name="skill_tag" data-placeholder='Tags')
+                option
+                option(value=-1 selected) All
+                for tag in skill_tags
+                    option( value=tag.id )= tag.name
+
+        .col-md-2
+            label(for=report_skill_skill_type) Type
+            select.form-select.select2#report_skill_skill_type(name="skill_type" data-placeholder='Type')
+                option
+                option(value=-1 selected) All
+                for type in skill_types
+                    option( value=type.id )= type.name
+
+        .col-md-2
+            label(for=report_skill_skill_usage) Usage
+            select.form-select.select2#report_skill_skill_usage(name="skill_usage" data-placeholder='Usage')
+                option(value=-1 selected) All
+                for usage in skill_usages
+                    option( value=usage.id)= usage.name
+
+    .row.my-2
+        .col-md
+            label(for='report_skill_skill') Skill
+            select.form-select#report_skill_skill(name="skill" data-placeholder='Skill')
+                option
+    .row.my-2
+        .col#report-skill
+
+    .row.my-2
+        .col
+            h5 Characters
+    .row.my-2
+        .col.md
+            | Showing
+            span.mx-1#report-showing-count 0
+            | of
+            span.mx-1#report-total-count 0
+            | Total
+        .col-md-1.text-md-end
+            label Show:
+
+        .col-md
+            .form-check.form-switch
+                input.form-check-input#report_skill_show_inactive(type="checkbox", false)
+                label.form-check-label(for="report_skill_show_inactive") Inactive
+                    span.badge.rounded-pill.text-bg-danger.ms-1#report-inactive-count
+        .col-md
+            .form-check.form-switch
+                input.form-check-input#report_skill_show_staff(type="checkbox", false)
+                label.form-check-label(for="report_skill_show_staff") Staff
+                    span.badge.rounded-pill.text-bg-danger.ms-1#report-staff-count
+
+    .row.my-2
+        .col#report-characters
+
+append scripts
+    script(src='/javascripts/templates/report/skill/character.js')
+    script(src='/javascripts/templates/report/skill/skill.js')
+    script(src='/javascripts/report.js')

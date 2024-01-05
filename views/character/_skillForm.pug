@@ -11,7 +11,7 @@ if possibleSkills.length
                         selected=Number(character_skill.skill_id)===skill.id data-skill=skill
                         title=skill.name
                         data-text=`<strong>${skill.source.name}</strong>: <i>${skill.name}</i>`
-                        data-html=`<div class="float-end">${skill.next_cost} CP</div><div class="float-end me-4">${skill.usage.name}</div><div><strong>${skill.source.name}</strong>: <i>${skill.name}</i></div><div class="ms-2">${marked.parseInline(skill.summary)}</div>`
+                        data-html=`<div class="float-end">${skill.next_cost} CP</div><div class="float-end me-4">${skill.usage?skill.usage.name:''}</div><div><strong>${skill.source.name}</strong>: <i>${skill.name}</i></div><div class="ms-2">${marked.parseInline(skill.summary)}</div>`
                     ) #{skill.source.name}: #{skill.name}
 
 

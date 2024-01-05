@@ -1,0 +1,14 @@
+include ../../../partials/skills
+
+block content
+    if skill
+        .card.mb-2
+            h5.card-header(data-bs-toggle="collapse" data-bs-target="#report_skill_details" aria-expanded="true")=skill.name?skill.name:'TBD'
+                span.float-end.ps-2
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
+            div.collapse.show#report_skill_details
+                .card-body
+                    +skillDisplay(skill)
+
+    

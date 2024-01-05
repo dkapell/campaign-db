@@ -6,6 +6,7 @@ const async = require('async');
 const createError = require('http-errors');
 const permission = require('../lib/permission');
 const reportHelper = require('../lib/reportHelper');
+const Character = require('../lib/Character');
 
 function list (req, res, next){
     res.locals.breadcrumbs = {
@@ -59,6 +60,106 @@ async function getGroupReportData(req, res, next){
     }
 }
 
+async function showSkillReport(req, res, next){
+    res.locals.breadcrumbs = {
+        path: [
+            { url: '/', name: 'Home'},
+            { url: '/report', name: 'Reports'},
+        ],
+        current: 'Skill Report'
+    };
+    try{
+        res.locals.skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
+        res.locals.skill_tags = await req.models.skill_tag.find({campaign_id:req.campaign.id});
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
+        res.locals.skill_types = await req.models.skill_type.find({campaign_id:req.campaign.id});
+        res.locals.csrfToken = req.csrfToken();
+        res.render('report/skill', { pageTitle: 'Character Skill Report' });
+    } catch (err){
+        next(err);
+    }
+}
+
+async function getSkillReportSkills(req, res, next){
+    try{
+        const conditions = {
+            campaign_id: req.campaign.id
+        };
+        for (const type of ['usage_id', 'source_id', 'tag_id', 'type_id', 'search']){
+            if (_.has(req.query, type) && Number(req.query[type]) !== -1){
+                conditions[type] = req.query[type];
+            }
+        }
+        const results = await req.models.skill.search(conditions);
+        res.json({results: results.map(e => {
+            return {
+                id: e.id,
+                name: e.name,
+                source: e.source?e.source.name:'unset',
+                type: e.type?e.type.name:'unset',
+                tags: e.tags,
+                usage: e.usage?e.usage.name:'unset',
+                text: e.name?e.name:'TBD',
+                summary: e.summary
+            };
+        })});
+    } catch (err){
+        next(err);
+    }
+}
+
+async function getSkillReportData(req, res, next){
+    const counts = {
+        staff: 0,
+        inactive: 0,
+        total: 0
+    };
+    if (!req.query.skill_id){
+        return res.json({characters:[], skill:null, counts: counts});
+    }
+    try{
+        const skill = await req.models.skill.get(req.query.skill_id);
+        if (! skill || skill.campaign_id !== req.campaign.id){
+            return res.json({characters:[], skill:null, counts: counts});
+        }
+        const character_skills = await req.models.character_skill.find({skill_id: req.query.skill_id});
+
+        let characters = await async.map(_.uniq(_.pluck(character_skills, 'character_id')), async (characterId) => {
+            const character = await req.models.character.get(characterId);
+            const user = await req.models.user.get(req.campaign.id, character.user_id);
+            character.user = {
+                id: user.id,
+                name: user.name,
+                type: user.type,
+            };
+            return character;
+        });
+        counts.total = characters.length;
+        characters = characters.filter(character => {
+            if (!character.active){
+                counts.inactive++;
+
+                if (!_.has(req.query, 'showInactive') || req.query.showInactive !== 'true'){
+                    return false;
+                }
+            }
+            if (character.user.type !== 'player'){
+                counts.staff++;
+
+                if (!_.has(req.query, 'showStaff') || req.query.showStaff !== 'true'){
+                    return false;
+                }
+
+            }
+            return true;
+        });
+        res.json({characters:characters, skill:skill, counts: counts});
+    } catch (err){
+        next(err);
+    }
+
+}
+
 const router = express.Router();
 
 router.use(permission('contrib'));
@@ -70,4 +171,8 @@ router.use(function(req, res, next){
 router.get('/',csrf(), list);
 router.get('/group', csrf(), showGroupReport);
 router.get('/group/data', csrf(), getGroupReportData);
+router.get('/skill', csrf(), showSkillReport);
+router.get('/skill/skills', csrf(), getSkillReportSkills);
+router.get('/skill/data', csrf(), getSkillReportData);
+
 module.exports = router;

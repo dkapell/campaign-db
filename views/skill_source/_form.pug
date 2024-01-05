@@ -9,7 +9,7 @@ if (backto)
 .row.my-2
     .col
         label.control-label(for="skill_source_type_id") Type
-        select.form-select.select2(name="skill_source[type_id]",id="skill_source_type_id" data-placeholder='Source Type')
+        select.form-select.select2(name="skill_source[type_id]",id="skill_source_type_id" data-placeholder='Source Type' required)
             option
             for type in skill_source_types
                 option(value=type.id selected=skill_source.type_id===type.id)= capitalize(type.name)

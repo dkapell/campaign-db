@@ -36,6 +36,7 @@ router.get('/google',
 //   which, in this example, will redirect the user to the home page.
 router.get('/google/callback',
     (req, res, next) => {
+        res.locals._backto = req.session.backto
         const authConfig = {
             failureRedirect: '/',
             callbackURL: getCallbackUrl(req, 'google'),
@@ -47,9 +48,9 @@ router.get('/google/callback',
         }
     },
     (req, res) => {
-        if (_.has(req.session, 'backto')){
-            const backto = req.session.backto;
-            delete req.session.backto;
+        if (_.has(res.locals, '_backto')){
+            const backto = res.locals._backto;
+            delete res.locals._backto;
             res.redirect(backto);
         } else {
             res.redirect('/');
@@ -93,11 +94,6 @@ router.get('/player', permission('player'),
         }
         res.redirect('/');
     });
-
-
-module.exports = router;
-
-
 
 function getCallbackUrl(req, type){
     let proto = 'http';

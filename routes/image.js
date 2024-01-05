@@ -95,7 +95,7 @@ async function update(req, res, next){
                     image.height = details.height;
                 }
             } catch (e){
-                console.log(`unsupported image format for ${image.id}:${image.name}`)
+                console.log(`unsupported image format for ${image.id}:${image.name}`);
             }
         }
         await req.models.image.update(id, image);

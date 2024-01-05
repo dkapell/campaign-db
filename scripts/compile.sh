@@ -10,4 +10,5 @@
 ./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates views/clientPartials/*.pug
 
 # Reports
-./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/report views/report/templates/*.pug
+./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/report/group views/report/templates/group/*.pug
+./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/report/skill views/report/templates/skill/*.pug

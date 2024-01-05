@@ -24,7 +24,9 @@
 
                             if checkPermission('contrib')
                                 a.dropdown-item(href='/character') Characters
+                                hr.dropdown-divider
                                 a.dropdown-item(href='/report/group') Character Group Report
+                                a.dropdown-item(href='/report/skill') Character Skill Report
 
                 if checkPermission('player') && !checkPermission('event')
                     if (currentCampaign.player_folder)

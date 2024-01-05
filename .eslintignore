@@ -1,3 +1,4 @@
 public/javascripts/vendor/*.js
 public/javascripts/templates/*.js
 public/javascripts/templates/*/*.js
+public/javascripts/templates/*/*/*.js

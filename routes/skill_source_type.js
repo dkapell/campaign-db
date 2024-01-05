@@ -127,7 +127,7 @@ async function create(req, res, next){
         await req.audit('skill_source_type', id, 'create', {new:skill_source_type});
         delete req.session.skill_source_typeData;
         req.flash('success', 'Created Source Type ' + skill_source_type.name);
-        res.redirect(`/skill_source_type/${id}`);
+        res.redirect(`/skill_source_type`);
     } catch (err) {
         req.flash('error', err.toString());
         return res.redirect('/skill_source_type/new');

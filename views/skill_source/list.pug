@@ -2,7 +2,7 @@ extends ../layout
 
 block content
     if checkPermission('gm')
-        a.btn.btn-outline-success.my-2(href='/skill_source/new')
+        a.btn.btn-outline-success.my-2(href='/skill_source/new?backto=list')
             span(class="fa fa-plus")
             |  New Source
 

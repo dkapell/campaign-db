@@ -4,8 +4,8 @@ include ../../partials/skills
 block content
     .row.my-2
         .col
-            .d-flex.align-items-start
-                .nav.flex-column.nav-pills.me-3#report-skills-tab(role="tablist" aria-orientation="vertical")
+            .d-md-flex.align-items-start
+                .nav.flex-md-column.nav-pills.me-3#report-skills-tab(role="tablist" aria-orientation="vertical")
                     for skillList, tag in skills
                         button.nav-link(
                             id=`report-skill-${tag.replace(/[^\w]/, '')}-tab`

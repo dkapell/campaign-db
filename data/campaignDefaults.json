@@ -206,6 +206,318 @@
                 "reviewable": false,
                 "class": "danger"
             }
+        ],
+        "skill_tag": [
+            {
+                "name": "gaze",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "gesture",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "melee",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "missile",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "name",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "voice",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "packet",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "firearm",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "touch-cast",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "self",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery"
+            },
+            {
+                "name": "focus",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "activation"
+            },
+            {
+                "name": "rest",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "activation"
+            },
+            {
+                "name": "armor",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "vitality",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "agony",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "avoid",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "cure",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "damage",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "drain",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "diagnose",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "disengage",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "expose",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "weakness",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "stun",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "stricken",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "speak",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "stabilize",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "slow",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "shield",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "silence",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "root",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "resist",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "maim",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "first aid",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "grant",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "heal",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "protection",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "paralyze",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "parry",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "purge",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "read",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "reduce",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "refresh",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "repair",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "repel",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect"
+            },
+            {
+                "name": "cast",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "campaign",
+                "color": "success"
+            },
+            {
+                "name": "tentative",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "meta"
+            },
+            {
+                "name": "needs discussion",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "meta"
+            },
+            {
+                "name": "non-combat",
+                "display_to_pc": true,
+                "on_sheet": false,
+                "type": "meta"
+            },
+            {
+                "name": "required",
+                "display_to_pc": true,
+                "on_sheet": false,
+                "type": "meta"
+            },
+            {
+                "name": "bsa",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "meta",
+                "color": "warning"
+            }
         ]
     }
+
+
 }

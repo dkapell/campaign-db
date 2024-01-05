@@ -50,7 +50,8 @@ async function showNew(req, res, next){
         res.locals.skill_tag = {
             name: null,
             description: null,
-            color: null
+            color: null,
+            type: 'campaign',
         };
         res.locals.breadcrumbs = {
             path: [

@@ -595,7 +595,8 @@ function prepSkillForm($form){
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
-        width:'resolve'
+        width:'resolve',
+        dropdownParent: $form,
     });
 
     $form.find('.complex-select2').each(function(e){
@@ -604,6 +605,7 @@ function prepSkillForm($form){
             theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
+            dropdownParent: $form,
             escapeMarkup: function(markup) {
                 return markup;
             },
@@ -621,7 +623,8 @@ function prepSkillForm($form){
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve',
-        placeholder:{id:'-1'}
+        placeholder:{id:'-1'},
+        dropdownParent: $form,
     });
 
     $('#skill_name').on('focus', function(){

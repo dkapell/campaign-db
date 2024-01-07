@@ -110,19 +110,24 @@
                 "display_order":4
             },
             {
+                "name": "Per Encounter",
+                "description": "X times per encounter",
+                "display_order":5
+            },
+            {
                 "name": "Regular",
                 "description": "Skill that takes Atributes to use",
-                "display_order":5
+                "display_order":6
             },
             {
                 "name": "Twilight",
                 "description": "Resets at 6pm and 6am",
-                "display_order":6
+                "display_order":7
             },
             {
                 "name": "Event",
                 "description": "X times per event",
-                "display_order":7
+                "display_order":8
             }
         ],
         "skill_status": [

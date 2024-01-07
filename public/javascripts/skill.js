@@ -504,9 +504,9 @@ function updateTable(data){
         tableRow.find('td:last-child').addClass('text-end');
 
         if ($('.skill-table').data('showsource')) {
-            tableRow.find('td:nth-child(2)').addClass('font-italic');
+            tableRow.find('td:nth-child(2)').addClass('fst-italic');
         } else {
-            tableRow.find('td:nth-child(1)').addClass('font-italic');
+            tableRow.find('td:nth-child(1)').addClass('fst-italic');
         }
 
         //tableRow.on('click', '.clickable-row', clickRow);

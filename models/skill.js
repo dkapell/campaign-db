@@ -106,12 +106,19 @@ exports.search = async function search(conditions){
         queryParts.push(`UPPER(name) like UPPER($${queryParts.length+1})`);
         queryData.push(`%${conditions.search}%`);
     }
+
+    if (_.has(conditions, 'tag_id')){
+        queryParts.push(`skill_tags_xref.tag_id = $${queryParts.length+1}`);
+        queryData.push(conditions.tag_id);
+    }
+
     let query = 'select skills.*, array_agg(tag_id) tags from skills left join skill_tags_xref on skills.id = skill_tags_xref.skill_id';
     if (queryParts.length){
         query += ' where ' + queryParts.join(' and ');
     }
     query += ' group by skills.id';
     query += ' order by name';
+
     const result = await database.query(query, queryData);
     const data = {
         tags: await models.tag.list()

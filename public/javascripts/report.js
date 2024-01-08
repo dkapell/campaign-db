@@ -14,6 +14,9 @@ $(function(){
     $('#report_skill_skill').trigger('change');
     $('#report_skill_show_inactive').on('change', function(){ $('#report_skill_skill').trigger('change'); });
     $('#report_skill_show_staff').on('change', function(){ $('#report_skill_skill').trigger('change'); });
+    $('#report_skill_group_by_name').on('change', function(){
+        $('#report_skill_skill').val(null).trigger('change')
+    });
 });
 
 
@@ -59,7 +62,8 @@ function prepSkillReportForm(){
                     usage_id: $('#report_skill_skill_usage').val(),
                     source_id: $('#report_skill_skill_source').val(),
                     tag_id: $('#report_skill_skill_tag').val(),
-                    type_id: $('#report_skill_skill_type').val()
+                    type_id: $('#report_skill_skill_type').val(),
+                    groupByName: $('#report_skill_group_by_name').prop('checked')
                 };
             }
         },
@@ -106,7 +110,7 @@ function formatReportSkillSelection(skill){
     if (!skill.id){
         return skill.text;
     }
-    return $(`<div><strong>${skill.source}:</strong> ${skill.name}</div>`);
+    return $(`<div><strong>${skill.source}:</strong> <i>${skill.name}</i></div>`);
 }
 
 async function updateGroupReport(){
@@ -134,6 +138,7 @@ async function updateSkillReport(){
         skill_id: $this.val(),
         showInactive: $('#report_skill_show_inactive').prop('checked'),
         showStaff: $('#report_skill_show_staff').prop('checked'),
+        groupByName: $('#report_skill_group_by_name').prop('checked')
     });
     const result = await fetch(url);
     const data = await result.json();

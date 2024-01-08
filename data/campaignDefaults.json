@@ -78,6 +78,7 @@
             }
         ],
         "skill_type": [
+            { "name": "Weapon Style" },
             { "name": "Melee" },
             { "name": "Ranged" },
             { "name": "Healing" },
@@ -90,7 +91,7 @@
         ],
         "skill_usage": [
             {
-                "name": "Weapon",
+                "name": "Weapon Style",
                 "description": "Weapon skill",
                 "display_order":1
             },

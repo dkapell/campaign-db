@@ -18,6 +18,9 @@ block content
             a.btn.btn-outline-primary.me-2(role="button" href='/skill/' + skill.id + '/edit')
                 i.fas.fa-edit
                 |  Edit Skill
+            a.btn.btn-outline-success.me-2(role="button" href='/skill/new?clone=' + skill.id)
+                i.fas.fa-copy
+                |  Clone Skill
     dl.row.my-2
         dt.col-sm-3 Summary
         dd.col-sm-9(style='font-size: 1.1rem;')

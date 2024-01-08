@@ -128,29 +128,53 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        res.locals.skill = {
-            name: 'TBD',
-            description: null,
-            summary: null,
-            notes: null,
-            cost: null,
-            source_id: req.query.skill_source?Number(req.query.skill_source):null,
-            usage_id: null,
-            type_id: null,
-            status_id: (await req.models.skill_status.find({name: 'Idea'})).id,
-            tags: [],
-            requires: [],
-            require_num: 0,
-            conflicts: [],
-            provides: skillHelper.fillProvides(null, 2)
-        };
-        res.locals.breadcrumbs = {
-            path: [
-                { url: '/', name: 'Home'},
-                { url: '/skill', name: 'Skills'},
-            ],
-            current: 'New'
-        };
+        if (req.query.clone){
+            const skill = await req.models.skill.get(req.query.clone);
+            if(!skill || skill.campaign_id !== req.campaign.id){
+                throw new Error('Invalid Skill');
+            }
+            delete skill.id;
+            skill.status_id = (await req.models.skill_status.find({name: 'Idea'})).id;
+            skill.provides = skillHelper.fillProvides(skill.provides, 2);
+
+            res.locals.skill = skill;
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/skill', name: 'Skills'},
+                ],
+                current: `Clone: ${skill.name}`
+
+            };
+            res.locals.title += ` - Clone Skill - ${skill.name}`;
+
+        } else {
+            res.locals.skill = {
+                name: 'TBD',
+                description: null,
+                summary: null,
+                notes: null,
+                cost: null,
+                source_id: req.query.skill_source?Number(req.query.skill_source):null,
+                usage_id: null,
+                type_id: null,
+                status_id: (await req.models.skill_status.find({name: 'Idea'})).id,
+                tags: [],
+                requires: [],
+                require_num: 0,
+                conflicts: [],
+                provides: skillHelper.fillProvides(null, 2)
+            };
+
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/skill', name: 'Skills'},
+                ],
+                current: 'New'
+            };
+            res.locals.title += ' - New Skill';
+        }
 
         res.locals.csrfToken = req.csrfToken();
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
@@ -177,6 +201,7 @@ async function showNew(req, res, next){
 
 async function showNewApi(req, res, next){
     try{
+
         const doc = {
             csrfToken: req.csrfToken(),
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
@@ -186,22 +211,36 @@ async function showNewApi(req, res, next){
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
             skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
-        doc.skill = {
-            name: 'TBD',
-            description: null,
-            summary: null,
-            notes: null,
-            cost: null,
-            source_id: req.query.skill_source?Number(req.query.skill_source):null,
-            usage_id: null,
-            type_id: null,
-            status_id: (_.findWhere(doc.skill_statuses, {name:'Idea'})).id,
-            tags: [],
-            requires: [],
-            require_num: 0,
-            conflicts: [],
-            provides: skillHelper.fillProvides(null, 2)
-        };
+
+        if (req.query.clone){
+            const skill = await req.models.skill.get(req.query.clone);
+            if(!skill || skill.campaign_id !== req.campaign.id){
+                throw new Error('Invalid Skill');
+            }
+            delete skill.id;
+            skill.status_id = (await req.models.skill_status.find({name: 'Idea'})).id;
+            skill.provides = skillHelper.fillProvides(skill.provides, 2);
+
+            doc.skill = skill;
+
+        } else {
+            doc.skill = {
+                name: 'TBD',
+                description: null,
+                summary: null,
+                notes: null,
+                cost: null,
+                source_id: req.query.skill_source?Number(req.query.skill_source):null,
+                usage_id: null,
+                type_id: null,
+                status_id: (_.findWhere(doc.skill_statuses, {name:'Idea'})).id,
+                tags: [],
+                requires: [],
+                require_num: 0,
+                conflicts: [],
+                provides: skillHelper.fillProvides(null, 2)
+            };
+        }
         if (_.has(req.session, 'skillData')){
             doc.skill = req.session.skillData;
             delete req.session.skillData;
@@ -252,7 +291,6 @@ async function showEdit(req, res, next){
         next(err);
     }
 }
-
 
 
 async function showEditApi(req, res, next){

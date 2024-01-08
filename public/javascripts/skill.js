@@ -390,11 +390,23 @@ async function editSkill(id){
 
     $modal.find('.modal-title').text(`Edit Skill: ${data.skill.name}`);
     $modal.find('.modal-body').html(editFormTemplate(data));
+    const $cloneBtn = $('<button>')
+        .addClass('btn')
+        .addClass('btn-success')
+        .addClass('skill-clone-btn')
+        .attr('type', 'button')
+        .html('<i class="fas fa-copy"></i> Clone Skill')
+        .attr('href', '/skill/new?clone=' + id)
+        .attr('data-click-id', id);
+
+    $modal.find('.modal-footer').prepend($cloneBtn);
     prepSkillForm($modal.find('form'));
     $modal.modal('show');
 
+
     $modal.on('hidden.bs.modal', function(e){
         $modal.modal('dispose');
+        $modal.find('.modal-footer').find('.skill-clone-btn').remove();
     });
 }
 
@@ -428,6 +440,33 @@ async function newSkill(e){
 
     $modal.on('hidden.bs.modal', function(e){
         $modal.modal('dispose');
+    });
+
+}
+
+async function cloneSkill(id){
+
+    const result = await fetch(`/skill/new/api?clone=${id}`);
+    const data = await result.json();
+
+    const $modal = $('#skillModal');
+    data.capitalize = capitalize;
+    data.modal = true;
+    data.backto = 'modal';
+    data.checkPermission = function(type) {
+        if (type === 'gm') { return isGM; }
+        return false;
+    };
+    $modal.modal('hide');
+    $modal.one('hidden.bs.modal', function (e){
+        $modal.find('.modal-title').text(`Clone Skill: ${data.skill.name}`);
+        $modal.find('.modal-body').html(newFormTemplate(data));
+        prepSkillForm($modal.find('form'));
+        $modal.modal('show');
+
+        $modal.on('hidden.bs.modal', function(e){
+            $modal.modal('dispose');
+        });
     });
 
 }
@@ -639,6 +678,12 @@ function prepSkillForm($form){
 
     $('.skill-provides-type').on('change', function(){
         toggleProvidesFields($(this).closest('.provides-row'));
+    });
+    $('.skill-clone-btn').on('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        cloneSkill($(this).data('click-id'));
+
     });
 }
 

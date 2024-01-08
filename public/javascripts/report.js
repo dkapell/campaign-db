@@ -15,7 +15,7 @@ $(function(){
     $('#report_skill_show_inactive').on('change', function(){ $('#report_skill_skill').trigger('change'); });
     $('#report_skill_show_staff').on('change', function(){ $('#report_skill_skill').trigger('change'); });
     $('#report_skill_group_by_name').on('change', function(){
-        $('#report_skill_skill').val(null).trigger('change')
+        $('#report_skill_skill').val(null).trigger('change');
     });
 });
 

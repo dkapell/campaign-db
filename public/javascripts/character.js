@@ -424,7 +424,7 @@ function displayDetails(object, selected){
                 break;
             case 'style': {
                 if (object.provides[0].value.match(/^\s*\[/)){
-                    $('.provides-options-select').find('label').text('Style');
+                    $('.provides-options-select').find('label').text('Weapon Style');
                     const options = object.provides[0].value
                         .replace(/^\s*\[/, '')
                         .replace(/\]\s*$/, '')
@@ -432,7 +432,7 @@ function displayDetails(object, selected){
 
                     const $select = $('#provides_value_select');
                     $select.empty();
-                    $select.attr('data-placeholder', 'Select a Style');
+                    $select.attr('data-placeholder', 'Select a Weapon Style');
                     $select.append($('<option>'));
 
                     const match = (selected && selected.details && selected.details.style)?selected.details.style:false;

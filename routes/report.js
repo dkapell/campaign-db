@@ -93,15 +93,15 @@ async function getSkillReportSkills(req, res, next){
         let results = await req.models.skill.search(conditions);
         results = _.uniq(results, 'id');
         if (req.query.groupByName){
-            groupedResults = _.groupBy(results, 'name');
+            const groupedResults = _.groupBy(results, 'name');
 
             results = [];
             for (const name in groupedResults){
                 if (groupedResults[name].length === 1){
                     results.push(groupedResults[name][0]);
                 } else {
-                    doc = groupedResults[name][0]
-                    doc.source.name = 'Multiple'
+                    const doc = groupedResults[name][0];
+                    doc.source.name = 'Multiple';
                     results.push(doc);
                 }
             }
@@ -146,7 +146,7 @@ async function getSkillReportData(req, res, next){
 
 
 
-        chosenSkill.source.name = (_.pluck(_.pluck(skills, 'source'), 'name')).join(', ')
+        chosenSkill.source.name = (_.pluck(_.pluck(skills, 'source'), 'name')).join(', ');
 
         const character_skills = [];
 
@@ -165,7 +165,7 @@ async function getSkillReportData(req, res, next){
             };
             return character;
         });
-    counts.total = characters.length;
+        counts.total = characters.length;
         characters = characters.filter(character => {
             if (!character.active){
                 counts.inactive++;

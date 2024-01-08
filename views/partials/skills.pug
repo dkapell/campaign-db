@@ -139,8 +139,8 @@ mixin skillList(skills, showSource, backto)
                                             tabindex="0"
                                             role="button"
                                             data-bs-toggle="popover"
-                                            data-content=marked.parse(skill.description, {breaks: true})
-                                            data-html="true"
+                                            data-bs-content=marked.parse(skill.description, {breaks: true})
+                                            data-bs-html="true"
                                             title="Description"
                                         )
                                             i.fas.fa-eye.fa-fw
@@ -150,8 +150,8 @@ mixin skillList(skills, showSource, backto)
                                             tabindex="0"
                                             role="button"
                                             data-bs-toggle="popover"
-                                            data-content=marked.parse(skill.notes, {breaks: true})
-                                            data-html="true"
+                                            data-bs-content=marked.parse(skill.notes, {breaks: true})
+                                            data-bs-html="true"
                                             title="Notes"
                                         )
                                             i.fas.fa-sticky-note.fa-fw

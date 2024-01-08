@@ -35,8 +35,13 @@ block content
     .row.my-2
         .col-md
             label(for='report_skill_skill') Skill
+            span.d-inline.float-end
+                .form-check.form-switch.form-check-reverse
+                    input.form-check-input#report_skill_group_by_name(type="checkbox", checked)
+                    label.form-check-label(for="report_skill_group_by_name") Group by Name
             select.form-select#report_skill_skill(name="skill" data-placeholder='Skill')
                 option
+
     .row.my-2
         .col#report-skill
 

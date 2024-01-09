@@ -256,8 +256,10 @@ async function fill(record, data){
                 return -1;
             } else if (b.type === 'category'){
                 return 1;
-            } else {
+            } else if (a.type !== b.type){
                 return a.type.localeCompare(b.type);
+            } else {
+                return a.name.localeCompare(b.name);
             }
         });
     }

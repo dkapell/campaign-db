@@ -8,7 +8,6 @@ const validator = require('validator');
 const models = {
     source: require('./skill_source'),
     usage: require('./skill_usage'),
-    type: require('./skill_type'),
     tag: require('./skill_tag'),
     status: require('./skill_status')
 };
@@ -22,7 +21,6 @@ const tableFields = [
     'cost',
     'source_id',
     'usage_id',
-    'type_id',
     'status_id',
     'provides',
     'requires',
@@ -59,7 +57,7 @@ exports.find = async function(conditions, options){
         query += ' where ' + queryParts.join(' and ');
     }
     query += ' group by skills.id';
-    query += ' order by type_id, name';
+    query += ' order by name';
 
     const result = await database.query(query, queryData);
     if (options && _.has(options, 'skipRelations') && options.skipRelations){
@@ -72,7 +70,6 @@ exports.find = async function(conditions, options){
             data.sources = await models.source.list();
             data.usages = await models.usage.list();
             data.statuses = await models.status.list();
-            data.types = await models.type.list();
         }
         return async.mapSeries(result.rows, async(row) => {
             return fill(row, data);
@@ -95,7 +92,7 @@ exports.search = async function search(conditions){
     const queryParts = [];
     const queryData = [];
 
-    for (const field of ['campaign_id', 'usage_id', 'source_id', 'type_id', 'status_id'] ){
+    for (const field of ['campaign_id', 'usage_id', 'source_id', 'status_id'] ){
         if (_.has(conditions, field)){
             queryParts.push(field + ' = $' + (queryParts.length+1));
             queryData.push(conditions[field]);
@@ -127,7 +124,6 @@ exports.search = async function search(conditions){
         data.sources = await models.source.list();
         data.usages = await models.usage.list();
         data.statuses = await models.status.list();
-        data.types = await models.type.list();
     }
     return async.mapSeries(result.rows, async(row) => {
         return fill(row, data);
@@ -234,16 +230,6 @@ async function fill(record, data){
         record.usage = null;
     }
 
-    if (record.type_id){
-        if (data.types){
-            record.type = _.findWhere(data.types, {id: record.type_id});
-        } else {
-            record.type = await models.type.get(record.type_id);
-        }
-    } else {
-        record.type = null;
-    }
-
     if (record.status_id){
         if (data.statuses){
             record.status = _.findWhere(data.statuses, {id: record.status_id});
@@ -262,8 +248,18 @@ async function fill(record, data){
         }).filter(tag => {
             return tag;
         });
-
-        record.tags = _.sortBy(record.tags, 'name');
+        record.tags = record.tags.sort((a, b) => {
+            if (a.type === 'category'){
+                if (b.type === 'category'){
+                    return a.type.localeCompare(b.type);
+                }
+                return -1;
+            } else if (b.type === 'category'){
+                return 1;
+            } else {
+                return a.type.localeCompare(b.type);
+            }
+        });
     }
 
     return record;

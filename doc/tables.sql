@@ -104,17 +104,6 @@ create table skill_sources(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-create table skill_types(
-    id              serial,
-    campaign_id     int not null,
-    name            varchar(80) not null,
-    description     text,
-    primary key (id),
-    CONSTRAINT skill_types_campaign_fk FOREIGN KEY (campaign_id)
-        REFERENCES "campaigns" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE
-);
-
 create table skill_usages(
     id              serial,
     campaign_id     int not null,
@@ -129,6 +118,7 @@ create table skill_usages(
 );
 
 create type skill_tag_type as enum(
+    'category',
     'delivery',
     'activation',
     'effect',
@@ -179,7 +169,6 @@ create table skills(
     cost            varchar(80),
     source_id       int not null,
     usage_id        int,
-    type_id         int,
     status_id       int,
     provides        jsonb,
     requires        jsonb,
@@ -192,9 +181,6 @@ create table skills(
         on update no action on delete cascade,
     CONSTRAINT usage_fk FOREIGN KEY (usage_id)
         REFERENCES "skill_usages" (id) MATCH SIMPLE
-        on update no action on delete cascade,
-    CONSTRAINT type_fk FOREIGN KEY (type_id)
-        REFERENCES "skill_types" (id) MATCH SIMPLE
         on update no action on delete cascade,
     CONSTRAINT status_fk FOREIGN KEY (status_id)
         REFERENCES "skill_statuses" (id) MATCH SIMPLE

@@ -157,7 +157,6 @@ async function showNew(req, res, next){
                 cost: null,
                 source_id: req.query.skill_source?Number(req.query.skill_source):null,
                 usage_id: null,
-                type_id: null,
                 status_id: (await req.models.skill_status.find({name: 'Idea'})).id,
                 tags: [],
                 requires: [],
@@ -178,7 +177,6 @@ async function showNew(req, res, next){
 
         res.locals.csrfToken = req.csrfToken();
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
-        res.locals.skill_types = await req.models.skill_type.find({campaign_id: req.campaign.id});
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
@@ -205,7 +203,6 @@ async function showNewApi(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
-            skill_types: await req.models.skill_type.find({campaign_id: req.campaign.id}),
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
@@ -232,7 +229,6 @@ async function showNewApi(req, res, next){
                 cost: null,
                 source_id: req.query.skill_source?Number(req.query.skill_source):null,
                 usage_id: null,
-                type_id: null,
                 status_id: (_.findWhere(doc.skill_statuses, {name:'Idea'})).id,
                 tags: [],
                 requires: [],
@@ -268,7 +264,6 @@ async function showEdit(req, res, next){
         }
 
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
-        res.locals.skill_types = await req.models.skill_type.find({campaign_id: req.campaign.id});
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
@@ -304,7 +299,6 @@ async function showEditApi(req, res, next){
             csrfToken: req.csrfToken(),
             skill: skill,
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
-            skill_types: await req.models.skill_type.find({campaign_id: req.campaign.id}),
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
@@ -357,7 +351,7 @@ async function create(req, res, next){
         } else if(!_.isArray(skill.tags)){
             skill.tags = [skill.tags];
         }
-        for(const field of ['source_id', 'type_id', 'usage_id', 'status_id']){
+        for(const field of ['source_id', 'usage_id', 'status_id']){
             if (skill[field] === ''){
                 skill[field] = null;
             }
@@ -378,7 +372,7 @@ async function create(req, res, next){
         } else if (req.body.backto && req.body.backto === 'review'){
             res.redirect('/skill/review');
         } else if (req.body.backto && req.body.backto === 'validate'){
-            res.redirect(`/skill/validate`);
+            res.redirect('/skill/validate');
         } else if (req.body.backto && req.body.backto === 'sourcedoc'){
             res.redirect(`/skill_source/${skill.source_id}/doc`);
         } else {
@@ -444,7 +438,7 @@ async function update(req, res, next){
             } else if(!_.isArray(skill.tags)){
                 skill.tags = [skill.tags];
             }
-            for(const field of ['source_id', 'type_id', 'usage_id', 'status_id']){
+            for(const field of ['source_id', 'usage_id', 'status_id']){
                 if (skill[field] === ''){
                     skill[field] = null;
                 }
@@ -468,7 +462,7 @@ async function update(req, res, next){
         } else if (req.body.backto && req.body.backto === 'review'){
             res.redirect('/skill/review');
         } else if (req.body.backto && req.body.backto === 'validate'){
-            res.redirect(`/skill/validate`);
+            res.redirect('/skill/validate');
         } else if (req.body.backto && req.body.backto === 'sourcedoc'){
             res.redirect(`/skill_source/${skill.source_id}/doc`);
         } else {

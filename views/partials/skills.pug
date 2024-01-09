@@ -77,7 +77,7 @@ mixin skillList(skills, showSource, backto)
                     .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                         .visually-hidden Table is Loading
                 table.table.table-striped.skill-table.table-hover.my-3.dt-responsive.nowrap.table-sm.topsort.table-bordered.w-100#skill-table(
-                    data-order=showSource?'[[0, "asc"],[3, "asc"]]':'[[0, "asc"],[2, "asc"]]'
+                    data-order=showSource?'[[0, "asc"],[2, "asc"]]':'[[0, "asc"],[1, "asc"]]'
                     data-showedittoggle=true
                     data-showsource=showSource
                     style="display: none"
@@ -103,13 +103,25 @@ mixin skillList(skills, showSource, backto)
                                             a.action-btn(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
                                         else
                                             i Not Set
+
+
                                 td.fst-italic= skill.name
+
                                 td
                                     if skill.usage
                                         = capitalize(skill.usage.name)
                                     else
                                         i Not Set
-                                td(data-search= _.pluck(skill.tags, 'name').join(', '))
+                                -
+                                    const tags = [];
+                                    if (skill.required){
+                                        tags.push('required')
+                                    }
+                                    tags.push(..._.pluck(skill.tags, 'name'));
+
+                                td(data-search= tags.join(', '))
+                                    if skill.required
+                                        span.badge.text-bg-danger.me-2 Required
                                     for tag in skill.tags.slice(0, -1)
                                         span.me-1(class=`text-${tag.color?tag.color:'info'}`)=tag.name
                                             | ,

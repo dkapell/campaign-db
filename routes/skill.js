@@ -162,6 +162,7 @@ async function showNew(req, res, next){
                 requires: [],
                 require_num: 0,
                 conflicts: [],
+                required: false,
                 provides: skillHelper.fillProvides(null, 2)
             };
 
@@ -234,6 +235,7 @@ async function showNewApi(req, res, next){
                 requires: [],
                 require_num: 0,
                 conflicts: [],
+                required: false,
                 provides: skillHelper.fillProvides(null, 2)
             };
         }
@@ -356,6 +358,12 @@ async function create(req, res, next){
                 skill[field] = null;
             }
         }
+        for(const field of ['required']){
+            if (!_.has(skill, field)){
+                skill[field] = false;
+            }
+        }
+
         const id = await req.models.skill.create(skill);
         await req.audit('skill', id, 'create', {new:skill});
         delete req.session.skillData;
@@ -441,6 +449,12 @@ async function update(req, res, next){
             for(const field of ['source_id', 'usage_id', 'status_id']){
                 if (skill[field] === ''){
                     skill[field] = null;
+                }
+            }
+
+            for(const field of ['required']){
+                if (!_.has(skill, field)){
+                    skill[field] = false;
                 }
             }
         }

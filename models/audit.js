@@ -7,7 +7,6 @@ const models = {
     skill_source: require('./skill_source'),
     skill_source_type: require('./skill_source_type'),
     skill_usage: require('./skill_usage'),
-    skill_type: require('./skill_type'),
     skill_tag: require('./skill_tag'),
     user: require('./user'),
     character: require('./character'),

@@ -8,7 +8,7 @@
         label.control-label(for="skill_tag_type") Type
         select.form-select.select2#skill_tag_type(name="skill_tag[type]", data-placeholder='Type' required)
             option
-            for type in ['delivery', 'activation', 'effect', 'campaign', 'meta']
+            for type in ['delivery', 'activation', 'effect', 'campaign', 'category', 'meta']
                 option(value=type selected=skill_tag.type===type)= capitalize(type)
 
 .row.my-2

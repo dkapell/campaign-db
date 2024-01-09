@@ -8,28 +8,25 @@ mixin skillList(skills, showSource, backto)
                     = showSource?'Source':'Name'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Name':'Type'
+                    = showSource?'Name':'Usage'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Type':'Usage'
+                    = showSource?'Usage':'Tag(s)'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Usage':'Tag(s)'
+                    = showSource?'Tag(s)':'Summary'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Tag(s)':'Summary'
+                    = showSource?'Summary':'Cost'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Summary':'Cost'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Cost':'Status'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
                     = showSource?'Status':'Actions'
 
                 if showSource
-                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
+                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
                         i.fas.fa-eye.fa-fw.me-1.col-indicator
                         | Actions
         if checkPermission('admin')
@@ -90,7 +87,6 @@ mixin skillList(skills, showSource, backto)
                             if (showSource)
                                 th Source
                             th(data-priority="1") Name
-                            th Type
                             th Usage
                             th(data-partialmatch="true") Tag(s)
                             th(data-priority="3") Summary
@@ -109,16 +105,17 @@ mixin skillList(skills, showSource, backto)
                                             i Not Set
                                 td.fst-italic= skill.name
                                 td
-                                    if skill.type
-                                        = capitalize(skill.type.name)
-                                    else
-                                        i Not Set
-                                td
                                     if skill.usage
                                         = capitalize(skill.usage.name)
                                     else
                                         i Not Set
-                                td= _.pluck(skill.tags, 'name').join(', ')
+                                td(data-search= _.pluck(skill.tags, 'name').join(', '))
+                                    for tag in skill.tags.slice(0, -1)
+                                        span.me-1(class=`text-${tag.color?tag.color:'info'}`)=tag.name
+                                            | ,
+                                    - const tag = skill.tags.slice(-1)[0]
+                                    if tag
+                                        span.me-1(class=`text-${tag.color?tag.color:'info'}`)=tag.name
 
                                 td
                                     if skill.summary.length>83
@@ -190,15 +187,12 @@ mixin skillModal()
                 .modal-body
                 .modal-footer
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
+                    span.extra-buttons
                     button.btn.btn-primary.save-btn(type="submit") Save
 
 mixin skillDisplay(skill)
     .row.my-1
         .col
-            if skill.type
-                span.skill-usage.me-2.d-inline
-                    strong.me-2 Type:
-                    =skill.type.name
             if skill.usage && skill.usage.display_name
                 span.skill-usage.me-2.d-inline
                     strong.me-2 Usage:

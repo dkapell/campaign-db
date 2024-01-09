@@ -15,7 +15,7 @@ if (backto)
                     selected=Number(skill.status_id)===status.id
                     title=status.name
                     data-text= `<div class="badge text-bg-${status.class} skill-status badge-pill">${status.name}</div>`
-                    data-html=`<div class="text-${status.class}">${status.name}</div><div class="ml-2">${status.description}</div>`
+                    data-html=`<div class="text-${status.class}">${status.name}</div><div class="ms-2">${status.description}</div>`
                 )= capitalize(status.name)
 
 .row.my-2
@@ -25,13 +25,6 @@ if (backto)
         small.form-text.text-muted Supports
             a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                 i.fas.fa-external-link-alt.ms-1
-
-    .col-sm-4
-        label.control-label(for="skill_type_id") Type
-        select.form-select.select2(name="skill[type_id]",id="skill_type_id" data-placeholder='Type' disabled=!checkPermission('gm'))
-            option
-            for type in skill_types
-                option(value=type.id selected=Number(skill.type_id)===type.id)= capitalize(type.name)
 
 .row.my-2
 
@@ -51,9 +44,14 @@ if (backto)
 .row.my-2
     .col
         label.control-label(for="skill_tags") Tags
-        select.form-control.select2(multiple, name="skill[tags]",id="skill_tags" disabled=!checkPermission('gm'))
+        select.form-control.complex-select2(multiple, name="skill[tags]",id="skill_tags" disabled=!checkPermission('gm'))
             for tag in skill_tags
-                option(value=tag.id selected=_.findWhere(skill.tags, {id:tag.id}))= tag.name
+                option(
+                    value=tag.id
+                    selected=_.findWhere(skill.tags, {id:tag.id})
+                    data-text=`<span class='text-${tag.color?tag.color:'info'}'>${tag.name}</span>`
+                    data-html=`<div><strong class='float-end'>${capitalize(tag.type)}</strong> <span class='badge text-bg-${tag.color?tag.color:'info'}'>${tag.name}</span></div><div class='ms-2 text-small'>${tag.description}</div>`
+                )= tag.name
 
     .col
         label.control-label(for="skill_cost") Purchase Cost

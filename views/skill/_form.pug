@@ -58,6 +58,10 @@ if (backto)
         input.form-control(type="text",placeholder="Cost, eg. 2 or 2,4,5",name="skill[cost]",value=skill.cost,id='skill_cost' disabled=!checkPermission('gm'))
         small.form-text.text-muted Number, or comma seperated list of costs, one per tier ("2" or "2, 4, 5")
 
+        .form-check.form-switch.mt-2
+            input.form-check-input(type="checkbox", name="skill[required]", id="skill_required", checked=skill.required)
+            label.form-check-label(for="skill+required") Required Skill
+
 .row.my-2
     .col
         +markdownEditor('Description (Player visible)', 'skill_description', 'skill[description]', 5, 100, skill.description, true, {showImageLink: checkPermission('gm'), disabled:!checkPermission('gm')})

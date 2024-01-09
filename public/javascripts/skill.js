@@ -510,15 +510,38 @@ function updateTable(data){
         }
     }
     rowData[column++] = skill.name;
-    rowData[column++] = skill.type?capitalize(skill.type.name):'<i>Not Set</i>';
     rowData[column++] = skill.usage?capitalize(skill.usage.name):'<i>Not Set</i>';
-    rowData[column++] = _.pluck(skill.tags, 'name').join(', ');
+
+
+    const tagDisplay = [];
+    const tags = [];
+    if (skill.required){
+        tagDisplay.push('<span class=\'badge me-2 text-bg-danger\'>required</span>');
+        tags.push('required');
+    }
+
+    for (const tag of skill.tags.slice(0, -1)){
+        tags.push(tag.name);
+        tagDisplay.push(`<span class='me-1 text-${tag.color?tag.color:'info'}'>${tag.name},</span>`);
+    }
+    const tag = skill.tags.slice(-1)[0];
+    if (tag) {
+        tags.push(tag.name);
+        tagDisplay.push(`<span class='me-1 text-${tag.color?tag.color:'info'}'>${tag.name}</span>`);
+    }
+    rowData[column++] = {
+        display: tagDisplay.join(''),
+        '@data-search': tags.join(', ')
+    };
+
     rowData[column++] = skill.summary.length>83?marked.parseInline(skill.summary.substr(0, 80)+'...'):marked.parseInline(skill.summary);
     rowData[column++] = skill.cost;
     rowData[column++] = getStatus(skill);
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
+
+    console.log(rowData);
 
     if (data.update){
         tableRow = $('.skill-table').find(`tr[data-click-id="${skill.id}"]`);

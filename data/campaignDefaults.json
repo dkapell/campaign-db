@@ -602,13 +602,6 @@
                 "description": "Needs Staff Discussion"
             },
             {
-                "name": "required",
-                "display_to_pc": true,
-                "on_sheet": false,
-                "type": "meta",
-                "description": "Required Skill"
-            },
-            {
                 "name": "weapon style",
                 "display_to_pc": false,
                 "on_sheet": false,

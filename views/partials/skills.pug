@@ -207,15 +207,18 @@ mixin skillDisplay(skill)
                 span.skill-tags.ms-3
                     for tag in skill.tags
                         span.badge.me-1(class=`text-bg-${tag.color?tag.color:'primary'}`)= tag.name
-            .float-end=skill.source.name
+            if skill.source
+                .float-end=skill.source.name
 
-    .row.my-1
-        .col
-            .skill-summary!= marked.parseInline(skill.summary)
+    if skill.summary
+        .row.my-1
+            .col
+                .skill-summary!= marked.parseInline(skill.summary)
 
-    .row.my-1
-        .col
-            .skill-description!= marked.parseInline(skill.description)
+    if skill.description
+        .row.my-1
+            .col
+                .skill-description!= marked.parseInline(skill.description)
 
     if skill.characters
         .row
@@ -230,3 +233,23 @@ mixin skillDisplay(skill)
                                 return (_.findWhere(characters, {id:e})).name
                             });
                         = charNames.join(', ')
+    if skill.issues
+        .row
+            .col
+                ul.issues
+                    for issue in skill.issues
+                        if issue.field === 'conflict'
+                            if (issue.skill)
+                                li
+                                    | This skill conflicts with #{issue.skill.source?issue.skill.source.name:'No Source'}:
+                                    a.d-inline.mx-1(href=`/skill/${issue.skill.id}/edit?backto=validate`)
+                                        | #{issue.skill.name?issue.skill.name:'TBD'}
+                                        i.fas.fa-edit.mx-1
+                                    | but that skill does not conflict with this one.
+                            else
+                                li= issue.type
+
+                        else if issue.message
+                            li=issue.message
+                        else
+                            li= issue.type

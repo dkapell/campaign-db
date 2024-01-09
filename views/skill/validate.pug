@@ -1,0 +1,41 @@
+extends ../layout
+
+include ../partials/skills
+
+block content
+    .row.my-2
+        .col.border.rounded.py-2.mb-2
+            h5 Categories
+            .row
+                for issue in issueList
+                    .col
+                        .form-check.form-switch
+                            input.form-check-input.validator-select(id=`validate_skill-${issue.field}` data-type=issue.field type="checkbox" checked=issue.field!=='description')
+                            label.form-check-label(for=`validate_skill-${issue.field}`) Show #{issue.type}
+                                span.badge.rounded-pill.text-bg-danger.ms-1(id=`validate_skill-${issue.field}-count`)
+
+    .row.my-2
+        .col
+            ul.list-group#skill-validations.border.rounded.mb-2
+                for skill in skills
+                    -
+                        const issues = [];
+                        for (const issue of skill.issues){
+                            issues.push(`issue-${issue.field}`);
+                        }
+
+                    li.list-group-item(
+
+                        data-id=skill.id
+                        data-issues=_.pluck(skill.issues, 'field').join(',')
+                    )&attributes({class:issues})
+                        if skill.status
+                            .float-end
+                                .badge.mx-2(class=`text-bg-${skill.status.class}`)=skill.status.name
+                        h5 #{skill.source.name}:
+                            a(href=`/skill/${skill.id}/edit?backto=validate`)
+                                i.ms-2=skill.name
+                        +skillDisplay(skill, true)
+
+append scripts
+    script(src='/javascripts/skill-validate.js')

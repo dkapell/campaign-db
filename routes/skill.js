@@ -184,7 +184,7 @@ async function showNew(req, res, next){
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
-        if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review'].indexOf(req.query.backto) !== -1){
+        if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
         }
 
@@ -274,7 +274,7 @@ async function showEdit(req, res, next){
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
-        if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review'].indexOf(req.query.backto) !== -1){
+        if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
         }
 
@@ -377,6 +377,8 @@ async function create(req, res, next){
             res.redirect('/skill/doc');
         } else if (req.body.backto && req.body.backto === 'review'){
             res.redirect('/skill/review');
+        } else if (req.body.backto && req.body.backto === 'validate'){
+            res.redirect(`/skill/validate`);
         } else if (req.body.backto && req.body.backto === 'sourcedoc'){
             res.redirect(`/skill_source/${skill.source_id}/doc`);
         } else {
@@ -465,6 +467,8 @@ async function update(req, res, next){
             res.redirect('/skill/doc');
         } else if (req.body.backto && req.body.backto === 'review'){
             res.redirect('/skill/review');
+        } else if (req.body.backto && req.body.backto === 'validate'){
+            res.redirect(`/skill/validate`);
         } else if (req.body.backto && req.body.backto === 'sourcedoc'){
             res.redirect(`/skill_source/${skill.source_id}/doc`);
         } else {
@@ -602,6 +606,45 @@ async function postReview(req, res, next) {
     }
 }
 
+async function showValidate(req, res, next){
+    try {
+        const skills = await req.models.skill.find({campaign_id: req.campaign.id});
+
+        const issueSkills = [];
+        const issueList = [];
+
+        for (const skill of skills){
+            const issues = await skillHelper.validate(skill);
+
+            if (issues.length){
+                skill.issues = issues;
+                issueSkills.push(skill);
+                for (const issue of issues){
+                    if (!_.findWhere(issueList, {type: issue.type})){
+                        issueList.push(issue);
+                    }
+                }
+            }
+        }
+
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/skill', name: 'Skills'},
+            ],
+            current: 'Validation'
+        };
+        res.locals.skills = issueSkills;
+        res.locals.issueList = issueList;
+        res.locals.title += ' - Skill Validation';
+        res.render('skill/validate');
+
+
+    } catch (err) {
+        next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(permission('player'));
@@ -619,6 +662,7 @@ router.get('/', permission('contrib'), list);
 router.get('/doc', listDoc);
 router.get('/new', permission('gm'), csrf(), showNew);
 router.get('/review', permission('gm'), csrf(), showReview);
+router.get('/validate', permission('gm'), csrf(), showValidate);
 router.get('/new/api',  permission('gm'), csrf(), showNewApi);
 router.get('/:id', permission('contrib'), csrf(), show);
 router.get('/:id/edit', permission('contrib'), csrf(),showEdit);

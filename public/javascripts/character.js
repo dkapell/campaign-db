@@ -313,6 +313,7 @@ function prepCharacterSourceForm($form){
             theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
+            dropdownParent: $form,
             escapeMarkup: function(markup) {
                 return markup;
             },
@@ -348,6 +349,7 @@ function prepCharacterSkillForm($form, character_skill){
             theme:'bootstrap-5',
             minimumResultsForSearch: 6,
             width:'resolve',
+            dropdownParent: $form,
             escapeMarkup: function(markup) {
                 return markup;
             },

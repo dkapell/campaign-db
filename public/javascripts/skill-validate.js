@@ -20,7 +20,7 @@ function updateValidationDisplay(){
         let show = false;
         for (const type of $this.data('issues').split(',')){
             if (options[type]){
-                console.log('showing because ' + type)
+                console.log('showing because ' + type);
                 show = true;
             }
         }

@@ -59,15 +59,6 @@ async function addSkill(row){
         }
     }
 
-    if (row['Skill Type']){
-        const type = await models.skill_type.find({name:row['Skill Type']});
-        if (type.length){
-            skill.type_id = type[0].id;
-        } else {
-            throw new Error (`no type found for ${row['Skill Type']}`);
-        }
-    }
-
     skill.cost = '';
 
     if (row.Cost){

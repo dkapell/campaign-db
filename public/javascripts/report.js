@@ -62,7 +62,6 @@ function prepSkillReportForm(){
                     usage_id: $('#report_skill_skill_usage').val(),
                     source_id: $('#report_skill_skill_source').val(),
                     tag_id: $('#report_skill_skill_tag').val(),
-                    type_id: $('#report_skill_skill_type').val(),
                     groupByName: $('#report_skill_group_by_name').prop('checked')
                 };
             }
@@ -83,9 +82,6 @@ function formatReportSkill(skill){
                 <strong>${skill.source}</strong>:
                 <i>${skill.name}</i>
                 <span class='mx-2 skill-tags'></span>
-            </div>
-            <div class="col-md-2">
-                ${skill.type}
             </div>
             <div class="col-md-2 text-end">
                 ${skill.usage}

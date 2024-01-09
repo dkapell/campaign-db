@@ -18,14 +18,6 @@ block content
                     option( value=tag.id )= tag.name
 
         .col-md-2
-            label(for=report_skill_skill_type) Type
-            select.form-select.select2#report_skill_skill_type(name="skill_type" data-placeholder='Type')
-                option
-                option(value=-1 selected) All
-                for type in skill_types
-                    option( value=type.id )= type.name
-
-        .col-md-2
             label(for=report_skill_skill_usage) Usage
             select.form-select.select2#report_skill_skill_usage(name="skill_usage" data-placeholder='Usage')
                 option(value=-1 selected) All

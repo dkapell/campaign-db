@@ -78,12 +78,6 @@
             }
         ],
         "skill_type": [
-            { "name": "Weapon Style" },
-            { "name": "Melee" },
-            { "name": "Ranged" },
-            { "name": "Healing" },
-            { "name": "Defense" },
-            { "name": "Support" },
             { "name": "Crafting" },
             { "name": "Info" },
             { "name": "BSA" },
@@ -218,309 +212,473 @@
                 "name": "gaze",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Gaze"
             },
             {
                 "name": "gesture",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Gesture"
             },
             {
                 "name": "melee",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Melee attack"
             },
             {
                 "name": "missile",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via missile attack"
             },
             {
                 "name": "name",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Name"
             },
             {
                 "name": "voice",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Voice"
             },
             {
                 "name": "packet",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Packet attack"
             },
             {
                 "name": "firearm",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Firearm attack"
             },
             {
                 "name": "touch-cast",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered via Touch"
             },
             {
                 "name": "self",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "delivery"
+                "type": "delivery",
+                "description": "Delivered to Self"
+            },
+            {
+                "name": "room",
+                "display_to_pc": true,
+                "on_sheet": true,
+                "type": "delivery",
+                "description": "Delivered to Room"
             },
             {
                 "name": "focus",
                 "display_to_pc": false,
                 "on_sheet": false,
-                "type": "activation"
+                "type": "activation",
+                "description": "Requires Focus"
             },
             {
                 "name": "rest",
                 "display_to_pc": false,
                 "on_sheet": false,
-                "type": "activation"
-            },
-            {
-                "name": "armor",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "vitality",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "agony",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "avoid",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "cure",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "damage",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "drain",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "diagnose",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "disengage",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "expose",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "weakness",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "stun",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "stricken",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "speak",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "stabilize",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "slow",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "shield",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "silence",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "root",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "resist",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "maim",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "first aid",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "grant",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "heal",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "protection",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "paralyze",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "parry",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "purge",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "read",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "reduce",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "refresh",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "repair",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
-            },
-            {
-                "name": "repel",
-                "display_to_pc": false,
-                "on_sheet": false,
-                "type": "effect"
+                "type": "activation",
+                "description": "Requires Rest"
             },
             {
                 "name": "cast",
                 "display_to_pc": true,
                 "on_sheet": true,
-                "type": "campaign",
-                "color": "success"
+                "type": "activation",
+                "color": "success",
+                "description": "Requires a Cast to use"
+            },
+            {
+                "name": "armor",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Grants or provides Armor"
+            },
+            {
+                "name": "vitality",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Grants or provides Vitality"
+            },
+            {
+                "name": "agony",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Agony effect"
+            },
+            {
+                "name": "avoid",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Avoid effect"
+            },
+            {
+                "name": "cure",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Cure or Remove effect"
+            },
+            {
+                "name": "damage",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Damage effect"
+            },
+            {
+                "name": "drain",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Drain effect"
+            },
+            {
+                "name": "diagnose",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Diagnose effect"
+            },
+            {
+                "name": "disengage",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Disengage effect"
+            },
+            {
+                "name": "expose",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Expose effect"
+            },
+            {
+                "name": "weakness",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Weakness effect"
+            },
+            {
+                "name": "stun",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Stun effect"
+            },
+            {
+                "name": "stricken",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Stricken effect"
+            },
+            {
+                "name": "speak",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Speak effect"
+            },
+            {
+                "name": "stabilize",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Stabilize effect"
+            },
+            {
+                "name": "slow",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Slow effect"
+            },
+            {
+                "name": "shield",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Shield effect"
+            },
+            {
+                "name": "silence",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Silence effect"
+            },
+            {
+                "name": "root",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Root effect"
+            },
+            {
+                "name": "resist",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Resist effect"
+            },
+            {
+                "name": "maim",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Maim effect"
+            },
+            {
+                "name": "first aid",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a First Aid effect"
+            },
+            {
+                "name": "grant",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Grant effect"
+            },
+            {
+                "name": "heal",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Heal effect"
+            },
+            {
+                "name": "protection",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Grant Protection effect"
+            },
+            {
+                "name": "paralyze",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Paralyze effect"
+            },
+            {
+                "name": "parry",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Parry effect"
+            },
+            {
+                "name": "purge",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Purge effect"
+            },
+            {
+                "name": "read",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Read Prop effect"
+            },
+            {
+                "name": "reduce",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Reduce effect"
+            },
+            {
+                "name": "refresh",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Refresh effect"
+            },
+            {
+                "name": "repair",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Repair effect"
+            },
+            {
+                "name": "repel",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Repel effect"
+            },
+            {
+                "name": "death",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Death effect"
+            },
+            {
+                "name": "absorb",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Absorb effect"
+            },
+            {
+                "name": "concentrate",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Concentrate effect"
+            },
+            {
+                "name": "disarm",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Disarm effect"
+            },
+            {
+                "name": "imbue",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Imbue effect"
+            },
+            {
+                "name": "inflict",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides an Inflict effect"
+            },
+            {
+                "name": "waste",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Waste effect"
             },
             {
                 "name": "tentative",
                 "display_to_pc": false,
                 "on_sheet": false,
-                "type": "meta"
+                "type": "meta",
+                "description": "Tentative skill idea"
             },
             {
                 "name": "needs discussion",
                 "display_to_pc": false,
                 "on_sheet": false,
-                "type": "meta"
-            },
-            {
-                "name": "non-combat",
-                "display_to_pc": true,
-                "on_sheet": false,
-                "type": "meta"
+                "type": "meta",
+                "description": "Needs Staff Discussion"
             },
             {
                 "name": "required",
                 "display_to_pc": true,
                 "on_sheet": false,
-                "type": "meta"
+                "type": "meta",
+                "description": "Required Skill"
+            },
+            {
+                "name": "weapon style",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a weapon style"
+            },
+            {
+                "name": "offense",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides an offensive ability"
+            },
+            {
+                "name": "defense",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a defensive ability"
+            },
+            {
+                "name": "support",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a support ability"
             },
             {
                 "name": "bsa",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a between session ability"
+            },
+            {
+                "name": "non-combat",
                 "display_to_pc": true,
-                "on_sheet": true,
-                "type": "meta",
-                "color": "warning"
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a non-combat ability"
+            },
+            {
+                "name": "attribute",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides an attribute"
+            },
+            {
+                "name": "crafting",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides a crafting ability"
+            },
+            {
+                "name": "information",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Provides an information ability"
             }
         ]
     }

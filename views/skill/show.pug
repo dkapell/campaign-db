@@ -33,10 +33,6 @@ block content
         dd.col-sm-9
             a(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
 
-        if skill.type
-            dt.col-sm-3 Type
-            dd.col-sm-9=capitalize(skill.type.name)
-
         if skill.usage
             dt.col-sm-3 Usage
             dd.col-sm-9=capitalize(skill.usage.name)

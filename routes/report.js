@@ -72,7 +72,6 @@ async function showSkillReport(req, res, next){
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
-        res.locals.skill_types = await req.models.skill_type.find({campaign_id:req.campaign.id});
         res.locals.csrfToken = req.csrfToken();
         res.render('report/skill', { pageTitle: 'Character Skill Report' });
     } catch (err){
@@ -85,7 +84,7 @@ async function getSkillReportSkills(req, res, next){
         const conditions = {
             campaign_id: req.campaign.id
         };
-        for (const type of ['usage_id', 'source_id', 'tag_id', 'type_id', 'search']){
+        for (const type of ['usage_id', 'source_id', 'tag_id', 'search']){
             if (_.has(req.query, type) && Number(req.query[type]) !== -1){
                 conditions[type] = req.query[type];
             }
@@ -113,7 +112,6 @@ async function getSkillReportSkills(req, res, next){
                 id: e.id,
                 name: e.name,
                 source: e.source?e.source.name:'unset',
-                type: e.type?e.type.name:'unset',
                 tags: e.tags,
                 usage: e.usage?e.usage.name:'unset',
                 text: e.name?e.name:'TBD',

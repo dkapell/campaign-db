@@ -399,14 +399,14 @@ async function editSkill(id){
         .attr('href', '/skill/new?clone=' + id)
         .attr('data-click-id', id);
 
-    $modal.find('.modal-footer').prepend($cloneBtn);
+    $modal.find('.extra-buttons').prepend($cloneBtn);
     prepSkillForm($modal.find('form'));
     $modal.modal('show');
 
 
     $modal.on('hidden.bs.modal', function(e){
         $modal.modal('dispose');
-        $modal.find('.modal-footer').find('.skill-clone-btn').remove();
+        $modal.find('.extra-buttons').find('.skill-clone-btn').remove();
     });
 }
 

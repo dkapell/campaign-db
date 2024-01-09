@@ -174,6 +174,7 @@ create table skills(
     requires        jsonb,
     require_num     int,
     conflicts       jsonb,
+    required        boolean default false,
     updated         timestamp with time zone default now(),
     primary key(id),
     CONSTRAINT source_fk FOREIGN KEY (source_id)

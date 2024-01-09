@@ -26,7 +26,8 @@ const tableFields = [
     'requires',
     'require_num',
     'conflicts',
-    'updated'
+    'updated',
+    'required'
 ];
 
 exports.get = async function(id){

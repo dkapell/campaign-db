@@ -2,6 +2,7 @@
 'use strict';
 
 $(function(){
+    prepSourceForm($('#sourceForm'));
     prepSkillForm($('#skillForm'));
 
     $('.skill-table').each(prepSkillTable);
@@ -707,6 +708,51 @@ function prepSkillForm($form){
         e.stopPropagation();
         cloneSkill($(this).data('click-id'));
 
+    });
+}
+
+function prepSourceForm($form){
+    $form.find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve',
+        dropdownParent: $form,
+    });
+
+    $form.find('.complex-select2').each(function(e){
+        const $select = $(this);
+        $select.select2({
+            theme:'bootstrap-5',
+            minimumResultsForSearch: 6,
+            width:'resolve',
+            dropdownParent: $form,
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data) {
+                return $(data.element).data('html');
+            },
+            templateSelection: function(data) {
+                return $(data.element).data('text');
+            }
+        });
+    });
+
+    $form.find('.clearable-select2').select2({
+        allowClear: true,
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve',
+        placeholder:{id:'-1'},
+        dropdownParent: $form,
+    });
+
+    $('.provides-row').each(function(idx){
+        toggleProvidesFields($(this));
+    });
+
+    $('.skill-provides-type').on('change', function(){
+        toggleProvidesFields($(this).closest('.provides-row'));
     });
 }
 

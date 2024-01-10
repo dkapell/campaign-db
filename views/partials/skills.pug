@@ -96,9 +96,10 @@ mixin skillList(skills, showSource, backto)
 
                     tbody
                         for skill in skills
+
                             tr.clickable-row.skillRow(data-click-object='skill' data-click-id=skill.id )
                                 if (showSource)
-                                    th(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
+                                    th.source-column(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
                                         if skill.source
                                             a.action-btn(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
                                         else

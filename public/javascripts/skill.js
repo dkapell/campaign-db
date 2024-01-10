@@ -52,7 +52,7 @@ marked.use({ renderer });
 
 function clickRow(e){
     e.preventDefault();
-    if ($(e.target).hasClass('dtr-control')){
+    if ($(e.target).hasClass('source-column')){
         return;
     }
     const id = $(this).attr('data-click-id');

@@ -71,65 +71,62 @@ if (backto)
         +markdownEditor('Notes (GM Only)', 'skill_notes', 'skill[notes]', 5, 80, skill.notes)
 
 if checkPermission('gm')
-    .row.my-3
-        .col
-            label.control-label.w-100#skill-bulder-heading(for="skill-config", data-bs-toggle="collapse" data-bs-target="#skill-config" aria-expanded="false") Character Builder Configuration
-                i.expand-text-shown.ms-4 (click to hide configuration)
-                i.expand-text.ms-4 (click to show configuration)
-                span.float-end.ps-2
-                    i.fa.fa-chevron-up
-                    i.fa.fa-chevron-down
+    fieldset.mb-2.border.p-2.rounded
+        label.h5.w-100.mb-1#skill-builder-heading( role="button" for="skill-config", data-bs-toggle="collapse" data-bs-target="#skill-config" aria-expanded="false") Character Builder Configuration
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
 
 
-            .div#skill-config.collapse(aria-labelledby="skill-bulder-heading")
+        #skill-config.collapse(aria-labelledby="skill-builder-heading")
 
-                .row.my-2
-                    .col-md-9
-                        label.control-label(for="skill_requires") Prereqs
-                        select.form-control.select2(multiple, name="skill[requires]",id="skill_requires" data-placeholder='Prereqs')
-                            for item in skills
-                                if (item.id !== skill.id)
-                                    option(value=item.id selected=_.indexOf(skill.requires, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
-                    .col-md-3
-                        label.control-label(for="skill_require_num") Number of Prereqs
-                        input.form-control.text-end#skill_require_num(type="number",placeholder="Usually 1",name="skill[require_num]",value=skill.require_num)
+            .row.my-2
+                .col-md-9
+                    label.control-label(for="skill_requires") Prereqs
+                    select.form-control.select2(multiple, name="skill[requires]",id="skill_requires" data-placeholder='Prereqs')
+                        for item in skills
+                            if (item.id !== skill.id)
+                                option(value=item.id selected=_.indexOf(skill.requires, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
+                .col-md-3
+                    label.control-label(for="skill_require_num") Number of Prereqs
+                    input.form-control.text-end#skill_require_num(type="number",placeholder="Usually 1",name="skill[require_num]",value=skill.require_num)
 
-                .row.my-2
-                    .col
-                        label.control-label(for="skill_conflicts") Conflicts
-                        select.form-control.select2(multiple, name="skill[conflicts]",id="skill_conflicts" data-placeholder='Conflicts')
-                            for item in skills
-                                if (item.id !== skill.id)
-                                    option(value=item.id selected=_.indexOf(skill.conflicts, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
-                .row.my-2.provides-row
-                    .col
-                        label.control-label(for="skill_provides_0_type") Provides
-                        select.form-control.clearable-select2.skill-provides-type(name="skill[provides][0][type]", id="skill_provides_0_type" data-placeholder="Provides Type")
-                            option(value="-1")
-                                for item in ['attribute', 'trait', 'style', 'language', 'tagskill', 'diagnose', 'skill', 'crafting']
-                                    option(value=item selected=skill.provides[0].type===item)= capitalize(item)
-                    .col
-                        label.control-label(for="skill_provides_0_name") Name/Subtype
-                        input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill[provides][0][name]",value=skill.provides[0].name,id='skill_provides_0_name')
+            .row.my-2
+                .col
+                    label.control-label(for="skill_conflicts") Conflicts
+                    select.form-control.select2(multiple, name="skill[conflicts]",id="skill_conflicts" data-placeholder='Conflicts')
+                        for item in skills
+                            if (item.id !== skill.id)
+                                option(value=item.id selected=_.indexOf(skill.conflicts, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
+            .row.my-2.provides-row
+                .col
+                    label.control-label(for="skill_provides_0_type") Provides
+                    select.form-control.clearable-select2.skill-provides-type(name="skill[provides][0][type]", id="skill_provides_0_type" data-placeholder="Provides Type")
+                        option(value="-1")
+                            for item in providesTypes
+                                option(value=item.value selected=skill.provides[0].type===item.value)= item.name
+                .col
+                    label.control-label(for="skill_provides_0_name") Name/Subtype
+                    input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill[provides][0][name]",value=skill.provides[0].name,id='skill_provides_0_name')
 
-                    .col
-                        label.control-label(for="skill_provides_0_value") Value
-                        input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][0][value]",value=skill.provides[0].value,id='skill_provides_0_value')
+                .col
+                    label.control-label(for="skill_provides_0_value") Value
+                    input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][0][value]",value=skill.provides[0].value,id='skill_provides_0_value')
 
-                .row.my-2.provides-row
-                    .col
-                        label.control-label(for="skill_provides_1_type") Provides
-                        select.form-control.clearable-select2.skill-provides-type(name="skill[provides][1][type]", id="skill_provides_1_type" data-placeholder="Provides Type")
-                            option(value="-1")
-                                for item in ['attribute', 'trait', 'style', 'language', 'tagskill', 'skill', 'crafting']
-                                    option(value=item selected=skill.provides[1] && skill.provides[1].type===item)= capitalize(item)
-                    .col
-                        label.control-label(for="skill_provides_1_name") Name/Subtype
-                        input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill[provides][1][name]",value=skill.provides[1]?skill.provides[1].name:'',id='skill_provides_1_name')
+            .row.my-2.provides-row
+                .col
+                    label.control-label(for="skill_provides_1_type") Provides
+                    select.form-control.clearable-select2.skill-provides-type(name="skill[provides][1][type]", id="skill_provides_1_type" data-placeholder="Provides Type")
+                        option(value="-1")
+                            for item in providesTypes
+                                option(value=item selected=skill.provides[1] && skill.provides[1].type===item.value)= item.name
+                .col
+                    label.control-label(for="skill_provides_1_name") Name/Subtype
+                    input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill[provides][1][name]",value=skill.provides[1]?skill.provides[1].name:'',id='skill_provides_1_name')
 
-                    .col
-                        label.control-label(for="skill_provides_1_value") Value
-                        input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][1][value]",value=skill.provides[1]?skill.provides[1].value:'',id='skill_provides_1_value')
+                .col
+                    label.control-label(for="skill_provides_1_value") Value
+                    input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill[provides][1][value]",value=skill.provides[1]?skill.provides[1].value:'',id='skill_provides_1_value')
 
 if !modal
     .row.my-2

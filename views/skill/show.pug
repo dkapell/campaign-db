@@ -7,11 +7,13 @@ block content
             h4.d-inline
                 .badge.badge-pill.mx-2(class=`text-bg-${skill.status.class}`)
                     = capitalize(skill.status.name)
-
+            if skill.required
+                h4.d-inline
+                    .badge.text-bg-danger.me-2 Required
             h4.d-inline
                 for tag in skill.tags
                     if (checkPermission('event') || tag.display_to_pc)
-                        .badge.text-bg-info.me-2= tag.name
+                        .badge.me-2(class=`text-bg-${tag.color?tag.color:'info'}`)= tag.name
 
     .row.my-2
         .col

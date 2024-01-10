@@ -158,6 +158,8 @@ async function showNew(req, res, next){
             active: false,
             activeRequired: false,
             extra_traits: null,
+            notes: null,
+            gm_notes: null
         };
         if ((await req.models.character.find({user_id: user.id, campaign_id:req.campaign.id})).length === 0){
             res.locals.character.active = true;

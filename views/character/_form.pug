@@ -34,6 +34,15 @@ if checkPermission('contrib')
 
 .row.my-2
     .col
+        +markdownEditor('Notes', 'character_notes', 'character[notes]', 5, 100, character.notes, true)
+
+if checkPermission('contrib')
+    .row.my-2
+        .col
+            +markdownEditor('GM Notes', 'character_gm_notes', 'character[gm_notes]', 5, 100, character.gm_notes, true)
+
+.row.my-2
+    .col
         button.btn.btn-primary(type="submit")= character.id?'Update':'Create'
         a.btn.btn-link(href=`/character${character.id?'/' + character.id:''}`) Cancel
 

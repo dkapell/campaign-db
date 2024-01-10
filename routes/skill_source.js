@@ -150,6 +150,7 @@ async function showNew(req, res, next){
         res.locals.csrfToken = req.csrfToken();
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
+        res.locals.providesTypes = skillHelper.getProvidesTypes('source');
 
         if (_.has(req.session, 'skill_sourceData')){
             res.locals.skill_source = req.session.skill_sourceData;
@@ -185,6 +186,7 @@ async function showEdit(req, res, next){
         }
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
+        res.locals.providesTypes = skillHelper.getProvidesTypes('source');
 
         res.locals.breadcrumbs = {
             path: [

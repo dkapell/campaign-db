@@ -181,6 +181,7 @@ async function showNew(req, res, next){
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
+        res.locals.providesTypes = skillHelper.getProvidesTypes('skill');
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
@@ -207,6 +208,7 @@ async function showNewApi(req, res, next){
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
+            providesTypes: skillHelper.getProvidesTypes('skill'),
             skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
 
@@ -269,6 +271,7 @@ async function showEdit(req, res, next){
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
+        res.locals.providesTypes = skillHelper.getProvidesTypes('skill');
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
@@ -304,6 +307,7 @@ async function showEditApi(req, res, next){
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
+            providesTypes: skillHelper.getProvidesTypes('skill'),
             skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
         doc.skill.provides = skillHelper.fillProvides(doc.skill.provides, 2);

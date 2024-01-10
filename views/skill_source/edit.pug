@@ -8,7 +8,7 @@ block content
             .card
                 .card-header= 'Edit Skill Source: ' + skill_source.name
                 .card-body
-                    form.form.needs-validation(method="POST" action="/skill_source/" + skill_source.id novalidate)
+                    form.form.needs-validation#sourceForm(method="POST" action="/skill_source/" + skill_source.id novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
                         input(type="hidden", name='skill_source[id]',value=skill_source.id)
@@ -17,11 +17,4 @@ block content
 append scripts
     script(src='/javascripts/validator.js')
     script(src='/javascripts/skill.js')
-    script.
-        $(function(){
-             $('.select2').select2({
-                theme:'bootstrap-5',
-                minimumResultsForSearch: 6,
-                width:'resolve'
-            });
-        });
+

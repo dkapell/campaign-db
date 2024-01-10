@@ -377,7 +377,7 @@ function prepCharacterSkillForm($form, character_skill){
 function displayDetails(object, selected){
     if (_.isArray(object.provides) && object.provides.length){
         switch (object.provides[0].type){
-            case 'stat': {
+            case 'attribute': {
                 if (object.provides[0].name.match(/^\s*\[/)){
                     $('.provides-options-select').find('label').text('Attribute');
                     const options = object.provides[0].name

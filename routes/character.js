@@ -333,7 +333,7 @@ async function showSkill(req, res, next){
         if (!_.has(doc.character_skill, 'details') || !doc.character_skill.details){
             doc.character_skill.details = {};
         }
-        for (const item of ['notes', 'trait', 'stat', 'style', 'language', 'tagskill', 'skill', 'crafting']){
+        for (const item of ['notes', 'trait', 'attribute', 'style', 'language', 'tagskill', 'skill', 'crafting']){
             if (!_.has(doc.character_skill.details, item)){
                 doc.character_skill.details[item] = null;
             }
@@ -444,7 +444,7 @@ async function showEditSkillApi(req, res, next){
         if (!_.has(doc.character_skill, 'details') || !doc.character_skill.details){
             doc.character_skill.details = {};
         }
-        for (const item of ['notes', 'trait', 'stat', 'style', 'sheet_note', 'language', 'tagskill', 'crafting']){
+        for (const item of ['notes', 'trait', 'attribute', 'style', 'sheet_note', 'language', 'tagskill', 'crafting']){
             if (!_.has(doc.character_skill.details, item)){
                 doc.character_skill.details[item] = null;
             }
@@ -543,7 +543,7 @@ function formatDetails(provides, data){
     if (_.isArray(provides) && provides.length){
         const provider = provides[0];
         switch (provider.type){
-            case 'stat':
+            case 'attribute':
                 if (provider.name.match(/^\s*\[/) && _.has(data, 'provides_value_select') && data.provides_value_select !== ''){
                     details.stat = data.provides_value_select;
                 }
@@ -617,7 +617,7 @@ async function showSource(req, res, next){
         if (!_.has(doc.character_skill_source, 'details') || !doc.character_skill_source.details){
             doc.character_skill_source.details = {};
         }
-        for (const item of ['notes', 'trait', 'stat', 'style']){
+        for (const item of ['notes', 'trait', 'attribute', 'style']){
             if (!_.has(doc.character_skill_source.details, item)){
                 doc.character_skill_source.details[item] = null;
             }

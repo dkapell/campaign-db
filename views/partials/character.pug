@@ -77,7 +77,10 @@ mixin characterSheet(character)
                     h5.py-2.card-header Attributes
                     ul.card-text.list-group.list-group-flush
                         each attribute in character.provides.attributes
-                            li.py-2.list-group-item=attribute.name
+                            li.py-2.list-group-item(class=attribute.name.match(/^Unset/)?'text-danger':'')
+                                if attribute.name.match(/^Unset/)
+                                    i.fas.fa-exclamation-triangle.me-1
+                                =attribute.name
                                 span.ms-1.float-end= attribute.value
 
             if _.keys(character.provides.traits).length
@@ -86,14 +89,20 @@ mixin characterSheet(character)
                         h5.py-2.card-header #{type} Traits
                         ul.card-text.list-group.list-group-flush
                             each trait in traits
-                                li.py-2.list-group-item=trait
+                                li.py-2.list-group-item(class=trait.match(/^Unset/)?'text-danger':'')
+                                    if trait.match(/^Unset/)
+                                        i.fas.fa-exclamation-triangle.me-1
+                                    =trait
 
             if character.provides.languages.length
                 .card.mb-3
                     h5.py-2.card-header Languages
                     ul.card-text.list-group.list-group-flush
                         each language in character.provides.languages
-                            li.py-2.list-group-item=language
+                            li.py-2.list-group-item(class=language.match(/^Unset/)?'text-danger':'')
+                                if language.match(/^Unset/)
+                                    i.fas.fa-exclamation-triangle.me-1
+                                =language
 
             if character.provides.tagskills.length
                 .card.mb-3
@@ -118,7 +127,10 @@ mixin characterSheet(character)
                     ul.card-text.list-group.list-group-flush
 
                         each count, style in character.provides.styles
-                            li.py-2.list-group-item=style
+                            li.py-2.list-group-item(class=style.match(/^Unset/)?'text-danger':'')
+                                if style.match(/^Unset/)
+                                    i.fas.fa-exclamation-triangle.me-1
+                                =style
                                 if count > 1
                                     |  (#{count})
 

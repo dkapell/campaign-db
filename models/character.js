@@ -13,7 +13,8 @@ const tableFields = [
     'cp',
     'updated',
     'extra_traits',
-    'foreordainment'
+    'notes',
+    'gm_notes'
 ];
 
 const Character = new Model('characters', tableFields, {

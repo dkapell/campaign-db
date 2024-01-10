@@ -302,6 +302,8 @@ create table characters(
     cp int default 0,
     extra_traits varchar(255),
     updated timestamp with time zone default now(),
+    notes text,
+    gm_notes text,
     primary key(id),
     constraint user_fk FOREIGN key (user_id)
         references "users" (id) match simple

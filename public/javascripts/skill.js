@@ -1,6 +1,8 @@
 /* globals _ editFormTemplate newFormTemplate marked isGM*/
 'use strict';
 
+let nextIndex = 0;
+
 $(function(){
     prepSourceForm($('#sourceForm'));
     prepSkillForm($('#skillForm'));
@@ -32,8 +34,8 @@ $(function(){
     $('.progress-bar[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 200, 'hide': 100 }});
 
     toggleDeleteButtons();
-
 });
+
 
 const renderer = {
     image(href, title, text){
@@ -709,6 +711,7 @@ function prepSkillForm($form){
         cloneSkill($(this).data('click-id'));
 
     });
+    prepProvides();
 }
 
 function prepSourceForm($form){
@@ -754,6 +757,7 @@ function prepSourceForm($form){
     $('.skill-provides-type').on('change', function(){
         toggleProvidesFields($(this).closest('.provides-row'));
     });
+    prepProvides();
 }
 
 function toggleProvidesFields($row){
@@ -791,4 +795,75 @@ function toggleProvidesFields($row){
 
             break;
     }
+}
+
+function prepProvides(){
+    $('#provides-new').hide();
+    $('.add-provides-btn').on('click', addProvides);
+    $('.remove-provides-btn').confirmation({
+        title: 'Delete this Provides'
+    }).on('click', removeProvides);
+}
+
+function removeProvides(e){
+    const $this = $(this);
+    e.preventDefault();
+    e.stopPropagation();
+    $this.closest('.provides-row').remove();
+}
+
+function addProvides(e){
+    const $this = $(this);
+    e.preventDefault();
+
+    const $new = $('#provides-new').clone();
+    const id = nextIndex++;
+    $new.attr('id', `provides-new-${id}`);
+
+    // Update all provides fields
+    $new.find('.provides-input').each(function(e) {
+        const $input = $(this);
+        const fieldtype = $input.data('fieldtype');
+        const objtype = $input.data('objtype')
+        $input.attr('id', `${objtype}_provides-new-${id}-${fieldtype}`);
+        $input.attr('name', `${objtype}[provides][new-${id}][${fieldtype}]`);
+        if ($this.data('required')){
+            $input.attr('required', true);
+        }
+    });
+
+    // Update all provides labels
+    $new.find('.provides-label').each(function(e) {
+        const $label = $(this);
+        const fieldtype = $label.data('fieldtype');
+        const objtype = $label.data('objtype')
+        $label.attr('for', `${objtype}_provides-new-${id}-${fieldtype}`);
+    });
+
+    $new.find('.remove-provides-btn').confirmation({
+        title: 'Delete this Provides'
+    }).on('click', removeProvides);
+
+    $new.find('select').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve'
+    });
+
+    $new.find('.clearable-select2').select2({
+        allowClear: true,
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve',
+        placeholder:{id:'-1'},
+        dropdownParent: $this.closest('form'),
+    });
+
+    $new.find('.skill-provides-type').on('change', function(){
+        toggleProvidesFields($(this).closest('.provides-row'));
+    });
+
+    $new.appendTo('#provides-list');
+    $new.show();
+
 }

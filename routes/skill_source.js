@@ -136,7 +136,7 @@ async function showNew(req, res, next){
             requires: [],
             require_num: 1,
             conflicts: [],
-            provides: skillHelper.fillProvides(null, 1)
+            provides: []
         };
         res.locals.breadcrumbs = {
             path: [
@@ -177,7 +177,6 @@ async function showEdit(req, res, next){
         if (!skill_source || skill_source.campaign_id !== req.campaign.id){
             throw new Error('Invalid Skill Source');
         }
-        skill_source.provides = skillHelper.fillProvides(skill_source.provides, 1);
 
         res.locals.skill_source = skill_source;
         if (_.has(req.session, 'skill_sourceData')){
@@ -228,9 +227,8 @@ async function create(req, res, next){
     if (skill_source.provides && _.isString(skill_source.provides)){
         skill_source.provides = [skill_source.provides];
     }
-    skill_source.provides = skill_source.provides.filter(provider => {
-        return provider.type !== '-1';
-    });
+    skill_source.provides = skillHelper.parseProvides(skill_source.provides)
+
     skill_source.conflicts = skill_source.conflicts?JSON.stringify(skill_source.conflicts.map(e => {return Number(e);})):[];
     skill_source.requires = skill_source.requires?JSON.stringify(skill_source.requires.map(e => {return Number(e);})):[];
     skill_source.provides = skill_source.provides?JSON.stringify(skill_source.provides):[];
@@ -287,9 +285,7 @@ async function update(req, res, next){
     if (skill_source.provides && _.isString(skill_source.provides)){
         skill_source.provides = [skill_source.provides];
     }
-    skill_source.provides = skill_source.provides.filter(provider => {
-        return provider.type !== '-1';
-    });
+    skill_source.provides = skillHelper.parseProvides(skill_source.provides)
 
     skill_source.conflicts = skill_source.conflicts?JSON.stringify(skill_source.conflicts.map(e => {return Number(e);})):[];
     skill_source.requires = skill_source.requires?JSON.stringify(skill_source.requires.map(e => {return Number(e);})):[];

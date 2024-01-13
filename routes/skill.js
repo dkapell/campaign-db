@@ -135,7 +135,6 @@ async function showNew(req, res, next){
             }
             delete skill.id;
             skill.status_id = (await req.models.skill_status.find({name: 'Idea'})).id;
-            skill.provides = skillHelper.fillProvides(skill.provides, 2);
 
             res.locals.skill = skill;
             res.locals.breadcrumbs = {
@@ -163,7 +162,7 @@ async function showNew(req, res, next){
                 require_num: 0,
                 conflicts: [],
                 required: false,
-                provides: skillHelper.fillProvides(null, 2)
+                provides: []
             };
 
             res.locals.breadcrumbs = {
@@ -219,7 +218,6 @@ async function showNewApi(req, res, next){
             }
             delete skill.id;
             skill.status_id = (await req.models.skill_status.find({name: 'Idea'})).id;
-            skill.provides = skillHelper.fillProvides(skill.provides, 2);
 
             doc.skill = skill;
 
@@ -238,7 +236,7 @@ async function showNewApi(req, res, next){
                 require_num: 0,
                 conflicts: [],
                 required: false,
-                provides: skillHelper.fillProvides(null, 2)
+                provides: []
             };
         }
         if (_.has(req.session, 'skillData')){
@@ -260,7 +258,6 @@ async function showEdit(req, res, next){
         if(!skill || skill.campaign_id !== req.campaign.id){
             throw new Error('Invalid Skill');
         }
-        skill.provides = skillHelper.fillProvides(skill.provides, 2);
         res.locals.skill = skill;
         if (_.has(req.session, 'skillData')){
             res.locals.skill = req.session.skillData;
@@ -310,7 +307,6 @@ async function showEditApi(req, res, next){
             providesTypes: skillHelper.getProvidesTypes('skill'),
             skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
         };
-        doc.skill.provides = skillHelper.fillProvides(doc.skill.provides, 2);
         if (_.has(req.session, 'skillData')){
             doc.skill = req.session.skillData;
             delete req.session.skillData;
@@ -335,9 +331,8 @@ async function create(req, res, next){
     if (skill.provides && _.isString(skill.provides)){
         skill.provides = [skill.provides];
     }
-    skill.provides = skill.provides.filter(provider => {
-        return provider.type !== '-1';
-    });
+
+    skill.provides = skillHelper.parseProvides(skill.provides)
 
     skill.conflicts = skill.conflicts?JSON.stringify(skill.conflicts.map(e => {return Number(e);})):[];
     skill.requires = skill.requires?JSON.stringify(skill.requires.map(e => {return Number(e);})):[];
@@ -415,9 +410,7 @@ async function update(req, res, next){
         skill.provides = [skill.provides];
     }
 
-    skill.provides = skill.provides.filter(provider => {
-        return provider.type !== '-1';
-    });
+    skill.provides = skillHelper.parseProvides(skill.provides)
 
     skill.conflicts = skill.conflicts?JSON.stringify(skill.conflicts.map(e => {return Number(e);})):[];
     skill.requires = skill.requires?JSON.stringify(skill.requires.map(e => {return Number(e);})):[];

@@ -65,35 +65,13 @@ fieldset.mb-2.border.p-2.rounded
                         if source.id !== skill_source.id
                             option(value=source.id selected=_.indexOf(skill_source.conflicts, source.id)!== -1) #{capitalize(source.type.name)}: #{source.name}
 
-        .row.my-2.provides-row
-            .col
-                label.control-label(for="skill_provides_0_type") Provides
-                select.form-control.clearable-select2.skill-provides-type(name="skill_source[provides][0][type]", id="skill_provides_0_type" data-placeholder="Provides Type")
-                    option(value="-1")
-                        for item in providesTypes
-                            option(value=item.value selected=skill_source.provides[0].type===item.value)= item.name
-            .col
-                label.control-label(for="skill_provides_0_name") Name/Subtype
-                input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill_source[provides][0][name]",value=skill_source.provides[0].name,id='skill_provides_0_name')
-
-            .col
-                label.control-label(for="skill_provides_0_value") Value
-                input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill_source[provides][0][value]",value=skill_source.provides[0].value,id='skill_provides_0_value')
-
-        .row.my-2.provides-row
-            .col
-                label.control-label(for="skill_provides_1_type") Provides
-                select.form-control.clearable-select2.skill-provides-type(name="skill_source[provides][1][type]", id="skill_provides_1_type" data-placeholder="Provides Type")
-                    option(value="-1")
-                        for item in providesTypes
-                            option(value=item.value selected=skill_source.provides[1] && skill_source.provides[1].type===item.value)= item.name
-            .col
-                label.control-label(for="skill_provides_1_name") Name/Subtype
-                input.form-control.skill-provides-name(type="text",placeholder="Name",name="skill_source[provides][1][name]",value=skill_source.provides[1] && skill_source.provides[1].name,id='skill_provides_1_name')
-
-            .col
-                label.control-label(for="skill_provides_1_value") Value
-                input.form-control.skill-provides-value(type="text",placeholder="Value",name="skill_source[provides][1][value]",value=skill_source.provides[1] && skill_source.provides[1].value,id='skill_provides_1_value')
+        #provides-list
+                +providesHeader()
+                - let i = 0;
+                for provides in skill_source.provides
+                    +provides(provides, 'skill_source', i)
+                    - i++;
+                +provides({}, 'skill_source', 'new')
 
 
 .row.my-2

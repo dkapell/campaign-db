@@ -260,3 +260,75 @@ mixin skillDisplay(skill)
                             li=issue.message
                         else
                             li= issue.type
+
+mixin providesHeader()
+    .row.provides-header-row.d-none.d-lg-flex
+        .col-lg-3
+            label.control-label.provides-label Provides
+        .col-lg-3
+            label.control-label.provides-label Name/Subtype
+        .col-lg-4
+            label.control-label.provides-label Value
+        .col-lg-2.text-end
+            button.btn.btn-sm.btn-outline-success.add-provides-btn
+                i.fa.fa-plus.me-1
+                | Add Provides
+    .row.provides-header-row.d-lg-none
+        .col-lg-2
+            button.btn.btn-sm.btn-outline-success.add-provides-btn
+                i.fa.fa-plus.me-1
+                | Add Provides
+
+mixin provides(provides, objectType, id)
+     .row.my-2.provides-row(id=`provides-${id}`)
+        .col-lg-3
+            label.control-label.provides-label.d-md-none(
+                for=`${objectType}_provides_${id}_type`
+                data-fieldtype='type'
+                data-objtype=objectType
+            ) Provides
+            select.form-control.skill-provides-type.provides-input(
+                name=`${objectType}[provides][${id}][type]`
+                id=`${objectType}_provides_${id}_type`
+                data-placeholder="Provides Type"
+                class=id!=='new'?'clearable-select2':''
+                data-fieldtype='type'
+                data-objtype=objectType
+            )
+                option(value="-1")
+                    for item in providesTypes
+                        option(value=item.value selected=provides.type===item.value)= item.name
+        .col-lg-3
+            label.control-label.provides-label.d-md-none(
+                for=`${objectType}_provides_${id}_name`
+                data-fieldtype='name'
+                data-objtype=objectType
+            ) Name/Subtype
+            input.form-control.skill-provides-name.provides-input(
+                type="text",placeholder="Name"
+                name=`${objectType}[provides][${id}][name]`
+                value=provides.name
+                id=`skill_provides_${id}_name`
+                data-fieldtype='name'
+                data-objtype=objectType
+            )
+
+        .col.lg-4
+            label.control-label.provides-label.d-md-none(
+                for=`${objectType}_provides_${id}_value`
+                data-fieldtype='value'
+                data-objtype=objectType
+            ) Value
+            input.form-control.skill-provides-value.provides-input(
+                type="text"
+                placeholder="Value",
+                name=`${objectType}[provides][${id}][value]`
+                value=provides.value
+                id=`${objectType}_provides_${id}_value`
+                data-fieldtype='value'
+                data-objtype=objectType
+            )
+        .col-lg-2.text-end.align-bottom
+            button.btn.btn-sm.btn-outline-danger.remove-provides-btn.align-bottom(data-toggle="tooltip" title='Remove Provides' data-placement="right")
+                i.fas.fa-trash.fa-fw.me-1
+                | Remove

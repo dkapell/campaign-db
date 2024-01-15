@@ -174,7 +174,7 @@ function submitDropdownOptionModal(e){
     const imageId = $modal.find('#options-image').val();
     if(contents && contents !== ''){
         $target.find('.option-description').val(contents);
-        $target.find('.option-description-display').html(marked.parse(contents));
+        $target.find('.option-description-display').html(marked.parse(contents, {breaks: true}));
         $target.find('.description-btn-icon').removeClass('fa-plus').addClass('fa-edit');
         $target.find('.description-btn-text').text('Edit Details');
         $target.find('.details-toggle-btn').show();

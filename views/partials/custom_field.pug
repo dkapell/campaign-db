@@ -47,9 +47,6 @@ mixin customFieldForm(custom_field)
                         i.fa.fa-eye.me-1.expand-text
                         span.expand-text-shown Hide all Details
                         span.expand-text Show all Details
-                    button.btn.btn-sm.btn-outline-success.add-option-btn
-                        i.fa.fa-plus.me-1
-                        | Add Option
                 .lead Dropdown Options
 
         ul#custom-field-dropdown-options.list-unstyled
@@ -60,6 +57,11 @@ mixin customFieldForm(custom_field)
                         +dropdownOptionEditor(option, i)
                         - i++;
             +dropdownOptionEditor({}, 'new')
+        .row.mb-2
+            .col.text-end
+                button.btn.btn-sm.btn-outline-success.add-option-btn
+                    i.fa.fa-plus.me-1
+                    | Add Option
 
 mixin dropdownOptionEditor(option, id)
     li.ps-2.m-1.dropdownOption-config.border-start.border-3.border-info(id=`option-${id}`)

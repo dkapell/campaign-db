@@ -25,22 +25,41 @@ async function list(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        res.locals.custom_field = {
-            name: null,
-            description: null,
-            type: null,
-            display_to_pc: false,
-            editable_by_pc: false,
-            configuration: {},
-            location: 'character'
-        };
-        res.locals.breadcrumbs = {
-            path: [
-                { url: '/', name: 'Home'},
-                { url: '/character_field', name: 'Character Fields'}
-            ],
-            current: 'New'
-        };
+        if (req.query.clone){
+            const custom_field = await req.models.custom_field.get(req.query.clone);
+            if (!custom_field || custom_field.campaign_id !== req.campaign.id || custom_field.location !== 'character'){
+                throw new Error ('Invalid Character Field');
+            }
+            delete custom_field.id;
+            res.locals.custom_field = custom_field;
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/character_field', name: 'Character Fields'}
+                ],
+                current: `Clone: ${custom_field.name}`
+            };
+            res.locals.title += `Clone Character Field - ${custom_field.name}`
+        } else {
+
+            res.locals.custom_field = {
+                name: null,
+                description: null,
+                type: null,
+                display_to_pc: false,
+                editable_by_pc: false,
+                configuration: {},
+                location: 'character'
+            };
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/character_field', name: 'Character Fields'}
+                ],
+                current: 'New'
+            };
+            res.locals.title += ' - New Character Field';
+        }
 
         res.locals.csrfToken = req.csrfToken();
 
@@ -49,7 +68,6 @@ async function showNew(req, res, next){
             delete req.session.character_fieldData;
         }
         res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
-        res.locals.title += ' - New Character Field';
         res.render('character_field/new');
     } catch (err){
         next(err);
@@ -220,6 +238,6 @@ router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
 router.put('/order', csrf(), reorder);
 router.put('/:id', csrf(), update);
-router.delete('/:id', remove);
+router.delete('/:id', permission('admin'), remove);
 
 module.exports = router;

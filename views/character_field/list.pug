@@ -44,12 +44,21 @@ block content
                         td
                             .badge(class=`text-bg-${custom_field.required?'success':'warning'}`)=custom_field.required?'Yes':'No'
                         
-                        if checkPermission('admin')
-                            td.text-end
-                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                        td.text-end
+                            a.btn.btn-outline-success.btn-xs.action-btn.mx-1(
+                                role="button",
+                                href=`/character_field/new?clone=${custom_field.id}`,
+                                data-bs-toggle='tooltip'
+                                title='Clone Field'
+                            )
+                                i.fas.fa-copy.fa-fw
+                            if checkPermission('admin')
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
                                     role="button",
-                                    url=`/custom_field/${custom_field.id}`,
-                                    data-back='/custom_field'
+                                    url=`/character_field/${custom_field.id}`,
+                                    data-back='/character_field'
+                                    data-bs-toggle='tooltip'
+                                    title='Delete Field'
                                 )
                                     i.fas.fa-trash.fa-fw
 
@@ -57,3 +66,7 @@ block content
 
 append scripts
     script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });

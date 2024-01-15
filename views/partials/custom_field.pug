@@ -50,13 +50,13 @@ mixin customFieldForm(custom_field)
                 .lead Dropdown Options
 
         ul#custom-field-dropdown-options.list-unstyled
+            +dropdownOptionEditor({}, 'new')
             - let i = 0;
             if _.has(custom_field.configuration, 'options')
                 each option in custom_field.configuration.options
                     if option
                         +dropdownOptionEditor(option, i)
                         - i++;
-            +dropdownOptionEditor({}, 'new')
         .row.mb-2
             .col.text-end
                 button.btn.btn-sm.btn-outline-success.add-option-btn

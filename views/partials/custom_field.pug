@@ -250,6 +250,13 @@ mixin customFieldDisplay(field, showBorder)
     if checkPermission('contrib') || field.custom_field.display_to_pc
         dt.col-sm-3(class=showBorder?'border-top':'')
             = field.custom_field.name
+            if field.custom_field.description
+                i.far.fa-question-circle.mx-1.popover-hover(
+                    data-bs-toggle="popover"
+                    data-bs-html='true'
+                    title=field.custom_field.name
+                    data-bs-content=marked.parseInline(field.custom_field.description, {breaks: true}))
+
             if checkPermission('contrib')
                 div.mb-1
 

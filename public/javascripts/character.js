@@ -32,6 +32,9 @@ $(function(){
         delay: { 'show': 500, 'hide': 100 },
         placement:'auto'
     });
+    $('.popover-hover[data-bs-toggle="popover"]').popover({
+        trigger: 'hover'
+    });
 
     $('.clone-btn')
         .confirmation({

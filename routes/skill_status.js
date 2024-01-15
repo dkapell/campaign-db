@@ -15,7 +15,7 @@ async function list(req, res, next){
     };
     try {
         res.locals.csrfToken = req.csrfToken();
-        res.locals.skill_statuss = await req.models.skill_status.find({campaign_id:req.campaign.id});
+        res.locals.skill_statuses = await req.models.skill_status.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Skill Statuses';
         res.render('skill_status/list', { pageTitle: 'Skill Statuses' });
     } catch (err){

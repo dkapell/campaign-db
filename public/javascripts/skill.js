@@ -824,7 +824,7 @@ function addProvides(e){
     $new.find('.provides-input').each(function(e) {
         const $input = $(this);
         const fieldtype = $input.data('fieldtype');
-        const objtype = $input.data('objtype')
+        const objtype = $input.data('objtype');
         $input.attr('id', `${objtype}_provides-new-${id}-${fieldtype}`);
         $input.attr('name', `${objtype}[provides][new-${id}][${fieldtype}]`);
         if ($this.data('required')){
@@ -836,7 +836,7 @@ function addProvides(e){
     $new.find('.provides-label').each(function(e) {
         const $label = $(this);
         const fieldtype = $label.data('fieldtype');
-        const objtype = $label.data('objtype')
+        const objtype = $label.data('objtype');
         $label.attr('for', `${objtype}_provides-new-${id}-${fieldtype}`);
     });
 

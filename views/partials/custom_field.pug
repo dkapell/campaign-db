@@ -1,0 +1,299 @@
+mixin customFieldForm(custom_field)
+    .row.my-2
+        .col
+            label.control-label(for="custom_field_name") Name
+            input.form-control(type="text",placeholder="Name",name="custom_field[name]",value=custom_field.name,id='custom_field_name',required)
+            div.invalid-feedback Please choose a valid name
+
+        .col
+
+            label.control-label(for="custom_field_type") Type
+            select.form-select.select2(name="custom_field[type]",id="custom_field_type" data-placeholder='Type' required)
+                    option
+                    for type in ['text', 'longtext', 'boolean', 'dropdown']
+                        option(value=type selected=custom_field.type===type)= capitalize(type)
+
+    .row.my-2
+        .col
+            .form-check.form-switch
+                input.form-check-input(type="checkbox", name="custom_field[display_to_pc]", id="custom_field_display_to_pc", checked=custom_field.display_to_pc)
+                label.form-check-label(for="custom_field_display_to_pc") Display to Players
+        .col
+            .form-check.form-switch
+                input.form-check-input(type="checkbox", name="custom_field[editable_by_pc]", id="custom_field_editable_by_pc", checked=custom_field.editable_by_pc)
+                label.form-check-label(for="custom_field_editable_by_pc") Allow Players to update
+        .col
+            .form-check.form-switch
+                input.form-check-input(type="checkbox", name="custom_field[required]", id="custom_field_required", checked=custom_field.required)
+                label.form-check-label(for="custom_field_required") Required
+    .row.my-2
+        .col
+            +markdownEditor('Description / Help Text', 'custom_field_description', 'custom_field[description]', 3, 150, custom_field.description, true )
+
+    .list-group.longtext-options.type-options(style='display:none')
+        .lead Long Text Options
+        .list-group-item
+            .row.my-1
+                label.col-md-2.d-md-none.d-lg-block.col-form-label(for="custom_field_rows") Number of Rows
+                .col-md-2
+                    input.form-control(type="number",placeholder="Name",name="custom_field[configuration][rows]",value=custom_field.configuration.rows?custom_field.configuration.rows:3,id='custom_field_longtext_rows')
+
+    .dropdown-options.type-options.p-1.pt-2(style='display:none')
+        .row.mb-2
+            .col
+                .float-end
+                    button.btn.btn-sm.btn-outline-info.hide-details-btn.me-1(aria-expanded="true")
+                        i.fa.fa-eye-slash.me-1.expand-text-shown
+                        i.fa.fa-eye.me-1.expand-text
+                        span.expand-text-shown Hide all Details
+                        span.expand-text Show all Details
+                    button.btn.btn-sm.btn-outline-success.add-option-btn
+                        i.fa.fa-plus.me-1
+                        | Add Option
+                .lead Dropdown Options
+
+        ul#custom-field-dropdown-options.list-unstyled
+            - let i = 0;
+            if _.has(custom_field.configuration, 'options')
+                each option in custom_field.configuration.options
+                    if option
+                        +dropdownOptionEditor(option, i)
+                        - i++;
+            +dropdownOptionEditor({}, 'new')
+
+mixin dropdownOptionEditor(option, id)
+    li.ps-2.m-1.dropdownOption-config.border-start.border-3.border-info(id=`option-${id}`)
+        input.sort-order.option-input(
+            type='hidden'
+            id=`custom_field-configuration-options-${id}-sort_order`
+            name=`custom_field[configuration][options][${id}][sort_order]`
+            value=id
+            data-fieldtype='sort_order'
+        )
+        .row.my-1
+            label.col-md-1.d-md-none.d-lg-block.col-form-label.option-label.handle(
+                style='cursor:ns-resize'
+                for=`custom_field-configuration-options-${id}-value`
+                data-fieldtype='value'
+            )
+                i.fas.fa-arrows-alt-v.fa-fw.me-2
+                | Value
+            .col-md
+                input.form-control.option-name.option-input(
+                    id=`custom_field-configuration-options-${id}-value`
+                    name=`custom_field[configuration][options][${id}][value]`
+                    value=option.value
+                    placeholder="Text for this Option"
+                    required=id!== 'new'
+                    data-fieldtype='value'
+                    data-required='true'
+                )
+            .col-md-3.text-end
+                a.btn.btn-sm.btn-outline-success.description-edit-btn.option-action(
+                    role="button"
+                    href="#"
+                    aria-expanded="false"
+                )
+                    if option.description
+                        i.fa.fa-edit.me-1.description-btn-icon
+                        span.description-btn-text Edit Details
+                    else
+                        i.fa.fa-plus.me-1.description-btn-icon
+                        span.description-btn-text Add Details
+
+
+                button.ms-1.btn.btn-sm.btn-outline-danger.remove-option-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Option' data-bs-placement="right")
+                    i.fas.fa-trash.fa-fw
+        .row.my-1
+            .col.p-0.bg-light.ms-1
+                .float-end
+                    button.btn.btn-xs.btn-primary.details-toggle-btn(aria-expanded='true' style=!option.description?'display:none':'' data-bs-toggle='tooltip' title='Show/Hide Details')
+                        i.fa.fa-chevron-up
+                        i.fa.fa-chevron-down
+                .option-details-display(role="button")
+                    .option-image-display.ps-3.mb-1
+                        if option.image
+                            strong.me-1 Image:
+                            - const image = _.findWhere(images, {id:Number(option.image)})
+                            =image.display_name?image.display_name:image.name
+                    .option-description-display.ps-3
+                        if option.description
+                            !=marked.parse(option.description)
+                .option-details-hidden.ps-3(role="button" style='display:none')
+                    i Details Hidden, Click to show
+
+
+        input.option-input.option-description(
+            type='hidden'
+            id=`custom_field-configuration-options-${id}-description`
+            name=`custom_field[configuration][options][${id}][description]`
+            value=option.description
+            data-fieldtype='description'
+        )
+        input.option-input.option-image(
+            type='hidden'
+            id=`custom_field-configuration-options-${id}-image`
+            name=`custom_field[configuration][options][${id}][image]`
+            value=option.image
+            data-fieldtype='image'
+        )
+
+
+mixin customFieldModal()
+    .modal.fade#custom_fieldModal(role="dialog" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true")
+        .modal-dialog.modal-xl.modal-dialog-centered(role="document")
+            .modal-content
+                .modal-header
+                    h5.modal-title
+                    button.btn-close#dismissPopupModal(type="button", data-bs-dismiss="modal" area-label="Close")
+                .modal-body
+                .modal-footer
+                    button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
+                    span.extra-buttons
+                    button.btn.btn-primary.save-btn(type="submit") Save
+
+mixin customFieldEntry(field, type, data)
+    if (field.display_to_pc && field.editable_by_pc) || checkPermission('contrib')
+        .row.my-2
+            .col
+                - const current = _.findWhere(data, {custom_field_id:field.id})
+                case field.type
+                    when 'text'
+                        label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
+                            if checkPermission('contrib') && field.display_to_pc
+                                .badge.text-bg-info.mx-2 PC Visible
+                            if checkPermission('contrib') && field.editable_by_pc
+                                .badge.text-bg-warning.mx-2 PC Editable
+
+                        input.form-control(
+                            type="text"
+                            placeholder="Text"
+                            name=`${type}[custom_field][cf-${field.id}]`
+                            value=current?current.value:''
+                            id=`${type}-custom_field-${field.id}`
+                            required=field.required
+                            disabled=!(checkPermission('contrib')|| field.editable_by_pc)
+                        )
+                        div.form-text= field.description
+                    when 'longtext'
+                        if checkPermission('contrib') || field.editable_by_pc
+                            -
+                                const editorOptions = {
+                                    required: field.required,
+                                    badges: []
+                                }
+                                if(checkPermission('contrib') && field.display_to_pc){
+                                    editorOptions.badges.push({name:'PC Visible', color:'info'});
+                                }
+                                if(checkPermission('contrib') && field.editable_by_pc){
+                                    editorOptions.badges.push({name:'PC Editable', color:'warning'});
+
+                                }
+                            +markdownEditor(field.name, `${type}-custom_field-${id}`, `${type}[custom_field][cf-${field.id}]`, field.configuration.rows, field.configuration.rows*25, current?current.value:'', true,  editorOptions )
+                            div.form-text= field.description
+                        else
+                            label.control-label= field.name
+
+                            div.bg-light.border.rounded.p-2!=current.value?marked.parse(current.value):''
+                    when 'boolean'
+                        .form-check.form-switch
+                            input.form-check-input(
+                                type="checkbox"
+                                name=`${type}[custom_field][cf-${field.id}]`
+                                id=`${type}-custom_field-${field.id}`
+                                checked=current?current.value:false
+                                disabled=!(checkPermission('contrib')|| field.editable_by_pc)
+                            )
+                            label.form-check-label(for=`${type}-custom_field-${field.id}`)=field.name
+                                if checkPermission('contrib') && field.display_to_pc
+                                    .badge.text-bg-info.mx-2 PC Visible
+                                if checkPermission('contrib') && field.editable_by_pc
+                                    .badge.text-bg-warning.mx-2 PC Editable
+                            div.form-text= field.description
+                    when 'dropdown'
+                        label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
+                            if checkPermission('contrib') && field.display_to_pc
+                                .badge.text-bg-info.mx-2 PC Visible
+                            if checkPermission('contrib') && field.editable_by_pc
+                                .badge.text-bg-warning.mx-2 PC Editable
+
+                        select.form-select.complex-select2(
+                            name=`${type}[custom_field][cf-${field.id}]`
+                            id=`${type}-custom_field-${field.id}`
+                            data-placeholder='Select'
+                            disabled=!(checkPermission('contrib')|| field.editable_by_pc)
+                            required=field.required
+                        )
+                            option
+                            each option in field.configuration.options
+                                -
+                                    let imgHtml = '';
+                                    if (option.image){
+                                        const image = _.findWhere(images, {id:Number(option.image)})
+                                        imgHtml = `<img src='${image.url}' class='img-fluid'>`
+                                    }
+                                    let detailHtml = '';
+                                    if (option.image || option.description){
+                                        detailHtml = `<div class="row my-1"><div class="col-auto ms-2">${imgHtml}</div><div class="col">${marked.parseInline(option.description)}</div></div>`;
+                                    }
+
+                                option(
+                                    value=option.value
+                                    selected=option.value===(current?current.value:null)
+                                    data-text=option.value
+                                    data-html=`<div><strong>${option.value}</strong></div>${detailHtml}`
+                                )= option.value
+
+mixin customFieldDisplay(field, showBorder)
+    if checkPermission('contrib') || field.custom_field.display_to_pc
+        dt.col-sm-3(class=showBorder?'border-top':'')
+            = field.custom_field.name
+            if checkPermission('contrib')
+                div.mb-1
+
+                    if field.custom_field.display_to_pc
+                        .badge.text-bg-info.mx-1 PC Visible
+                    if field.custom_field.editable_by_pc
+                        .badge.text-bg-warning.mx-1 PC Editable
+        dd.col-sm-9(class=showBorder?'border-top':'')
+            case field.custom_field.type
+                when 'text'
+                    =field.value
+                when 'longtext'
+                    !=marked.parse(field.value?field.value:'')
+                when 'boolean'
+                    =field.value?'Yes':'No'
+                when 'dropdown'
+                    - const option = _.findWhere(field.custom_field.configuration.options, {value: field.value});
+
+                    if option && (option.image || option.details)
+                        .row
+                            .col(role='button'
+                                id=`#custom-field--container-${field.custom_field.id}-heading`
+                                data-bs-toggle="collapse"
+                                data-bs-target=`#custom-field--container-${field.custom_field.id}`
+                                aria-expanded="false"
+                                area-controls=`custom-field--container-${field.custom_field.id}`
+                            )
+                                span.float-end.ps-2
+                                    i.fa.fa-chevron-up
+                                    i.fa.fa-chevron-down
+                                = field.value
+                                i.expand-text.ms-4 (Click to show Details)
+                                i.expand-text-shown.ms-4 (Click to hide Details)
+
+
+                        .row.my-2.collapse(
+                            id=`custom-field--container-${field.custom_field.id}`
+                            aria-labeledby=`#custom-field--container-${field.custom_field.id}-heading`
+                        )
+                            .col-auto
+                                if option.image
+                                    img.img-fluid(src=_.findWhere(images, {id:Number(option.image)}).url )
+                            .col
+                                if option.description
+                                    !=marked.parse(option.description)
+
+                    else
+                        =field.value
+

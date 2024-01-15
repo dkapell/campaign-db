@@ -118,7 +118,7 @@ mixin dropdownOptionEditor(option, id)
                             =image.display_name?image.display_name:image.name
                     .option-description-display.ps-3
                         if option.description
-                            !=marked.parse(option.description)
+                            !=marked.parse(option.description, {breaks: true})
                 .option-details-hidden.ps-3(role="button" style='display:none')
                     i Details Hidden, Click to show
 
@@ -174,7 +174,7 @@ mixin customFieldEntry(field, type, data)
                             required=field.required
                             disabled=!(checkPermission('contrib')|| field.editable_by_pc)
                         )
-                        div.form-text= field.description
+                        div.form-text!= marked.parse(field.description, {breaks:true})
                     when 'longtext'
                         if checkPermission('contrib') || field.editable_by_pc
                             -
@@ -190,11 +190,11 @@ mixin customFieldEntry(field, type, data)
 
                                 }
                             +markdownEditor(field.name, `${type}-custom_field-${id}`, `${type}[custom_field][cf-${field.id}]`, field.configuration.rows, field.configuration.rows*25, current?current.value:'', true,  editorOptions )
-                            div.form-text= field.description
+                            div.form-text!= marked.parse(field.description, {breaks:true})
                         else
                             label.control-label= field.name
 
-                            div.bg-light.border.rounded.p-2!=current.value?marked.parse(current.value):''
+                            div.bg-light.border.rounded.p-2!=current.value?marked.parse(current.value, {breaks: true}):''
                     when 'boolean'
                         .form-check.form-switch
                             input.form-check-input(
@@ -209,7 +209,7 @@ mixin customFieldEntry(field, type, data)
                                     .badge.text-bg-info.mx-2 PC Visible
                                 if checkPermission('contrib') && field.editable_by_pc
                                     .badge.text-bg-warning.mx-2 PC Editable
-                            div.form-text= field.description
+                            div.form-text!= marked.parse(field.description, {breaks:true})
                     when 'dropdown'
                         label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
                             if checkPermission('contrib') && field.display_to_pc
@@ -234,7 +234,7 @@ mixin customFieldEntry(field, type, data)
                                     }
                                     let detailHtml = '';
                                     if (option.image || option.description){
-                                        detailHtml = `<div class="row my-1"><div class="col-auto ms-2">${imgHtml}</div><div class="col">${marked.parseInline(option.description)}</div></div>`;
+                                        detailHtml = `<div class="row my-1"><div class="col-auto ms-2">${imgHtml}</div><div class="col">${marked.parseInline(option.description, {breaks: true})}</div></div>`;
                                     }
 
                                 option(
@@ -260,7 +260,7 @@ mixin customFieldDisplay(field, showBorder)
                 when 'text'
                     =field.value
                 when 'longtext'
-                    !=marked.parse(field.value?field.value:'')
+                    !=marked.parse(field.value?field.value:'', {breaks: true})
                 when 'boolean'
                     =field.value?'Yes':'No'
                 when 'dropdown'
@@ -292,7 +292,7 @@ mixin customFieldDisplay(field, showBorder)
                                     img.img-fluid(src=_.findWhere(images, {id:Number(option.image)}).url )
                             .col
                                 if option.description
-                                    !=marked.parse(option.description)
+                                    !=marked.parse(option.description, {breaks: true})
 
                     else
                         =field.value

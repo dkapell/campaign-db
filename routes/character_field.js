@@ -214,7 +214,9 @@ function parseCustomField(data){
                 const option = data.configuration.options[id];
                 configuration.options.push(option);
             }
-            configuration.options = _.sortBy(configuration.options, 'sort_order');
+            configuration.options = configuration.options.sort( (a, b) => {
+                return Number(a.sort_order) - Number(b.sort_order)
+            });
             break;
         case 'longtext':
             configuration.rows = Number(data.configuration.rows);

@@ -35,6 +35,10 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                     aria-controls=`${id}-preview`
                     aria-selected="false"
                 ) Preview
+            if options.badges
+                span.mx-2
+                    for badge in options.badges
+                        .badge.mx-1(class=`text-bg-${badge.color?badge.color:info}`)=badge.name
         .tab-content.pb-2(id=`${id}-editor`)
             .tab-pane.fade.show.active(
                 id=`${id}-code`

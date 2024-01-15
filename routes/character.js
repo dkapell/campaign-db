@@ -68,6 +68,9 @@ async function show(req, res, next){
             throw new Error('Invalid Character');
         }
         res.locals.character = await character.data();
+        res.locals.character.custom_field = res.locals.character.custom_field.filter(field => {
+            return field.custom_field.display_to_pc || res.locals.checkPermission('contrib');
+        });
 
         res.locals.breadcrumbs = {
             path: [
@@ -77,6 +80,7 @@ async function show(req, res, next){
             current: character.name
         };
         res.locals.audits = await character.audits();
+        res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
         res.locals.title += ` - Character - ${character.name}`;
 
         res.render('character/show');
@@ -122,7 +126,8 @@ async function showAudits(req, res, next){
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');
         }
-        res.json({success:true, audits: await character.audits()});
+        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        res.json({success:true, audits: await character.audits(user.type === 'player')});
     } catch(err){
         next(err);
     }
@@ -159,7 +164,8 @@ async function showNew(req, res, next){
             activeRequired: false,
             extra_traits: null,
             notes: null,
-            gm_notes: null
+            gm_notes: null,
+            custom_field: {}
         };
         if ((await req.models.character.find({user_id: user.id, campaign_id:req.campaign.id})).length === 0){
             res.locals.character.active = true;
@@ -183,7 +189,8 @@ async function showNew(req, res, next){
             delete req.session.characterData;
         }
         res.locals.title += ' - New Character';
-
+        res.locals.custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
+        res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
         res.render('character/new');
     } catch (err){
         next(err);
@@ -200,6 +207,8 @@ async function showEdit(req, res, next){
             throw new Error('Invalid Character');
         }
 
+        character.custom_field = await req.models.character_custom_field.find({character_id: id});
+
         res.locals.character = character;
         if (_.has(req.session, 'characterData')){
             res.locals.character = req.session.characterData;
@@ -215,6 +224,8 @@ async function showEdit(req, res, next){
         res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
             return user.type !== 'none';
         });
+        res.locals.custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
+        res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
         res.locals.title += ` - Edit Character - ${character.name}`;
         res.render('character/edit');
     } catch(err){
@@ -251,11 +262,32 @@ async function create(req, res, next){
         if (user.type === 'player' || !characterData.user_id){
             characterData.user_id = user.id;
         }
+        const custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
+        if (user.type === 'player' && _.has(characterData, 'custom_fields')){
+            for (const field of custom_fields){
+                if (_.has(characterData.custom_field, field.id) && (!field.display_to_pc || !field.editable_by_pc)){
+                    delete characterData.custom_field[field.id];
+                }
+            }
+        }
+
+        for (const field of custom_fields){
+            const fieldData = characterData.custom_field[`cf-${field.id}`];
+            if (field.type === 'boolean'){
+                if (fieldData && fieldData === 'on'){
+                    characterData.custom_field[`cf-${field.id}`] = true;
+
+                } else if (field.editable_by_pc || res.locals.checkPermission('contrib')){
+                    characterData.custom_field[`cf-${field.id}`] = false;
+                }
+            } else if (fieldData === ''){
+                characterData.custom_field[`cf-${field.id}`] = null;
+            }
+        }
+
         characterData.campaign_id = req.campaign.id;
         const character = new Character(characterData);
         await character.init();
-
-
 
         if (user.type === 'player' && (await req.models.character.find({user_id: user.id})).length === 1){
             await character.activate();
@@ -283,6 +315,32 @@ async function update(req, res, next){
         if (oldCharacter.campaign_id!== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+        oldCharacter.custom_field = (await req.models.character_custom_field.find({character_id:id})).map(e => { delete e.custom_field; return e;});
+
+        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
+        if (user.type === 'player' && _.has(characterData, 'custom_fields')){
+            for (const field of custom_fields){
+                if (_.has(characterData.custom_field, `cf-${field.id}`) && (!field.display_to_pc || !field.editable_by_pc)){
+                    delete characterData.custom_field[`cf-${field.id}`];
+                }
+            }
+        }
+
+        for (const field of custom_fields){
+            const fieldData = characterData.custom_field[`cf-${field.id}`];
+            if (field.type === 'boolean'){
+                if (fieldData && fieldData === 'on'){
+                    characterData.custom_field[`cf-${field.id}`] = true;
+
+                } else if (field.editable_by_pc || res.locals.checkPermission('contrib')){
+                    characterData.custom_field[`cf-${field.id}`] = false;
+                }
+            } else if (fieldData === ''){
+                characterData.custom_field[`cf-${field.id}`] = null;
+            }
+        }
+
         const character = new Character({id:id});
         await character.init();
 

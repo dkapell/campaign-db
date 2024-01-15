@@ -23,6 +23,21 @@ async function list(req, res, next){
     }
 }
 
+async function listApi (req, res, next){
+    try {
+        let images = await req.models.image.find({campaign_id: req.campaign.id});
+        if (req.query.type){
+            images = images.filter(image => {
+                return image.type === req.query.type;
+            });
+        }
+        images = images.sort(imageHelper.sorter);
+        res.json(images);
+    } catch (err){
+        next(err);
+    }
+}
+
 function showNew(req, res, next){
     res.locals.image = {
         display_name: null,
@@ -175,6 +190,7 @@ router.use(function(req, res, next){
 
 router.use(permission('gm'));
 router.get('/', list);
+router.get('/list', listApi);
 router.get('/new', csrf(), showNew);
 router.get('/sign-s3', csrf(), signS3);
 router.get('/:id', csrf(), showEdit);

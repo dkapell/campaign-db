@@ -1,0 +1,20 @@
+include ../partials/editor
+
+block content
+    .row.my-1
+        label.col-md-2.control-label.col-form-label(for="options-image") Image (Optional)
+        .col-md
+            select.form-select.select2#options-image(name="options[image]" data-placeholder="Image")
+                    option
+                    option(value=-1 selected=!imageId) No Image
+                    for image in images
+                        option(value=image.id, selected=imageId===image.id)= image.name
+    .row.my-1
+        .col
+            input#target-id(type='hidden' value=targetId)
+            +markdownEditor(
+                'Description',
+                `options-description`,
+                `options[description]`,
+                3, 150, description, true
+            )

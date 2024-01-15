@@ -32,14 +32,8 @@ if checkPermission('contrib')
             label.control-label(for="character_extra_traits") Extra Traits (comma-seperated)
             input.form-control(type="text",placeholder="Traits",name="character[extra_traits]",value=character.extra_traits,id='character_extra_traits')
 
-.row.my-2
-    .col
-        +markdownEditor('Notes', 'character_notes', 'character[notes]', 5, 100, character.notes, true)
-
-if checkPermission('contrib')
-    .row.my-2
-        .col
-            +markdownEditor('GM Notes', 'character_gm_notes', 'character[gm_notes]', 5, 100, character.gm_notes, true)
+for field of custom_fields
+    +customFieldEntry(field, 'character', character.custom_field)
 
 .row.my-2
     .col

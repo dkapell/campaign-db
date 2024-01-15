@@ -47,6 +47,7 @@ const mapRouter = require('./routes/map');
 const imageRouter = require('./routes/image');
 
 const characterRouter = require('./routes/character');
+const characterFieldRouter = require('./routes/character_field');
 
 const reportRouter = require('./routes/report');
 
@@ -249,6 +250,7 @@ app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/image', imageRouter);
 app.use('/report', reportRouter);
+app.use('/character_field', characterFieldRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

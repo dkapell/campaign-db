@@ -1,0 +1,20 @@
+extends ../layout
+
+include ../partials/editor
+include ../partials/custom_field
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header New Character Field
+                .card-body
+                    form.form.needs-validation#custom-skill-form(method="POST" action="/character_field" novalidate)
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        include ./_form.pug
+
+append scripts
+    script(src='https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')
+    script(src='/javascripts/templates/custom_form/optionDescriptionForm.js')
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/custom-field.js')

@@ -227,7 +227,7 @@ async function create(req, res, next){
     if (skill_source.provides && _.isString(skill_source.provides)){
         skill_source.provides = [skill_source.provides];
     }
-    skill_source.provides = skillHelper.parseProvides(skill_source.provides)
+    skill_source.provides = skillHelper.parseProvides(skill_source.provides);
 
     skill_source.conflicts = skill_source.conflicts?JSON.stringify(skill_source.conflicts.map(e => {return Number(e);})):[];
     skill_source.requires = skill_source.requires?JSON.stringify(skill_source.requires.map(e => {return Number(e);})):[];
@@ -285,7 +285,7 @@ async function update(req, res, next){
     if (skill_source.provides && _.isString(skill_source.provides)){
         skill_source.provides = [skill_source.provides];
     }
-    skill_source.provides = skillHelper.parseProvides(skill_source.provides)
+    skill_source.provides = skillHelper.parseProvides(skill_source.provides);
 
     skill_source.conflicts = skill_source.conflicts?JSON.stringify(skill_source.conflicts.map(e => {return Number(e);})):[];
     skill_source.requires = skill_source.requires?JSON.stringify(skill_source.requires.map(e => {return Number(e);})):[];

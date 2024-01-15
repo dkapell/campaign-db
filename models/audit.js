@@ -11,7 +11,8 @@ const models = {
     user: require('./user'),
     character: require('./character'),
     map: require('./map'),
-    rulebook: require('./rulebook')
+    rulebook: require('./rulebook'),
+    custom_field: require('./custom_field')
 };
 
 const tableFields =  ['id',

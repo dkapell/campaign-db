@@ -1,6 +1,7 @@
 extends ../layout
 
 include ../partials/character
+include ../partials/custom_field
 
 block content
     .row.my-3
@@ -69,9 +70,9 @@ block content
             a.nav-link#skill-tab(href="#skills" data-bs-toggle="tab" role="tab" aria-controls="skills" aria-selected="false") #{allowedEdit?'Edit':'View'} Skills
         li.nav-item(role="presentation")
             a.nav-link#history-tab(href="#history" data-bs-toggle="tab" role="tab" aria-controls="history" aria-selected="false") Build History
-        if character.notes || (checkPermission('contrib') && character.gm_notes)
+        if character.custom_field.length
             li.nav-item(role="presentation")
-                a.nav-link#notes-tab(href="#notes" data-bs-toggle="tab" role="tab" aria-controls="notes" aria-selected="false") Notes
+                a.nav-link#details-tab(href="#details" data-bs-toggle="tab" role="tab" aria-controls="details" aria-selected="false") Details
 
     .tab-content#characterTabContent
         .tab-pane.fade.show.active.character-sheet#character(role="tabpanel" aria-labelledby="character-tab")
@@ -112,17 +113,12 @@ block content
                 .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                     .visually-hidden Table is Loading
 
-        if character.notes || (checkPermission('contrib') && character.gm_notes)
-            .tab-pane.fade#notes(role="tabpanel" aria-labelledby="notes-tab")
-                .row.my-3
-                    .col
-                        h4 Notes
-                        p!= marked.parse(character.notes)
+        if character.custom_field.length
+            .tab-pane.fade#details(role="tabpanel" aria-labelledby="details-tab")
+                dl.row.p-2
+                    for custom_field, idx in character.custom_field
+                       +customFieldDisplay(custom_field, idx>0)
 
-
-                        if checkPermission('contrib') && character.gm_notes
-                            h4 GM Notes
-                            P!= marked.parse(character.notes)
 
 
     +characterModal()

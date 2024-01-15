@@ -332,7 +332,7 @@ async function create(req, res, next){
         skill.provides = [skill.provides];
     }
 
-    skill.provides = skillHelper.parseProvides(skill.provides)
+    skill.provides = skillHelper.parseProvides(skill.provides);
 
     skill.conflicts = skill.conflicts?JSON.stringify(skill.conflicts.map(e => {return Number(e);})):[];
     skill.requires = skill.requires?JSON.stringify(skill.requires.map(e => {return Number(e);})):[];
@@ -410,7 +410,7 @@ async function update(req, res, next){
         skill.provides = [skill.provides];
     }
 
-    skill.provides = skillHelper.parseProvides(skill.provides)
+    skill.provides = skillHelper.parseProvides(skill.provides);
 
     skill.conflicts = skill.conflicts?JSON.stringify(skill.conflicts.map(e => {return Number(e);})):[];
     skill.requires = skill.requires?JSON.stringify(skill.requires.map(e => {return Number(e);})):[];

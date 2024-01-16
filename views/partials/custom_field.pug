@@ -274,8 +274,7 @@ mixin customFieldDisplay(field, showBorder)
                     =field.value?'Yes':'No'
                 when 'dropdown'
                     - const option = _.findWhere(field.custom_field.configuration.options, {value: field.value});
-
-                    if option && (option.image || option.details)
+                    if option && (option.image || option.description)
                         .row
                             .col(role='button'
                                 id=`#custom-field--container-${field.custom_field.id}-heading`

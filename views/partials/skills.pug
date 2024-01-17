@@ -253,6 +253,9 @@ mixin skillDisplay(skill)
                                         | #{issue.skill.name?issue.skill.name:'TBD'}
                                         i.fas.fa-edit.mx-1
                                     | but that skill does not conflict with this one.
+                            else if issue.message
+                                li=issue.message
+
                             else
                                 li= issue.type
 

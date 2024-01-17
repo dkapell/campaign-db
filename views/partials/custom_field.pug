@@ -254,6 +254,7 @@ mixin customFieldDisplay(field, showBorder)
                 i.far.fa-question-circle.mx-1.popover-hover(
                     data-bs-toggle="popover"
                     data-bs-html='true'
+                    data-bs-custom-class="custom-field-description-popover"
                     title=field.custom_field.name
                     data-bs-content=marked.parseInline(field.custom_field.description, {breaks: true}))
 

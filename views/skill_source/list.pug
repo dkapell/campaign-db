@@ -61,13 +61,14 @@ block content
                     th Skill Count
                     th Required
                     th PC Visible
-                    th Requires
-                    th Conflicts
+                    th(data-partialmatch="true") Requires
+                    th(data-partialmatch="true") Conflicts
                     th(data-priority="3")
 
 
             tbody
                 for skill_source in skill_sources
+
                     tr(class='clickable-row', data-click-object='skill_source' data-click-id=skill_source.id)
                         th(
                             data-sort=`${skill_source.type.display_order}-${skill_source.name}`
@@ -81,16 +82,29 @@ block content
 
                         td
                             .badge(class=`text-bg-${skill_source.display_to_pc?'success':'warning'}`)=skill_source.display_to_pc?'Yes':'No'
-                        td
-                            if skill_source.requires && _.isArray(skill_source.requires)
-                                =skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')
-                                |  (#{skill_source.require_num})
-                        td
+                        td(data-search=skill_source.requires && _.isArray(skill_source.requires)?skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(','):'')
+                            if skill_source.requires && _.isArray(skill_source.requires) && skill_source.requires.length
+                                | Requires #{skill_source.require_num} of #{skill_source.requires.length}
+                                i.far.fa-question-circle.mx-1.popover-hover(
+                                    data-bs-toggle="popover"
+                                    data-bs-html='true'
+                                    data-bs-custom-class="custom-requires-popover"
+                                    data-bs-title='Required Sources'
+                                    data-bs-content=skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
+                                )
+                        td(data-search=skill_source.conflicts && _.isArray(skill_source.conflicts)?skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(','):'')
                             if skill_source.conflicts && _.isArray(skill_source.conflicts)
                                 if (skill_source.conflicts.length <= 3 )
                                     =skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')
                                 else
                                     | #{skill_source.conflicts.length} Conflicts
+                                    i.far.fa-question-circle.mx-1.popover-hover(
+                                        data-bs-toggle="popover"
+                                        data-bs-html='true'
+                                        data-bs-custom-class="custom-requires-popover"
+                                        data-bs-title='Conflicts'
+                                        data-bs-content=skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
+                                    )
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn(

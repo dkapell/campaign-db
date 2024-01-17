@@ -185,7 +185,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
   border-top: none !important;
 }
 
-.custom-popover {
+.custom-field-description-popover {
   --bs-popover-max-width: 800px;
 }
 

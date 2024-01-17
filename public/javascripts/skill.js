@@ -139,6 +139,7 @@ function prepSkillTable(){
 
                 const select = $('<select>')
                     .addClass('form-select')
+                    .addClass('form-select-sm')
                     .attr('data-placeholder', title)
                     .data('partialmatch', $(column.header()).data('partialmatch'))
                     .append($('<option>'))

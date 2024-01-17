@@ -63,10 +63,10 @@ select.value-selector{
   height: 29px !important;
   font-weight: normal;
 }
-.skill-table .select2-container .select2-selection--single .select2-selection__rendered,
+/*.skill-table .select2-container .select2-selection--single .select2-selection__rendered,
 .skillDropdown .select2-results__option {
   padding: 2px 4px 2px 12px !important;
-}
+}*/
 .skillDropdown .select2-results__options{
   font-size: 0.77rem;
 }

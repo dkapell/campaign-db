@@ -70,7 +70,7 @@ async function listDoc(req, res, next){
                     return req.models.skill.get(requirement);
                 })).filter((item) => {
                     return item;
-                })
+                });
                 skill.conflicts = (await async.map(skill.conflicts, async (conflict) => {
                     return req.models.skill.get(conflict);
                 })).filter((item) => {

@@ -39,7 +39,7 @@ async function showNew(req, res, next){
                 ],
                 current: `Clone: ${custom_field.name}`
             };
-            res.locals.title += `Clone Character Field - ${custom_field.name}`
+            res.locals.title += `Clone Character Field - ${custom_field.name}`;
         } else {
 
             res.locals.custom_field = {
@@ -215,7 +215,7 @@ function parseCustomField(data){
                 configuration.options.push(option);
             }
             configuration.options = configuration.options.sort( (a, b) => {
-                return Number(a.sort_order) - Number(b.sort_order)
+                return Number(a.sort_order) - Number(b.sort_order);
             });
             break;
         case 'longtext':

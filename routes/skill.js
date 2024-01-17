@@ -66,20 +66,28 @@ async function listDoc(req, res, next){
             source.skills = await req.models.skill.find({source_id:source.id});
             source.skills = source.skills.sort(skillHelper.sorter);
             source.skills = await async.map(source.skills, async (skill) => {
-                skill.requires = await async.map(skill.requires, async (requirement) => {
+                skill.requires = (await async.map(skill.requires, async (requirement) => {
                     return req.models.skill.get(requirement);
-                });
-                skill.conflicts = await async.map(skill.conflicts, async (conflict) => {
+                })).filter((item) => {
+                    return item;
+                })
+                skill.conflicts = (await async.map(skill.conflicts, async (conflict) => {
                     return req.models.skill.get(conflict);
+                })).filter((item) => {
+                    return item;
                 });
                 return skill;
             });
 
-            source.requires = await async.map(source.requires, async (requirement) => {
+            source.requires = (await async.map(source.requires, async (requirement) => {
                 return req.models.skill_source.get(requirement);
+            })).filter((item) => {
+                return item;
             });
-            source.conflicts = await async.map(source.conflicts, async (conflict) => {
+            source.conflicts = (await async.map(source.conflicts, async (conflict) => {
                 return req.models.skill_source.get(conflict);
+            })).filter((item) => {
+                return item;
             });
             return source;
         });
@@ -104,11 +112,15 @@ async function show(req, res, next){
             ],
             current: skill.name
         };
-        skill.requires = await async.map(skill.requires, async (requirement) => {
+        skill.requires = (await async.map(skill.requires, async (requirement) => {
             return req.models.skill.get(requirement);
+        })).filter((item) => {
+            return item;
         });
-        skill.conflicts = await async.map(skill.conflicts, async (conflict) => {
+        skill.conflicts = (await async.map(skill.conflicts, async (conflict) => {
             return req.models.skill.get(conflict);
+        })).filter((item) => {
+            return item;
         });
         skill.updatedFormatted = moment(skill.updated).format('lll');
         res.locals.skill = skill;

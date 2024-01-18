@@ -142,6 +142,38 @@ mixin skillList(skills, showSource, backto)
                                             = capitalize(skill.status.name)
 
                                 td.text-end
+
+                                    if skill.requires && _.isArray(skill.requires) && skill.requires.length
+                                        a.btn.btn-outline-success.btn-xs.me-1.action-btn.popover-hover(
+                                            data-bs-toggle="popover"
+                                            data-bs-html='true'
+                                            data-bs-custom-class="custom-requires-popover"
+                                            data-bs-title='Required Skills'
+                                            data-bs-content=skill.requires.map(source => {
+                                                const required = _.findWhere(skills, {id: source})
+                                                    return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
+
+                                            }).join('<br> ')
+                                        )
+                                            i.far.fa-check-circle.me-1.fa-fw
+                                            | #{skill.require_num} of #{skill.requires.length}
+
+
+                                    if skill.conflicts && _.isArray(skill.conflicts) && skill.conflicts.length
+                                        a.btn.btn-outline-danger.btn-xs.me-1.action-btn.popover-hover(
+                                            data-bs-toggle="popover"
+                                            data-bs-html='true'
+                                            data-bs-custom-class="custom-requires-popover"
+                                            data-bs-title='Conflicts'
+                                            data-bs-content=skill.conflicts.map(source => {
+                                                const conflict = _.findWhere(skills, {id: source})
+                                                return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
+                                            }).join('<br> ')
+                                        )
+                                            i.fas.fa-ban.me-1.fa-fw
+                                            | #{skill.conflicts.length}
+
+
                                     if skill.approvals
                                         .badge.text-bg-info.me-1(data-bs-toggle="tooltip" title="Approvals")=skill.approvals
                                     if (skill.description)

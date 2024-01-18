@@ -23,10 +23,16 @@ mixin skillList(skills, showSource, backto)
                     = showSource?'Cost':'Status'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Status':'Actions'
+                    = showSource?'Status':'Requires'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
+                    = showSource?'Requires':'Conflicts'
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
+                    = showSource?'Conflicts':'Actions'
 
                 if showSource
-                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
+                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="9")
                         i.fas.fa-eye.fa-fw.me-1.col-indicator
                         | Actions
         if checkPermission('admin')
@@ -92,6 +98,8 @@ mixin skillList(skills, showSource, backto)
                             th(data-priority="3") Summary
                             th Cost
                             th Status
+                            th Requires
+                            th Conflicts
                             th(data-priority="2" data-orderable="false")
 
                     tbody
@@ -141,10 +149,11 @@ mixin skillList(skills, showSource, backto)
                                         .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
                                             = capitalize(skill.status.name)
 
-                                td.text-end
 
+                                td(data-search=skill.requires && _.isArray(skill.requires)?skill.requires.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(','):'')
                                     if skill.requires && _.isArray(skill.requires) && skill.requires.length
-                                        a.btn.btn-outline-success.btn-xs.me-1.action-btn.popover-hover(
+                                        | #{skill.require_num} of #{skill.requires.length}
+                                        i.far.fa-question-circle.mx-1.popover-hover(
                                             data-bs-toggle="popover"
                                             data-bs-html='true'
                                             data-bs-custom-class="custom-requires-popover"
@@ -155,12 +164,11 @@ mixin skillList(skills, showSource, backto)
 
                                             }).join('<br> ')
                                         )
-                                            i.far.fa-check-circle.me-1.fa-fw
-                                            | #{skill.require_num} of #{skill.requires.length}
-
-
+                                td(data-search=skill.conflicts && _.isArray(skill.conflicts)?skill.conflicts.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(','):'')
                                     if skill.conflicts && _.isArray(skill.conflicts) && skill.conflicts.length
-                                        a.btn.btn-outline-danger.btn-xs.me-1.action-btn.popover-hover(
+
+                                        | #{skill.conflicts.length}
+                                        i.far.fa-question-circle.mx-1.popover-hover(
                                             data-bs-toggle="popover"
                                             data-bs-html='true'
                                             data-bs-custom-class="custom-requires-popover"
@@ -170,9 +178,8 @@ mixin skillList(skills, showSource, backto)
                                                 return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
                                             }).join('<br> ')
                                         )
-                                            i.fas.fa-ban.me-1.fa-fw
-                                            | #{skill.conflicts.length}
 
+                                td.text-end
 
                                     if skill.approvals
                                         .badge.text-bg-info.me-1(data-bs-toggle="tooltip" title="Approvals")=skill.approvals

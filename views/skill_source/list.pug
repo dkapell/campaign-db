@@ -93,18 +93,16 @@ block content
                                     data-bs-content=skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
                                 )
                         td(data-search=skill_source.conflicts && _.isArray(skill_source.conflicts)?skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(','):'')
-                            if skill_source.conflicts && _.isArray(skill_source.conflicts)
-                                if (skill_source.conflicts.length <= 3 )
-                                    =skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(', ')
-                                else
-                                    | #{skill_source.conflicts.length} Conflicts
-                                    i.far.fa-question-circle.mx-1.popover-hover(
-                                        data-bs-toggle="popover"
-                                        data-bs-html='true'
-                                        data-bs-custom-class="custom-requires-popover"
-                                        data-bs-title='Conflicts'
-                                        data-bs-content=skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
-                                    )
+                            if skill_source.conflicts && _.isArray(skill_source.conflicts) && skill_source.conflicts.length
+
+                                | #{skill_source.conflicts.length} Conflicts
+                                i.far.fa-question-circle.mx-1.popover-hover(
+                                    data-bs-toggle="popover"
+                                    data-bs-html='true'
+                                    data-bs-custom-class="custom-requires-popover"
+                                    data-bs-title='Conflicts'
+                                    data-bs-content=skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
+                                )
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn(

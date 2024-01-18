@@ -713,6 +713,17 @@ function prepSkillForm($form){
 
     });
     prepProvides();
+
+    $('#skill_requires').on('change', function(e){
+        const val = $(this).val();
+        if (val.length){
+            if (Number($('#skill_require_num').val()) === 0){
+                $('#skill_require_num').val(1).trigger('change');
+            }
+        } else {
+            $('#skill_require_num').val(0).trigger('change');
+        }
+    });
 }
 
 function prepSourceForm($form){

@@ -106,6 +106,7 @@ function prepSkillTable(){
         scrollCollapse: true,
         stateSave: true,
         stateLoaded: function(){
+            console.log('here')
             const columns = [];
             const api = this.api();
             api.columns().every( function () {
@@ -203,7 +204,6 @@ function prepSkillTable(){
                 trigger: 'hover'
             });
             $table.find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
-
             this.api().columns().every( function () {
                 addFilterOptions($table, this);
             });

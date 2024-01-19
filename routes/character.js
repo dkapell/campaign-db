@@ -784,7 +784,7 @@ async function recalculate(req, res, next){
             throw new Error('Invalid Character');
         }
 
-        await character.recalculateCP();
+        await character.recalculate();
         return res.json({success:true});
     } catch(err){
         return res.json({success:false, message:err});
@@ -793,13 +793,13 @@ async function recalculate(req, res, next){
 
 async function recalculateAll(req, res, next){
     try {
-
         const characters = await req.models.character.find({campaign_id:req.campaign.id});
-        for (const characterData of characters){
+        async.eachLimit(characters, 3, async (characterData) => {
             const character = new Character({id:characterData.id});
             await character.init();
-            await character.recalculateCP();
-        }
+            console.log(`Working on ${character.name}`)
+            return character.recalculate();
+        });
         return res.json({success:true});
     } catch(err){
         return res.json({success:false, message:err});

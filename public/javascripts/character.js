@@ -43,7 +43,7 @@ $(function(){
 
     $('#rebuildAllBtn')
         .confirmation({
-            title: 'Recalculate CP for all Characters?'
+            title: 'Recalculate Build for all Characters?'
         }).on('click', recalcAll);
     $('#characterTabs a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         const target = $(e.target).attr('aria-controls');

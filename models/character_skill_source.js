@@ -15,6 +15,7 @@ const tableFields = [
 
 const CharacterSkillSource = new Model('character_skill_sources', tableFields, {
     order: ['character_id', 'skill_source_id'],
+    keyFields: ['character_id', 'skill_source_id'],
     postSelect: fill
 });
 

@@ -379,7 +379,19 @@ async function create(req, res, next){
         await req.audit('skill', id, 'create', {new:skill});
         delete req.session.skillData;
         if (req.body.backto && req.body.backto === 'modal'){
-            return res.json({success: true, update: false, skill: await req.models.skill.get(id)});
+            const created = await req.models.skill.get(id)
+            const skills = [];
+            if (_.isArray(created.requires)){
+                for (skillId of created.requires){
+                    skills.push(await req.models.skill.get(skillId));
+                }
+            }
+            if (_.isArray(created.conflicts)){
+                for (skillId of created.conflicts){
+                    skills.push(await req.models.skill.get(skillId));
+                }
+            }
+            return res.json({success: true, update:true, skill: created, skills:skills});
         }
         req.flash('success', 'Created Skill ' + skill.name);
         if (req.body.backto && req.body.backto === 'list'){
@@ -472,7 +484,19 @@ async function update(req, res, next){
         await req.audit('skill', id, 'update', {old: current, new:skill});
         delete req.session.skillData;
         if (req.body.backto && req.body.backto === 'modal'){
-            return res.json({success: true, update:true, skill: await req.models.skill.get(id)});
+            const updated = await req.models.skill.get(id)
+            const skills = [];
+            if (_.isArray(updated.requires)){
+                for (skillId of updated.requires){
+                    skills.push(await req.models.skill.get(skillId));
+                }
+            }
+            if (_.isArray(updated.conflicts)){
+                for (skillId of updated.conflicts){
+                    skills.push(await req.models.skill.get(skillId));
+                }
+            }
+            return res.json({success: true, update:true, skill: updated, skills:skills});
         }
 
         req.flash('success', 'Updated Skill ' + skill.name);

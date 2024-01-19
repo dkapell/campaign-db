@@ -541,11 +541,11 @@ function updateTable(data){
     rowData[column++] = skill.summary.length>83?marked.parseInline(skill.summary.substr(0, 80)+'...'):marked.parseInline(skill.summary);
     rowData[column++] = skill.cost;
     rowData[column++] = getStatus(skill);
+    rowData[column++] = getRequires(skill, data.skills);
+    rowData[column++] = getConflicts(skill, data.skills);
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
-
-    console.log(rowData);
 
     if (data.update){
         tableRow = $('.skill-table').find(`tr[data-click-id="${skill.id}"]`);
@@ -601,7 +601,7 @@ function getButtons(skill){
             .addClass('btn')
             .addClass('btn-outline-info')
             .addClass('btn-xs')
-            .addClass('ml-1')
+            .addClass('me-1')
             .addClass('action-btn')
             .attr('data-bs-toggle', 'popover')
             .attr('data-bs-content', marked.parse(skill.description, {breaks: true}))
@@ -635,7 +635,7 @@ function getButtons(skill){
         .addClass('btn-xs')
         .addClass('ml-1')
         .addClass('skill-edit-btn')
-        .data('toggle', 'tooltip')
+        .attr('data-bs-toggle', 'tooltip')
         .attr('title', 'Edit')
         .attr('data-click-id', skill.id)
         .attr('href', `/skill/${skill.id}/edit?backto='list'`)
@@ -655,6 +655,64 @@ function getStatus(skill){
         .addClass(`text-bg-${skill.status.class}`)
         .text(capitalize(skill.status.name));
     return $badge[0].outerHTML;
+}
+
+function getRequires(skill, skills){
+    let search = ''
+    const $span = $('<span>');
+    if (skill.requires && _.isArray(skill.requires) && skill.requires.length){
+        search = skill.requires.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',')
+        $span.text(`${skill.require_num} of ${skill.requires.length}`)
+        const content = skill.requires.map(source => {
+            const required = _.findWhere(skills, {id: source})
+            return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
+        }).join('<br> ')
+        const $icon = $('<i>')
+            .addClass('far')
+            .addClass('fa-question-circle')
+            .addClass('mx-1')
+            .addClass('popover-hover')
+            .attr('data-bs-toggle', 'popover')
+            .attr('data-bs-html', 'true')
+            .attr('data-bs-custom-class', 'custom-requires-popover')
+            .attr('data-bs-title', 'Required Skills')
+            .attr('data-bs-content', content)
+            .appendTo($span);
+    }
+
+    return ({
+        display: $span[0].outerHTML,
+        '@data-search': search
+    })
+}
+
+function getConflicts(skill, skills){
+    let search = ''
+    const $span = $('<span>');
+    if (skill.conflicts && _.isArray(skill.conflicts) && skill.conflicts.length){
+        search = skill.conflicts.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',')
+        $span.text(skill.conflicts.length)
+        const content = skill.conflicts.map(source => {
+            const conflict = _.findWhere(skills, {id: source})
+            return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
+        }).join('<br> ')
+        const $icon = $('<i>')
+            .addClass('far')
+            .addClass('fa-question-circle')
+            .addClass('mx-1')
+            .addClass('popover-hover')
+            .attr('data-bs-toggle', 'popover')
+            .attr('data-bs-html', 'true')
+            .attr('data-bs-custom-class', 'custom-requires-popover')
+            .attr('data-bs-title', 'Conflicts')
+            .attr('data-bs-content', content)
+            .appendTo($span);
+    }
+
+    return ({
+        display: $span[0].outerHTML,
+        '@data-search': search
+    })
 }
 
 function prepSkillForm($form){

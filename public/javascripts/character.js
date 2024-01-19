@@ -606,6 +606,7 @@ async function recalcAll(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.find('.recalc-icon').removeClass('fa-calculator').addClass('fa-sync').addClass('fa-spin');
 
     const csrfToken = $this.data('csrf');
     const result = await fetch('/character/recalculate', {

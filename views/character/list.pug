@@ -8,7 +8,7 @@ block content
         |  New Character
     if checkPermission('admin')
         a.btn.btn-outline-danger.my-2.ms-2#rebuildAllBtn(href='#' data-csrf=csrfToken)
-            span(class="fa fa-calculator")
+            i.fa.fa-calculator.recalc-icon
             |  Recalculate All Characters
     if checkPermission('player') && !checkPermission('contrib')
         +characterListDisplay(characters, true, true, true)

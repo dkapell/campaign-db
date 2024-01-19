@@ -795,7 +795,7 @@ async function recalculateAll(req, res, next){
     try {
         const characters = await req.models.character.find({campaign_id:req.campaign.id});
         const requiredSkills = await req.models.skill.find({campaign_id: req.campaign.id, required:true})
-        async.eachLimit(characters, 5, async (characterData) => {
+        await async.eachLimit(characters, 5, async (characterData) => {
             const character = new Character({id:characterData.id});
             await character.init();
             console.log(`Working on ${character.name}`)

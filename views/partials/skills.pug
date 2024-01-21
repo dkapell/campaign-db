@@ -167,9 +167,10 @@ mixin skillList(skills, showSource, backto)
                                             data-bs-html='true'
                                             data-bs-custom-class="custom-requires-popover"
                                             data-bs-title='Required Skills'
-                                            data-bs-content=skill.requires.map(source => {
-                                                const required = _.findWhere(skills, {id: source})
-                                                    return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
+                                            data-bs-content=skill.requires.map(requiredId => {
+                                                const required = _.findWhere(skills, {id: requiredId})
+                                                console.log(required)
+                                                return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
 
                                             }).join('<br> ')
                                         )

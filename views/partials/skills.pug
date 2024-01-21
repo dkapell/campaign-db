@@ -153,9 +153,13 @@ mixin skillList(skills, showSource, backto)
                                     const requiresSearchData = []
                                     if (skill.requires && _.isArray(skill.requires)){
                                         for (const requiredId of skill.requires){
-                                            const required = _.findWhere(skills, {id: requiredId});
-                                            if (required){
-                                                requiresSearchData.push(required.name);
+                                            if (_.isObject(requiredId)){
+                                                requiresSearchData.push(requiredId.name)
+                                            } else {
+                                                const required = _.findWhere(skills, {id: requiredId});
+                                                if (required){
+                                                    requiresSearchData.push(required.name);
+                                                }
                                             }
                                         }
                                     }
@@ -166,21 +170,24 @@ mixin skillList(skills, showSource, backto)
                                             data-bs-toggle="popover"
                                             data-bs-html='true'
                                             data-bs-custom-class="custom-requires-popover"
-                                            data-bs-title='Required Skills'
+                                            data-bs-title=`Required: ${skill.require_num}`
                                             data-bs-content=skill.requires.map(requiredId => {
-                                                const required = _.findWhere(skills, {id: requiredId})
-                                                console.log(required)
+                                                const required = _.isObject(requiredId)?requiredId:_.findWhere(skills, {id: requiredId})
                                                 return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
-
                                             }).join('<br> ')
                                         )
                                 -
                                     const requiresConflictData = []
                                     if (skill.conflicts && _.isArray(skill.conflicts)){
                                         for (const conflictId of skill.conflicts){
-                                            const conflict = _.findWhere(skills, {id: conflictId});
-                                            if (conflict){
-                                                requiresConflictData.push(conflict.name);
+                                            if (_.isObject(conflictId)){
+                                                requiresConflictData.push(conflictId.name);
+                                            } else {
+
+                                                const conflict = _.findWhere(skills, {id: conflictId});
+                                                if (conflict){
+                                                    requiresConflictData.push(conflict.name);
+                                                }
                                             }
                                         }
                                     }
@@ -193,8 +200,8 @@ mixin skillList(skills, showSource, backto)
                                             data-bs-html='true'
                                             data-bs-custom-class="custom-requires-popover"
                                             data-bs-title='Conflicts'
-                                            data-bs-content=skill.conflicts.map(source => {
-                                                const conflict = _.findWhere(skills, {id: source})
+                                            data-bs-content=skill.conflicts.map(conflictId => {
+                                                const conflict = _.isObject(conflictId)?conflictId:_.findWhere(skills, {id: conflictId})
                                                 return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
                                             }).join('<br> ')
                                         )

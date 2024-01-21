@@ -106,7 +106,6 @@ function prepSkillTable(){
         scrollCollapse: true,
         stateSave: true,
         stateLoaded: function(){
-            console.log('here')
             const columns = [];
             const api = this.api();
             api.columns().every( function () {
@@ -500,7 +499,7 @@ async function submitModal(e) {
 function updateTable(data){
     const skill = data.skill;
 
-    const rowData = {};
+    const rowData = [];
     let column = 0;
     if ($('.skill-table').data('showsource')){
         if (!skill.source){
@@ -546,7 +545,7 @@ function updateTable(data){
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
-
+    console.log(rowData)
     if (data.update){
         tableRow = $('.skill-table').find(`tr[data-click-id="${skill.id}"]`);
         const current = $('.skill-table').DataTable().row( tableRow ).data();
@@ -675,7 +674,7 @@ function getRequires(skill, skills){
             .attr('data-bs-toggle', 'popover')
             .attr('data-bs-html', 'true')
             .attr('data-bs-custom-class', 'custom-requires-popover')
-            .attr('data-bs-title', 'Required Skills')
+            .attr('data-bs-title', `Required: ${skill.require_num}`)
             .attr('data-bs-content', content)
             .appendTo($span);
     }

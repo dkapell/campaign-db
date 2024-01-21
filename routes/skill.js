@@ -391,7 +391,7 @@ async function create(req, res, next){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
-            return res.json({success: true, update:true, skill: created, skills:skills});
+            return res.json({success: true, update:false, skill: created, skills:skills});
         }
         req.flash('success', 'Created Skill ' + skill.name);
         if (req.body.backto && req.body.backto === 'list'){

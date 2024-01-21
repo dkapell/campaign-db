@@ -149,8 +149,17 @@ mixin skillList(skills, showSource, backto)
                                         .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
                                             = capitalize(skill.status.name)
 
-
-                                td(data-search=skill.requires && _.isArray(skill.requires)?skill.requires.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(','):'')
+                                -
+                                    const requiresSearchData = []
+                                    if (skill.requires && _.isArray(skill.requires)){
+                                        for (const requiredId of skill.requires){
+                                            const required = _.findWhere(skills, {id: requiredId});
+                                            if (required){
+                                                requiresSearchData.push(required.name);
+                                            }
+                                        }
+                                    }
+                                td(data-search=requiresSearchData.join(','))
                                     if skill.requires && _.isArray(skill.requires) && skill.requires.length
                                         | #{skill.require_num} of #{skill.requires.length}
                                         i.far.fa-question-circle.mx-1.popover-hover(
@@ -164,7 +173,17 @@ mixin skillList(skills, showSource, backto)
 
                                             }).join('<br> ')
                                         )
-                                td(data-search=skill.conflicts && _.isArray(skill.conflicts)?skill.conflicts.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(','):'')
+                                -
+                                    const requiresConflictData = []
+                                    if (skill.conflicts && _.isArray(skill.conflicts)){
+                                        for (const conflictId of skill.conflicts){
+                                            const conflict = _.findWhere(skills, {id: conflictId});
+                                            if (conflict){
+                                                requiresConflictData.push(conflict.name);
+                                            }
+                                        }
+                                    }
+                                td(data-search=requiresConflictData.join(','))
                                     if skill.conflicts && _.isArray(skill.conflicts) && skill.conflicts.length
 
                                         | #{skill.conflicts.length}

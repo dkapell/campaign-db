@@ -42,6 +42,12 @@ async function show(req, res, next){
 
                 skill.approvals = reviews.filter(review => {return review.created > skill.updated;}).length;
             }
+            if (skill.requires && _.isArray(skill.requires)){
+                skill.requires = await async.map(skill.requires, async (skillId) => { return req.models.skill.get(skillId); })
+            }
+            if (skill.conflicts && _.isArray(skill.conflicts)){
+                skill.conflicts = await async.map(skill.conflicts, async(skillId) => { return req.models.skill.get(skillId); })
+            }
         });
         if (req.query.export){
             let forPlayers = false;

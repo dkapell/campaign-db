@@ -618,7 +618,8 @@ async function recalcAll(e){
     const data = await result.json();
     if (data.success){
         location.reload();
-
+    } else {
+        $this.find('.recalc-icon').removeClass('fa-spin').removeClass('fa-sync').addClass('fa-exclamation-triangle');
     }
 }
 

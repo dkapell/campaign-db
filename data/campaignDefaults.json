@@ -588,6 +588,20 @@
                 "description": "Provides a Waste effect"
             },
             {
+                "name": "frenzy",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Frenzy effect"
+            },
+            {
+                "name": "destroy",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "effect",
+                "description": "Provides a Destroy effect"
+            },
+            {
                 "name": "tentative",
                 "display_to_pc": false,
                 "on_sheet": false,

@@ -437,7 +437,7 @@ async function showSkills(req, res, next){
 
         const doc = {
             csrfToken: req.csrfToken(),
-            skills: await character.skills(),
+            skills: await character.skills(true),
             character_id: characterId
         };
         res.json(doc);

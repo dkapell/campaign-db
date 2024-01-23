@@ -10,7 +10,7 @@ mixin characterModal()
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
                     button.btn.btn-primary.save-btn(type="submit") Save
 
-mixin characterSkill(skill, showDescription=false)
+mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=false)
     .character-skill
         .row
             .col-md-8.skill-name
@@ -21,15 +21,19 @@ mixin characterSkill(skill, showDescription=false)
                     if tag.display_to_pc && tag.on_sheet
                         -const tagClass = tag.color?`text-bg-${tag.color}`:'text-bg-info'
                         .badge.me-1(class=tagClass)= tag.name
-            .col.skill-cost
+            .col-md-1.skill-cost
                 if _.has(skill, 'character_cost')
                     if skill.character_cost
                         | #{skill.character_cost} CP
                 else
                     | #{skill.next_cost} CP
 
-            .col.float-end.text-end.skill-source
-                strong= skill.source.name
+            .col.float-end.text-end
+                if showUsage
+                    span.skill-usage=skill.usage?skill.usage.name:''
+                if showSource
+                    strong.ms-4.skill-source= skill.source.name
+
         .row.skill-summary
             .col
                 p.my-1!=marked.parseInline(skill.summary)
@@ -181,7 +185,7 @@ mixin characterSheet(character)
                             ul.card-text.list-group.list-group-flush
                                 each skill in groupReduced
                                     li.list-group-item.py-1
-                                        +characterSkill(skill)
+                                        +characterSkill(skill, false, true)
 
 
 

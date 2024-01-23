@@ -18,7 +18,7 @@ if possibleSkills.length
 .row.my-2.p-1
     .col.border.rounded.bg-light.p-2.overflow-auto#skill-description(style=character_skill.id?'':'height:200px')
         if character_skill.id
-            +characterSkill(character_skill)
+            +characterSkill(character_skill, false, true, true)
 
 .row.row.provides-options-text.my-2(style="display:none")
     .col-sm-2

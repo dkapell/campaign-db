@@ -686,7 +686,15 @@
                 "type": "category",
                 "color": "dark",
                 "description": "Provides an information ability"
-            }
+            },
+            {
+                "name": "meta-skill",
+                "display_to_pc": false,
+                "on_sheet": false,
+                "type": "category",
+                "color": "dark",
+                "description": "Modifies another skill"
+            },
         ]
     }
 

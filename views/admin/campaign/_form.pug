@@ -57,6 +57,9 @@ fieldset.mb-2.border.p-2.rounded
                     option
                     for theme in themes
                         option(value=theme, selected=campaign.theme===theme)= theme
+                .form-check.form-switch.mt-1
+                    input.form-check-input#campaign_menu_dark(type="checkbox", name="campaign[menu_dark]", checked=campaign.menu_dark)
+                    label.form-check-label(for="campaign_menu_dark") Use Light Menu Text
         if websiteImages
             .row.my-2
                 .col-md-3

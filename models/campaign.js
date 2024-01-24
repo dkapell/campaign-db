@@ -30,7 +30,8 @@ const tableFields = [
     'google_client_secret',
     'display_glossary',
     'body_font',
-    'header_font'
+    'header_font',
+    'menu_dark'
 ];
 
 const Campaign = new Model('campaigns', tableFields, {

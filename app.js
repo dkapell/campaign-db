@@ -220,6 +220,7 @@ app.use(async function(req, res, next){
     res.locals.session = req.session;
     res.locals.siteName = req.campaign.name;
     res.locals.title = req.campaign.name;
+    res.locals.menuDark = req.campaign.menu_dark;
     res.locals._ = _;
     res.locals.moment = moment;
     res.locals.activeUser = req.user;

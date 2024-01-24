@@ -31,7 +31,7 @@ append content
         .row.my-2
             .col-lg
                 if checkPermission('player')
-                    h1.h3 Resources
+                    h3 Resources
                     .list-group.mb-2
                         -
                             let driveLink = null;
@@ -89,10 +89,10 @@ append content
 
             .col-lg
                 if character
-                    h1.h3 Character
+                    h3 Character
                     +characterCard(character)
                 if characters
-                    h1.h3 Player Characters
+                    h3 Player Characters
                     +characterList(characters)
 
 

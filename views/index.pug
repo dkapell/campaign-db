@@ -14,9 +14,9 @@ append content
                 .col-lg-4.d-none.d-lg-block
                     if currentCampaign.display_map && mapCount
                         a(href='/map')
-                            img.img-fluid(src=currentCampaign.image.url)
+                            img.rounded.img-fluid(src=currentCampaign.image.url)
                     else
-                        img.img-fluid(src=currentCampaign.image.url)
+                        img.rounded.img-fluid(src=currentCampaign.image.url)
     else
         .row.my-2
             .col
@@ -24,9 +24,9 @@ append content
                     if currentCampaign.image
                         if currentCampaign.display_map && mapCount
                             a(href='/map')
-                                img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
+                                img.rounded.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         else
-                            img.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
+                            img.rounded.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         =currentCampaign.name
         .row.my-2
             .col-lg

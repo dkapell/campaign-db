@@ -36,6 +36,7 @@ create table campaigns (
     staff_drive_folder varchar(255),
     npc_drive_folder varchar(255),
     player_drive_folder varchar(255),
+    menu_dark boolean default true,
     created timestamp with time zone DEFAULT now(),
     updated timestamp with time zone DEFAULT now(),
     google_client_id varchar(80),

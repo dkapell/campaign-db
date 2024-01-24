@@ -715,6 +715,9 @@ function getConflicts(skill, skills){
 }
 
 function prepSkillForm($form){
+    if (!$form.length) {
+        return;
+    }
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -784,6 +787,9 @@ function prepSkillForm($form){
 }
 
 function prepSourceForm($form){
+    if (!$form.length) {
+        return;
+    }
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -867,6 +873,7 @@ function toggleProvidesFields($row){
 }
 
 function prepProvides(){
+    console.trace('called')
     $('#provides-new').hide();
     $('.add-provides-btn').on('click', addProvides);
     $('.remove-provides-btn').confirmation({

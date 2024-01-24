@@ -20,16 +20,16 @@ mixin skillList(skills, showSource, backto)
                     = showSource?'Summary':'Cost'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Cost':'Status'
+                    = showSource?'Cost':'Requires'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Status':'Requires'
+                    = showSource?'Requires':'Conflicts'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Requires':'Conflicts'
+                    = showSource?'Conflicts':'Status'
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Conflicts':'Actions'
+                    = showSource?'Status':'Actions'
 
                 if showSource
                     button.btn.btn-outline-info.toggle-vis.mt-1(data-column="9")
@@ -94,19 +94,32 @@ mixin skillList(skills, showSource, backto)
                                 th Source
                             th(data-priority="1") Name
                             th Usage
-                            th(data-partialmatch="true") Tag(s)
+                            th.skill-tag-col(data-partialmatch="true") Tag(s)
                             th(data-priority="3") Summary
                             th Cost
+                            th.skill-requires-col Requires
+                            th.skill-conflicts-col Conflicts
                             th Status
-                            th Requires
-                            th Conflicts
                             th(data-priority="2" data-orderable="false")
 
                     tbody
+                        tr(style='display:none')
+                            if showSource
+                                th
+                            td
+                            td
+                            td(data-search='')
+                            td
+                            td
+                            td(data-search='')
+                            td(data-search='')
+                            td
+                            td
+
                         for skill in skills
 
                             tr.clickable-row.skillRow(data-click-object='skill' data-click-id=skill.id )
-                                if (showSource)
+                                if showSource
                                     th.source-column(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
                                         if skill.source
                                             a.action-btn(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
@@ -144,10 +157,6 @@ mixin skillList(skills, showSource, backto)
                                     else
                                         | !{marked.parseInline(skill.summary)}
                                 td= skill.cost
-                                td
-                                    if skill.status
-                                        .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
-                                            = capitalize(skill.status.name)
 
                                 -
                                     const requiresSearchData = []
@@ -205,6 +214,10 @@ mixin skillList(skills, showSource, backto)
                                                 return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
                                             }).join('<br> ')
                                         )
+                                td
+                                    if skill.status
+                                        .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
+                                            = capitalize(skill.status.name)
 
                                 td.text-end
 

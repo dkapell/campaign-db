@@ -118,11 +118,12 @@ mixin characterSheet(character)
             if character.provides.diagnose.length
                 .card.mb-3
                     h5.py-2.card-header Diagnose (3s)
-                    .card-body.py-0
+                    .card-body.py-0.my-0.mx-1.px-2
                         ul.row.list-unstyled.my-0.py-0.trait-list
                             each trait, idx in character.provides.diagnose
-                                - const bordered = Math.floor(idx / 3) < Math.floor(character.provides.diagnose.length/3);
-                                li.list-item.col-sm-4.py-2.border-end.text-center(class=bordered?'border-bottom':'')=trait
+                                - const bBordered = Math.floor(idx / 3) < Math.floor(character.provides.diagnose.length/3);
+                                - const eBordered = !!((idx+1) % 3 )
+                                li.list-item.col-sm-4.py-2.text-center(class=bBordered?'border-bottom':'' class=eBordered?'border-end':'')=trait
 
             if _.keys(character.provides.styles).length
 

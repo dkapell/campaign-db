@@ -219,7 +219,7 @@ async function postSave(id, data, campaignId){
             }
         }
         if (changed){
-            await models.campaign_user.update(campaign_user.id, campaign_user);
+            await models.campaign_user.update({user_id: campaign_user.user_id, campaign_id:campaignId}, campaign_user);
         }
     } else {
         const campaign = await models.campaign.get(campaignId);

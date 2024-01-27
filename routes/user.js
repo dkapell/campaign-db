@@ -59,7 +59,7 @@ async function show(req, res, next){
             current: user.name
         };
 
-        const characters = await req.models.character.find({user_id: user.id});
+        const characters = await req.models.character.find({campaign_id: req.campaign.id, user_id: user.id});
         for (const character of characters){
             character.user = user;
         }

@@ -505,11 +505,12 @@ function updateTable(data){
         if (!skill.source){
             rowData[column++] = {display: '<i>Not Set</i>', '@data-sort': 0};
         } else {
-            rowData[column++] = {
-                display: `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`,
-                '@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
-                '@data-search': skill.source.name
-            };
+            rowData[column++] = `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`;
+            //{
+               // display: `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`,
+                //'@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
+                //'@data-search': skill.source.name
+            //};
         }
     }
     rowData[column++] = skill.name;
@@ -539,9 +540,9 @@ function updateTable(data){
 
     rowData[column++] = skill.summary.length>83?marked.parseInline(skill.summary.substr(0, 80)+'...'):marked.parseInline(skill.summary);
     rowData[column++] = skill.cost;
-    rowData[column++] = getStatus(skill);
     rowData[column++] = getRequires(skill, data.skills);
     rowData[column++] = getConflicts(skill, data.skills);
+    rowData[column++] = getStatus(skill);
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
@@ -873,7 +874,6 @@ function toggleProvidesFields($row){
 }
 
 function prepProvides(){
-    console.trace('called')
     $('#provides-new').hide();
     $('.add-provides-btn').on('click', addProvides);
     $('.remove-provides-btn').confirmation({

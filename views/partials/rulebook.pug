@@ -9,7 +9,7 @@ mixin allRulebooks(rulebooks)
 mixin rulebook(rulebook, depth=0)
     ul.list-unstyled
 
-        each file in rulebook.files
+        each file in _.sortBy(rulebook.files, 'name')
             if file.mimeType === 'application/vnd.google-apps.shortcut'
                 - continue
             -
@@ -23,8 +23,7 @@ mixin rulebook(rulebook, depth=0)
                 a(target="_blank" href=url )
                     i.fa.me-1(class=icon)
                     = file.name
-
-        each child, idx in rulebook.children
+        each child, idx in _.sortBy(rulebook.children, 'name')
             li(style=`padding-left: ${10*depth}px;`)
                 a(target="_blank" href=`https://drive.google.com/drive/folders/${child.id}`)
                     i.fab.fa-google-drive.me-1
@@ -36,3 +35,4 @@ mixin rulebook(rulebook, depth=0)
                         i.fa.fa-plus.fa-fw.me-0
                 .collapse(id=`rulebook-${child.id}` aria-labeledby=`rulebook-${child.id}-heading`)
                     +rulebook(child, depth+1)
+

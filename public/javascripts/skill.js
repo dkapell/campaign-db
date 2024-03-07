@@ -923,7 +923,8 @@ function addProvides(e){
     $new.find('select').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
-        width:'resolve'
+        width:'resolve',
+        dropdownParent: $this.closest('form')
     });
 
     $new.find('.clearable-select2').select2({

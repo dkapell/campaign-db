@@ -2,6 +2,7 @@ extends ../layout
 include ../partials/document
 
 block content
-    for source in sources
-        +sourceDoc(source, 'skilldoc')
+    .skillDoc
+        for source in sources
+            +sourceDoc(source, 'skilldoc')
 

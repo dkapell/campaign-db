@@ -1,9 +1,10 @@
 mixin sourceDoc(source, backto)
     if source.display_to_pc || checkPermission('contrib')
         .row
-            .col.document
+            .col
 
-                h1.d-inline.h3
+                h1.h3
+
                     if checkPermission('gm')
                         a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Source')
                             | #{source.name}
@@ -13,7 +14,8 @@ mixin sourceDoc(source, backto)
                         span.source-name #{source.name}
                         if source.cost
                             span.ms-2 (#{source.cost} CP)
-                h4.d-inline.ms-2 (#{capitalize(source.type.name)})
+            .col
+                strong.h4.float-end #{capitalize(source.type.name)}
 
         if (source.requires && source.requires.length)
             p.my-1
@@ -56,74 +58,70 @@ mixin sourceDoc(source, backto)
 
 
 mixin skillList(skills, backto)
-    ul.list-unstyled
-        for skill in skills
-            if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
-                +skillDoc(skill, backto)
+    for skill in skills
+        if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
+            +skillDoc(skill, backto)
 
 
 
 mixin skillDoc(skill, backto)
-    li.media.mb-3.border-bottom.border-light.ps-3
-        .media-body
-            .row.mt-0
-                h3.h5
-                    if checkPermission('gm')
-                        a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
-                            if skill.name==='TBD'
-                                i.skill-name Unnamed Skill
-                                if (skill.cost)
-                                    span.skill-cost.ms-2 (#{skill.cost} cp)
-                            else
-                                span.skill-name= skill.name
-                                if (skill.cost)
-                                    span.skill-cost.ms-2 (#{skill.cost} cp)
-                    else
-                        if skill.name==='TBD'
-                            i.skill-name Unnamed Skill
-                            if (skill.cost)
-                                span.skill-cost.ms-2 (#{skill.cost} cp)
-                        else
-                            span.skill-name= skill.name
-                            if (skill.cost)
-                                span.skill-cost.ms-2 (#{skill.cost} cp)
-            if (skill.usage && skill.usage.display_name)
-                .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
-            if skill.required
-                .span.skill-tag.me-2.d-inline [ required ]
-            if (skill.tags)
-                for tag in skill.tags
-                    if checkPermission('contrib') || tag.display_to_pc
-                        .span.skill-tag.me-2.d-inline [ #{tag.name} ]
+    h2.h5
+        if checkPermission('gm')
+            a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
+                if skill.name==='TBD'
+                    i.skill-name Unnamed Skill
+                    if (skill.cost)
+                        span.skill-cost.ms-2 (#{skill.cost} cp)
+                else
+                    span.skill-name= skill.name
+                    if (skill.cost)
+                        span.skill-cost.ms-2 (#{skill.cost} cp)
+        else
+            if skill.name==='TBD'
+                i.skill-name Unnamed Skill
+                if (skill.cost)
+                    span.skill-cost.ms-2 (#{skill.cost} cp)
+            else
+                span.skill-name= skill.name
+                if (skill.cost)
+                    span.skill-cost.ms-2 (#{skill.cost} cp)
+    if (skill.usage && skill.usage.display_name)
+        .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
+    if skill.required
+        .span.skill-tag.me-2.d-inline [ required ]
+    if (skill.tags)
+        for tag in skill.tags
+            if checkPermission('contrib') || tag.display_to_pc
+                .span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
-            .skill-summary !{marked.parseInline(skill.summary)}
+    .skill-summary !{marked.parseInline(skill.summary)}
 
-            if (skill.requires && skill.requires.length)
-                p.my-1
-                    strong.me-1 Requires
-                        if _.uniq(_.pluck(skill.requires, 'name')).length > 1
-                            |  #{skill.require_num} of:
+    if (skill.requires && skill.requires.length)
+        p.my-1
+            strong.me-1 Requires
+                if _.uniq(_.pluck(skill.requires, 'name')).length > 1
+                    |  #{skill.require_num} of:
 
-                    if _.uniq(_.pluck(skill.requires, 'name')).length === 1
-                        i #{skill.requires[0].name}
-                    else
-                        i #{_.pluck(skill.requires, 'name').join(', ')}
+            if _.uniq(_.pluck(skill.requires, 'name')).length === 1
+                i #{skill.requires[0].name}
+            else
+                i #{_.pluck(skill.requires, 'name').join(', ')}
 
 
-            if (skill.conflicts && skill.conflicts.length)
-                p.my-1
-                    strong.me-1 Conflicts with:
-                    if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
-                        | #{skill.conflicts[0].name}
-                    else
-                        | #{(_.pluck(skill.conflicts, 'name')).join(', ')}
+    if (skill.conflicts && skill.conflicts.length)
+        p.my-1
+            strong.me-1 Conflicts with:
+            if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
+                | #{skill.conflicts[0].name}
+            else
+                | #{(_.pluck(skill.conflicts, 'name')).join(', ')}
 
 
-            if skill.description
-                .skill-description !{marked.parse(skill.description, {breaks: true})}
-            if checkPermission('gm') && skill.notes
-                strong.mb-0.mt-1.d-block GM Notes
-                .skill-notes !{marked.parse(skill.notes, {breaks: true})}
+    if skill.description
+        .skill-description !{marked.parse(skill.description, {breaks: true})}
+    if checkPermission('gm') && skill.notes
+        strong.mb-0.mt-1.d-block GM Notes
+        .skill-notes !{marked.parse(skill.notes, {breaks: true})}
 
 mixin cardDoc(card)
     li.media.py-2.border-bottom.border-light.card-entry

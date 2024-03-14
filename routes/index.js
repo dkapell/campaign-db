@@ -14,14 +14,14 @@ async function showIndex(req, res, next){
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
         if (user && user.type === 'player'){
-            const characterData = await req.models.character.findOne({user_id: user.id, active: true});
+            const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (characterData){
                 const character = new Character({id:characterData.id});
                 await character.init();
                 res.locals.character = await character.data();
             }
         } else if (user && user.type.match(/^(admin|core staff|contributing staff)$/)){
-            const characters =  await req.models.character.find({active:true});
+            const characters =  await req.models.character.find({active:true, campaign_id:req.campaign.id});
             await async.map(characters, async(character) => {
                 if (character.user_id){
                     character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));

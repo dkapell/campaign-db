@@ -76,7 +76,7 @@ function showNew(req, res, next){
     res.locals.user = {
         name: null,
         email: null,
-        user_type: 'none',
+        type: 'none',
         drive_folder: null,
         staff_drive_folder: null
     };

@@ -28,7 +28,7 @@ async function show(req, res, next){
     try{
         const attribute = await req.models.attribute.get(id);
         if (!attribute || attribute.campaign_id !== req.campaign.id){
-            throw new Error('Invalid Skill Attribute');
+            throw new Error('Invalid Attribute');
         }
         res.locals.breadcrumbs = {
             path: [

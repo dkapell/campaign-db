@@ -51,6 +51,8 @@ const characterFieldRouter = require('./routes/character_field');
 
 const reportRouter = require('./routes/report');
 
+const pageRouter = require('./routes/page');
+
 const app = express();
 
 // if running in SSL Only mode, redirect to SSL version
@@ -252,6 +254,7 @@ app.use('/character', characterRouter);
 app.use('/image', imageRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
+app.use('/page', pageRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

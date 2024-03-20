@@ -1,0 +1,36 @@
+.row.my-2
+    .col
+        label.control-label(for="page_name") Name
+        input.form-control#page_name(type="text",placeholder="Name",name="page[name]",value=page.name, required)
+        div.invalid-feedback Please choose a valid name
+.row.my-2
+    .col-md-7
+        label.control-label(for="page_path") Path
+        .input-group
+            span.input-group-text.text-end https://#{currentCampaign.site}/page/
+            input.form-control#page_name(type="text",placeholder="path",name="page[path]",value=page.path, required)
+        div.invalid-feedback Please choose a valid path
+    .col-md-5.d-flex.align-items-end
+        .form-check.form-switch
+            input.form-check-input#page_show_full_menu(type="checkbox", name="page[show_full_menu]", checked=page.show_full_menu)
+            label.form-check-label(for="page_show_full_menu") Show the full menu on this page to non-logged-in users
+.row.my-2
+    .col
+        label.control-label(for="page_codes") Codes
+        .form-text If any codes are set, one must be entered to view this page
+        select.form-select.tag-select2#page_codes(multiple, name="page[codes]" data-placeholder="Codes")
+            for code in page.codes
+                if isNaN(code) && !_.isObject(code)
+                    option(value=code selected=true)= code
+.row.my-2
+    .col
+        label.control-label(for="page_content") Page Content
+        +htmlEditor('page_content', 'page[content]', 10, 500, page.content, true)
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= page.id?'Update':'Create'
+        a.btn.btn-link(href="/page") Cancel
+
+
+

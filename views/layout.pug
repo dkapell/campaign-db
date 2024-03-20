@@ -2,8 +2,8 @@ doctype html
 html(lang="en")
     include ./partials/layout/head
 
-    body(style= activeUser ? 'padding-top: 5.5rem;': '' )
-        if (activeUser)
+    body(style= activeUser || showFullMenu ? 'padding-top: 5.5rem;': '' )
+        if (activeUser || showFullMenu)
             nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
                 include ./partials/layout/menu
         else

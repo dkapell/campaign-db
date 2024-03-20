@@ -1,0 +1,19 @@
+extends ../layout
+
+include ../partials/editor
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header= 'Edit Page: ' + page.name
+                .card-body
+                    form#pageForm.form.needs-validation(method="POST" action="/page/" + page.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='page[id]',value=page.id)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/page.js')

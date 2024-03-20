@@ -1,0 +1,19 @@
+extends ../layout
+
+append content
+    if page.codes.length && !(session.pageAccess && session.pageAccess[page.id])
+        form#pageGateForm.form(method='POST' action=`/page/${page.path}` novalidate)
+            input(type="hidden", name='_csrf',value=csrfToken)
+            .row
+                .col-md-8.offset-md-2
+                    .row
+                        .col
+                            label.control-label(for="page_code") This page requires a code to view
+                            .input-group
+                                input.form-control#page_code(type="text",placeholder="Code",name="page[code]",value='', required)
+                                button.btn.btn-outline-primary(type="submit") Submit
+
+    else
+        .row
+            .col
+                div !{marked.parse(page.content,  {breaks: true})}

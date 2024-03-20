@@ -482,3 +482,26 @@ create table character_custom_fields (
         on update no action on delete cascade
 );
 
+create table pages (
+    id serial,
+    campaign_id int not null,
+    name varchar(255) not null,
+    path varchar(255) not null,
+    show_full_menu boolean default false,
+    content text,
+    created timestamp with time zone DEFAULT now(),
+    primary key (id),
+    CONSTRAINT pages_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+create table page_codes (
+    id serial,
+    page_id int not null,
+    code varchar(255) not null,
+    primary key (id),
+    CONSTRAINT page_codes_page_fk FOREIGN KEY (page_id)
+        REFERENCES "pages" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);

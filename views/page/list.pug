@@ -1,0 +1,59 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/page/new')
+        span(class="fa fa-plus")
+        |  New Page
+    .table-responsive.mt-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th URL
+                    th Menu
+                    th Codes
+                    th
+
+
+            tbody
+                for page in pages
+                    tr(class='clickable-row', data-click-object='page' data-click-id=page.path)
+                        td.dtr-control
+                        td= page.name
+                        td https://#{currentCampaign.site}/page/#{page.path}
+                        td
+                            if page.show_full_menu
+                                .badge.text-bg-success Full
+                            else
+                                .badge.text-bg-info Mini
+                        td= page.codes.join(', ')
+
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
+                                role="button",
+                                href=`/page/${page.id}/edit`
+                                data-bs-toggle='tooltip'
+                                title='Edit Page'
+                            )
+                                i.fas.fa-edit.fa-fw
+                            if checkPermission('admin')
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/page/${page.id}`,
+                                    data-back='/page'
+                                    data-bs-toggle='tooltip'
+                                    title='Delete Page'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

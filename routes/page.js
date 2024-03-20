@@ -212,8 +212,8 @@ router.use(function(req, res, next){
 
 router.get('/', csrf(), permission('gm'), list);
 router.get('/new', csrf(), permission('gm'), showNew);
-router.get('/:path(*)', csrf(), show);
 router.get('/:id/edit', csrf(), permission('gm'), showEdit);
+router.get('/:path(*)', csrf(), show);
 router.post('/', csrf(), permission('gm'), create);
 router.post('/:path(*)', csrf(), codeEnter);
 router.put('/:id', csrf(), permission('gm'), update);

@@ -794,11 +794,11 @@ async function recalculate(req, res, next){
 async function recalculateAll(req, res, next){
     try {
         const characters = await req.models.character.find({campaign_id:req.campaign.id});
-        const requiredSkills = await req.models.skill.find({campaign_id: req.campaign.id, required:true})
+        const requiredSkills = await req.models.skill.find({campaign_id: req.campaign.id, required:true});
         await async.eachLimit(characters, 5, async (characterData) => {
             const character = new Character({id:characterData.id});
             await character.init();
-            console.log(`Working on ${character.name}`)
+            console.log(`Working on ${character.name}`);
             return character.recalculate(requiredSkills);
         });
         return res.json({success:true});

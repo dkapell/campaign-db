@@ -379,15 +379,15 @@ async function create(req, res, next){
         await req.audit('skill', id, 'create', {new:skill});
         delete req.session.skillData;
         if (req.body.backto && req.body.backto === 'modal'){
-            const created = await req.models.skill.get(id)
+            const created = await req.models.skill.get(id);
             const skills = [];
             if (_.isArray(created.requires)){
-                for (skillId of created.requires){
+                for (const skillId of created.requires){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
             if (_.isArray(created.conflicts)){
-                for (skillId of created.conflicts){
+                for (const skillId of created.conflicts){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
@@ -484,15 +484,15 @@ async function update(req, res, next){
         await req.audit('skill', id, 'update', {old: current, new:skill});
         delete req.session.skillData;
         if (req.body.backto && req.body.backto === 'modal'){
-            const updated = await req.models.skill.get(id)
+            const updated = await req.models.skill.get(id);
             const skills = [];
             if (_.isArray(updated.requires)){
-                for (skillId of updated.requires){
+                for (const skillId of updated.requires){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
             if (_.isArray(updated.conflicts)){
-                for (skillId of updated.conflicts){
+                for (const skillId of updated.conflicts){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }

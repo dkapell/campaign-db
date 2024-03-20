@@ -74,7 +74,8 @@ async function showNew(req, res, next){
         res.locals.page = {
             name: null,
             path:null,
-            content: null
+            content: null,
+            codes: []
         };
         res.locals.breadcrumbs = {
             path: [

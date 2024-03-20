@@ -507,9 +507,9 @@ function updateTable(data){
         } else {
             rowData[column++] = `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`;
             //{
-               // display: `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`,
-                //'@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
-                //'@data-search': skill.source.name
+            // display: `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`,
+            //'@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
+            //'@data-search': skill.source.name
             //};
         }
     }
@@ -546,7 +546,7 @@ function updateTable(data){
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
-    console.log(rowData)
+    console.log(rowData);
     if (data.update){
         tableRow = $('.skill-table').find(`tr[data-click-id="${skill.id}"]`);
         const current = $('.skill-table').DataTable().row( tableRow ).data();
@@ -658,15 +658,15 @@ function getStatus(skill){
 }
 
 function getRequires(skill, skills){
-    let search = ''
+    let search = '';
     const $span = $('<span>');
     if (skill.requires && _.isArray(skill.requires) && skill.requires.length){
-        search = skill.requires.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',')
-        $span.text(`${skill.require_num} of ${skill.requires.length}`)
+        search = skill.requires.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',');
+        $span.text(`${skill.require_num} of ${skill.requires.length}`);
         const content = skill.requires.map(source => {
-            const required = _.findWhere(skills, {id: source})
-            return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`
-        }).join('<br> ')
+            const required = _.findWhere(skills, {id: source});
+            return `<strong>${required.source?required.source.name:'unknown'}:</strong> <i>${required.name?required.name:'TBD'}</i>`;
+        }).join('<br> ');
         const $icon = $('<i>')
             .addClass('far')
             .addClass('fa-question-circle')
@@ -683,19 +683,19 @@ function getRequires(skill, skills){
     return ({
         display: $span[0].outerHTML,
         '@data-search': search
-    })
+    });
 }
 
 function getConflicts(skill, skills){
-    let search = ''
+    let search = '';
     const $span = $('<span>');
     if (skill.conflicts && _.isArray(skill.conflicts) && skill.conflicts.length){
-        search = skill.conflicts.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',')
-        $span.text(skill.conflicts.length)
+        search = skill.conflicts.map(source => {return (_.findWhere(skills, {id: source})).name;}).join(',');
+        $span.text(skill.conflicts.length);
         const content = skill.conflicts.map(source => {
-            const conflict = _.findWhere(skills, {id: source})
-            return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
-        }).join('<br> ')
+            const conflict = _.findWhere(skills, {id: source});
+            return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`;
+        }).join('<br> ');
         const $icon = $('<i>')
             .addClass('far')
             .addClass('fa-question-circle')
@@ -712,7 +712,7 @@ function getConflicts(skill, skills){
     return ({
         display: $span[0].outerHTML,
         '@data-search': search
-    })
+    });
 }
 
 function prepSkillForm($form){

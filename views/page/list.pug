@@ -33,7 +33,9 @@ block content
                                 .badge.text-bg-success Full
                             else
                                 .badge.text-bg-info Mini
-                        td= page.codes.join(', ')
+                        td
+                            if page.codes.length
+                                | #{page.codes.length} Codes
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-2(

@@ -17,6 +17,7 @@ block content
 
 append scripts
     script(src='/javascripts/validator.js')
+    script(src='/javascripts/vendor/maximize-select2-height.js')
     script.
         $(function(){
              $('.select2').select2({
@@ -30,7 +31,6 @@ append scripts
                     theme:'bootstrap-5',
                     minimumResultsForSearch: 6,
                     width:'resolve',
-                    dropdownCssClass:'bigDropdown',
                     escapeMarkup: function(markup) {
                         return markup;
                     },
@@ -43,6 +43,9 @@ append scripts
                         }
                         return $(data.element).data('text');
                     }
-                });
+                }).maximizeSelect2Height({cushion: 15});
+
+
+
             });
         });

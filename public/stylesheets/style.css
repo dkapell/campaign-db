@@ -189,4 +189,6 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
 font-weight: 700;
 }
 
-
+.bigDropdown .select2-results__options {
+    max-height:400px !important;
+}

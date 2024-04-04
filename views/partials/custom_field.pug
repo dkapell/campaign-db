@@ -236,7 +236,7 @@ mixin customFieldEntry(field, type, data)
                                     }
                                     let detailHtml = '';
                                     if (option.image || option.description){
-                                        detailHtml = `<div class="row my-1"><div class="col-auto ms-2">${imgHtml}</div><div class="col">${marked.parseInline(option.description, {breaks: true})}</div></div>`;
+                                        detailHtml = `<div class="row my-1"><div class="col-sm-3 ms-2">${imgHtml}</div><div class="col">${marked.parseInline(option.description, {breaks: true})}</div></div>`;
                                     }
 
                                 option(

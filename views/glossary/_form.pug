@@ -45,7 +45,13 @@ if (backto)
 
 .row.my-1
     .col
-        button.btn.btn-primary(type="submit")= glossary_entry.id?'Update':'Create'
+        button.btn.btn-primary.me-2(type="submit")= glossary_entry.id?'Update':'Create'
+        if glossary_entry.id && checkPermission('gm')
+            button.btn.btn-danger.me-2#delete-glossary-btn(
+                role='button'
+                url=`/glossary/${glossary_entry.id}`
+                data-back='/glossary'
+            ) Delete
         a.btn.btn-link(href="/glossary") Cancel
 
 

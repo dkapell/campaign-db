@@ -16,6 +16,9 @@ $(function(){
         e.preventDefault();
     });
 
+    $('#delete-glossary-btn').confirmation({
+        title: 'Delete this glossary entry?'
+    }).on('click', deleteGlossaryEntry);
 
     var scroll_pos = 0;
     $(document).scroll(function() {
@@ -92,6 +95,20 @@ function hideEntryEdit(e){
     $(this).addClass('border-white');
     $(this).removeClass('border-info');
     $(this).find('.entry-edit-btn').addClass('invisible');
+}
+
+async function deleteGlossaryEntry(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+    const url = $this.attr('url');
+    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
+    if($this.attr('data-back')){
+        location = $this.attr('data-back');
+    } else {
+        location.reload();
+    }
+
 }
 
 

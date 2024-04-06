@@ -155,7 +155,8 @@ async function showDropdownOptionEditModal(e) {
     $modal.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
-        width:'resolve'
+        width:'resolve',
+        dropdownParent: $modal,
     });
 
     $modal.modal('show');

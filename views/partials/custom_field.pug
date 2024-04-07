@@ -157,7 +157,7 @@ mixin customFieldModal()
 mixin customFieldEntry(field, type, data)
     if (field.display_to_pc && field.editable_by_pc) || checkPermission('contrib')
         .row.my-2
-            .col
+            .col.text-bg-light.py-2.mx-2.rounded
                 - const current = _.findWhere(data, {custom_field_id:field.id})
                 case field.type
                     when 'text'

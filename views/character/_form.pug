@@ -32,8 +32,11 @@ if checkPermission('contrib')
             label.control-label(for="character_extra_traits") Extra Traits (comma-seperated)
             input.form-control(type="text",placeholder="Traits",name="character[extra_traits]",value=character.extra_traits,id='character_extra_traits')
 
-for field of custom_fields
-    +customFieldEntry(field, 'character', character.custom_field)
+if custom_fields.length
+    fieldset#custom-field-fieldset
+        label.h5.mb-1(for='custom-field-fieldset') Additional Fields
+        for field of custom_fields
+            +customFieldEntry(field, 'character', character.custom_field)
 
 .row.my-2
     .col

@@ -166,7 +166,7 @@ mixin customFieldEntry(field, type, data)
                                 .badge.text-bg-info.mx-2 PC Visible
                             if checkPermission('contrib') && field.editable_by_pc
                                 .badge.text-bg-warning.mx-2 PC Editable
-
+                        div.form-text!= marked.parseInline(field.description, {breaks:true})
                         input.form-control(
                             type="text"
                             placeholder="Text"
@@ -176,7 +176,7 @@ mixin customFieldEntry(field, type, data)
                             required=field.required
                             disabled=!(checkPermission('contrib')|| field.editable_by_pc)
                         )
-                        div.form-text!= marked.parse(field.description, {breaks:true})
+
                     when 'longtext'
                         if checkPermission('contrib') || field.editable_by_pc
                             -
@@ -196,7 +196,7 @@ mixin customFieldEntry(field, type, data)
                         else
                             label.control-label= field.name
 
-                            div.bg-light.border.rounded.p-2!=current.value?marked.parse(current.value, {breaks: true}):''
+                            div.bg-light.border.rounded.p-2!=current.value?marked.parseInline(current.value, {breaks: true}):''
                     when 'boolean'
                         .form-check.form-switch
                             input.form-check-input(
@@ -211,14 +211,14 @@ mixin customFieldEntry(field, type, data)
                                     .badge.text-bg-info.mx-2 PC Visible
                                 if checkPermission('contrib') && field.editable_by_pc
                                     .badge.text-bg-warning.mx-2 PC Editable
-                            div.form-text!= marked.parse(field.description, {breaks:true})
+                            div.form-text!= marked.parseInline(field.description, {breaks:true})
                     when 'dropdown'
                         label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
                             if checkPermission('contrib') && field.display_to_pc
                                 .badge.text-bg-info.mx-2 PC Visible
                             if checkPermission('contrib') && field.editable_by_pc
                                 .badge.text-bg-warning.mx-2 PC Editable
-
+                        div.form-text!= marked.parseInline(field.description, {breaks:true})
                         select.form-select.complex-select2(
                             name=`${type}[custom_field][cf-${field.id}]`
                             id=`${type}-custom_field-${field.id}`
@@ -245,6 +245,7 @@ mixin customFieldEntry(field, type, data)
                                     data-text=option.value
                                     data-html=`<div><strong>${option.value}</strong></div>${detailHtml}`
                                 )= option.value
+
 
 mixin customFieldDisplay(field, showBorder)
     if checkPermission('contrib') || field.custom_field.display_to_pc

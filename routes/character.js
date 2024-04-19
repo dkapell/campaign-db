@@ -49,7 +49,7 @@ async function showCurrent(req, res, next){
             }
         }
         req.flash('warning', 'Character not found');
-        return res.redirect('/character/list');
+        return res.redirect('/character');
     } catch(err){
         next(err);
     }
@@ -62,7 +62,7 @@ async function show(req, res, next){
         await character.init();
         if (!character._data){
             req.flash('warning', 'Character not found');
-            return res.redirect('character/list');
+            return res.redirect('character');
         }
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');

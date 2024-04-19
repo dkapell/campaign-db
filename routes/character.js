@@ -56,13 +56,16 @@ async function showCurrent(req, res, next){
 }
 
 async function show(req, res, next){
-    let id = req.params.id;
+    let id = Number(req.params.id);
+    if (!id){
+        return res.redirect('/character');
+    }
     try{
         const character = new Character({id:id});
         await character.init();
         if (!character._data){
             req.flash('warning', 'Character not found');
-            return res.redirect('character');
+            return res.redirect('/character');
         }
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');

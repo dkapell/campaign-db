@@ -92,7 +92,7 @@ mixin skillDoc(skill, backto)
     if (skill.tags)
         for tag in skill.tags
             if checkPermission('contrib') || tag.display_to_pc
-                .span.skill-tag.me-2.d-inline [ #{tag.name} ]
+                span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
     .skill-summary !{marked.parseInline(skill.summary)}
 

@@ -86,9 +86,9 @@ mixin skillDoc(skill, backto)
                 if (skill.cost)
                     span.skill-cost.ms-2 (#{skill.cost} cp)
     if (skill.usage && skill.usage.display_name)
-        .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
+        span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
     if skill.required
-        .span.skill-tag.me-2.d-inline [ required ]
+        span.skill-tag.me-2.d-inline [ required ]
     if (skill.tags)
         for tag in skill.tags
             if checkPermission('contrib') || tag.display_to_pc

@@ -3,8 +3,7 @@ mixin sourceDoc(source, backto)
         .row
             .col
 
-                h1.h3
-
+                h1.h3(id=`source-${source.id}`)
                     if checkPermission('gm')
                         a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Source')
                             | #{source.name}
@@ -33,9 +32,14 @@ mixin sourceDoc(source, backto)
             p.my-1
                 strong.me-1 Conflicts with:
                 if _.uniq(_.pluck(source.conflicts, 'name')).length === 1
-                    | #{source.conflicts[0].name}
+                    a.text-body.skill-link.d-inline(href=`#source-${source.conflicts[0].id}`) #{source.conflicts[0].name}
                 else
-                    | #{(_.pluck(source.conflicts, 'name')).join(', ')}
+                    each conflict, idx in source.conflicts
+                        if (idx === source.conflicts.length -1)
+                            a.text-body.skill-link.d-inline(href=`#source-${conflict.id}`) #{conflict.name}
+                        else
+                            a.text-body.skill-link.d-inline.me-1(href=`#source-${conflict.id}`) #{conflict.name},
+
 
 
 
@@ -51,7 +55,8 @@ mixin sourceDoc(source, backto)
                 if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
 
                     li
-                        strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} cp)
+                        a.text-body.skill-link(href=`#skill-${skill.id}`)
+                            strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} cp)
 
         +skillList(source.skills, backto)
 
@@ -65,7 +70,7 @@ mixin skillList(skills, backto)
 
 
 mixin skillDoc(skill, backto)
-    h2.h5
+    h2.h5(id=`skill-${skill.id}`)
         if checkPermission('gm')
             a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
                 if skill.name==='TBD'
@@ -113,9 +118,13 @@ mixin skillDoc(skill, backto)
         p.my-1
             strong.me-1 Conflicts with:
             if _.uniq(_.pluck(skill.conflicts, 'name')).length === 1
-                | #{skill.conflicts[0].name}
+                a.text-body.skill-link.d-inline(href=`#skill-${skill.conflicts[0].id}`) #{skill.conflicts[0].name}
             else
-                | #{(_.pluck(skill.conflicts, 'name')).join(', ')}
+                each conflict, idx in skill.conflicts
+                    if (idx === skill.conflicts.length -1)
+                        a.text-body.skill-link.d-inline(href=`#skill-${conflict.id}`) #{conflict.name}
+                    else
+                        a.text-body.skill-link.d-inline.me-1(href=`#skill-${conflict.id}`) #{conflict.name},
 
 
     if skill.description

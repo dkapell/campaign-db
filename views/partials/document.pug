@@ -23,10 +23,14 @@ mixin sourceDoc(source, backto)
                         |  #{source.require_num} of:
 
                 if _.uniq(_.pluck(source.requires, 'name')).length === 1
-                    | #{source.requires[0].name}
-                else
-                    | #{_.pluck(source.requires, 'name').join(', ')}
+                    a.text-body.skill-link.d-inline(href=`#source-${source.requires[0].id}`) #{source.requires[0].name}
 
+                else
+                    each requires, idx in source.requires
+                        if (idx === source.requires.length -1)
+                            a.text-body.skill-link.d-inline(href=`#source-${requires.id}`) #{requires.name}
+                        else
+                            a.text-body.skill-link.d-inline.me-1(href=`#source-${requires.id}`) #{requires.name},
 
         if (source.conflicts && source.conflicts.length)
             p.my-1
@@ -109,9 +113,13 @@ mixin skillDoc(skill, backto)
                     |  #{skill.require_num} of:
 
             if _.uniq(_.pluck(skill.requires, 'name')).length === 1
-                i #{skill.requires[0].name}
+                a.text-body.skill-link.d-inline(href=`#skill-${skill.requires[0].id}`) #{skill.requires[0].name}
             else
-                i #{_.pluck(skill.requires, 'name').join(', ')}
+                each requires, idx in skill.requires
+                    if (idx === skill.requires.length -1)
+                        a.text-body.skill-link.d-inline(href=`#skill-${requires.id}`) #{requires.name}
+                    else
+                        a.text-body.skill-link.d-inline.me-1(href=`#skill-${requires.id}`) #{requires.name},
 
 
     if (skill.conflicts && skill.conflicts.length)

@@ -85,14 +85,15 @@ mixin skillDoc(skill, backto)
                 span.skill-name= skill.name
                 if (skill.cost)
                     span.skill-cost.ms-2 (#{skill.cost} cp)
-    if (skill.usage && skill.usage.display_name)
-        span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
-    if skill.required
-        span.skill-tag.me-2.d-inline [ required ]
-    if (skill.tags)
-        for tag in skill.tags
-            if checkPermission('contrib') || tag.display_to_pc
-                span.skill-tag.me-2.d-inline [ #{tag.name} ]
+    .skill-attributes
+        if (skill.usage && skill.usage.display_name)
+            span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
+        if skill.required
+            span.skill-tag.me-2.d-inline [ required ]
+        if (skill.tags)
+            for tag in skill.tags
+                if checkPermission('contrib') || tag.display_to_pc
+                    span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
     .skill-summary !{marked.parseInline(skill.summary)}
 

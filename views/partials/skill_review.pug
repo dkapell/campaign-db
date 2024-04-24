@@ -30,10 +30,10 @@ mixin reviewSkillDoc(skill, showActions)
             .skill-source.my-1
                 strong= skill.source.name
             if (skill.usage)
-                .span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
+                span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
             if (skill.tags)
                 for tag in skill.tags
-                    .span.skill-tag.me-2.d-inline [ #{tag.name} ]
+                    span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
             .skill-summary
                 strong.me-1 Summary:

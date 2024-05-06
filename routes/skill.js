@@ -62,7 +62,7 @@ async function listDoc(req, res, next){
     }
     try {
         const sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
-        res.locals.sources = await async.map(sources, async (source) => {
+        res.locals.sources = (await async.map(sources, async (source) => {
             source.skills = await req.models.skill.find({source_id:source.id});
             source.skills = source.skills.sort(skillHelper.sorter);
             source.skills = await async.map(source.skills, async (skill) => {
@@ -90,7 +90,7 @@ async function listDoc(req, res, next){
                 return item;
             });
             return source;
-        });
+        })).sort(skillHelper.sourceSorter);
         res.locals.title += ' - Skill List';
         res.render('skill/document');
     } catch (err){

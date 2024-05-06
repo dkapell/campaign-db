@@ -6,14 +6,14 @@ block content
         .d-none.d-md-block.col-md-2
             h1.h3 Headers
             ul.list-unstyled.section-nav.sticky-top(style="top:72px")
-                - let currentType = null;
                 for source in sources
-                    if source.type.name !== currentType
-                        li.fw-bold= capitalize(source.type.name)
+                    if source.display_to_pc || checkPermission('contrib')
+                        if source.type.name !== currentType
+                            li.fw-bold= capitalize(source.type.name)
 
-                        - currentType= source.type.name
-                    li
-                        a.ms-2.skill-link(href=`#source-${source.id}`)= source.name
+                            - currentType= source.type.name
+                        li
+                            a.ms-2.skill-link(href=`#source-${source.id}`)= source.name
 
 
         .col.skillDoc

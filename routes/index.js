@@ -22,6 +22,7 @@ async function showIndex(req, res, next){
                 res.locals.character = await character.data();
             }
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
+            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false, user_id:user.id});
 
         } else if (user && user.type.match(/^(admin|core staff|contributing staff)$/)){
             const characters =  await req.models.character.find({active:true, campaign_id:req.campaign.id});

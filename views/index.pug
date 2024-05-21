@@ -30,6 +30,15 @@ append content
                         =currentCampaign.name
         .row.my-2
             .col-lg
+                if checkPermission('gm')
+                    if cp_grants.length && currentCampaign.display_cp
+                        h3 Tasks
+                        .list-group.mb-2
+                            a.list-group-item.list-group-item-action(href='/cp_grant')
+                                i.fas.fa-tasks.me-1
+                                | Unapproved CP Grants
+                                span.badge.text-bg-danger.float-end=cp_grants.length
+
                 if checkPermission('player')
                     h3 Resources
                     .list-group.mb-2
@@ -80,6 +89,20 @@ append content
                         a.list-group-item.list-group-item-action(href='/character')
                                 i.fa.fa-users.me-1
                                 | Characters
+                        if currentCampaign.display_cp
+                            a.list-group-item.list-group-item-action(href='/cp_grant')
+                                i.fas.fa-hat-wizard.me-1
+                                | Character Points
+                                if checkPermission('player') && !checkPermission('event')
+                                    .badge.text-bg-info.float-end
+                                        span=cp.usable
+                                        if cp.total > cp.usable
+                                            span.ms-1 (#{cp.total})
+                                else if cp_grants && cp_grants.length
+                                    .badge.text-bg-danger.float-end
+                                        span=cp_grants.length
+
+
                         if rulebooks.length
                             .list-group-item
                                 h5 Documents

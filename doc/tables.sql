@@ -43,6 +43,11 @@ create table campaigns (
     google_client_secret varchar(80),
     body_font varchar(255),
     header_font varchar(255),
+    display_cp boolean default false,
+    cp_base int,
+    cp_cap int,
+    cp_factor float,
+    cp_approval boolean default true,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -503,5 +508,22 @@ create table page_codes (
     primary key (id),
     CONSTRAINT page_codes_page_fk FOREIGN KEY (page_id)
         REFERENCES "pages" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+create table cp_grant (
+    id serial,
+    campaign_id int not null,
+    user_id int not null,
+    content varchar(255) not null,
+    amount float not null,
+    approved boolean default false,
+    created timestamp with time zone DEFAULT now(),
+    primary key (id),
+    CONSTRAINT cp_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT cp_user_id FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );

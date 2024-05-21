@@ -12,7 +12,8 @@ const models = {
     character: require('./character'),
     map: require('./map'),
     rulebook: require('./rulebook'),
-    custom_field: require('./custom_field')
+    custom_field: require('./custom_field'),
+    cp_grant: require('./cp_grant')
 };
 
 const tableFields =  ['id',

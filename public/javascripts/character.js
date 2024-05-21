@@ -209,6 +209,7 @@ async function removeSource(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.tooltip('hide');
     const characterId = $this.data('characterid');
     const sourceId = $this.data('sourceid');
     const csrfToken = $this.data('csrf');
@@ -289,6 +290,7 @@ async function removeSkill(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.tooltip('hide');
     const characterId = $this.data('characterid');
     const skillId = $this.data('skillid');
     const csrfToken = $this.data('csrf');

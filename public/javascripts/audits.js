@@ -1,4 +1,4 @@
-/* globals marked */
+/* globals marked _ */
 $(function(){
 
     $('.audit-table').each(prepAuditTable);
@@ -61,13 +61,23 @@ function prepAuditTable(){
                     if (row.object){
                         const $a = $('<a>')
                             .prop('href', `/${row.object_type}/${row.object_id}`)
-                            .text(row.object.name);
+                            .text(row.object.name?row.object.name:row.object.content);
                         return $a.prop('outerHTML');
                     }
-                    if (row.data.old)
+                    if (row.data.old && _.has(row.data.old, 'name')){
                         return row.data.old.name;
-                    if (row.data.new)
+                    }
+                    else if (row.data.old && _.has(row.data.old, 'content')){
+                        return row.data.old.content;
+                    }
+
+                    if (row.data.new && _.has(row.data.new, 'name')){
                         return row.data.new.name;
+                    }
+                    else if (row.data.new && _.has(row.data.new, 'content')){
+                        return row.data.new.content;
+                    }
+
 
                     return '<i>Unknown</i>';
                 }

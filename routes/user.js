@@ -3,6 +3,7 @@ const csrf = require('csurf');
 const async = require('async');
 const _ = require('underscore');
 const permission = require('../lib/permission');
+const campaignHelper = require('../lib/campaignHelper');
 
 /* GET users listing. */
 async function list(req, res, next){
@@ -16,7 +17,9 @@ async function list(req, res, next){
         if (!req.campaign.default_site){
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             res.locals.users = await async.map(campaign_users, async (campaign_user) => {
-                return req.models.user.get(req.campaign.id, campaign_user.user_id);
+                const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
+                user.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
+                return user;
             });
             res.locals.title += ' - Users';
             res.render('user/list', { pageTitle: 'Users' });

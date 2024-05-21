@@ -1,0 +1,48 @@
+extends ../layout
+
+block content
+    .row
+        .col
+            a.btn.btn-outline-success.my-2(href='/cp_grant/new')
+                span(class="fa fa-plus")
+                |  New Character Point Grant
+        .col.text-end
+            span.h3 Current CP #{cp.usable}
+                if cp.total > cp.usable
+                    span.ms-2 (#{cp.total} Total)
+    .table-responsive.mt-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-orderable-object='cp'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th Source
+                    th Amount
+                    if currentCampaign.cp_approval
+                        th Approved
+                    th Created
+
+
+            tbody
+                for grant in grants
+                    tr
+                        td.dtr-control
+                        td= grant.content
+                        td= grant.amount
+                        if currentCampaign.cp_approval
+                            td
+                                .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
+                        td= moment(grant.created).format('lll')
+
+
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

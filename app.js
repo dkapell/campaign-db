@@ -48,6 +48,7 @@ const imageRouter = require('./routes/image');
 
 const characterRouter = require('./routes/character');
 const characterFieldRouter = require('./routes/character_field');
+const cpGrantRouter = require('./routes/cp_grant');
 
 const reportRouter = require('./routes/report');
 
@@ -251,6 +252,7 @@ app.use('/glossary', glossaryEntryRouter);
 app.use('/rulebook', rulebookRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
+app.use('/cp_grant', cpGrantRouter);
 app.use('/image', imageRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);

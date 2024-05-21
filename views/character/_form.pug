@@ -21,10 +21,26 @@ if checkPermission('contrib')
 
 if !activeRequired
     .row.my-2
+        -
+            let tooManyCpSpent = false;
+            const owner = users?_.findWhere(users, {id:character.user_id}):activeUser
+            if (character.id && owner.type === 'player' && character.cp > cp.usable){
+                tooManyCpSpent = true;
+            }
         .col
-            .form-check.form-switch
-                input.form-check-input(type="checkbox", name="character[active]", id="character_active", checked=character.active disabled=character.active && !checkPermission('contrib'))
-                label.form-check-label(for="character_active") Active
+            if character.active && owner.type === 'player' && character.id
+                span.ms-1 Character is already active.
+
+            else if tooManyCpSpent
+                span.ms-1 Character has spent #{character.cp} of #{cp.usable} CP earned.
+            else
+                .form-check.form-switch
+                    input.form-check-input(type="checkbox", name="character[active]", id="character_active", checked=character.active disabled=character.active && !checkPermission('contrib') && activeEnabled )
+                    label.form-check-label(for="character_active") Active Character?
+                    if checkPermission('player') && !checkPermission('contrib')
+                        .form-text As a player, you may have only one active character at a time
+                            if currentCampaign.display_cp
+                                | , and your active character is limited by the CP you have earned.  Non-active characters do not have a CP limit.
 
 if checkPermission('contrib')
     .row.my-2

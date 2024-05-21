@@ -42,6 +42,9 @@ block content
                 .col.text-end
                     h4.text-info.mt-2
                         span.me-1#character-cp #{character.cp}
+                        if user.type === 'player' && currentCampaign.display_cp
+                            span.me-1 of #{cp.usable}
+
                         | CP Spent
 
 

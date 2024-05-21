@@ -1,0 +1,78 @@
+extends ../layout
+
+block content
+    .row
+        .col
+            a.btn.btn-outline-success.my-2(href='/cp_grant/new')
+                span(class="fa fa-plus")
+                |  New Character Point Grant
+        if currentCampaign.cp_approval
+            .col
+                .form-check.form-switch
+                    input.form-check-input#unapproved-filter(type="checkbox", name="campaign[display_cp]")
+                    label.form-check-label(for="unapproved-filter") Show only unapproved
+
+
+    .table-responsive.mt-2
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100#grant-table(
+            style="display: none"
+            data-orderable-object='cp'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Player
+                    th Source
+                    th Amount
+                    if currentCampaign.cp_approval
+                        th Approved
+                    th Created
+                    th
+
+
+            tbody
+                for grant in grants
+                    tr(class='clickable-row', data-click-object='cp' data-click-id=grant.id data-approved=grant.approved?'yes':'no')
+                        td.dtr-control
+                        td= grant.user.name
+                        td
+                            if grant.content.length>83
+                                | !{marked.parseInline(grant.content.substr(0, 80)+'...')}
+                            else
+                                | !{marked.parseInline(grant.content)}
+                        td= grant.amount
+                        if currentCampaign.cp_approval
+                            td
+                                .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
+                        td= moment(grant.created).format('lll')
+
+                        td.text-end
+                            if !grant.approved
+                                a.btn.btn-outline-success.btn-xs.action-btn.mx-2.cp-approve-btn(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Approve'
+                                    data-id=grant.id
+                                    data-csrf=csrfToken
+                                    data-back='/cp_grant'
+                                )
+                                    i.fas.fa-thumbs-up.fa-fw
+
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                role="button",
+                                data-bs-toggle='tooltip'
+                                title='Delete'
+                                url=`/cp_grant/${grant.id}`,
+                                data-back='/cp_grant'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/cp-grant.js')

@@ -4,6 +4,7 @@ const Character = require('../lib/Character');
 const _ = require('underscore');
 const async = require('async');
 const rulebookHelper = require('../lib/rulebookHelper');
+const campaignHelper = require('../lib/campaignHelper');
 
 /* GET home page. */
 async function showIndex(req, res, next){
@@ -20,6 +21,8 @@ async function showIndex(req, res, next){
                 await character.init();
                 res.locals.character = await character.data();
             }
+            res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
+
         } else if (user && user.type.match(/^(admin|core staff|contributing staff)$/)){
             const characters =  await req.models.character.find({active:true, campaign_id:req.campaign.id});
             await async.map(characters, async(character) => {
@@ -32,6 +35,7 @@ async function showIndex(req, res, next){
                 return character.user.type === 'player';
             });
             res.locals.character = null;
+            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false});
 
         }
     } catch (err) {

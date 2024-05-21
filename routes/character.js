@@ -7,6 +7,7 @@ const createError = require('http-errors');
 const permission = require('../lib/permission');
 const validator = require('validator');
 const Character = require('../lib/Character');
+const campaignHelper = require('../lib/campaignHelper');
 
 
 /* GET characters listing. */
@@ -74,6 +75,9 @@ async function show(req, res, next){
         res.locals.character.custom_field = res.locals.character.custom_field.filter(field => {
             return field.custom_field.display_to_pc || res.locals.checkPermission('contrib');
         });
+
+        res.locals.cp = await campaignHelper.cpCalculator(character._data.user_id, req.campaign.id);
+        res.locals.user = await req.models.user.get(req.campaign.id, character._data.user_id);
 
         res.locals.breadcrumbs = {
             path: [
@@ -229,6 +233,7 @@ async function showEdit(req, res, next){
         });
         res.locals.custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
         res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
+        res.locals.cp = await campaignHelper.cpCalculator(character.user_id, req.campaign.id);
         res.locals.title += ` - Edit Character - ${character.name}`;
         res.render('character/edit');
     } catch(err){

@@ -23,6 +23,7 @@ const tableFields = [
     'default_site',
     'default_to_player',
     'display_map',
+    'display_cp',
     'staff_drive_folder',
     'npc_drive_folder',
     'player_drive_folder',
@@ -31,7 +32,12 @@ const tableFields = [
     'display_glossary',
     'body_font',
     'header_font',
-    'menu_dark'
+    'menu_dark',
+    'cp_base',
+    'cp_cap',
+    'cp_factor',
+    'cp_approval'
+
 ];
 
 const Campaign = new Model('campaigns', tableFields, {

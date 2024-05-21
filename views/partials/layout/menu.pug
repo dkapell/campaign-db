@@ -24,6 +24,9 @@
 
                             if checkPermission('contrib')
                                 a.dropdown-item(href='/character') Characters
+                                if currentCampaign.display_cp
+                                    a.dropdown-item(href='/cp_grant') Character Points
+
                                 hr.dropdown-divider
                                 a.dropdown-item(href='/report/group') Character Group Report
                                 a.dropdown-item(href='/report/skill') Character Skill Report
@@ -43,6 +46,9 @@
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             a.dropdown-item(href='/character/active') Current Character
                             a.dropdown-item(href='/character') All Characters
+                            if currentCampaign.display_cp
+                                a.dropdown-item(href='/cp_grant') Character Points
+
                             a.dropdown-item(href='/skill/doc') Skills
 
 

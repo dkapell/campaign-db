@@ -12,6 +12,8 @@ block content
                     th Name
                     th Email
                     th Type
+                    if currentCampaign.display_cp
+                        th CP
                     th Drive
                     th
 
@@ -25,6 +27,12 @@ block content
                                 .badge.text-bg-success.ms-2 Site Admin
                         td= user.email
                         td= capitalize(user.type)
+                        if currentCampaign.display_cp
+                            td
+                                if user.type === 'player'
+                                    span #{user.cp.usable}
+                                        if user.cp.total > user.cp.usable
+                                            span.ms-1 (#{user.cp.total})
                         td
                             if user.staff_drive_folder
                                 a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(

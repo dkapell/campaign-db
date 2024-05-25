@@ -36,7 +36,7 @@ block content
 
             tbody
                 for grant in grants
-                    tr(class='clickable-row', data-click-object='cp' data-click-id=grant.id data-approved=grant.approved?'yes':'no')
+                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-approved=grant.approved?'yes':'no')
                         td.dtr-control
                         td= grant.user.name
                         td

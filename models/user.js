@@ -122,7 +122,7 @@ exports.delete = async  function(campaignId, id){
     if (campaignId){
         const campaign_user = await models.campaign_user.findOne({user_id: id, campaign_id: campaignId});
         if (campaign_user){
-            await models.campaign_user.delete(campaign_user.id);
+            await models.campaign_user.delete({user_id: id, campaign_id: campaignId});
         }
         const campaign_users = await models.campaign_user.find({user_id: id});
         if (!campaign_users.length){

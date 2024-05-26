@@ -1,11 +1,28 @@
 extends ../layout
 
 block content
-    a.btn.btn-success.my-2(href='/user/new')
-        i.fas.fa-plus
-        |  New User
+    if checkPermission('admin')
+
+        .row
+            .col
+                a.btn.btn-success.my-2(href='/user/new')
+                    i.fas.fa-plus
+                    |  New User
+    .row
+        .col
+            span.me-2.form-text Show Types:
+            for type in ['admin', 'core staff', 'contributing staff', 'event staff', 'player', 'none']
+                .form-check.form-check-inline.form-switch
+                    input.form-check-input.user-type-filter(
+                        type="checkbox"
+                        id=`user-type-filter-${type.replace(/\s+/, '_')}`
+                        value=type
+                        checked=type!=='none'
+                        )
+                    label.form-check-label(for=`user-type-filter-${type.replace(/\s+/, '_')}`)=type
+
     .table-responsive
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm#user-table
             thead
                 tr
                     th
@@ -19,7 +36,7 @@ block content
 
             tbody
                 for user in users
-                    tr.clickable-row(data-click-object='user' data-click-id=user.id)
+                    tr.clickable-row(data-click-object='user' data-click-id=user.id data-type=user.type)
                         td.dtr-expand
                         td
                             a(href='/user/' + user.id)= user.name
@@ -63,6 +80,7 @@ block content
                                 title="Edit User"
                             )
                                 i.fas.fa-edit.fa-fw
+
                             if !_.has(session, 'assumed_user')
                                 a.btn.btn-outline-danger.btn-xs.action-btn(
                                     role="button",
@@ -72,14 +90,18 @@ block content
                                 )
                                     i.fas.fa-user-secret.fa-fw
 
+                            if checkPermission('admin') && user.type === 'none'
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.ms-1(
+                                    role="button",
+                                    data-bs-toggle="tooltip"
+                                    title="Remove User"
+                                    url=`/user/${user.id}`,
+                                    data-back='/user'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
 
 append scripts
     script(src='/javascripts/data-table.js')
-    script.
-        $(function(){
-            $('[data-bs-toggle="tooltip"]').tooltip({
-                delay: { 'show': 500, 'hide': 100 },
-                placement:'auto'
-            });
-        });
+    script(src='/javascripts/user.js')
 

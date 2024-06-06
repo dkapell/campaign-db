@@ -246,7 +246,7 @@ async function clone(req, res, next){
 
     try{
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        const character = new Character({cloneId: id, user_id: user.id, campaign_id:req.campaign_id});
+        const character = new Character({cloneId: id, user_id: user.id, campaign_id:req.campaign.id});
         await character.init();
 
         await req.audit('character', character.id, 'clone', {from: id});

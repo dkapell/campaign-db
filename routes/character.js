@@ -20,7 +20,7 @@ async function list(req, res, next){
     };
     try {
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.type === 'player'){
+        if (user.type === 'player' && ! req.session.admin_mode){
             res.locals.characters = await req.models.character.find({user_id:user.id, campaign_id:req.campaign.id});
         } else {
             const characters = await req.models.character.find({campaign_id:req.campaign.id});

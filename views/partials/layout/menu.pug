@@ -44,8 +44,12 @@
                             aria-haspopup="true"
                             aria-expanded="false") Characters
                         .dropdown-menu(aria-labelledby="gmDropdown")
-                            a.dropdown-item(href='/character/active') Current Character
-                            a.dropdown-item(href='/character') All Characters
+                            if characterCount > 0
+                                a.dropdown-item(href='/character/active') Current Character
+                                a.dropdown-item(href='/character') All Characters
+                            else
+                                a.dropdown-item(href='/character/new') New Character
+
                             if currentCampaign.display_cp
                                 a.dropdown-item(href='/cp_grant') Character Points
 

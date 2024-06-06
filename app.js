@@ -232,6 +232,13 @@ app.use(async function(req, res, next){
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
     res.locals.mapCount = await mapHelper.countPCVisible(req.campaign.id);
+    const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+    if (user){
+        res.locals.characterCount = await req.models.character.count({campaign_id:req.campaign.id, user_id:user.id});
+    } else {
+        res.locals.characterCount = 0;
+    }
+
     next();
 });
 

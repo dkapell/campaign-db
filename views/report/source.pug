@@ -1,0 +1,23 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col
+            each source_type in skill_source_types
+                h3= capitalize(source_type.name)
+                    each source in skill_sources
+                        if source.type_id === source_type.id && !source.required
+                            h4.ms-2=source.name
+                            ul.ms-4.list-unstyled
+                                each character in characters
+                                    if character.active && character.user.type === 'player'
+                                        if _.findWhere(character.sources, {skill_source_id: source.id})
+                                            li
+                                                a(href=`/character/${character.id}`)=  character.name
+                                                span.ms-2 (
+                                                a.ms-1(href=`/user/${character.user.id}`)=character.user.name
+                                                span.ms-1 )
+
+
+append scripts
+    script(src='/javascripts/report.js')

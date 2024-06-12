@@ -215,6 +215,32 @@ async function showCustomFieldReport(req, res, next){
     }
 }
 
+async function showSourceReport(req, res, next){
+    res.locals.breadcrumbs = {
+        path: [
+            { url: '/', name: 'Home'},
+            { url: '/report', name: 'Reports'},
+        ],
+        current: 'Character Source Report'
+    };
+     try{
+        res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
+        res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
+        const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});
+        res.locals.characters = await async.map(characters, async (character) => {
+            if (character.user_id){
+                character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
+            }
+            character.sources = await req.models.character_skill_source.find({character_id:character.id});
+
+            return character;
+        });
+        res.locals.csrfToken = req.csrfToken();
+        res.render('report/source', { pageTitle: 'Character Source Report' });
+    } catch (err){
+        next(err);
+    }
+}
 
 const router = express.Router();
 
@@ -231,5 +257,6 @@ router.get('/skill', csrf(), showSkillReport);
 router.get('/skill/skills', csrf(), getSkillReportSkills);
 router.get('/skill/data', csrf(), getSkillReportData);
 router.get('/custom_field', csrf(), showCustomFieldReport);
+router.get('/source', csrf(), showSourceReport);
 
 module.exports = router;

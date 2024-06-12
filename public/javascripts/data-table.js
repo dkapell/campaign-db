@@ -68,6 +68,27 @@ function prepDataTable(){
 
     const dt = $table.DataTable(options);
 
+    if ($table.hasClass('table-exportable')){
+        const $exportIcon = $('<i>').addClass('fa').addClass('fa-download').addClass('me-1');
+        const $exportBtn = $('<button>')
+            .addClass('btn')
+            .addClass('btn-sm')
+            .addClass('btn-outline-info')
+            .addClass('float-end')
+            .append($exportIcon)
+            .append($('<span>Export CSV</span>'))
+            .attr('data-export', $table.data('export'))
+            .on('click', function(e){
+                e.preventDefault();
+                const url = $(this).data('export');
+
+                window.open(url, '_self');
+                $(this).blur();
+            });
+
+        $(dt.table().container()).find('.dataTables_length').append($exportBtn);
+    }
+
     if ($table.hasClass('table-orderable')){
         dt.column(1).visible(false);
         const $orderSwitch = $('<div>')

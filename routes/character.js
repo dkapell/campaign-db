@@ -19,22 +19,48 @@ async function list(req, res, next){
         current: 'Characters'
     };
     try {
+        res.locals.csrfToken = req.csrfToken();
+        res.locals.title += ' - Characters';
+
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
         if (user.type === 'player' && ! req.session.admin_mode){
             res.locals.characters = await req.models.character.find({user_id:user.id, campaign_id:req.campaign.id});
+            res.render('character/list', { pageTitle: 'Characters' });
         } else {
-            const characters = await req.models.character.find({campaign_id:req.campaign.id});
-            res.locals.characters = await async.map(characters, async (character) => {
+            let characters = await req.models.character.find({campaign_id:req.campaign.id});
+            characters = await async.map(characters, async (character) => {
                 if (character.user_id){
                     character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
                 }
                 return character;
             });
-        }
-        res.locals.csrfToken = req.csrfToken();
-        res.locals.title += ' - Characters';
+            if (req.query.export){
+                if (req.query.type === 'player'){
+                    characters = characters.filter(character => {
+                        return character.user.type === 'player';
+                    });
+                } else if (req.query.type === 'staff'){
+                    characters = characters.filter(character => {
+                        return character.user.type !== 'player';
+                    });
+                }
 
-        res.render('character/list', { pageTitle: 'Characters' });
+                if (!req.query.inactive){
+                    characters = characters.filter(character => {
+                        return character.active;
+                    });
+                }
+                const output = await campaignHelper.getCharacterCSV(req.campaign.id, characters);
+                res.attachment(`${req.campaign.name} Characters.csv`);
+                res.end(output);
+
+            } else {
+                res.locals.characters = characters;
+                res.render('character/list', { pageTitle: 'Characters' });
+            }
+
+        }
+
     } catch (err){
         next(err);
     }

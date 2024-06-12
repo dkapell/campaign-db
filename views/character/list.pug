@@ -10,6 +10,7 @@ block content
         a.btn.btn-outline-danger.my-2.ms-2#rebuildAllBtn(href='#' data-csrf=csrfToken)
             i.fa.fa-calculator.recalc-icon
             |  Recalculate All Characters
+
     if checkPermission('player') && !checkPermission('contrib')
         +characterListDisplay(characters, true, true, true)
 
@@ -32,7 +33,7 @@ block content
                     const activePcCharacters = characters.filter(character => {
                         return character.active && character.user.type === 'player'
                     });
-                +characterListDisplay(activePcCharacters, false, true)
+                +characterListDisplay(activePcCharacters, 'player', false, true)
 
 
             .tab-pane.fade#active-staff(role="tabpanel" aria-labelledby="active-staff-tab")
@@ -40,11 +41,11 @@ block content
                     const activeStaffCharacters = characters.filter(character => {
                         return character.active && character.user.type !== 'player'
                     });
-                +characterListDisplay(activeStaffCharacters, false, true)
+                +characterListDisplay(activeStaffCharacters, 'staff', false, true)
 
 
             .tab-pane.fade#all(role="tabpanel" aria-labelledby="all-tab")
-                +characterListDisplay(characters, false, true, true)
+                +characterListDisplay(characters, 'all', false, true, true)
 
 
 append scripts

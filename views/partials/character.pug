@@ -253,7 +253,7 @@ mixin characterAudits(audits, showCharacter=false)
                                 when 'remove source'
                                     strong= audit.data.source.name
 
-mixin characterTable(characters, forPlayer, showActive=false)
+mixin characterTable(characters, type, forPlayer, showActive=false)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
@@ -261,6 +261,8 @@ mixin characterTable(characters, forPlayer, showActive=false)
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
             data-order=forPlayer?'[[2, "desc"]]':'[[1, "asc"]]'
             style="display: none"
+            data-export=`/character?export=true&type=${type}${showActive?'&inactive=true':''}`
+            class=!forPlayer?'table-exportable':''
             )
             thead
                 tr
@@ -345,7 +347,7 @@ mixin characterCard(character)
 
 
 
-mixin characterList(characters, forPlayer=false, extended=false, showActive=false)
+mixin characterList(characters, type, forPlayer=false, extended=false, showActive=false)
     ul.list-group
         each character in characters
             +characterListItem(character, forPlayer, extended, showActive)
@@ -395,9 +397,9 @@ mixin characterListItem(character, forPlayer, extended, showActive)
                         )
                             i.fas.fa-trash.fa-fw
 
-mixin characterListDisplay(characters, forPlayer=false, extended=false, showActive=false)
+mixin characterListDisplay(characters, type, forPlayer=false, extended=false, showActive=false)
     .d-lg-none
-        +characterList(characters, forPlayer, extended, showActive)
+        +characterList(characters, type, forPlayer, extended, showActive)
     .d-none.d-lg-block
-        +characterTable(characters, forPlayer, showActive)
+        +characterTable(characters, type, forPlayer, showActive)
 

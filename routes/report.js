@@ -197,7 +197,7 @@ async function showCustomFieldReport(req, res, next){
         ],
         current: 'Custom Field Report'
     };
-     try{
+    try{
         res.locals.custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id});
         const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});
         res.locals.characters = await async.map(characters, async (character) => {
@@ -223,7 +223,7 @@ async function showSourceReport(req, res, next){
         ],
         current: 'Character Source Report'
     };
-     try{
+    try{
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});

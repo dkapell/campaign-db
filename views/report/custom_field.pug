@@ -1,0 +1,50 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col
+            each custom_field in custom_fields
+                h3=custom_field.name
+                if custom_field.type === 'dropdown'
+                    each field_option in custom_field.configuration.options
+                        h4.ms-2=field_option.value
+                        ul.ms-4.list-unstyled
+                            each character in characters
+                                if character.active
+                                    - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
+                                    if character_field && character_field.value === field_option.value
+                                        li
+                                            a(href=`/character/${character.id}`)=  character.name
+                                            span.ms-2 (
+                                            a.ms-1(href=`/user/${character.user.id}`)=character.user.name
+                                            span.ms-1 )
+                else if custom_field.type === 'boolean'
+                    h4.ms-2 Set/True/Yes
+                    ul.ms-4.list-unstyled
+                        each character in characters
+                            if character.active
+                                - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
+                                if character_field && character_field.value
+                                    li
+                                        a(href=`/character/${character.id}`)=  character.name
+                                        span.ms-2 (
+                                        a.ms-1(href=`/user/${character.user.id}`)=character.user.name
+                                        span.ms-1 )
+                else
+                    ul.ms-4.list-unstyled
+                        each character in characters
+                            if character.active
+                                - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
+                                if character_field && character_field.value
+                                    li.border-bottom
+                                        a(href=`/character/${character.id}`)=  character.name
+                                        span.ms-2 (
+                                        a.ms-1(href=`/user/${character.user.id}`)=character.user.name
+                                        span.ms-1 )
+                                        p.my-1!=marked.parseInline(character_field.value)
+
+
+
+
+append scripts
+    script(src='/javascripts/report.js')

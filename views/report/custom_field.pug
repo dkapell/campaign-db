@@ -10,7 +10,7 @@ block content
                         h4.ms-2=field_option.value
                         ul.ms-4.list-unstyled
                             each character in characters
-                                if character.active
+                                if character.active && character.user.type === 'player'
                                     - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
                                     if character_field && character_field.value === field_option.value
                                         li
@@ -22,7 +22,7 @@ block content
                     h4.ms-2 Set/True/Yes
                     ul.ms-4.list-unstyled
                         each character in characters
-                            if character.active
+                            if character.active && character.user.type === 'player'
                                 - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
                                 if character_field && character_field.value
                                     li
@@ -33,7 +33,7 @@ block content
                 else
                     ul.ms-4.list-unstyled
                         each character in characters
-                            if character.active
+                            if character.active && character.user.type === 'player'
                                 - const character_field = _.findWhere(character.custom_fields, {custom_field_id: custom_field.id})
                                 if character_field && character_field.value
                                     li.border-bottom

@@ -12,7 +12,7 @@ block content
             |  Recalculate All Characters
 
     if checkPermission('player') && !checkPermission('contrib')
-        +characterListDisplay(characters, true, true, true)
+        +characterListDisplay(characters, 'player', true, true, true)
 
     else
         ul.nav.nav-tabs.my-2#characterTabs(role="tablist")

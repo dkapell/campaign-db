@@ -40,6 +40,24 @@ append scripts
                             return $select.data('placeholder');
                         }
                         return $(data.element).data('text');
+                    },
+                    matcher: function(params, data){
+                        if ($.trim(params.term) === '') {
+                            return data;
+                        }
+
+                        if (typeof data.text === 'undefined') {
+                          return null;
+                        }
+
+                        if (_.has(data.element.attributes, 'data-search')){
+                            const search = data.element.attributes.getNamedItem('data-search').value;
+                            if (search.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+                                return data;
+                            }
+                        }
+
+                        return null;
                     }
                 }).maximizeSelect2Height({cushion: 15});
             });

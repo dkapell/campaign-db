@@ -219,7 +219,7 @@ mixin customFieldEntry(field, type, data)
                             if checkPermission('contrib') && field.editable_by_pc
                                 .badge.text-bg-warning.mx-2 PC Editable
                         div.form-text!= marked.parseInline(field.description, {breaks:true})
-                        select.form-select.complex-select2(
+                        select.form-select.complex-search-select2(
                             name=`${type}[custom_field][cf-${field.id}]`
                             id=`${type}-custom_field-${field.id}`
                             data-placeholder='Select'
@@ -244,6 +244,7 @@ mixin customFieldEntry(field, type, data)
                                     selected=option.value===(current?current.value:null)
                                     data-text=option.value
                                     data-html=`<div><strong>${option.value}</strong></div>${detailHtml}`
+                                    data-search=`${option.value} ${option.description}`
                                 )= option.value
 
 

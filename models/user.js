@@ -224,13 +224,15 @@ async function postSave(id, data, campaignId){
         }
         if (_.has(data, 'campaign_user_name')){
             const user = await exports.get(campaignId, id);
-            if (user.name !== data.campaign_user_name){
-                campaign_user.name = data.campaign_user_name;
-            } else {
+            if (_.has(user, 'sso_name') && user.sso_name === data.campaign_user_name){
                 campaign_user.name = null;
+                changed = true;
+            } else if (user.name !== data.campaign_user_name){
+                campaign_user.name = data.campaign_user_name;
+                changed = true;
             }
-            changed = true;
         }
+
         if (changed){
             await models.campaign_user.update({user_id: campaign_user.user_id, campaign_id:campaignId}, campaign_user);
         }

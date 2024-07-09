@@ -59,6 +59,7 @@ create index campaigns_site_idx ON campaigns (site);
 create table campaigns_users(
     user_id             int not null,
     campaign_id         int not null,
+    name                varchar(80),
     drive_folder varchar(255),
     staff_drive_folder varchar(255),
     notes              text,

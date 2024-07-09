@@ -24,7 +24,7 @@ if !activeRequired
         -
             let tooManyCpSpent = false;
             const owner = users?_.findWhere(users, {id:character.user_id}):activeUser
-            if (character.id && owner.type === 'player' && character.cp > cp.usable){
+            if ( currentCampaign.display_cp && character.id && owner.type === 'player' && character.cp > cp.usable){
                 tooManyCpSpent = true;
             }
         .col

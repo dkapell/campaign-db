@@ -7,6 +7,12 @@ block content
 
     h4.d-inline.ms-4
         a(href=`mailto:${user.email}`)=user.email
+    if user.sso_name
+        h5.ms-2.d-inline
+            span (
+            i.fab.fa-google
+            span.ms1 : #{user.sso_name})
+
     h3.float-end
         span.badge.text-bg-info=user.type
     

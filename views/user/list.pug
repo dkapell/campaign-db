@@ -40,6 +40,10 @@ block content
                         td.dtr-expand
                         td
                             a(href='/user/' + user.id)= user.name
+                            if user.sso_name
+                                small.ms-2
+                                    i.fab.fa-google
+                                    span.ms1 : #{user.sso_name}
                             if user.site_admin
                                 .badge.text-bg-success.ms-2 Site Admin
                         td= user.email

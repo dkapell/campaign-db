@@ -197,6 +197,10 @@ async function postSelect(user, campaignId){
         user.notes = campaign_user.notes;
         user.drive_folder = campaign_user.drive_folder;
         user.staff_drive_folder = campaign_user.staff_drive_folder;
+        if (campaign_user.name){
+            user.sso_name = user.name;
+            user.name = campaign_user.name;
+        }
     } else {
         user.type = 'none';
         user.campaignType = 'unset';
@@ -218,6 +222,15 @@ async function postSave(id, data, campaignId){
                 changed = true;
             }
         }
+        if (_.has(data, 'campaign_user_name')){
+            const user = await exports.get(campaignId, id);
+            if (user.name !== data.campaign_user_name){
+                campaign_user.name = data.campaign_user_name;
+            } else {
+                campaign_user.name = null;
+            }
+            changed = true;
+        }
         if (changed){
             await models.campaign_user.update({user_id: campaign_user.user_id, campaign_id:campaignId}, campaign_user);
         }
@@ -231,6 +244,12 @@ async function postSave(id, data, campaignId){
         for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes']){
             if (_.has(data, field)){
                 campaign_user[field] = data[field];
+            }
+        }
+        if (_.has(data, 'campaign_user_name')){
+            const user = await exports.get(campaignId, id);
+            if (user.name !== data.campaign_user_name){
+                campaign_user.name = data.campaign_user_name;
             }
         }
         await models.campaign_user.create(campaign_user);

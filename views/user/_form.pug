@@ -5,8 +5,14 @@ if checkPermission('admin')
     .row.my-2
         .col-md
             label.control-label(for="user_name") Name
-            input.form-control#user_name(type="text",placeholder="Name",name="user[name]",value=user.name,required)
+            input.form-control#user_name(type="text",placeholder="Name",name="user[campaign_user_name]",value=user.name,required)
             div.invalid-feedback Please choose a valid name
+
+    if user.sso_name
+        .row.my-2
+            .col-md
+                label.control-label(for="user_sso_name") Name from Google
+                input.form-control#user_sso_name(type="text",placeholder="Name",value=user.sso_name,disabled)
 
     .row.my-2
         .col-md

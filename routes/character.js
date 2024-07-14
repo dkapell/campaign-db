@@ -686,6 +686,7 @@ async function removeSkill(req, res, next){
             await req.audit('character', character.id, 'remove skill', {characterSkill: details.id, skill: details.skill_id});
             return res.json({success:true, skill_id: details.id});
         } catch(err){
+            console.error(err);
             return res.json({success:false, message:err});
         }
     } catch(err){

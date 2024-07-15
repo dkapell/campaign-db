@@ -24,7 +24,7 @@ block content
                     if allowedEdit
                         a.btn.btn-outline-primary.btn-sm.mt-1(role="button" href='/character/' + character.id + '/edit')
                             i.fas.fa-edit
-                            |  Edit Details / Notes
+                            |  Edit Character Details
                     .btn-group.mt-1.ms-2
                         a.btn.btn-outline-info.btn-sm(role="button" href='/character/' + character.id + '/pdf')
                             i.fas.fa-file-alt
@@ -118,6 +118,12 @@ block content
 
         if character.custom_field.length
             .tab-pane.fade#details(role="tabpanel" aria-labelledby="details-tab")
+                if allowedEdit
+                    .row.p-2
+                        .col
+                            a.btn.btn-outline-primary.btn-sm(role="button" href='/character/' + character.id + '/edit')
+                                i.fas.fa-edit
+                                |  Edit Character Details
                 dl.row.p-2
                     for custom_field, idx in character.custom_field
                        +customFieldDisplay(custom_field, idx>0)

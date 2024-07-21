@@ -19,6 +19,31 @@ if checkPermission('contrib')
         input.form-control(type="text",placeholder="Name",name="character[name]",value=character.name,id='character_name',required)
         div.invalid-feedback Please choose a valid name
 
+.row.my-2
+    .col
+        label.control-label(for="character_pronouns") Character Pronouns
+        select.form-select.select2#character_pronouns(name="character[pronouns]" data-placeholder='Pronouns')
+            - const pronouns = ['She/Her', 'He/Him', 'They/Them']
+            option
+
+            each pronoun in pronouns
+                option(
+                    value=pronoun
+                    selected=character.pronouns===pronoun
+                )= pronoun
+            option(
+                value='other'
+                selected=character.pronouns && _.indexOf(pronouns, character.pronouns)===-1
+            ) Other / None
+        input.form-control.mt-2#character_pronouns_other(
+            type="text"
+            placeholder="Specify Other or leave blank"
+            name="character[pronouns_other]"
+            value=character.pronouns && _.indexOf(pronouns, character.pronouns)===-1?character.pronouns:''
+            style='display:none'
+        )
+
+
 if !activeRequired
     .row.my-2
         -

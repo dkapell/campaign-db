@@ -29,7 +29,7 @@ append content
                             img.rounded.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         =currentCampaign.name
         .row.my-2
-            .col-lg
+            .col-lg-5
                 if checkPermission('gm')
                     if cp_grants.length && currentCampaign.display_cp
                         h3 Tasks
@@ -89,7 +89,7 @@ append content
                         a.list-group-item.list-group-item-action(href='/character')
                                 i.fa.fa-users.me-1
                                 | Characters
-                        if currentCampaign.display_cp
+                        if currentCampaign.display_cp && cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-hat-wizard.me-1
                                 | Character Points
@@ -110,7 +110,7 @@ append content
                 else
                     p Not currently a player
 
-            .col-lg
+            .col-lg-7
                 if character
                     h3 Character
                     +characterCard(character)

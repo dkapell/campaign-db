@@ -305,6 +305,7 @@ create table characters(
     campaign_id     int not null,
     user_id int not null,
     name varchar(255),
+    pronouns varchar(128),
     active boolean default false,
     cp int default 0,
     extra_traits varchar(255),

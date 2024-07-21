@@ -7,6 +7,7 @@ const tableFields = [
     'id',
     'campaign_id',
     'name',
+    'pronouns',
     'user_id',
     'active',
     'cp',

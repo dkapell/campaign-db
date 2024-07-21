@@ -359,10 +359,12 @@ mixin characterListItem(character, forPlayer, extended, showActive)
                 a(href=`/character/${character.id}` style='font-size: 1rem')
                     i.far.fa-user.me-1
                     = character.name
+                if character.pronouns
+                    span.ms-2 (#{character.pronouns})
                 if showActive && character.active
                     .badge.text-bg-success.badge-pill.ms-1 Active
-            .col-2
-                small #{character.cp} CP
+            .col-1
+                small #{character.cp}&nbsp;CP
             if !forPlayer
                 .col-4
                     a(href=`/user/${character.user.id}`)

@@ -1,5 +1,7 @@
 $(function(){
-     $('.select2').select2({
+    $('#character_pronouns').on('change', checkCharacterPronouns).trigger('change');
+
+    $('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve'
@@ -66,3 +68,12 @@ $(function(){
         }).maximizeSelect2Height({cushion: 15});
     });
 });
+
+function checkCharacterPronouns(e){
+    const $this = $(this);
+    if ($this.val() === 'other'){
+        $('#character_pronouns_other').show();
+    } else {
+        $('#character_pronouns_other').hide();
+    }
+}

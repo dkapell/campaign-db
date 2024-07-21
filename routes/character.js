@@ -192,6 +192,7 @@ async function showNew(req, res, next){
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
         res.locals.character = {
             name: null,
+            pronouns: null,
             user_id: user.id,
             active: false,
             activeRequired: false,
@@ -318,6 +319,10 @@ async function create(req, res, next){
             }
         }
 
+        if (characterData.pronouns === 'other'){
+            characterData.pronouns = characterData.pronouns_other;
+        }
+
         characterData.campaign_id = req.campaign.id;
         const character = new Character(characterData);
         await character.init();
@@ -372,6 +377,10 @@ async function update(req, res, next){
             } else if (fieldData === ''){
                 characterData.custom_field[`cf-${field.id}`] = null;
             }
+        }
+
+        if (characterData.pronouns === 'other'){
+            characterData.pronouns = characterData.pronouns_other;
         }
 
         const character = new Character({id:id});

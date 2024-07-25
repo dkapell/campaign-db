@@ -59,3 +59,12 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
                                     data-csrf=csrfToken
                                 )
                                     i.fas.fa-trash.fa-fw
+                            else
+                                a.btn.btn-outline-dark.btn-xs(
+                                    role=button
+                                    disabled=true
+                                    title=`Not Removable: ${skill.no_remove_reason}`
+                                    data-bs-toggle='tooltip'
+                                )
+                                    i.fas.fa-ban.fa-fw
+

@@ -410,16 +410,18 @@ mixin characterListDisplay(characters, type, forPlayer=false, extended=false, sh
         +characterTable(characters, type, forPlayer, showActive)
 
 mixin edit_skill_details(character_skill)
-    .row.my-2
-        .col
-            .form-check.form-switch
-                input.form-check-input#character_skill_hide_on_sheet(type="checkbox", name="character_skill[details][hide_on_sheet]" checked=character_skill.details.hide_on_sheet)
-                label.form-check-label(for="character_skill_hide_on_sheet") Do not display in list of Skills on Character Sheet
+    if !character_skill.provides_data || character_skill.provides_data.skill
+        #skill-details-on-sheet-options
+            .row.my-2
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#character_skill_hide_on_sheet(type="checkbox", name="character_skill[details][hide_on_sheet]" checked=character_skill.details.hide_on_sheet)
+                        label.form-check-label(for="character_skill_hide_on_sheet") Do not display in list of Skills on Character Sheet
 
-    .row.my-2
-        .col
-            label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (for Character Sheet, i.e. verbal)
-            input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
+            .row.my-2
+                .col
+                    label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (for Character Sheet, i.e. verbal)
+                    input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
     .row.my-2
         .col
             label.control-label(for="skill-character_skill_notes") Skill Notes

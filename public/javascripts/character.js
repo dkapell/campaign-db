@@ -373,6 +373,11 @@ function prepCharacterSkillForm($form, character_skill){
     $('#character_skill_skill_id').on('change', function(e){
         const skill = $(this).find(':selected').data('skill');
         $('#skill-description').html(characterskillTemplate({skill:skill}));
+        if (skill.provides_data.skill){
+            $('#skill-details-on-sheet-options').show();
+        } else {
+            $('#skill-details-on-sheet-options').hide();
+        }
         displayDetails(skill);
     });
 

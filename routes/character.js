@@ -538,10 +538,13 @@ async function showEditSkillApi(req, res, next){
             throw new Error('Invalid Character');
         }
 
+        const character_skill = await character.skill(skillId);
+        character_skill.provides_data = await character.skillProvides(skillId);
+
         const doc = {
             csrfToken: req.csrfToken(),
             possibleSkills: [],
-            character_skill: await character.skill(skillId)
+            character_skill: character_skill
         };
 
         if (!_.has(doc.character_skill, 'details') || !doc.character_skill.details){

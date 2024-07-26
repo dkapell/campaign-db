@@ -36,13 +36,12 @@ if possibleSkills.length
 if possibleSkills.length
    .row
         .col
-            label.control-label.w-100#skill-notes-heading(for="skill-character_skill_notes", data-bs-toggle="collapse" data-bs-target="#skill-notes" aria-expanded=!!character_skill.details.notes?'true':'false') Skill Notes
-                i.expand-text-shown.ms-4 (click to hide note)
-                i.expand-text.ms-4 (click to show note)
+            label.control-label.w-100#skill-notes-heading(for="skill-character_skill_notes", data-bs-toggle="collapse" data-bs-target="#skill-notes" aria-expanded=!!character_skill.details.notes?'true':'false') Character Sheet Options
+                i.expand-text-shown.ms-4 (click to hide options)
+                i.expand-text.ms-4 (click to show options)
                 span.float-end.ps-2
                     i.fa.fa-chevron-up
                     i.fa.fa-chevron-down
-
 
 
             .div#skill-notes(aria-labelledby="skill-notes-heading" class={collapse: !character_skill.details.notes})

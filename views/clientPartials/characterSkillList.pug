@@ -16,6 +16,9 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
                 td.text-nowrap
                     strong.d-block.strong.d-md-none= skill.source.name
                     i=skill.name
+                    if _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet
+                        span.badge.text-bg-dark.ms-2 Hidden
+
                 td!=marked.parseInline(skill.summary)
                     if skill.details
                         if skill.details.stat

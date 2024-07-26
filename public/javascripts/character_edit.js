@@ -1,3 +1,5 @@
+/* globals _ */
+
 $(function(){
     $('#character_pronouns').on('change', checkCharacterPronouns).trigger('change');
 
@@ -52,7 +54,7 @@ $(function(){
                 }
 
                 if (typeof data.text === 'undefined') {
-                  return null;
+                    return null;
                 }
 
                 if (_.has(data.element.attributes, 'data-search')){

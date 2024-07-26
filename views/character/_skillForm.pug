@@ -46,20 +46,9 @@ if possibleSkills.length
 
 
             .div#skill-notes(aria-labelledby="skill-notes-heading" class={collapse: !character_skill.details.notes})
-                .row.my-2
-                    .col
-                        label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (i.e. verbal)
-                        input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
-                .row.my-2
-                    .col
-                        +markdownEditor('Notes', 'character_skill_notes', 'character_skill[details][notes]', 5, 100, character_skill.details.notes, true)
-else
-    .row.my-2
-        .col
-            label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (for Character Sheet, i.e. verbal)
-            input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
+                +edit_skill_details(character_skill)
 
-    .row.my-2
-        .col
-            label.control-label(for="skill-character_skill_notes") Skill Notes
-            +markdownEditor('Longer Notes', 'character_skill_notes', 'character_skill[details][notes]', 5, 100, character_skill.details.notes, true)
+else
+    +edit_skill_details(character_skill)
+
+

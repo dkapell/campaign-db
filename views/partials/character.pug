@@ -166,8 +166,12 @@ mixin characterSheet(character)
                         label.form-check-label(for="showSkillDescriptions") Show Skill Descriptions
             .row
                 .col
+                    -
+                        const skills_filtered = _.reject(character.provides.skills, function(skill){
+                            return _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet;
+                        })
 
-                    - const grouped = _.groupBy(character.provides.skills, 'usage_id')
+                        const grouped = _.groupBy(skills_filtered, 'usage_id')
                     each group, type in grouped
                         .card.mb-3
                             h5.py-2.card-header #{type?group[0].usage.name:'Unset Usage'} Skills
@@ -404,4 +408,21 @@ mixin characterListDisplay(characters, type, forPlayer=false, extended=false, sh
         +characterList(characters, type, forPlayer, extended, showActive)
     .d-none.d-lg-block
         +characterTable(characters, type, forPlayer, showActive)
+
+mixin edit_skill_details(character_skill)
+    .row.my-2
+        .col
+            .form-check.form-switch
+                input.form-check-input#character_skill_hide_on_sheet(type="checkbox", name="character_skill[details][hide_on_sheet]" checked=character_skill.details.hide_on_sheet)
+                label.form-check-label(for="character_skill_hide_on_sheet") Do not display on Character Sheet
+
+    .row.my-2
+        .col
+            label.control-label(for="skill-character_skill_sheet_note") Character Sheet Note (for Character Sheet, i.e. verbal)
+            input.form-control#character_skill_sheet_note(type="text",placeholder="Note for Character Sheet" name="character_skill[details][sheet_note]" value=character_skill.details.sheet_note)
+    .row.my-2
+        .col
+            label.control-label(for="skill-character_skill_notes") Skill Notes
+            +markdownEditor('Notes', 'character_skill_notes', 'character_skill[details][notes]', 5, 100, character_skill.details.notes, true)
+
 

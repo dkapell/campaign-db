@@ -514,6 +514,7 @@ async function showAddSkillApi(req, res, next){
                 tagskill: null,
                 sheet_note: null,
                 skill: null,
+                hide_on_sheet: null,
             }
         };
         if (_.has(req.session, 'characterSkillData')){
@@ -578,6 +579,7 @@ async function addSkill(req, res, next){
             if (!skill || skill.campaign_id !== req.campaign.id){
                 throw new Error('Skill not found');
             }
+
             const details = formatDetails(skill.provides, req.body.character_skill.details);
 
             const characterSkillId = await character.addSkill(skillId, details);
@@ -640,6 +642,12 @@ function formatDetails(provides, data){
     }
     if (_.has(data, 'sheet_note')){
         details.sheet_note = data.sheet_note;
+    }
+
+    if (_.has(data, 'hide_on_sheet')){
+        details.hide_on_sheet = data.hide_on_sheet;
+    } else {
+        details.hide_on_sheet = false;
     }
 
     if (_.isArray(provides) && provides.length){

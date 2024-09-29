@@ -71,7 +71,7 @@ if (config.get('app.secureOnly')){
 }
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'pug');
 
 if (config.get('app.logRequests')){
@@ -88,7 +88,7 @@ app.use(methodOverride(function(req, res){
     }
 }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 const sessionConfig = {
     secret: config.get('app.sessionSecret'),

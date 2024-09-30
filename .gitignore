@@ -39,6 +39,8 @@ jspm_packages
 # Mac crap
 .DS_Store
 
+dist
+
 # app specific
 output
 doc/scratchspace

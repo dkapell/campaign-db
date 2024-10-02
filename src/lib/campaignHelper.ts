@@ -13,7 +13,7 @@ type GlossaryOptions = {
     onlyTables?:string[]
 }
 
-async function init(campaignId:number, options?:{[key:string]:unknown}){
+async function init(campaignId:number, options?:{[key:string]:unknown}): Promise<void>{
     if (!options){
         options = {};
     }
@@ -23,7 +23,7 @@ async function init(campaignId:number, options?:{[key:string]:unknown}){
     await createSkillEntries(campaignId, data.skills, options);
 };
 
-async function createGlossaryEntries(campaignId:number, glossaryEntries:Record<GlossaryTypes, ModelData[]>, options:GlossaryOptions){
+async function createGlossaryEntries(campaignId:number, glossaryEntries:Record<GlossaryTypes, ModelData[]>, options:GlossaryOptions): Promise<void> {
     if (options.skip && options.skip.glossary){ return; }
     for (const table in glossaryEntries){
         for (const doc of glossaryEntries[table]){
@@ -32,14 +32,14 @@ async function createGlossaryEntries(campaignId:number, glossaryEntries:Record<G
     }
 }
 
-async function createAttributes(campaignId:number, attributes:ModelData[], options:GlossaryOptions){
+async function createAttributes(campaignId:number, attributes:ModelData[], options:GlossaryOptions): Promise<void> {
     if (options.skip && options.skip.attributes){ return; }
     for (const doc of attributes){
         await createRow(campaignId, 'attribute', doc, options);
     }
 }
 
-async function createSkillEntries(campaignId:number, skillEntries:Record<SkillTableTypes, ModelData[]>, options:GlossaryOptions){
+async function createSkillEntries(campaignId:number, skillEntries:Record<SkillTableTypes, ModelData[]>, options:GlossaryOptions): Promise<void> {
     if (options.skip && options.skip.skills){ return; }
     for (const table in skillEntries){
         if (!options.onlyTables || _.indexOf(options.onlyTables, table) !== -1){
@@ -63,7 +63,7 @@ async function createSkillEntries(campaignId:number, skillEntries:Record<SkillTa
     return models.skill_source.create(doc);
 }
 
-async function createRow(campaignId:number, table:string, data:ModelData, options:{[key:string]:unknown}){
+async function createRow(campaignId:number, table:string, data:ModelData, options:{[key:string]:unknown}): Promise<void>{
     const doc = {
         campaign_id: campaignId,
         name: data.name
@@ -86,7 +86,7 @@ async function createRow(campaignId:number, table:string, data:ModelData, option
     }
 }
 
-async function attributeSorter(attributes:ModelData[], campaignId:number){
+async function attributeSorter(attributes:ModelData[], campaignId:number): Promise<ModelData[]>{
     const attributeList = await models.attribute.find({campaign_id:campaignId});
     return attributes.sort((a, b) => {
         const attrA = _.findWhere(attributeList, {name:a.name});
@@ -117,10 +117,15 @@ async function attributeSorter(attributes:ModelData[], campaignId:number){
 
 };
 
-async function cpCalculator(userId:number, campaignId:number){
+interface cpData{
+    base:number
+    total:number
+    usable:number
+}
+async function cpCalculator(userId:number, campaignId:number): Promise<cpData> {
     const campaign = await models.campaign.get(campaignId);
     const cpGrants = await models.cp_grant.find({user_id:userId, campaign_id:campaignId, approved:true});
-    const result = {
+    const result:cpData = {
         base: 0,
         total: 0,
         usable: 0,
@@ -159,7 +164,7 @@ async function cpCalculator(userId:number, campaignId:number){
 };
 
 
-async function getCharacterCSV(campaignId: number, characters:ModelData[]){
+async function getCharacterCSV(campaignId: number, characters:ModelData[]): Promise<string> {
     const custom_fields = await models.custom_field.find({campaign_id:campaignId});
     const skill_source_types = await models.skill_source_type.find({campaign_id:campaignId});
     const skill_sources = await models.skill_source.find({campaign_id:campaignId});

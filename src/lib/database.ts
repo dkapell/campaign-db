@@ -51,7 +51,7 @@ function rollback(client, done){
 }
 */
 
-async function query(query:string, data:unknown[]){
+async function query(query:string, data:unknown[]): Promise<pg.QueryResult> {
     return pool.query(query, data);
 };
 

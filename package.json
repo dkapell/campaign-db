@@ -37,7 +37,6 @@
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "pdfkit": "^0.15.0",
-    "pdfkit-commonmark": "~1.1.4",
     "pg": "8.11",
     "pluralize": "^8.0.0",
     "pug": "^3.0.2",

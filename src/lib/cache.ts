@@ -112,7 +112,7 @@ class Cache{
     }
 }
 
-function getClient(){
+function getClient(): RedisClientType {
     let redisClient = null;
     if (config.get('app.redis.url')){
         const options = {
@@ -141,7 +141,7 @@ function getClient(){
     return redisClient;
 }
 
-function getHash(name:string, id:string){
+function getHash(name:string, id:string): string {
     return crypto.createHash('sha1').update(`cache-${name}-id-${id}`).digest('base64');
 }
 

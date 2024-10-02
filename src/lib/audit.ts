@@ -2,8 +2,8 @@
 
 import models from './models';
 
-export default function(){
-    return function(req, res, next){
+export default function() {
+    return function(req:Express.Request, res:Express.Response, next){
         req.audit = async function audit(objectType:string, objectId:number, action:string, data:{ [k: string]: unknown }){
             return models.audit.create({
                 campaign_id: req.campaign.id,

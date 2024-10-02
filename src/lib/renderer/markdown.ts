@@ -99,40 +99,44 @@ interface RenderOptions{
     paragraphGap?: number
     font?:string
 }
+
+interface NodeAttrs {
+    level?:number
+    continued?:boolean
+    color?:string
+    [key:string]:unknown
+}
+
+
 // This class represents a node in the markdown tree, and can render it to pdf
 class Node {
     type: string;
     text: string;
-    attrs: {
-        level?:number
-        continued?:boolean
-        color?:string
-        [key:string]:unknown
-    };
+    attrs: NodeAttrs;
     content: Node[];
     style: Style;
 
-    constructor(tree: string | any[]) {
+    constructor(tree) {
     // special case for text nodes
         if (typeof tree === 'string') {
             this.type = 'text';
             this.text = tree;
             return;
+        } else {
+            this.type = (tree.shift() as string);
         }
-
-
-        this.type = tree.shift();
 
         this.attrs = {};
 
         if (typeof tree[0] === 'object' && !Array.isArray(tree[0])) {
-            this.attrs = tree.shift();
+            this.attrs = (tree.shift() as NodeAttrs);
         }
 
         // parse sub nodes
         this.content = [];
         while (tree.length) {
-            this.content.push(new Node(tree.shift()));
+            const data = (tree.shift() as Node);
+            this.content.push(new Node(data));
         }
 
         switch (this.type) {

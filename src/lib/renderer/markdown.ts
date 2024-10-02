@@ -88,25 +88,31 @@ interface Style {
     fontSize?:number,
     padding?:number,
     color?:string,
-    align?:string,
+    align?:'right'|'left'|'center'|'justify',
 }
 
 interface RenderOptions{
-    align?: string,
+    align?: 'right'|'left'|'center'|'justify',
     link?: string,
     continued?: boolean,
     lineGap?: number,
     paragraphGap?: number
+    font?:string
 }
 // This class represents a node in the markdown tree, and can render it to pdf
 class Node {
     type: string;
     text: string;
-    attrs: {[attr:string]:unknown};
+    attrs: {
+        level?:number
+        continued?:boolean
+        color?:string
+        [key:string]:unknown
+    };
     content: Node[];
     style: Style;
 
-    constructor(tree) {
+    constructor(tree: string | any[]) {
     // special case for text nodes
         if (typeof tree === 'string') {
             this.type = 'text';
@@ -178,7 +184,7 @@ class Node {
     }
 
     // sets the styles on the document for this node
-    setStyle (doc, renderOptions) {
+    setStyle (doc: PDFKit.PDFDocument, renderOptions: RenderOptions) {
         if (this.style.font) {
             if (renderOptions.font){
                 doc.font(`${renderOptions.font}${this.style.font}`);
@@ -217,7 +223,7 @@ class Node {
     }
 
     // renders this node and its subnodes to the document
-    render (doc, renderOptions: RenderOptions) {
+    render (doc:PDFKit.PDFDocument, renderOptions: RenderOptions) {
         if (renderOptions.continued == null) {
             renderOptions.continued = false;
         }
@@ -229,11 +235,11 @@ class Node {
                 x: doc.x ,
                 y: doc.y +1
             };
-            if ( doc._wrapper ) { position.x += doc._wrapper.continuedX; }
+            //if ( doc._wrapper ) { position.x += doc._wrapper.continuedX; }
             const yBackup = doc.y ;
 
-            doc.image(filepath, position.x, position.y, {height:12, align:'left'});
-            if ( doc._wrapper ) { doc._wrapper.continuedX += 22 ; }
+            doc.image(filepath, position.x, position.y, {height:12});
+            //if ( doc._wrapper ) { doc._wrapper.continuedX += 22 ; }
 
             doc.y = yBackup;
 
@@ -252,11 +258,12 @@ class Node {
                         doc.addPage();
                     }
 
+                    /*
                     if (this.type === 'h1') {
                         doc.h1Outline = doc.outline.addItem(fragment.text);
                     } else if (this.type === 'h2' && doc.h1Outline !== null) {
                         doc.h1Outline.addItem(fragment.text);
-                    }
+                    }*/
 
                     // set styles and whether this fragment is continued (for rich text wrapping)
                     const options = this.setStyle(doc, renderOptions);
@@ -300,7 +307,7 @@ class Node {
 }
 
 // reads and renders a markdown/literate javascript file to the document
-function render(doc:string, input, options?:RenderOptions){
+function render(doc:PDFKit.PDFDocument, input, options?:RenderOptions){
     codeBlocks = [];
     const tree = markdown.parse(input);
     tree.shift();

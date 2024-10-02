@@ -15,7 +15,18 @@ const colors = {
     dark: '#7b8a8b'
 };
 
-async function renderCharacter(character: CharacterData, options){
+interface CharacterSheetOptions {
+    margin?:number,
+    skillDescriptions?:boolean
+}
+
+interface CharacterSheetTextOptions{
+    font?:string
+    nowrap?:boolean
+    align?:string
+}
+
+async function renderCharacter(character: CharacterData, options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {
         options = {};
     }
@@ -65,7 +76,7 @@ async function renderCharacter(character: CharacterData, options){
 
     return doc;
 
-    function addText(text, options, maxFontSize, x, y, maxWidth, maxHeight){
+    function addText(text:string, options:CharacterSheetTextOptions, maxFontSize:number, x:number, y:number, maxWidth:number, maxHeight:number):void{
         if (!options.font){
             options.font = 'Body Font';
         }
@@ -86,7 +97,7 @@ async function renderCharacter(character: CharacterData, options){
 
 
 
-    function renderHeader(){
+    function renderHeader():number {
         doc.strokeColor('#000000')
             .fillColor('#000000');
         const maxNameWidth = doc.page.width - (options.margin*2 + 220);
@@ -141,7 +152,7 @@ async function renderCharacter(character: CharacterData, options){
         return Math.max(traitRow, headerRow);
     }
 
-    function renderAttributes(row){
+    function renderAttributes(row:number):number{
         const attributeBoxHeight = 40;
 
         const numAttributes = character.provides.attributes.length;
@@ -162,7 +173,7 @@ async function renderCharacter(character: CharacterData, options){
         return row + attributeBoxHeight;
     }
 
-    function renderTagSkills(row){
+    function renderTagSkills(row: number): number{
         if (!character.provides.tagskills.length){
             return 0;
         }
@@ -181,7 +192,7 @@ async function renderCharacter(character: CharacterData, options){
         doc.x -= 5;
         return row + sectionHeight + doc.heightOfString(sectionBody, {width: sectionWidth});
     }
-    function renderLanguages(row){
+    function renderLanguages(row: number): number {
         if (!character.provides.languages.length){
             return 0;
         }
@@ -205,7 +216,7 @@ async function renderCharacter(character: CharacterData, options){
     }
 
 
-    function renderDiagnose(){
+    function renderDiagnose():void{
         if (!character.provides.diagnose.length){
             return;
         }
@@ -216,7 +227,7 @@ async function renderCharacter(character: CharacterData, options){
         doc.x -= 5;
     }
 
-    function renderSkills(skills){
+    function renderSkills(skills:SkillModel[]):void{
 
         const skillsReduced = skills.reduce((o, e) => {
             const skill = _.findWhere(o, {name:e.name});
@@ -268,7 +279,7 @@ async function renderCharacter(character: CharacterData, options){
 
     }
 
-    function renderAllSkills(){
+    function renderAllSkills():void{
 
         const skills = _.sortBy(character.skills, 'name');
 
@@ -295,7 +306,7 @@ async function renderCharacter(character: CharacterData, options){
                 }
             }
 
-            doc.font('Header Font').fontSize(12).text(skill.source.name, {align:'right'});
+            doc.font('Header Font').fontSize(12).text((skill.source.name as string), {align:'right'});
 
             doc.x += 5;
             doc.fontSize(10);
@@ -337,10 +348,7 @@ async function renderCharacter(character: CharacterData, options){
 
     }
 
-    function renderPage(firstPage){
-        const fontSize = doc.fontSize();
-        const fillColor = doc.fillColor();
-        const strokeColor = doc.strokeColor();
+    function renderPage(firstPage:boolean):void{
         doc.strokeColor('#000000')
             .fillColor('#000000');
         doc.rect(options.margin, options.margin, doc.page.width - options.margin*2, doc.page.height - options.margin*2).stroke();
@@ -368,16 +376,13 @@ async function renderCharacter(character: CharacterData, options){
                 }
             );
         }
-        doc.fontSize(fontSize);
-        doc.fillColor(fillColor);
-        doc.strokeColor(strokeColor);
         doc.x = options.margin*2;
         doc.y = options.margin*2;
     }
 };
 
 
-function sizeText(text, options, maxWidth, maxHeight, maxFontSize){
+function sizeText(text:string, options: CharacterSheetTextOptions, maxWidth:number, maxHeight:number, maxFontSize:number): number{
     const doc = new PDFDocument({size: 'LETTER'});
     registerFonts(doc);
 
@@ -385,25 +390,26 @@ function sizeText(text, options, maxWidth, maxHeight, maxFontSize){
     doc.fontSize(maxFontSize);
     let actualSize = maxFontSize;
 
-    while (doc.widthOfString(text) > maxWidth || doc.heightOfString(text) > maxHeight){
+    while (doc.widthOfString(text) > maxWidth || doc.heightOfString(text, {lineBreak: !options.nowrap}) > maxHeight){
         actualSize -= 0.1;
-        doc.fontSize(actualSize, {lineBreak: !options.nowrap});
+        doc.fontSize(actualSize)
     }
     return actualSize;
 }
 
-function registerFonts(doc){
-    doc.registerFont('Header Font', __dirname + '/../../fonts/Montserrat-Regular.ttf');
-    doc.registerFont('Header Font Bold', __dirname + '/../../fonts/Montserrat-Bold.ttf');
-    doc.registerFont('Header Font Italic', __dirname + '/../../fonts/Montserrat-Italic.ttf');
-    doc.registerFont('Header Font BoldItalic', __dirname + '/../../fonts/Montserrat-BoldItalic.ttf');
-    doc.registerFont('Body Font', __dirname + '/../../fonts/Lato-Regular.ttf');
-    doc.registerFont('Body Font Bold', __dirname + '/../../fonts/Lato-Bold.ttf');
-    doc.registerFont('Body Font Italic', __dirname + '/../../fonts/Lato-Italic.ttf');
-    doc.registerFont('Body Font BoldItalic', __dirname + '/../../fonts/Lato-BoldItalic.ttf');
+function registerFonts(doc:PDFKit.PDFDocument): void{
+    const fontsDir = __dirname + '/../../../fonts/'
+    doc.registerFont('Header Font', fontsDir + 'Montserrat-Regular.ttf');
+    doc.registerFont('Header Font Bold', fontsDir + 'Montserrat-Bold.ttf');
+    doc.registerFont('Header Font Italic', fontsDir + 'Montserrat-Italic.ttf');
+    doc.registerFont('Header Font BoldItalic', fontsDir + 'Montserrat-BoldItalic.ttf');
+    doc.registerFont('Body Font', fontsDir + 'Lato-Regular.ttf');
+    doc.registerFont('Body Font Bold', fontsDir + 'Lato-Bold.ttf');
+    doc.registerFont('Body Font Italic', fontsDir + 'Lato-Italic.ttf');
+    doc.registerFont('Body Font BoldItalic', fontsDir + 'Lato-BoldItalic.ttf');
 }
 
-function capitalize(string) {
+function capitalize(string:string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 

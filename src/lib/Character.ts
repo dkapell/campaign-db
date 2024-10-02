@@ -868,7 +868,7 @@ class Character{
                 audit.data.from = await models.character.get(audit.data.from);
             }
             if (_.has(audit.data, 'details')){
-                audit.data.details = formatDetails(audit.data.old.details, audit.data.new.details);
+                audit.data.details = formatDetails((audit.data.details as Record<string, unknown>).old, (audit.data.details as Record<string, unknown>).new);
             }
             if (audit.action === 'update'){
                 if (playerOnly){
@@ -928,7 +928,7 @@ interface Audit {
         new: {
             [key:string]: object
         },
-        details: object[],
+        details: Record<string, unknown>|Record<string, unknown>[]
         [key:string]: object
     }
 }

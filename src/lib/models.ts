@@ -18,6 +18,10 @@ async function loadModels(dir:string){
             const modelName = path.basename(filename, '.js');
             const model = await import(dir + '/' + filename);
             models[modelName] = model.default;
+        } else if (filename.match(/\.ts$/)){
+            const modelName = path.basename(filename, '.ts');
+            const model = await import(dir + '/' + filename);
+            models[modelName] = model.default;
         }
     });
 }

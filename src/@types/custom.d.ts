@@ -2,7 +2,9 @@ declare namespace Express {
    export interface Request {
       campaign?: Campaign,
       models?: Models,
-      session: Session
+      session: Session,
+      audit?: Audit,
+      user?:CampaignUser
    }
 }
 

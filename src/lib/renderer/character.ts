@@ -18,6 +18,7 @@ const colors = {
 interface CharacterSheetOptions {
     margin?:number,
     skillDescriptions?:boolean
+    showLanguages?:boolean
 }
 
 interface CharacterSheetTextOptions{

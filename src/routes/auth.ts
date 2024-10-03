@@ -60,7 +60,7 @@ router.get('/google/callback',
 
 router.get('/logout',
     function logout(req, res, next){
-        req.logout(req.user, err => {
+        req.logout(err => {
             if(err) return next(err);
             res.redirect('/');
         });

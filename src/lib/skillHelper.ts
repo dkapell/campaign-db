@@ -1,5 +1,5 @@
 'use strict';
-import Diff from 'diff';
+import {diffChars} from 'diff';
 import _ from 'underscore';
 import models from './models';
 import removeMd from 'remove-markdown';
@@ -341,7 +341,7 @@ function htmlDiff(oldText, newText){
     if (!newText){
         newText = '';
     }
-    const diff = Diff.diffChars(oldText, newText);
+    const diff = diffChars(oldText, newText);
     const output = [];
     diff.forEach((part) => {
         // green for additions, red for deletions

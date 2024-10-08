@@ -107,11 +107,18 @@ class Character{
         if (_.has(data, 'custom_field')){
             const custom_fields = await models.custom_field.find({campaign_id:this._data.campaign_id, location:'character'});
             for (const field of custom_fields){
-                const doc = {
-                    character_id: this.id,
-                    custom_field_id: field.id,
-                    value: null
+
+                interface CharacterCustomField {
+                    character_id: number,
+                    custom_field_id: number,
+                    value?:unknown
                 };
+
+                const doc: CharacterCustomField = {
+                    character_id: this.id,
+                    custom_field_id: field.id
+                };
+
                 if (_.has(data.custom_field, `cf-${field.id}`)){
                     const value = data.custom_field[`cf-${field.id}`] ? JSON.stringify(data.custom_field[`cf-${field.id}`]) : null;
                     const current = await models.character_custom_field.findOne(doc);

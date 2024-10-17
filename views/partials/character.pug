@@ -351,7 +351,7 @@ mixin characterCard(character)
 
 
 
-mixin characterList(characters, type, forPlayer=false, extended=false, showActive=false)
+mixin characterList(characters, forPlayer=false, extended=false, showActive=false)
     ul.list-group
         each character in characters
             +characterListItem(character, forPlayer, extended, showActive)
@@ -405,7 +405,7 @@ mixin characterListItem(character, forPlayer, extended, showActive)
 
 mixin characterListDisplay(characters, type, forPlayer=false, extended=false, showActive=false)
     .d-lg-none
-        +characterList(characters, type, forPlayer, extended, showActive)
+        +characterList(characters, forPlayer, extended, showActive)
     .d-none.d-lg-block
         +characterTable(characters, type, forPlayer, showActive)
 

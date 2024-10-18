@@ -12,14 +12,14 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
         each skill in skills
             tr.character-skill-row
                 td.dtr-control
-                th.d-none.d-md-table-cell.text-nowrap= skill.source.name
-                td.text-nowrap
+                th(data-priority="3").d-none.d-md-table-cell.text-nowrap= skill.source.name
+                td(data-priority="1").text-nowrap
                     strong.d-block.strong.d-md-none= skill.source.name
                     i=skill.name
                     if _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet
                         span.badge.text-bg-dark.ms-2 Hidden
 
-                td!=marked.parseInline(skill.summary)
+                td(data-priority="4")!=marked.parseInline(skill.summary)
                     if skill.details
                         if skill.details.stat
                             i.ms-2 (#{skill.details.stat})
@@ -40,9 +40,9 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
 
                         if skill.details.notes || skill.details.sheet_note
                             span.badge.text-bg-info.mt-1.float-end notes
-                td= skill.character_cost
+                td(data-priority="5")= skill.character_cost
                 if allowedEdit
-                    td
+                    td(data-priority="2")
                         .skill-actions.text-nowrap
                             a.btn.btn-outline-info.btn-xs.skill-edit-btn.me-1(
                                 role="button",

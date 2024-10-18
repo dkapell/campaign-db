@@ -117,7 +117,7 @@ async function showSourceList(){
     $('#character-source-table').html(charactersourcelistTemplate(data));
     $('.delete-source-btn')
         .confirmation({
-            title: 'Remove this Header'
+            title: 'Remove this Header?'
         }).on('click', removeSource);
 
     $('#character-source-table').find('[data-bs-toggle="tooltip"]').tooltip();
@@ -138,7 +138,7 @@ async function showSkillList(){
     $('.skill-edit-btn').on('click', editSkill);
     $('.delete-skill-btn')
         .confirmation({
-            title: 'Remove this Skill'
+            title: 'Remove this Skill?'
         }).on('click', removeSkill);
 
     $('#character-skill-table').find('[data-bs-toggle="tooltip"]').tooltip();

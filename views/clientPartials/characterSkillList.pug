@@ -2,24 +2,24 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
     thead
         tr
             th
-            th.d-none.d-md-table-cell Header
-            th Skill
-            th Summary
-            th Cost
+            th.d-none.d-md-table-cell(data-priority="3") Header
+            th(data-priority="1") Skill
+            th(data-priority="4") Summary
+            th(data-priority="5") Cost
             if allowedEdit
-                th Actions
+                th(data-priority="2") Actions
     tbody
         each skill in skills
             tr.character-skill-row
                 td.dtr-control
-                th(data-priority="3").d-none.d-md-table-cell.text-nowrap= skill.source.name
-                td(data-priority="1").text-nowrap
+                th.d-none.d-md-table-cell.text-nowrap= skill.source.name
+                td.text-nowrap
                     strong.d-block.strong.d-md-none= skill.source.name
                     i=skill.name
                     if _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet
                         span.badge.text-bg-dark.ms-2 Hidden
 
-                td(data-priority="4")!=marked.parseInline(skill.summary)
+                td!=marked.parseInline(skill.summary)
                     if skill.details
                         if skill.details.stat
                             i.ms-2 (#{skill.details.stat})
@@ -40,9 +40,9 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
 
                         if skill.details.notes || skill.details.sheet_note
                             span.badge.text-bg-info.mt-1.float-end notes
-                td(data-priority="5")= skill.character_cost
+                td= skill.character_cost
                 if allowedEdit
-                    td(data-priority="2")
+                    td
                         .skill-actions.text-nowrap
                             a.btn.btn-outline-info.btn-xs.skill-edit-btn.me-1(
                                 role="button",

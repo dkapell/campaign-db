@@ -78,7 +78,7 @@
                     <div class="modal-body p-2">
                         ${settings.message}
                     </div>`;
-                }
+            }
 
             const modalDialog = `
                 <div class="modal-dialog ${settings.dialog} modal-dialog-centered">

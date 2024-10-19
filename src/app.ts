@@ -121,9 +121,11 @@ if (config.get('app.sessionType') === 'redis'){
         const options: clientOptions = {
             url: config.get('app.redis.url') ,
         };
-        if (config.get('app.redis.tls')){
-            options.url += '?ssl_cert_reqs=none'
-            options.tls = {rejectUnauthorized: false};
+        if (config.get('app.redis.url').match(/^rediss:\/\//) || config.get('app.redis.tls')){
+            options.socket = {
+                tls: true,
+                rejectUnauthorized:false
+            }
         }
         redisClient = createClient(options);
     } else {

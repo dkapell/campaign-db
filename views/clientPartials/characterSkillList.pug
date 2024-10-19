@@ -13,11 +13,14 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100
             tr.character-skill-row
                 td.dtr-control
                 th.d-none.d-md-table-cell.text-nowrap= skill.source.name
+
                 td.text-nowrap
                     strong.d-block.strong.d-md-none= skill.source.name
+                        if _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet
+                            span.badge.text-bg-dark.ms-2.d-md-none Hidden
                     i=skill.name
                     if _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet
-                        span.badge.text-bg-dark.ms-2 Hidden
+                        span.badge.text-bg-dark.ms-2.d-none.d-md-inline Hidden
 
                 td!=marked.parseInline(skill.summary)
                     if skill.details

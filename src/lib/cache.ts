@@ -119,9 +119,11 @@ function getClient(): RedisClientType {
             url: config.get('app.redis.url'),
             tls: null
         };
-        if (config.get('app.redis.tls')){
-            options.url += '?ssl_cert_reqs=none'
-            options.tls = {rejectUnauthorized: false};
+        if (config.get('app.redis.url').match(/^rediss:\/\//) || config.get('app.redis.tls')){
+            options.socket = {
+                tls: true,
+                rejectUnauthorized:false
+            }
         }
         redisClient = createClient(options as RedisClientOptions);
 

@@ -115,13 +115,14 @@ if (config.get('app.sessionType') === 'redis'){
     if (config.get('app.redis.url')){
         interface clientOptions{
             url: string,
-            tls?: null|object
+            socket?: null|object
         }
 
         const options: clientOptions = {
-            url: config.get('app.redis.url') ,
+            url: config.get('app.redis.url'),
+            socket: null
         };
-        if (config.get('app.redis.url').match(/^rediss:\/\//) || config.get('app.redis.tls')){
+        if ((typeof options.url === 'string' &&  options.url.match(/^rediss:\/\//)) || config.get('app.redis.tls')){
             options.socket = {
                 tls: true,
                 rejectUnauthorized:false

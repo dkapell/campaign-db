@@ -115,17 +115,23 @@ class Cache{
 function getClient(): RedisClientType {
     let redisClient = null;
     if (config.get('app.redis.url')){
-        const options = {
+        interface clientOptions{
+            url: string,
+            socket?: null|object
+        }
+
+        const options: clientOptions = {
             url: config.get('app.redis.url'),
-            tls: null
+            socket: null
         };
-        if (config.get('app.redis.url').match(/^rediss:\/\//) || config.get('app.redis.tls')){
+        if ((typeof options.url === 'string' &&  options.url.match(/^rediss:\/\//)) || config.get('app.redis.tls')){
             options.socket = {
                 tls: true,
                 rejectUnauthorized:false
             }
         }
-        redisClient = createClient(options as RedisClientOptions);
+
+        redisClient = createClient(options);
 
     } else {
         redisClient = createClient();

@@ -21,7 +21,7 @@ class Character{
     constructor(options: CharacterOptions){
         this.options = options;
         if (_.has(options, 'id')){
-            this.id = options.id;
+            this.id = Number(options.id);
         }
         if (_.has(options, 'showAll')){
             this.showAll = options.showAll;

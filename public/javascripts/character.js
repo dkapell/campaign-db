@@ -193,12 +193,12 @@ async function addSource(e){
     $modal.find('.save-btn').text('Add Header');
     $modal.modal('show');
 
-    $modal.on('shown.bs.modal', function(e){
+    $modal.one('shown.bs.modal', function(e){
         $('#character_skill_source_source_id').select2('focus');
     });
 
 
-    $modal.on('hidden.bs.modal', function(e){
+    $modal.one('hidden.bs.modal', function(e){
         updateCharacterWidgets(characterId);
         $modal.modal('dispose');
     });
@@ -245,11 +245,11 @@ async function addSkill(e){
     prepCharacterSkillForm($modal.find('form'), data.character_skill);
     $modal.find('.save-btn').text('Add Skill');
     $modal.modal('show');
-    $modal.on('shown.bs.modal', function(e){
+    $modal.one('shown.bs.modal', function(e){
         $('#character_skill_skill_id').select2('focus');
     });
 
-    $modal.on('hidden.bs.modal', function(e){
+    $modal.one('hidden.bs.modal', function(e){
         updateCharacterWidgets(characterId);
         $modal.modal('dispose');
     });
@@ -279,7 +279,7 @@ async function editSkill(e){
     $modal.find('.save-btn').text('Update Skill');
     $modal.modal('show');
 
-    $modal.on('hidden.bs.modal', function(e){
+    $modal.one('hidden.bs.modal', function(e){
         updateCharacterWidgets(characterId);
         $modal.modal('dispose');
     });

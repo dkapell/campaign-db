@@ -56,6 +56,8 @@ import reportRouter from './routes/report';
 
 import pageRouter from './routes/page';
 
+import eventRouter from './routes/event';
+
 const app = express();
 
 // if running in SSL Only mode, redirect to SSL version
@@ -283,6 +285,7 @@ app.use('/image', imageRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);
+app.use('/event', eventRouter)
 
 app.use('/admin/campaign', adminCampaignRouter);
 

@@ -21,11 +21,13 @@
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             if checkPermission('contrib')
                                 a.dropdown-item(href='/skill') Skills
+                                a.dropdown-item(href='/character') Characters
+                                a.dropdown-item(href='/event') Events
 
                             if checkPermission('contrib')
-                                a.dropdown-item(href='/character') Characters
                                 if currentCampaign.display_cp
                                     a.dropdown-item(href='/cp_grant') Character Points
+
 
                                 hr.dropdown-divider
                                 a.dropdown-item(href='/report/group') Character Group Report

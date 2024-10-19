@@ -1,0 +1,44 @@
+.row.my-2
+    .col
+        label.control-label(for="event_name") Event Name
+        input.form-control#event_name(type="text" placeholder="Name" name="event[name]" value=event.name required)
+        div.invalid-feedback Please choose a valid name
+
+
+
+.row.my-2
+    .col
+        label.control-label(for="event_date") Date(s)
+        .input-group#event_dates
+            input.form-control#event_start_time(type="text" placeholder="Start" name="event[start_time]" value=moment(event.start_time).format('YYYY-MM-DD'))
+            .input-group-text to
+            input.form-control#event_end_time(type="text" placeholder="End" name="event[end_time]" value=moment(event.end_time).format('YYYY-MM-DD'))
+
+    .col-md-4
+        label.control-label(for="event_cost") Cost in Dollars
+        .input-group
+            .input-group-text $
+            input.form-control#event_cost(placeholder="Dollars",name="event[cost]",value=event.cost type='number' required)
+            .input-group-text .00
+
+.row.my-2
+    .col
+
+        label.control-label(for="event_location") Location
+        input.form-control#event_location(type="text" placeholder="Location" name="event[location]" value=event.location)
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#event_registration_open(type="checkbox" name="event[registration_open]" checked=event.registration_open)
+            label.form-check-label(for="event_registration_open") Event Registration Open
+
+.row.my-2
+    .col
+         +markdownEditor('Event Description', 'event_description', 'event[description]', 3, 150, event.description, true )
+
+.row.my-2
+    .col
+
+        button.btn.btn-primary(type="submit")= event.id?'Update':'Create'
+        a.btn.btn-link(href="/event") Cancel

@@ -68,6 +68,7 @@ const renderer = {
 marked.use({ renderer });
 
 async function updateCharacterWidgets(characterId){
+
     showSourceList();
     showSkillList();
     showCharacterSheet(characterId);
@@ -175,6 +176,7 @@ async function addSource(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.tooltip('hide');
     const characterId = $this.data('characterid');
 
     const result = await fetch(`/character/${characterId}/source/add`);
@@ -228,6 +230,7 @@ async function addSkill(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.tooltip('hide');
     const characterId = $this.data('characterid');
 
     const result = await fetch(`/character/${characterId}/skill/add`);
@@ -260,6 +263,7 @@ async function editSkill(e){
     e.stopPropagation();
 
     const $this = $(this);
+    $this.tooltip('hide');
     const characterId = $this.data('characterid');
     const characterSkillId = $this.data('skillid');
 

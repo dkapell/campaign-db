@@ -113,6 +113,9 @@ async function show(req, res, next){
 }
 
 async function objectDiff(type, oldObject, newObject){
+    if (!_.has(models, type)){
+        return [];
+    }
     const fields = models[type].fields;
     const skipFields = models[type].options.skipAuditFields;
     const changes = [];

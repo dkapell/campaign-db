@@ -40,6 +40,9 @@ $(function(){
         .confirmation({
             title: 'Duplicate this Character?'
         }).on('click', cloneCharacter);
+    $('.delete-character-btn').confirmation({
+        title: 'Delete this Character?'
+    }).on('click', deleteCharacter);
 
     $('#rebuildAllBtn')
         .confirmation({
@@ -657,3 +660,15 @@ function capitalize(string){
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+async function deleteCharacter(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+    const url = $this.attr('url');
+    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
+    if($this.attr('data-back')){
+        location = $this.attr('data-back');
+    } else {
+        location.reload();
+    }
+}

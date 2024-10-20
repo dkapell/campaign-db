@@ -395,7 +395,7 @@ mixin characterListItem(character, forPlayer, extended, showActive)
                     )
                         i.fas.fa-copy.fa-fw
                     if checkPermission('gm') || (session.assumed_user ?  session.assumed_user.id : activeUser.id) === character.user_id
-                        a.btn.btn-outline-danger.btn-xs.delete-btn(
+                        a.btn.btn-outline-danger.btn-xs.delete-character-btn(
                             role="button",
                             title="Delete Character"
                             data-bs-toggle="tooltip"

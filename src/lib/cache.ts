@@ -1,5 +1,5 @@
 'use strict';
-import {createClient, RedisClientOptions, RedisClientType } from 'redis';
+import {createClient, RedisClientType } from 'redis';
 import crypto from 'crypto';
 import config from 'config';
 

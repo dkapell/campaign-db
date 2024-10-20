@@ -16,6 +16,8 @@ $(function(){
     */
     $('.data-table tbody').on('click', '.action-btn', function(e){
         e.stopPropagation();
+        const $this = $(this);
+        $this.tooltip('hide');
     });
 });
 
@@ -41,7 +43,7 @@ function prepDataTable(){
         ],
         drawCallback: function(){
             $table.find('.delete-btn').confirmation({
-                title: 'Delete this item'
+                title: 'Delete this item?'
             }).on('click', deleteItem);
         }
     };
@@ -192,7 +194,9 @@ function exportCSV(e){
 async function deleteItem(e){
     e.preventDefault();
     e.stopPropagation();
+
     const $this = $(this);
+    $this.tooltip('hide');
     const url = $this.attr('url');
     const result = await fetch(url, {method:'DELETE', redirect:'manual'});
     if($this.attr('data-back')){

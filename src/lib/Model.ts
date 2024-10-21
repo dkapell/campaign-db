@@ -280,6 +280,10 @@ class Model implements IModel{
         try {
             await database.query(query, queryData);
 
+            if (typeof id === 'number' || typeof id === 'string'){
+                id = Number(id);
+            }
+
             if (typeof id === 'number' && _.has(this.options, 'postSave') && _.isFunction(this.options.postSave)){
                 await this.options.postSave(id, data);
             }

@@ -9,7 +9,7 @@ if checkPermission('contrib')
                     option(
                         value=user.id
                         selected=Number(character.user_id)===user.id
-                        title=character.name
+                        title=user.name
                         data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                         data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                     ) #{capitalize(user.name)} (#{type})

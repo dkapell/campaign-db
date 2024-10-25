@@ -37,6 +37,7 @@ function validate(data){
 
 async function fill(record){
     record.attendees = await models.attendance.find({event_id:record.id});
+    record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
     return record;
 }
 

@@ -1,0 +1,159 @@
+extends ../layout
+
+include ../partials/event.pug
+include ../partials/attendee.pug
+
+block content
+    - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id});
+    .row
+        .col.card
+            .row.card-header
+                .col-md
+                    h3.d-inline= event.name
+
+                    if checkPermission('gm')
+                        a.btn.btn-outline-info.btn-sm.ms-4(href=`/event/${event.id}/edit?backto=event`)
+                            span.fa.fa-edit.me-2
+                            | Edit Event
+                .col-md.text-md-end
+                    h4.d-inline.align-bottom
+                        +eventDate(event.start_time, event.end_time)
+            .card-body
+
+
+
+
+                .row.mb-2
+                    .col-md
+                        .fs-5
+                            a(target='_blank' href=`https://www.google.com/maps/search/?api=1&query=${encodeURI(event.location)}`)
+                                i.fas.fa-map-marked-alt.me-1
+                                =event.location
+                    .col-md-4.text-md-end
+                        h4.d-inline.align-bottom
+                            if event.registration_open && new Date(event.end_time) > new Date()
+                                span.badge.text-bg-success Registration Open
+                            else
+                                span.badge.text-bg-danger Registration Closed
+
+
+                .row.my-2
+                    .col-md
+                        if !attendee
+                            -
+                                const futureEvent = new Date(event.end_time) > new Date();
+                                const regOpen = event.registration_open && futureEvent;
+
+                                let text = 'Register as';
+                                if (activeUser.type === 'player'){
+                                    text += ' a Player';
+                                } else if (activeUser.type.match(/^(admin|core staff)/)){
+                                    text += ' Staff';
+                                } else {
+                                    text += ' an NPC';
+                                }
+                                if (!event.registration_open) {
+                                    text = 'Registration not Open';
+
+                                } else if (!futureEvent){
+                                    text = 'Event is in the Past'
+                                }
+
+                            a.btn.btn-outline-success.btn-sm(
+                                href=regOpen?`/event/${event.id}/register`:''
+                                disabled=!regOpen
+                                class=!regOpen?'disabled':''
+                                tab-index=!regOpen?'-1':''
+                                aria-disabled=regOpen?'false':'true'
+                            )
+                                span.fa.fa-calendar-check.me-2
+                                span.me-1= text
+
+                        else if attendee
+                            a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
+                                span.fa.fa-edit.me-2
+                                | Edit Registration
+                            if new Date(event.end_time) > new Date()
+                                a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
+                                    role="button"
+                                    url=`/event/${event.id}/register/${attendee.id}`
+                                    data-csrf=csrfToken
+                                )
+                                    span.fa.fa-calendar-times.me-2
+                                    | Unregister
+
+                    if activeUser.type.match(/^(player|admin|core staff)$/)
+                        .col-md-3.text-md-center
+                            span.fs-5
+                                span.me-1 Cost:
+                                if event.cost
+                                    | $#{event.cost}
+                                else
+                                    | Free
+
+                    .col-lg-4.text-lg-end
+
+                        .fs-5.d-inline.my-0
+                            if attendee
+                                if activeUser.type === 'player'
+                                    span.me-2= attendee.character.name
+                                    if attendee.paid
+                                        span.badge.text-bg-success Paid
+                                    else if event.cost
+                                        span.badge.text-bg-warning Unpaid
+                                    else
+                                        span.badge.text-bg-success Registered
+                                else
+                                    span.badge.text-bg-success Registered
+                            else
+                                span.badge.text-bg-danger Unregistered
+
+                each customField in currentCampaign.event_fields
+                    if attendee && _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                        +attendeeCustomFieldDisplay(customField, attendee.data[customField.name])
+
+                if attendee && attendee.notes
+                    +attendeeCustomFieldDisplay({name:'Notes', type:'longtext'}, attendee.notes)
+
+
+
+                if event.description
+                    .row.my-2
+                        .col
+                            .card
+                                .card-body!=marked.parseInline(event.description, {breaks: true})
+
+
+
+
+                if checkPermission('contrib')
+                    .row.my-2
+                        .col
+                            h3.d-inline.mt-3 Attendees
+                            if checkPermission('gm')
+                                a.btn.btn-outline-success.btn-sm.ms-2(href=`/event/${event.id}/register`)
+                                    span.fa.fa-calendar-check.me-2
+                                    | Create Registration
+
+                            ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
+
+                                li.nav-item(role="presentation")
+                                    a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
+
+                                li.nav-item(role="presentation")
+                                    a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
+
+
+                            .tab-content#eventTabContent
+                                .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
+                                    +attendeeListDisplay(event.players, true)
+
+
+                                .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
+                                    - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player'});
+                                    +attendeeListDisplay(staff)
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/event.js')

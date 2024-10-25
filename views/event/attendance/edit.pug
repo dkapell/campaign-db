@@ -1,0 +1,22 @@
+extends ../../layout
+
+include ../../partials/editor
+include ../../partials/event
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header= `Edit Registration for ${attendance.user.name} for ${event.name}`
+                .card-body
+                    form.form.needs-validation#eventForm(method="POST" action=`/event/${event.id}/register/${attendance.id}` novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='event[id]',value=event.id)
+                        input(type="hidden", name='attendance[id]',value=attendance.id)
+
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/event.js')

@@ -1,5 +1,6 @@
 extends ../layout
 
+include ../partials/event.pug
 
 block content
     if checkPermission('gm')
@@ -33,7 +34,7 @@ block content
                 const pastEvents = events.filter(event => {
                     return event.start_time <= now
                 });
-            +eventListDisplay(pastEvents)
+            +eventListDisplay(pastEvents, true)
 
 
 
@@ -42,84 +43,4 @@ append scripts
 
 
 
-mixin eventListDisplay(events)
-    .table-responsive.my-2
-        .col-sm-6.offset-sm-3.text-center.table-loading
-            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
-            data-order='[[2, "desc"]]'
-            style="display: none"
-            )
-            thead
-                tr
-                    th
-                    th Name
-                    th Date
-                    th Cost
-                    th Reg Open?
-                    th Players
-                    th Staff/NPCs
-                    if checkPermission('gm')
-                        th Actions
 
-            tbody
-                for event in events
-                    -
-                        event.players = event.attendees.filter(attendee => {return attendee.user.type === 'player'});
-
-                    tr(class='clickable-row', data-click-object='event' data-click-id=event.id)
-                        td.dtr-control
-                        td= event.name
-                        
-                        - 
-                            const startM = moment(event.start_time);
-                            const endM = moment(event.end_time)
-                            let dateStr = '';
-                            
-                            if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD')){
-                                dateStr = startM.format('ll');
-
-                            } else if (startM.format('YYYY-MM') === endM.format('YYYY-MM')){
-                                dateStr = `${startM.format('MMM D')} - ${endM.format('D, YYYY')}`;
-
-                            } else if (startM.format('YYYY') === endM.format('YYYY')){
-                                dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
-
-                            } else {
-                                dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
-
-                            }
-                        td= dateStr
-
-                        td 
-                            if event.cost
-                                | $#{event.cost}.00
-                            else 
-                                i Free Event
-
-                        td
-                            if event.registration_open
-                                span.badge.text-bg-success Yes
-                            else
-                                span.badge.text-bg-danger No
-
-                        td=event.players.length
-                        td=event.attendees.length - event.players.length
-                        if checkPermission('gm')
-                            td.text-right
-                                a.btn.btn-outline-info.btn-xs.action-btn.me-1(
-                                    role="button",
-                                    title="Edit Event"
-                                    data-bs-toggle="tooltip"
-                                    href=`/event/${event.id}/edit`
-                                )
-                                    i.fas.fa-edit.fa-fw
-
-                                a.btn.btn-outline-danger.btn-xs.delete-btn(
-                                    role="button",
-                                    title="Delete Event"
-                                    data-bs-toggle="tooltip"
-                                    url=`/event/${event.id}`
-                                )
-                                    i.fas.fa-trash.fa-fw

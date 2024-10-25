@@ -48,6 +48,9 @@ create table campaigns (
     cp_cap int,
     cp_factor float,
     cp_approval boolean default true,
+    event_default_cost int,
+    event_default_location varchar(255),
+    event_fields jsonb,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -550,11 +553,13 @@ create table events (
 
 create table attendance (
     id serial,
+    campaign_id int not null,
     event_id int not null,
     user_id int not null,
     character_id int,
     paid boolean default false,
     notes text,
+    data jsonb,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     unique(event_id, user_id),
@@ -563,5 +568,8 @@ create table attendance (
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT attendance_character_id FOREIGN KEY (character_id)
         REFERENCES "characters" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT attendance_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );

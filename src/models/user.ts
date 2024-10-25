@@ -209,6 +209,11 @@ async function postSelect(user, campaignId){
         user.campaignType = 'unset';
     }
 
+    user.typeForDisplay = user.type;
+    if (user.type === 'admin'){
+        user.typeForDisplay = 'core staff';
+    }
+
     return user;
 }
 

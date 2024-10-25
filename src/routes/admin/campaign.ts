@@ -49,7 +49,9 @@ function showNew(req, res){
         cp_cap: 50,
         cp_factor: 0,
         cp_approval: true,
-
+        event_default_cost: null,
+        event_default_location: null,
+        event_fields: []
     };
     res.locals.breadcrumbs = {
         path: [
@@ -140,6 +142,11 @@ async function update(req, res){
     if (!req.campaign.default_site){
         delete campaign.default_site;
     }
+    if (campaign.event_fields === null || campaign.event_fields === ''){
+        campaign.event_fields = JSON.stringify([]);
+    }
+    //campaign.event_fields = JSON.stringify(campaign.event_fields);
+    console.log(campaign);
 
     try {
         await req.models.campaign.update(id, campaign);

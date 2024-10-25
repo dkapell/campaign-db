@@ -1,6 +1,7 @@
 import express from 'express';
 import Character from '../lib/Character';
 import async from 'async';
+import _ from 'underscore';
 import rulebookHelper from '../lib/rulebookHelper';
 import campaignHelper from '../lib/campaignHelper';
 
@@ -12,6 +13,9 @@ async function showIndex(req, res){
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
+        if (req.session.player_mode){
+            user.type = 'player';
+        }
         if (user && user.type === 'player'){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (characterData){
@@ -21,6 +25,13 @@ async function showIndex(req, res){
             }
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
             res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false, user_id:user.id});
+            let events = await req.models.event.find({campaign_id:req.campaign.id});
+            events = events.filter( event => { return event.end_time > new Date(); })
+            res.locals.events = events.map(event => {
+                event.attendees = _.where(event.attendees, {user_id: user.id});
+                return event;
+            });
+
 
         } else if (user && (user.site_admin || user.type.match(/^(admin|core staff|contributing staff)$/))){
             const characters =  await req.models.character.find({active:true, campaign_id:req.campaign.id});
@@ -35,6 +46,8 @@ async function showIndex(req, res){
             });
             res.locals.character = null;
             res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false});
+            const events = await req.models.event.find({campaign_id:req.campaign.id});
+            res.locals.events = events.filter( event => { return event.end_time > new Date(); })
 
         }
     } catch (err) {

@@ -2,6 +2,8 @@ extends layout
 
 include ./partials/rulebook
 include ./partials/character
+include ./partials/event
+
 
 append content
     if currentCampaign.default_site || !activeUser
@@ -33,11 +35,11 @@ append content
                 if checkPermission('gm')
                     if cp_grants.length && currentCampaign.display_cp
                         h3 Tasks
-                        .list-group.mb-2
+                        .list-group.mb-2.mb-3
                             a.list-group-item.list-group-item-action(href='/cp_grant')
-                                i.fas.fa-tasks.me-1
+                                i.fas.fa-fw.fa-tasks.me-1
                                 | Unapproved CP Grants
-                                span.badge.text-bg-danger.float-end=cp_grants.length
+                                span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Unapproved Grants')=cp_grants.length
 
                 if checkPermission('player')
                     h3 Resources
@@ -54,41 +56,44 @@ append content
                             }
                         if driveLink
                             a.list-group-item.list-group-item-action(href=driveLink target="_blank")
-                                i.fab.fa-google-drive.me-1
+                                i.fab.fa-fw.fa-google-drive.me-1
                                 | Google Drive
                                 i.fa.fa-external-link.ms-1
                         - user = session.assumed_user ?  session.assumed_user : activeUser
                         if user.drive_folder
                             a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
-                                i.fab.fa-google-drive.me-1
+                                i.fab.fa-fw.fa-google-drive.me-1
                                 | Personal Drive Folder
                                 i.fa.fa-external-link.ms-1
 
                         if checkPermission('gm')
                             if currentCampaign.npc_drive_folder
                                 a.list-group-item.list-group-item-action(href=currentCampaign.npc_drive_folder  target="_blank")
-                                    i.fab.fa-google-drive.me-1
+                                    i.fab.fa-fw.fa-google-drive.me-1
                                     |  NPC Drive
 
                                     i.fa.fa-external-link.ms-1
                         if checkPermission('contrib')
                             if currentCampaign.player_drive_folder
                                 a.list-group-item.list-group-item-action(href=currentCampaign.player_drive_folder  target="_blank")
-                                    i.fab.fa-google-drive.me-1
+                                    i.fab.fa-fw.fa-google-drive.me-1
                                     | Player Drive
 
                                     i.fa.fa-external-link.ms-1
                         else
                             a.list-group-item.list-group-item-action(href='/skill/doc')
-                                i.fa.fa-file-alt.me-1
+                                i.fas.fa-fw.fa-file-alt.me-1
                                 | Skills
                         if currentCampaign.display_glossary
                             a.list-group-item.list-group-item-action(href='/glossary')
-                                    i.fa.fa-book.me-1
+                                    i.fas.fa-fw.fa-book.me-1
                                     | Glossary
                         a.list-group-item.list-group-item-action(href='/character')
-                                i.fa.fa-users.me-1
+                                i.fas.fa-fw.fa-users.me-1
                                 | Characters
+                        a.list-group-item.list-group-item-action(href='/event')
+                                i.fa.fa-fw.fa-calendar.me-1
+                                | Events
                         if currentCampaign.display_cp && cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-hat-wizard.me-1
@@ -107,6 +112,14 @@ append content
                             .list-group-item
                                 h5 Documents
                                 +allRulebooks(rulebooks)
+
+                    if checkPermission('event') && events.length
+                        h3.mt-3 Upcoming Events
+                        .list-group.mb-2
+                            each event in events
+                                a.list-group-item.list-group-item-action(href=`/event/${event.id}`)
+                                    +eventListItemStaff(event)
+
                 else
                     p Not currently a player
 
@@ -118,5 +131,19 @@ append content
                     h3 Player Characters
                     +characterList(characters)
 
+                if checkPermission('player') && !checkPermission('event')
+                    h3.mt-3 Upcoming Events
+                    .list-group.mb-2
+                        each event in events
+                            a.list-group-item.list-group-item-action(href=`/event/${event.id}`)
+                                +eventListItemPlayer(event)
 
+append scripts
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 100, 'hide': 100 },
+                placement:'auto'
+            });
+        });
 

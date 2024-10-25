@@ -252,7 +252,13 @@ app.use(async function(req, res, next){
     res.locals.menuDark = req.campaign.menu_dark;
     res.locals._ = _;
     res.locals.moment = moment;
-    res.locals.activeUser = req.user;
+    if (req.session.assumed_user){
+        res.locals.activeUser = req.session.assumed_user;
+        res.locals.actualUser = req.user;
+    } else {
+        res.locals.activeUser = req.user;
+        res.locals.actualUser = req.user;
+    }
     res.locals.marked = marked;
     res.locals.capitalize = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);

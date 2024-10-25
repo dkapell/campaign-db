@@ -1,0 +1,17 @@
+extends ../../layout
+
+include ../../partials/editor
+include ../../partials/event
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header New Registration
+                .card-body
+                    form.form.needs-validation#eventForm(method="POST" action=`/event/${event.id}/register` novalidate)
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        include ./_form.pug
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/event.js')

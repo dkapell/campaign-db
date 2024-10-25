@@ -1,0 +1,52 @@
+if checkPermission('gm')
+    .row.my-2
+        .col
+            label.control-label(for="attendance_user_id") Attendee
+
+            select.form-select.complex-select2#attendance_user_id(name="attendance[user_id]" data-placeholder='User')
+                option
+                each user in users
+                    - const type = capitalize(user.typeForDisplay)
+                    option(
+                        value=user.id
+                        selected=Number(attendance.user_id)===user.id
+                        title=user.name
+                        data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                    ) #{capitalize(user.name)} (#{type})
+
+
+#characterPicker(style=attendance.user.type==='player'?'':'display:none')
+    .row.my-2
+        .col
+            label.control-label(for="attendance_character_id") Character
+            select.form-control.complex-select2#attendance_character_id(name="attendance[character_id]")
+                option
+                for character in characters
+                    option(
+                        value=character.id
+                        selected=attendance.character_id===character.id
+                        data-text= character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name
+                        data-html= character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name
+                        ) #{character.name} #{character.active?'[Active]':''}
+
+if checkPermission('gm') && attendance.user.type === 'player'
+    .row.my-2
+        .col
+            .form-check.form-switch
+                input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid)
+                label.form-check-label(for="attendance_paid") Paid
+
+each customEventField in currentCampaign.event_fields
+    .row.my-2
+        .col
+            +customEventField(customEventField.name, customEventField.type, attendance.data[customEventField.name])
+
+.row.my-2
+    .col
+         +markdownEditor('Registration Notes', 'attendance_notes', 'attendance[notes]', 3, 100, attendance.notes, false )
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= attendance.id?'Update':'Register'
+        a.btn.btn-link(href="/event") Cancel

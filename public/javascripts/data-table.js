@@ -146,7 +146,6 @@ function prepDataTable(){
             const object = $table.data('orderable-object');
             const csrfToken = $table.data('csrf');
             const url = `/${object}/order`;
-            console.log(updates);
             await fetch(url, {
                 method:'PUT',
                 redirect:'manual',
@@ -194,11 +193,9 @@ function exportCSV(e){
 async function deleteItem(e){
     e.preventDefault();
     e.stopPropagation();
-
     const $this = $(this);
     $this.tooltip('hide');
     const url = $this.attr('url');
-    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     } else {

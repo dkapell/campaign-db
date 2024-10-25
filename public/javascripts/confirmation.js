@@ -13,7 +13,7 @@
             cancelText: 'Cancel'
         }, options || {});
 
-        const modalId = 'modal-confirm-3f31c593-6f58-4179-ae66-b1c649efde5f';
+        const modalId = 'modal-confirm-2291ab47-2c70-4e26-af83-9e02d2b062e8';
 
         let modal = null;
 
@@ -22,17 +22,14 @@
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
-
             buildModal();
             modal.modal('show');
             (async () => {
                 const result = await runConfirm();
                 if (result){
-                    $(copy.target.parentNode).off('click.confirmation').trigger(copy);
-                    return true;
-                } else {
-                    return false;
+                    $(copy.currentTarget).off('click.confirmation').trigger(copy);
                 }
+                return result;
             })();
         });
 

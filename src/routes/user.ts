@@ -205,6 +205,21 @@ function revert(req, res){
     res.redirect('/');
 }
 
+async function getCharacterListApi(req, res, next){
+    const id = req.params.id;
+    try{
+        const user = await req.models.user.get(req.campaign.id, id);
+        if (!user){
+            return res.status(404).json({success:false, message: 'not found'});
+        }
+
+        const characters = await req.models.character.find({campaign_id: req.campaign.id, user_id: user.id});
+        res.json({success:true, characters:characters, user:user});
+    } catch (err) {
+        next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(function(req, res, next){
@@ -218,6 +233,7 @@ router.get('/revert', revert);
 router.get('/:id', permission('gm'), csrf(), show);
 router.get('/:id/edit', permission('gm'), csrf(), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
+router.get('/:id/characters', permission('gm'), getCharacterListApi);
 router.post('/', permission('admin'), csrf(), create);
 router.put('/:id', permission('gm'), csrf(), update);
 router.delete('/:id', permission('admin'), remove);

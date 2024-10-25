@@ -17,11 +17,13 @@ create table events (
 
 create table attendance (
     id serial,
+    campaign_id int not null,
     event_id int not null,
     user_id int not null,
     character_id int,
     paid boolean default false,
     notes text,
+    data jsonb,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     unique(event_id, user_id),
@@ -30,5 +32,12 @@ create table attendance (
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT attendance_character_id FOREIGN KEY (character_id)
         REFERENCES "characters" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT attendance_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+alter table campaigns add column event_default_cost int,
+    add column event_default_location varchar(255),
+    add column event_fields jsonb;

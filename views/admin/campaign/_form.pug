@@ -167,7 +167,61 @@ fieldset.mb-2.border.p-2.rounded
 
 
 
+fieldset.mb-2.border.p-2.rounded
+    label.h5.w-100#event-heading(data-bs-toggle="collapse" data-bs-target="#event-container" aria-expanded="false" area-controls="event-container") Event Options
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+    #event-container.collapse(aria-labeledby="event-heading")
+        .row.my-2
+            .col
+                .alert.alert-info These fields allow you to provide default values for events for this campaign, and to set custom fields for attendees to fill out.
 
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_event_default_cost") Default Event Cost in Dollars
+            .col
+                .input-group
+                    .input-group-text $
+                    input.form-control#campaign_event_default_cost(
+                        placeholder="Dollars"
+                        name="campaign[event_default_cost]"
+                        value=campaign.event_default_cost
+                        type='number'
+                    )
+                    .input-group-text .00
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_event_default_location") Default Event Location
+            .col
+                input.form-control#campaign_event_default_location(type="text" placeholder="Location" name="campaign[event_default_location]" value=campaign.event_default_location)
+        .row.my-2
+            .col
+                label.control-label.w-100#event_fields-heading(for="campaign_event_fields", data-bs-toggle="collapse" data-bs-target="#event_fields-container" aria-expanded="false" area-controls="event_fields-container") Custom Event Fields
+                    i.expand-text-shown.ms-4 (click to hide editor)
+                    i.expand-text.ms-4 (click to show editor)
+                    span.float-end.ps-2
+                        i.fa.fa-chevron-up
+                        i.fa.fa-chevron-down
+
+                #event_fields-container.collapse(aria-labeledby="event_fields-heading")
+                    +jsonEditor('campaign_event_fields', 'campaign[event_fields]', 5, 200, campaign.event_fields)
+
+                    .card.mt-3
+                        .card-header#event_fields_example-header(data-bs-toggle="collapse" data-bs-target="#event_fields_example-container" aria-expanded="false" area-controls="event_fields_example-container")  Example
+                            span.float-end.ps-2
+                                i.fa.fa-chevron-up
+                                i.fa.fa-chevron-down
+                        #event_fields_example-container.collapse.card-body.text-bg-light(aria-labeledby="event_fields_example-heading")
+                            pre.my-0.
+
+                                [
+                                    {
+                                        "name": "Field Name"m
+                                        "type": "text" or "longtext" or "boolean",
+                                        "icon": "icon name from FontAwesome (optional"
+                                    }
+                                ]
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" area-controls="authentication-container") Authentication Options
         span.float-end.ps-2

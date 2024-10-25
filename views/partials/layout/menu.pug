@@ -6,18 +6,20 @@
 
     .collapse.navbar-collapse#navbar
         ul.navbar-nav.me-auto
-            li.nav-item(class= siteSection==='home'?"active":null)
-                a.nav-link(href="/") Home
+            li.nav-item
+                a.nav-link(href="/" class= siteSection==='home'?"active":null) Home
                     span.visually-hidden (current)
             if !currentCampaign.default_site
                 if checkPermission('event')
-                    li.nav-item.dropdown(class= siteSection==='gm'?"active":null)
+                    li.nav-item.dropdown(class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
-                            aria-expanded="false") GM Stuff
+                            aria-expanded="false"
+                            class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null
+                            ) GM Stuff
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             if checkPermission('contrib')
                                 a.dropdown-item(href='/skill') Skills
@@ -34,19 +36,20 @@
                                 a.dropdown-item(href='/report/source') Character Source Report
                                 a.dropdown-item(href='/report/skill') Character Skill Report
                                 a.dropdown-item(href='/report/custom_field') Custom Field Report
-
                 if checkPermission('player') && !checkPermission('event')
                     if (currentCampaign.player_folder)
                         li.nav-item
                             a.nav-link(href=currentCampaign.player_folder) target="_blank") Google Drive
                                     i.fa.fa-external-link.ms-1
-                    li.nav-item.dropdown(class= siteSection==='character'?"active":null)
+                    li.nav-item.dropdown(class= siteSection==='character'||_.indexOf(siteSection, 'character') !== -1 ?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
-                            aria-expanded="false") Characters
+                            aria-expanded="false"
+                            class= siteSection==='character'||_.indexOf(siteSection, 'character') !== -1 ?"active":null
+                            ) Characters
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             if characterCount > 0
                                 a.dropdown-item(href='/character/active') Current Character
@@ -58,16 +61,19 @@
                                 a.dropdown-item(href='/cp_grant') Character Points
 
                             a.dropdown-item(href='/skill/doc') Skills
+                            a.dropdown-item(href='/event') Events
 
 
                 if (currentCampaign.display_glossary && checkPermission('player')) || currentCampaign.display_map
-                    li.nav-item.dropdown(class= siteSection==='worldbuilding'?"active":null)
+                    li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#worldbuildingDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
-                            aria-expanded="false") Setting
+                            aria-expanded="false"
+                            class= siteSection==='worldbuilding'||_.indexOf(siteSection, 'worldbuilding') !== -1?"active":null
+                            ) Setting
                         .dropdown-menu(aria-labelledby="worldbuildingDropdown")
                                 if currentCampaign.display_glossary
                                     if checkPermission('contrib') || checkPermission('player')
@@ -79,13 +85,15 @@
                                         a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
 
                 if checkPermission('gm')
-                    li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
+                    li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#adminDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
-                            aria-expanded="false") Admin
+                            aria-expanded="false"
+                            class= siteSection==='admin'||_.indexOf(siteSection, 'admin') !== -1?"active":null
+                            ) Admin
                         .dropdown-menu(aria-labelledby="adminDropdown")
                             a.dropdown-item(href='/user') Users
                             a.dropdown-item(href='/audit') Audits
@@ -120,14 +128,14 @@
             if activeUser
                 li.nav-item.dropdown
                     a.nav-link.dropdown-toggle.px-4#userDropdown(
-                        class=session.gm_mode||session.player_mode || session.admin_mode || session.assumed_user?'bg-warning rounded-pill':''
+                        class=session.gm_mode || session.player_mode || session.admin_mode || session.assumed_user?'bg-warning rounded-pill':''
                         href='#'
                         role='button'
                         data-bs-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false")
                         i.fas.me-1(class=session.assumed_user?'fa-user-secret':'fa-user')
-                        = session.assumed_user ?  session.assumed_user.name : activeUser.name
+                        = activeUser.name
                     .dropdown-menu(aria-labelledby="userDropdown")
                         a.dropdown-item(href="/auth/logout")
                             i.fas.fa-sign-out-alt.fa-fw.me-1
@@ -135,7 +143,7 @@
                         if session.assumed_user
                             a.dropdown-item(href="/user/revert")
                                 i.fas.fa-user-secret.fa-fw.me-1
-                                | Revert to #{activeUser.name}
+                                | Revert to #{actualUser.name}
                         if checkPermission('site_admin')
                             a.dropdown-item(href="/auth/admin")
                                 i.fas.fa-user-tie.fa-fw.me-1

@@ -42,8 +42,10 @@ const tableFields = [
     'cp_base',
     'cp_cap',
     'cp_factor',
-    'cp_approval'
-
+    'cp_approval',
+    'event_default_cost',
+    'event_default_location',
+    'event_fields'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

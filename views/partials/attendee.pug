@@ -1,0 +1,170 @@
+mixin attendeeListDisplay(attendees, isPlayerList=false)
+    .d-lg-none
+        +attendeeList(attendees, isPlayerList)
+    .d-none.d-lg-block
+        +attendeeTable(attendees, isPlayerList)
+
+
+
+mixin attendeeList(attendees, isPlayerList=false)
+    ul.list-group
+        each attendee in attendees
+            +attendeeListItem(attendee, isPlayerList)
+
+mixin attendeeListItem(attendee, isPlayerList)
+    li.list-group-item.py-2
+        .row
+            .col
+                a(href=`/user/${attendee.user.id}`)
+                    i.fas.fa-user.me-1
+                    = attendee.user.name
+                if !isPlayerList
+                    span.badge.text-bg-info.ms-2=capitalize(attendee.user.typeForDisplay)
+
+                if attendee.user.type === 'player'
+                    .float-end
+                        if attendee.paid
+                            span.badge.text-bg-success Paid
+                        else
+                            span.badge.text-bg-danger Unpaid
+            .col.text-end
+                if attendee.notes
+                    a.btn.btn-outline-info.btn-xs.me-1.action-btn(
+                        tabindex="0"
+                        role="button"
+                        data-bs-toggle="popover"
+                        data-bs-content=marked.parseInline(attendee.notes, {breaks: true})
+                        data-bs-html="true"
+                        title="Notes"
+                    )
+                        i.fas.fa-sticky-note.fa-fw
+                each customField in currentCampaign.event_fields
+                    if _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                        +attendeeCustomField(customField, attendee.data[customField.name])
+
+            if checkPermission('gm')
+                .col-3.text-end
+                    a.btn.btn-outline-info.btn-xs.action-btn.me-1(
+                        role="button",
+                        title="View/Edit Registration"
+                        data-bs-toggle="tooltip"
+                        href=`/event/${attendee.event_id}/register/${attendee.id}`
+                    )
+                        i.fas.fa-edit.fa-fw.me-1
+                        | Edit
+                        span.ms-1.d-none.d-md-inline Registration
+
+
+        if isPlayerList
+            .row
+                .col
+                    a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                        i.far.fa-user.me-1
+                        = attendee.character.name
+                    if attendee.character.pronouns
+                        span.ms-2 (#{character.pronouns})
+                    if attendee.character.active
+                        .badge.text-bg-success.badge-pill.ms-1 Active
+            
+            
+mixin attendeeTable(attendees, isPlayerList)
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th Attendee
+                    if isPlayerList
+                        th Paid
+                        th Character
+                    else
+                        th Type
+                    th Details
+                    if checkPermission('gm')
+                        th
+            tbody
+                each attendee in attendees
+                    tr
+                        td.dtr-control
+                        td
+                            if checkPermission('gm')
+                                a(href=`/user/${attendee.user.id}`)
+                                    i.fas.fa-user.me-1
+                                    = attendee.user.name
+                            else
+                                i.fas.fa-user.me-1
+                                = attendee.user.name
+                        if isPlayerList
+                            td
+                                if attendee.paid
+                                    span.badge.text-bg-success Yes
+                                else
+                                    span.badge.text-bg-danger No
+
+                            td
+                                 a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                                    i.far.fa-user.me-1
+                                    = attendee.character.name
+                        else
+                            td= capitalize(attendee.user.typeForDisplay)
+                        td
+                            if attendee.notes
+                                a.btn.btn-outline-info.btn-xs.me-1.action-btn(
+                                    tabindex="0"
+                                    role="button"
+                                    data-bs-toggle="popover"
+                                    data-bs-content=marked.parseInline(attendee.notes, {breaks: true})
+                                    data-bs-html="true"
+                                    title="Notes"
+                                )
+                                    i.fas.fa-sticky-note.fa-fw
+                            each customField in currentCampaign.event_fields
+                                if _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                                    +attendeeCustomField(customField, attendee.data[customField.name])
+
+                        if checkPermission('gm')
+                            td.text-end
+                                a.btn.btn-outline-info.btn-xs.action-btn.me-1(
+                                    role="button",
+                                    title="View/Edit Registration"
+                                    data-bs-toggle="tooltip"
+                                    href=`/event/${attendee.event_id}/register/${attendee.id}`
+                                )
+                                    i.fas.fa-edit.fa-fw.me-1
+                                    | Edit Registration
+
+mixin attendeeCustomField(customField, data)
+    -
+        const icon = customField.icon?customField.icon:'fa-sticky-note'
+        if (customField.type === 'boolean'){
+            data = !!data?'Yes':'No'
+        }
+
+    a.btn.btn-outline-info.btn-xs.me-1.action-btn(
+        tabindex="0"
+        role="button"
+        data-bs-toggle="popover"
+        data-bs-content=marked.parseInline(data, {breaks: true})
+        data-bs-html="true"
+        title=customField.name
+    )
+        i.fas.fa-fw(class=icon)
+
+mixin attendeeCustomFieldDisplay(customField, data)
+    -
+        const icon = customField.icon?customField.icon:'fa-sticky-note'
+        if (customField.type === 'boolean'){
+            data = !!data?'Yes':'No'
+        }
+    .row.my-2
+        .col-md-2
+            i.fas.me-1.fa-fw(class=icon)
+            strong= customField.name
+        .col-md
+                !=marked.parseInline(data, {breaks:true})
+

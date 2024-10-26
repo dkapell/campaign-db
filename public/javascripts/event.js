@@ -44,7 +44,15 @@ $(function(){
     $('#event-unregister-btn').confirmation({
         title: 'Unregister from this event?'
     }).on('click', deleteAttendance);
+    $('#attendee-export-btn').on('click', exportAttendeeCsv);
 });
+
+function exportAttendeeCsv(e){
+    e.preventDefault();
+    const url = $(this).data('export');
+    window.open(url, '_self');
+    $(this).blur();
+}
 
 
 async function updateCharacterPicker(e){

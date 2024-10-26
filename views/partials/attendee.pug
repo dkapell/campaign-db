@@ -7,6 +7,14 @@ mixin attendeeListDisplay(attendees, isPlayerList=false)
 
 
 mixin attendeeList(attendees, isPlayerList=false)
+    .row
+        .col
+            button.btn.btn-sm.btn-outline-info.my-2#attendee-export-btn(
+                data-export=`/event/${event.id}/export?type=${isPlayerList?'player':'staff'}`
+            )
+                i.fa.fa-download.me-1
+                | Export CSV
+
     ul.list-group
         each attendee in attendees
             +attendeeListItem(attendee, isPlayerList)
@@ -21,7 +29,7 @@ mixin attendeeListItem(attendee, isPlayerList)
                 if !isPlayerList
                     span.badge.text-bg-info.ms-2=capitalize(attendee.user.typeForDisplay)
 
-                if attendee.user.type === 'player'
+                if attendee.user.type === 'player' && event.cost
                     .float-end
                         if attendee.paid
                             span.badge.text-bg-success Paid
@@ -72,15 +80,17 @@ mixin attendeeTable(attendees, isPlayerList)
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-exportable(
             style="display: none"
+            data-export=`/event/${event.id}/export?type=${isPlayerList?'player':'staff'}`
             )
             thead
                 tr
                     th
                     th Attendee
                     if isPlayerList
-                        th Paid
+                        if event.cost
+                            th Paid
                         th Character
                     else
                         th Type
@@ -100,11 +110,12 @@ mixin attendeeTable(attendees, isPlayerList)
                                 i.fas.fa-user.me-1
                                 = attendee.user.name
                         if isPlayerList
-                            td
-                                if attendee.paid
-                                    span.badge.text-bg-success Yes
-                                else
-                                    span.badge.text-bg-danger No
+                            if event.cost
+                                td
+                                    if attendee.paid
+                                        span.badge.text-bg-success Yes
+                                    else
+                                        span.badge.text-bg-danger No
 
                             td
                                  a(href=`/character/${attendee.character.id}` style='font-size: 1rem')

@@ -2,6 +2,7 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
+import stringify from 'csv-stringify-as-promised';
 import permission from '../lib/permission';
 
 /* GET events listing. */
@@ -439,6 +440,74 @@ async function removeAttendance(req, res, next){
     }
 }
 
+async function exportEventAttendees(req, res, next){
+    const eventId = req.params.id;
+    const exportType = req.query.type;
+    try {
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+
+        const output = [];
+        const header = ['Name', 'Email'];
+        if (exportType === 'player'){
+            header.push('Character');
+            if (event.cost){
+                header.push('Paid');
+            }
+        } else {
+            header.push('Type');
+        }
+        for (const field of req.campaign.event_fields){
+            header.push(field.name);
+        }
+
+        header.push('Notes');
+        output.push(header);
+
+        for (const attendee of event.attendees){
+            const row = [
+                attendee.user.name,
+                attendee.user.email,
+            ];
+            if (exportType === 'player'){
+                if (attendee.user.type !== 'player'){
+                    continue;
+                }
+                row.push(attendee.character.name);
+                if (event.cost){
+                    row.push(attendee.paid?'Yes':'No');
+                }
+            } else {
+                if (attendee.user.type === 'player'){
+                    continue;
+                }
+                row.push(attendee.user.typeForDisplay);
+            }
+            for (const field of req.campaign.event_fields){
+                if (_.has(attendee.data, field.name)){
+                    row.push(attendee.data[field.name]);
+                } else {
+                    row.push(null);
+                }
+            }
+            row.push(attendee.notes);
+
+            output.push(row);
+        }
+        const csvOutput = await stringify(output, {});
+        res.attachment(`${event.name} - ${exportType==='player'?'Players':'Staff'}.csv`);
+        res.end(csvOutput);
+
+    } catch (err){
+        return next(err);
+    }
+
+}
+
 const router = express.Router();
 
 router.use(permission('player'));
@@ -451,6 +520,7 @@ router.get('/', list);
 router.get('/new', csrf(), permission('gm'), showNew);
 router.get('/:id', csrf(), show);
 router.get('/:id/edit', csrf(), permission('gm'), showEdit);
+router.get('/:id/export', csrf(), permission('contrib'), exportEventAttendees);
 router.post('/', csrf(), permission('gm'), create);
 router.put('/:id', csrf(), permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);

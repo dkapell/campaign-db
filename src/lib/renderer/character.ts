@@ -27,7 +27,7 @@ interface CharacterSheetTextOptions{
     align?:string
 }
 
-async function renderCharacter(character: CharacterData, options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
+async function renderCharacter(characters: CharacterData[], options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {
         options = {};
     }
@@ -37,51 +37,54 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
     }
 
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
-
     registerFonts(doc);
 
-    doc.addPage();
-    doc.strokeColor('#000000')
-        .fillColor('#000000');
-
-    renderPage(true);
+    let firstPage = true;
+    let currentCharacter = null;
 
     // Draw a nice border
     doc.on('pageAdded', () => {
-        renderPage(false);
+        renderPage(firstPage, currentCharacter);
     });
 
-    let row = options.margin;
-    row = renderHeader();
+    for (const character of characters){
+        firstPage = true;
+        currentCharacter = character;
+        doc.addPage();
+        firstPage = false;
 
-    row = renderAttributes(row);
+        let row = options.margin;
+        row = renderHeader(character);
 
-    const tagHeight = renderTagSkills(row);
+        row = renderAttributes(character, row);
 
-    const languageHeight = renderLanguages(row);
+        const tagHeight = renderTagSkills(character, row);
 
-    doc.text('', options.margin + 10, Math.max(row, tagHeight, languageHeight) + 10);
+        const languageHeight = renderLanguages(character, row);
 
-    renderDiagnose();
+        doc.text('', options.margin + 10, Math.max(row, tagHeight, languageHeight) + 10);
 
-    const skills = _.reject(character.provides.skills, (skill) => {
-        return _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet;
-    });
+        renderDiagnose(character);
 
-    const grouped = _.groupBy(skills, 'usage_id');
+        const skills = _.reject(character.provides.skills, (skill) => {
+            return _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet;
+        });
 
-    const skill_usages = await models.skill_usage.find({campaign_id: character.campaign_id});
-    for (const usage of skill_usages){
-        if (_.has(grouped, ''+usage.id)){
-            renderSkills(grouped[''+usage.id]);
+        const grouped = _.groupBy(skills, 'usage_id');
+
+        const skill_usages = await models.skill_usage.find({campaign_id: character.campaign_id});
+        for (const usage of skill_usages){
+            if (_.has(grouped, ''+usage.id)){
+                renderSkills(grouped[''+usage.id]);
+            }
         }
-    }
 
-    if (options.skillDescriptions){
-        doc.addPage({margin: options.margin*2});
-        renderAllSkills();
-    }
+        if (options.skillDescriptions){
+            doc.addPage({margin: options.margin*2});
+            renderAllSkills(character);
+        }
 
+    }
     return doc;
 
     function addText(text:string, options:CharacterSheetTextOptions, maxFontSize:number, x:number, y:number, maxWidth:number, maxHeight:number):void{
@@ -105,7 +108,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
 
 
 
-    function renderHeader():number {
+    function renderHeader(character: CharacterData):number {
         doc.strokeColor('#000000')
             .fillColor('#000000');
         const maxNameWidth = doc.page.width - (options.margin*2 + 220);
@@ -160,7 +163,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
         return Math.max(traitRow, headerRow);
     }
 
-    function renderAttributes(row:number):number{
+    function renderAttributes(character: CharacterData, row:number):number{
         const attributeBoxHeight = 40;
 
         const numAttributes = character.provides.attributes.length;
@@ -181,7 +184,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
         return row + attributeBoxHeight;
     }
 
-    function renderTagSkills(row: number): number{
+    function renderTagSkills(character: CharacterData, row: number): number{
         if (!character.provides.tagskills.length){
             return 0;
         }
@@ -200,7 +203,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
         doc.x -= 5;
         return row + sectionHeight + doc.heightOfString(sectionBody, {width: sectionWidth});
     }
-    function renderLanguages(row: number): number {
+    function renderLanguages(character: CharacterData, row: number): number {
         if (!character.provides.languages.length){
             return 0;
         }
@@ -224,7 +227,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
     }
 
 
-    function renderDiagnose():void{
+    function renderDiagnose(character: CharacterData):void{
         if (!character.provides.diagnose.length){
             return;
         }
@@ -292,7 +295,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
 
     }
 
-    function renderAllSkills():void{
+    function renderAllSkills(character: CharacterData):void{
 
         const skills = _.sortBy(character.skills, 'name');
 
@@ -361,7 +364,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
 
     }
 
-    function renderPage(firstPage:boolean):void{
+    function renderPage(firstPage:boolean, character: CharacterData):void{
         doc.strokeColor('#000000')
             .fillColor('#000000');
 

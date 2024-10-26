@@ -691,7 +691,7 @@ class Character{
     }
 
     async pdf(skillDescriptions: boolean, showLanguages?:boolean){
-        return characterRenderer(await this.data(), {
+        return characterRenderer([await this.data()], {
             skillDescriptions:skillDescriptions,
             showLanguages:showLanguages
         });

@@ -135,6 +135,19 @@ block content
                                     span.fa.fa-calendar-check.me-2
                                     | Create Registration
 
+                            .btn-group.mt-1.ms-2
+                                a.btn.btn-outline-info.btn-sm(role="button" href=`/event/${event.id}/pdf`)
+                                    i.fas.fa-file-alt
+                                    |  Download PDFs
+
+                                a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                                    .visually-hidden Toggle Dropdown
+                                ul.dropdown-menu.py-1
+                                    li
+                                        a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
+                                            i.fas.fa-file
+                                            |  With Skill Descriptions
+
                             ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
 
                                 li.nav-item(role="presentation")

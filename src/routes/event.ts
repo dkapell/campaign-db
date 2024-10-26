@@ -4,6 +4,8 @@ import _ from 'underscore';
 import async from 'async';
 import stringify from 'csv-stringify-as-promised';
 import permission from '../lib/permission';
+import Character from '../lib/Character';
+import characterRenderer from '../lib/renderer/character';
 
 /* GET events listing. */
 async function list(req, res, next){
@@ -508,6 +510,33 @@ async function exportEventAttendees(req, res, next){
 
 }
 
+async function exportPlayerPdfs(req, res, next){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const characters = await async.map(event.players, async(player) => {
+            const character = new Character({id:player.character_id});
+            await character.init();
+            return character.data();
+        });
+        const pdf = await characterRenderer(characters, {
+            skillDescriptions:!!req.query.descriptions,
+            showLanguages:!!req.query.languages
+        });
+
+        pdf.pipe(res);
+        res.set('Content-Type', 'application/pdf');
+        res.attachment(`${event.name} - All Player Sheets.pdf`);
+        pdf.end();
+    } catch (err){
+        return next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(permission('player'));
@@ -521,6 +550,7 @@ router.get('/new', csrf(), permission('gm'), showNew);
 router.get('/:id', csrf(), show);
 router.get('/:id/edit', csrf(), permission('gm'), showEdit);
 router.get('/:id/export', csrf(), permission('contrib'), exportEventAttendees);
+router.get('/:id/pdf', csrf(), permission('contrib'), exportPlayerPdfs);
 router.post('/', csrf(), permission('gm'), create);
 router.put('/:id', csrf(), permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);

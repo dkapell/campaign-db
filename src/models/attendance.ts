@@ -4,12 +4,10 @@ import Model from  '../lib/Model';
 
 import userModel from './user';
 import characterModel from './character';
-import eventModel from './event';
 
 const models = {
     user: userModel,
-    character: characterModel,
-    event: eventModel,
+    character: characterModel
 };
 
 const tableFields = [

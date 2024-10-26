@@ -23,13 +23,10 @@ class Model implements IModel{
     fields: string[];
     options: ModelOptions;
 
-    constructor(table: string, fields: string[], options: ModelOptions){
+    constructor(table: string, fields: string[], options: ModelOptions = {skipAuditFields: []}){
         this.table = table;
         this.fields = fields;
         this.options = options;
-        if (!options.skipAuditFields){
-            options.skipAuditFields = [];
-        }
     }
 
     async get(id, options:RequestOptions = {}){

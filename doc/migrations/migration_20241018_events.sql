@@ -8,6 +8,7 @@ create table events (
     registration_open boolean default false,
     cost int default 0,
     location varchar(255),
+    deleted boolean default false,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT events_campaign_fk FOREIGN KEY (campaign_id)

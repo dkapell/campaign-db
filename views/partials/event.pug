@@ -96,9 +96,9 @@ mixin eventListItemStaff(event)
 
     .row
         .col
-            i.fas.fa-fw.fa-map-marker-alt.me-1.ms-2
+            i.fas.fa-fw.fa-map-marker-alt.me-1
             = event.location
-
+    .row
         .col-lg-3
             | Staff
             span.d-lg-none.d-xl-inline /NPCs
@@ -113,7 +113,7 @@ mixin eventListItemPlayer(event)
             if attendance
                 i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
             else if event.registration_open
-                .text-danger(data-bs-toggle="tooltip" title='Not Attending')
+                i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Attending')
             else
                 i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Attending')
             = event.name
@@ -134,7 +134,7 @@ mixin eventListItemPlayer(event)
         .col.text-end
             +eventDate(event.start_time, event.end_time)
     .row
-        .col
+        .col-md-6
             i.fas.fa-map-marker-alt.me-1
             = event.location
         if !(attendance && attendance.paid)

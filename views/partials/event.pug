@@ -135,7 +135,7 @@ mixin eventListItemPlayer(event)
             +eventDate(event.start_time, event.end_time)
     .row
         .col-md-6
-            i.fas.fa-map-marker-alt.me-1
+            i.fas.fa-map-marker-alt.me-1.fa-fw
             = event.location
         if !(attendance && attendance.paid)
             .col.text-end

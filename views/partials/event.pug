@@ -99,11 +99,11 @@ mixin eventListItemStaff(event)
             i.fas.fa-fw.fa-map-marker-alt.me-1
             = event.location
     .row
-        .col-lg-3
+        .col
             | Staff
             span.d-lg-none.d-xl-inline /NPCs
             |: #{event.attendees.length - event.players.length}
-        .col-lg-3
+        .col
             | Players: #{event.players.length}
 
 mixin eventListItemPlayer(event)

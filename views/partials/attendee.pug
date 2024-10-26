@@ -70,7 +70,7 @@ mixin attendeeListItem(attendee, isPlayerList)
                         i.far.fa-user.me-1
                         = attendee.character.name
                     if attendee.character.pronouns
-                        span.ms-2 (#{character.pronouns})
+                        span.ms-2 (#{attendee.character.pronouns})
                     if attendee.character.active
                         .badge.text-bg-success.badge-pill.ms-1 Active
             

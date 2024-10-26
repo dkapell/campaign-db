@@ -31,18 +31,25 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
     if (!options) {
         options = {};
     }
-    const doc = new PDFDocument({size: 'LETTER'});
 
     if (!_.has(options, 'margin')){
         options.margin = 20;
     }
+
+    const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
+
     registerFonts(doc);
+
+    doc.addPage();
+    doc.strokeColor('#000000')
+        .fillColor('#000000');
+
+    renderPage(true);
 
     // Draw a nice border
     doc.on('pageAdded', () => {
         renderPage(false);
     });
-    renderPage(true);
 
     let row = options.margin;
     row = renderHeader();
@@ -229,7 +236,6 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
     }
 
     function renderSkills(skills:SkillModel[]):void{
-
         const skillsReduced = skills.reduce((o, e) => {
             const skill = _.findWhere(o, {name:e.name});
             if (!skill) {
@@ -274,9 +280,15 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
             } else {
                 markdown(doc, skill.summary);
             }
+            if (doc.page.height - doc.y < options.margin*2){
+                const preX = doc.x;
+                doc.addPage({margin: options.margin});
+                doc.x = preX;
+            }
         }
         doc.moveDown(0.5);
         doc.x -= 5;
+
 
     }
 
@@ -292,7 +304,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
             }
             skillsAdded.push(skill.id);
             if (doc.page.height - doc.y < 72*1.5){
-                doc.addPage({margin: 50});
+                doc.addPage({margin: options.margin*2});
             }
 
             doc.font('Header Font Italic').fontSize(12).text(`${skill.name} `, {continued:true});
@@ -352,21 +364,23 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
     function renderPage(firstPage:boolean):void{
         doc.strokeColor('#000000')
             .fillColor('#000000');
+
         doc.rect(options.margin, options.margin, doc.page.width - options.margin*2, doc.page.height - options.margin*2).stroke();
 
-        doc.fontSize(8).font('Body Font').text(
-            moment().format('lll'),
-            options.margin + 2,
-            firstPage?doc.page.height - (options.margin + 10):options.margin +2,
-            {
-                width: doc.page.width - (options.margin*2 + 4),
-                height: options.margin,
-                align:'right'
-            }
-        );
+        const dateStr = moment().format('lll');
+        const xPos = options.margin + 2
+        const yPos = firstPage?doc.page.height - (options.margin + 10):options.margin +2;
+        const width = doc.page.width - (options.margin*2 + 4);
+
+        doc.font('Body Font').fontSize(8).text( dateStr, xPos, yPos, {
+            width: width,
+            height: options.margin,
+            align:'right',
+            continued:false
+        });
 
         if (!firstPage){
-            doc.fontSize(8).font('Body Font').text(
+            doc.font('Body Font').fontSize(8).text(
                 character.name,
                 options.margin + 2,
                 options.margin + 2,
@@ -377,6 +391,7 @@ async function renderCharacter(character: CharacterData, options: CharacterSheet
                 }
             );
         }
+
         doc.x = options.margin*2;
         doc.y = options.margin*2;
     }

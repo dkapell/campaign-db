@@ -128,7 +128,11 @@ append content
                     h3 Character
                     +characterCard(character)
                 if characters
-                    h3 Player Characters
+                    h3
+                        if activeUser.type === 'event staff'
+                            | Characters
+                        else
+                            | Player Characters
                     +characterList(characters)
 
                 if checkPermission('player') && !checkPermission('event')

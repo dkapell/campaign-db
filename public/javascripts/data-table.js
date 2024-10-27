@@ -196,6 +196,11 @@ async function deleteItem(e){
     const $this = $(this);
     $this.tooltip('hide');
     const url = $this.attr('url');
+    const headers = {};
+    if ($this.data('csrf')){
+        headers['CSRF-Token'] = $this.data('csrf');
+    }
+    const result = await fetch(url, {method:'DELETE', redirect:'manual', headers:headers});
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     } else {

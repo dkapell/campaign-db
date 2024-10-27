@@ -49,6 +49,25 @@ async function showIndex(req, res){
             const events = await req.models.event.find({campaign_id:req.campaign.id});
             res.locals.events = events.filter( event => { return event.end_time > new Date(); })
 
+        } else {
+            const characters = await req.models.character.find({user_id: user.id, active: true, campaign_id:req.campaign.id});
+            await async.map(characters, async(character) => {
+                if (character.user_id){
+                    character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
+                }
+                return character;
+            });
+            res.locals.characters = characters
+            res.locals.cp = null
+            res.locals.cp_grants = []
+            let events = await req.models.event.find({campaign_id:req.campaign.id});
+            events = events.filter( event => { return event.end_time > new Date(); })
+            console.log(events)
+            res.locals.events = events.map(event => {
+                event.attendees = _.where(event.attendees, {user_id: user.id});
+                return event;
+            });
+
         }
     } catch (err) {
         console.trace(err);

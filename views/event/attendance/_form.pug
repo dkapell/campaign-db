@@ -38,9 +38,10 @@ if checkPermission('gm') && attendance.user.type === 'player'
                 label.form-check-label(for="attendance_paid") Paid
 
 each customEventField in currentCampaign.event_fields
-    .row.my-2
-        .col
-            +customEventField(customEventField.name, customEventField.type, attendance.data[customEventField.name])
+    if (_.indexOf(event.hidden_fields, customEventField.name) === -1)
+        .row.my-2
+            .col
+                +customEventField(customEventField, attendance.data[customEventField.name])
 
 .row.my-2
     .col
@@ -49,4 +50,4 @@ each customEventField in currentCampaign.event_fields
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= attendance.id?'Update':'Register'
-        a.btn.btn-link(href="/event") Cancel
+        a.btn.btn-link(href=`/event/${event.id}`) Cancel

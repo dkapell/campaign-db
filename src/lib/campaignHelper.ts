@@ -4,6 +4,7 @@ import _ from 'underscore';
 import models from './models';
 import fs from 'fs/promises';
 import stringify from 'csv-stringify-as-promised';
+import moment from 'moment-timezone';
 
 type SkillTableTypes = 'skill_source_type'|'skill_type'|'skill_usage'|'skill_status'|'skill_tag';
 type GlossaryTypes = 'glossary_status';
@@ -222,9 +223,28 @@ async function getCharacterCSV(campaignId: number, characters:ModelData[]): Prom
     return stringify(data, {});
 };
 
+async function parseTime(campaignId:number, date: string, hour:number){
+    const campaign = await models.campaign.get(campaignId);
+    const timezone = campaign.timezone;
+    const dateStr = `${date} ${String(hour).padStart(2, '0')}:00:00`;
+    return moment.tz(dateStr, timezone).toDate();
+}
+
+async function splitTime(campaignId:number, time:Date){
+    const campaign = await models.campaign.get(campaignId);
+    const timezone = campaign.timezone;
+    const parsed = moment.utc(time).tz(timezone);
+    return {
+        date: parsed.format('YYYY-MM-DD'),
+        hour: Number(parsed.format('H'))
+    }
+}
+
 export default {
     init,
     getCharacterCSV,
     cpCalculator,
-    attributeSorter
+    attributeSorter,
+    parseTime,
+    splitTime
 }

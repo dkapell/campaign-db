@@ -45,7 +45,8 @@ const tableFields = [
     'cp_approval',
     'event_default_cost',
     'event_default_location',
-    'event_fields'
+    'event_fields',
+    'timezone'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

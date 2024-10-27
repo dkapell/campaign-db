@@ -19,7 +19,8 @@ const tableFields = [
     'cost',
     'location',
     'deleted',
-    'created'
+    'created',
+    'hidden_fields'
 ];
 
 const Event = new Model('events', tableFields, {

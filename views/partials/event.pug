@@ -31,7 +31,7 @@ mixin eventListDisplay(events, showPast=false)
                         td= event.name
                         
 
-                        td
+                        td(data-sort=event.start_time.getTime())
                             +eventDate(event.start_time, event.end_time)
 
                         td 
@@ -91,7 +91,7 @@ mixin eventListItemStaff(event)
             else
                 i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Attending')
             = event.name
-        .col.text-end
+        .col-auto.text-end
             +eventDate(event.start_time, event.end_time)
 
     .row
@@ -134,7 +134,7 @@ mixin eventListItemPlayer(event)
         .col.text-end
             +eventDate(event.start_time, event.end_time)
     .row
-        .col-md-6
+        .col-md-10
             i.fas.fa-map-marker-alt.me-1.fa-fw
             = event.location
         if !(attendance && attendance.paid)
@@ -153,36 +153,55 @@ mixin eventListItemPlayer(event)
 
 mixin eventDate(start, end)
     -
-        const startM = moment(start);
-        const endM = moment(end)
+        const startM = moment.utc(start).tz(currentCampaign.timezone);
+
+        const endM = moment.utc(end).tz(currentCampaign.timezone)
         let dateStr = '';
 
         if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD')){
             dateStr = startM.format('ll');
+            dateStr += ` ${startM.format('ha')} - ${endM.format('ha')}`;
 
         } else if (startM.format('YYYY-MM') === endM.format('YYYY-MM')){
-            dateStr = `${startM.format('MMM D')} - ${endM.format('D, YYYY')}`;
+            dateStr = `${startM.format('MMM D@ha')} - ${endM.format('D@ha, YYYY')}`;
 
         } else if (startM.format('YYYY') === endM.format('YYYY')){
-            dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
+            dateStr = `${startM.format('MMM D ha')} - ${endM.format('MMM D ha, YYYY')}` ;
 
         } else {
-            dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
+            dateStr = `${startM.format('MMM D ha')} - ${endM.format('MMM D ha, YYYY')}` ;
 
         }
     =dateStr
 
-mixin customEventField(fieldName, fieldType, currentValue)
-    case fieldType
+mixin customEventField(field, currentValue)
+    - const fieldName = field.longname?field.longname:field.name
+    case field.type
         when 'text'
-            label.control-label(for=`attendance_data_${fieldName}`)= fieldName
-            input.form-control( id=`attendance_data_${fieldName}` type="text" name=`attendance[data][${fieldName}]` value=currentValue)
+            label.control-label(for=`attendance_data_${field.name}`)= fieldName
+            input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required)
         when 'longtext'
-             +markdownEditor(fieldName, `attendance_data_${fieldName}`, `attendance[data][${fieldName}]`, 3, 100, currentValue, false )
+             +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, 3, 100, currentValue, false, {required:field.required} )
         when 'boolean'
             .form-check.form-switch
-                input.form-check-input(type="checkbox" id=`attendance_data_${fieldName}` name=`attendance[data][${fieldName}]` checked=currentValue)
-                label.form-check-label(for=`attendance_data_${fieldName}`) fieldName
+                input.form-check-input(type="checkbox" id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` checked=currentValue)
+                label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
+        when 'dropdown'
+            label.control-label(for=`attendance_data_${field.name}`)= fieldName
+            select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required)
+                if field.placeholder
+                    option
+                for item of field.options
+                    option(value=item selected=item===currentValue)= item
 
+mixin hourDisplay(hour)
+    if hour === 0
+        | 12 AM
+    else if hour == 12
+        | 12 PM
+    else if hour < 12
+        | #{hour} AM
+    else
+        | #{hour-12} PM
 
 

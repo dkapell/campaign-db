@@ -21,8 +21,11 @@
                             class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null
                             ) GM Stuff
                         .dropdown-menu(aria-labelledby="gmDropdown")
-                            if checkPermission('contrib')
-                                a.dropdown-item(href='/skill') Skills
+                            if checkPermission('event')
+                                if activeUser.type === 'event staff'
+                                    a.dropdown-item(href='/skill/doc') Skills
+                                else
+                                    a.dropdown-item(href='/skill') Skills
                                 a.dropdown-item(href='/character') Characters
                                 a.dropdown-item(href='/event') Events
 

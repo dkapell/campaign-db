@@ -232,6 +232,8 @@ class Node {
             renderOptions.continued = false;
         }
 
+        let height = 0;
+
         if (this.type === 'img'){
             this.setStyle(doc, renderOptions);
             const filepath = __dirname + '/../../public' + this.attrs.href;
@@ -285,8 +287,11 @@ class Node {
                     if (this.type !== 'code') {
                         fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ');
                     }
-
-                    doc.text(fragment.text, options);
+                    if (renderOptions.height){
+                        height += doc.heightOfString(fragment.text, options);
+                    } else {
+                        doc.text(fragment.text, options);
+                    }
                 } else {
                     const newOptions = JSON.parse(JSON.stringify(renderOptions));
                     if (! renderOptions.continued){
@@ -302,7 +307,9 @@ class Node {
                 lastType = this.type;
             }
         }
-
+        if (renderOptions.height){
+            return height;
+        }
 
         if (this.style.padding) {
             return (doc.y += this.style.padding);
@@ -319,12 +326,21 @@ function render(doc:PDFKit.PDFDocument, input, options?:RenderOptions){
     if (!options){
         options = {};
     }
-    const result = [];
-    while (tree.length) {
-        const node = new Node(tree.shift());
-        result.push(node.render(doc, options));
+    if (options.height){
+        let height = 0;
+        while (tree.length) {
+            const node = new Node(tree.shift());
+            height += node.render(doc, options);
+        }
+        return height;
+    } else {
+        const result = [];
+        while (tree.length) {
+            const node = new Node(tree.shift());
+            result.push(node.render(doc, options));
+        }
+        return result;
     }
-    return result;
 };
 
 export default render

@@ -12,7 +12,7 @@ import session from 'express-session';
 import config from 'config';
 import flash from 'express-flash';
 import {createClient} from 'redis';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { marked } from 'marked';
 import methodOverride from 'method-override';
 import {OAuth2Strategy} from 'passport-google-oauth';

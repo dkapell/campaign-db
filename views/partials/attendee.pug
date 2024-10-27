@@ -135,8 +135,9 @@ mixin attendeeTable(attendees, isPlayerList)
                                 )
                                     i.fas.fa-sticky-note.fa-fw
                             each customField in currentCampaign.event_fields
-                                if _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                                    +attendeeCustomField(customField, attendee.data[customField.name])
+                                if (_.indexOf(event.hidden_fields, customField.name) === -1)
+                                    if _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                                        +attendeeCustomField(customField, attendee.data[customField.name])
 
                         if checkPermission('gm')
                             td.text-end
@@ -148,6 +149,15 @@ mixin attendeeTable(attendees, isPlayerList)
                                 )
                                     i.fas.fa-edit.fa-fw.me-1
                                     | Edit Registration
+
+                                a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                    role="button",
+                                    title="Delete Registration"
+                                    data-bs-toggle="tooltip"
+                                    data-csrf=csrfToken
+                                    url=`/event/${attendee.event_id}/register/${attendee.id}`
+                                )
+                                    i.fas.fa-trash.fa-fw
 
 mixin attendeeCustomField(customField, data)
     -

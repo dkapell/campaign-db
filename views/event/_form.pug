@@ -7,14 +7,25 @@
 
 
 .row.my-2
-    .col
+    .col-md
         label.control-label(for="event_date") Date(s)
         .input-group#event_dates
-            input.form-control#event_start_time(type="text" placeholder="Start" name="event[start_time]" value=moment(event.start_time).format('YYYY-MM-DD'))
+            input.form-control#event_start_date(type="text" placeholder="Start" name="event[start_date]" value=event.start_date)
+            select.select2#event_start_hour(name="event[start_hour]" data-placeholder="Start Hour" required )
+                option
+                for hour in _.range(0, 24)
+                    option(value=hour selected=Number(event.start_hour)===hour)
+                        +hourDisplay(hour)
             .input-group-text to
-            input.form-control#event_end_time(type="text" placeholder="End" name="event[end_time]" value=moment(event.end_time).format('YYYY-MM-DD'))
+            input.form-control#event_end_date(type="text" placeholder="End" name="event[end_date]" value=event.end_date)
+            select.select2#event_end_hour(name="event[end_hour]" data-placeholder="End Hour" required)
+                option
+                for hour in _.range(0, 24)
+                    option(value=hour selected=Number(event.end_hour)===hour)
+                        +hourDisplay(hour)
 
-    .col-md-4
+
+    .col-md-3
         label.control-label(for="event_cost") Cost in Dollars
         .input-group
             .input-group-text $
@@ -37,8 +48,28 @@
     .col
          +markdownEditor('Event Description', 'event_description', 'event[description]', 3, 150, event.description, true )
 
+if currentCampaign.event_fields.length
+    .row.my-2
+        .col
+            .card.mt-2
+                .card-header#event_hidden_fields-header(data-bs-toggle="collapse" data-bs-target="#event_hidden_fields-container" aria-expanded="false" aria-controls="event_hidden_fields-container") Custom Fields
+                    i.expand-text-shown.ms-4 (click to hide)
+                    i.expand-text.ms-4 (click to show)
+                    span.float-end.ps-2
+                        i.fa.fa-chevron-up
+                        i.fa.fa-chevron-down
+                #event_hidden_fields-container.collapse.card-body(aria-labeledby="event_hidden_fields-header")
+
+
+                    each field in currentCampaign.event_fields
+                        .row.my-1
+                            .col
+                                .form-check.form-switch
+                                    input.form-check-input(id=`event_hidden_field-${field.name.replace(/\s+/, '_')}` type="checkbox" name=`event[hidden_fields][${field.name}]` checked=_.indexOf(event.hidden_fields, field.name) === -1)
+                                    label.form-check-label(for=`event_hidden_field-${field.name.replace(/\s+/, '_')}`)= field.name
 .row.my-2
     .col
 
         button.btn.btn-primary(type="submit")= event.id?'Update':'Create'
         a.btn.btn-link(href="/event") Cancel
+

@@ -306,7 +306,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 continue;
             }
             skillsAdded.push(skill.id);
-            if (doc.page.height - doc.y < 72*1.5){
+            if (doc.page.height - doc.y < 72*1){
                 doc.addPage({margin: options.margin*2});
             }
 
@@ -348,6 +348,12 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             } else {
                 markdown(doc, skill.summary);
             }
+            const height = markdown(doc, skill.description, {height:true});
+            if (doc.page.height - (doc.y + height) < options.margin *2){
+                doc.addPage({margin: options.margin*2});
+            }
+            //console.log(height);
+
             markdown(doc, skill.description);
             if (skill.details && skill.details.sheet_note){
                 doc.font('Body Font Bold').text('Sheet Note: ', {continued:true});
@@ -365,6 +371,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     }
 
     function renderPage(firstPage:boolean, character: CharacterData):void{
+        const oldX = doc.x;
+
         doc.strokeColor('#000000')
             .fillColor('#000000');
 
@@ -393,9 +401,20 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                     align:'left'
                 }
             );
+
+            doc.font('Body Font').fontSize(8).text(
+                character.user.name,
+                options.margin + 2,
+                options.margin + 2,
+                {
+                    width: doc.page.width - (options.margin*2 + 4),
+                    height: options.margin,
+                    align:'center'
+                }
+            );
         }
 
-        doc.x = options.margin*2;
+        doc.x = oldX;
         doc.y = options.margin*2;
     }
 };

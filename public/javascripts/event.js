@@ -9,7 +9,7 @@ $(function(){
     const elem = document.getElementById('event_dates');
     if (typeof DateRangePicker !== 'undefined'){
         const rangepicker = new DateRangePicker(elem, {
-            inputs: [document.getElementById('event_start_time'), document.getElementById('event_end_time')],
+            inputs: [document.getElementById('event_start_date'), document.getElementById('event_end_date')],
             buttonClass: 'btn',
             format: 'yyyy-mm-dd'
         });

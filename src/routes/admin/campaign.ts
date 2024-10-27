@@ -51,7 +51,8 @@ function showNew(req, res){
         cp_approval: true,
         event_default_cost: null,
         event_default_location: null,
-        event_fields: []
+        event_fields: [],
+        timezone: 'America/New_York'
     };
     res.locals.breadcrumbs = {
         path: [

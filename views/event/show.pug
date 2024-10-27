@@ -18,6 +18,7 @@ block content
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
+
             .card-body
 
 
@@ -127,7 +128,7 @@ block content
 
 
                 if checkPermission('contrib')
-                    .row.my-2
+                    .row.my-3
                         .col
                             h3.d-inline.mt-3 Attendees
                             if checkPermission('gm')

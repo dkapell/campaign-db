@@ -21,7 +21,7 @@ async function list(req, res, next){
         res.locals.title += ' - Characters';
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.type === 'player' && ! req.session.admin_mode){
+        if ((user.type === 'player'  || user.type === 'event staff' ) && ! req.session.admin_mode){
             res.locals.characters = await req.models.character.find({user_id:user.id, campaign_id:req.campaign.id});
             res.render('character/list', { pageTitle: 'Characters' });
         } else {

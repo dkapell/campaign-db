@@ -6,6 +6,7 @@ import stringify from 'csv-stringify-as-promised';
 import permission from '../lib/permission';
 import Character from '../lib/Character';
 import characterRenderer from '../lib/renderer/character';
+import campaignHelper from '../lib/campaignHelper';
 
 /* GET events listing. */
 async function list(req, res, next){
@@ -29,7 +30,7 @@ async function show(req, res, next){
     try{
         const event = await req.models.event.get(id);
         if (!event || event.campaign_id !== req.campaign.id){
-            throw new Error('Invalid Skill Tag');
+            throw new Error('Invalid Event');
         }
         res.locals.breadcrumbs = {
             path: [
@@ -52,8 +53,10 @@ async function showNew(req, res, next){
         res.locals.event = {
             name: null,
             description: null,
-            start_time: null,
-            end_time: null,
+            start_date: null,
+            start_hour: 22,
+            end_date: null,
+            end_hour: 14,
             registration_open: false,
             cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0,
             location: req.campaign.event_default_location?req.campaign.event_default_location:null
@@ -88,6 +91,12 @@ async function showEdit(req, res, next){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
+        const start_times = await campaignHelper.splitTime(req.campaign.id, event.start_time);
+        event.start_date = start_times.date;
+        event.start_hour = start_times.hour;
+        const end_times = await campaignHelper.splitTime(req.campaign.id, event.end_time);
+        event.end_date = end_times.date;
+        event.end_hour = end_times.hour;
         res.locals.event = event;
         if (_.has(req.session, 'eventData')){
             res.locals.event = req.session.eventData;
@@ -119,9 +128,19 @@ async function create(req, res){
     if (!_.has(event, 'registration_open')){
         event.registration_open = false;
     }
-    event.campaign_id = req.campaign.id;
-
     try{
+        event.campaign_id = req.campaign.id;
+        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour))
+        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour))
+
+        const hidden_fields = [];
+        for (const field of req.campaign.event_fields){
+            if (!_.has(event.hidden_fields, field.name)){
+                hidden_fields.push(field.name);
+            }
+        }
+        event.hidden_fields = JSON.stringify(hidden_fields);
+
         const id = await req.models.event.create(event);
         await req.audit('event', id, 'create', {new:event});
         delete req.session.eventData;
@@ -154,6 +173,17 @@ async function update(req, res){
         if (current.deleted){
             throw new Error('Can not edit deleted record');
         }
+
+        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour))
+        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour))
+
+        const hidden_fields = [];
+        for (const field of req.campaign.event_fields){
+            if (!_.has(event.hidden_fields, field.name)){
+                hidden_fields.push(field.name);
+            }
+        }
+        event.hidden_fields = JSON.stringify(hidden_fields);
 
         await req.models.event.update(id, event);
         await req.audit('event', id, 'update', {old: current, new:event});
@@ -266,7 +296,16 @@ async function showEditAttendance(req, res, next){
         }
 
         res.locals.event = event;
+
         res.locals.attendance = attendance;
+
+        if (_.has(req.session, 'attendanceData')){
+            res.locals.attendance = req.session.attendanceData;
+            delete req.session.attendanceData;
+        }
+
+        res.locals.attendance.user = await req.models.user.get(req.campaign.id,res.locals.attendance.user_id )
+
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
@@ -285,10 +324,6 @@ async function showEditAttendance(req, res, next){
         res.locals.characters = await req.models.character.find({campaign_id:req.campaign.id, user_id:attendance.user_id});
 
 
-        if (_.has(req.session, 'attendanceData')){
-            res.locals.event = req.session.attendanceData;
-            delete req.session.attendanceData;
-        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -345,6 +380,20 @@ async function createAttendance(req, res){
 
         attendance.campaign_id = req.campaign.id;
 
+        if (attendance.character_id === ''){
+            attendance.character_id = null;
+        }
+
+        for (const field of req.campaign.event_fields){
+            if (field.type === 'boolean'){
+                if(!_.has(attendance.data, field.name)){
+                    attendance.data[field.name] = false;
+                } else {
+                    attendance.data[field.name] = true;
+                }
+            }
+        }
+
         const id = await req.models.attendance.create(attendance);
 
         await req.audit('attendance', id, 'create', {new:attendance});
@@ -384,6 +433,7 @@ async function updateAttendance(req, res){
             throw new Error('Can not edit record from different campaign');
         }
 
+
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
                 attendance.paid = false
@@ -394,8 +444,21 @@ async function updateAttendance(req, res){
             }
             delete attendance.paid;
             delete attendance.user_id;
+        }
+
+        if (attendance.character_id === ''){
+            attendance.character_id = null;
+        }
 
 
+        for (const field of req.campaign.event_fields){
+            if (field.type === 'boolean'){
+                if(!_.has(attendance.data, field.name)){
+                    attendance.data[field.name] = false;
+                } else {
+                    attendance.data[field.name] = true;
+                }
+            }
         }
 
         await req.models.attendance.update(attendanceId, attendance);
@@ -464,6 +527,9 @@ async function exportEventAttendees(req, res, next){
             header.push('Type');
         }
         for (const field of req.campaign.event_fields){
+            if (_.indexOf(event.hidden_fields, field.name) !== -1){
+                continue;
+            }
             header.push(field.name);
         }
 
@@ -490,8 +556,16 @@ async function exportEventAttendees(req, res, next){
                 row.push(attendee.user.typeForDisplay);
             }
             for (const field of req.campaign.event_fields){
+                if (_.indexOf(event.hidden_fields, field.name) !== -1){
+                    continue;
+                }
+
                 if (_.has(attendee.data, field.name)){
-                    row.push(attendee.data[field.name]);
+                    if (field.type === 'boolean'){
+                        row.push(attendee.data[field.name]?'Yes':'No');
+                    } else {
+                        row.push(attendee.data[field.name]);
+                    }
                 } else {
                     row.push(null);
                 }

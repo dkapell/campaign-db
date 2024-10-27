@@ -43,8 +43,7 @@ async function get(id:number): Promise<SkillModel>{
     if (result.rows.length){
         skill = result.rows[0];
         await cache.store('skill', id, skill);
-        const allTags = await models.tag.find({campaign_id:skill.campaign_id});
-        return fill(skill, allTags);
+        return fill(skill);
     }
     return;
 }
@@ -70,15 +69,15 @@ async function find(conditions:Conditions, options?:RequestOptions): Promise<Ski
         return result.rows;
     } else {
         const data = {
-            tags: await models.tag.list(),
+            tags: await models.tag.find(),
             sources: [],
             usages:[],
             statuses:[]
         };
         if (result.rows.length > 5){
-            data.sources = await models.source.list();
-            data.usages = await models.usage.list();
-            data.statuses = await models.status.list();
+            data.sources = await models.source.find();
+            data.usages = await models.usage.find();
+            data.statuses = await models.status.find();
         }
         return async.mapSeries(result.rows, async(row) => {
             return fill(row, data);
@@ -92,10 +91,6 @@ async function findOne(conditions:Conditions): Promise<SkillModel>{
     return fill(result[0]);
 }
 
-
-async function list(campaignId:number): Promise<SkillModel[]> {
-    return find({campaign_id: campaignId});
-}
 
 async function search(conditions:Conditions): Promise<SkillModel[]>{
     const queryParts = [];
@@ -127,7 +122,7 @@ async function search(conditions:Conditions): Promise<SkillModel[]>{
 
     const result = await database.query(query, queryData);
     const data = {
-        tags: await models.tag.list(),
+        tags: await models.tag.find(),
         sources: [],
         usages:[],
         statuses:[]
@@ -257,7 +252,11 @@ async function fill(record:SkillModel, data?){
     }
     if (record.tags){
         if (!data.tags){
-            data.tags = await models.tag.find({campaign_id:data.campaign_id});
+            data.tags = await cache.check('skill-data-tags', 'all');
+            if (!data.tags){
+                data.tags = await models.tag.find({campaign_id:record.campaign_id});
+                await cache.store('skill-data-tags', 'all', data.tags, 5);
+            }
         }
         record.tags = record.tags.map(skill_tag => {
             return _.findWhere(data.tags, {'id': skill_tag});
@@ -316,7 +315,6 @@ export = {
     get: get,
     find: find,
     findOne: findOne,
-    list: list,
     search: search,
     create: create,
     update: update,

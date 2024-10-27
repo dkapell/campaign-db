@@ -26,6 +26,9 @@ async function list(req, res, next){
             res.locals.grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
             res.render('cp_grant/listPlayer', { pageTitle: 'Character Point Grants' });
+        } else if (user.type === 'event staff'){
+            req.flash('warning', 'Not allowed to view');
+            return res.redirect('/');
 
         } else {
             const grants = await req.models.cp_grant.find({campaign_id:req.campaign.id});

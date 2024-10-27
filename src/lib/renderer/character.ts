@@ -348,8 +348,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             } else {
                 markdown(doc, skill.summary);
             }
-            const height = markdown(doc, skill.description, {height:true});
-            if (doc.page.height - (doc.y + height) < options.margin *2){
+            const height = markdown(doc, skill.description, {getHeight:true});
+            if (doc.page.height - (doc.y + Number(height)) < options.margin *2){
                 doc.addPage({margin: options.margin*2});
             }
             //console.log(height);

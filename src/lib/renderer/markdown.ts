@@ -92,12 +92,13 @@ interface Style {
 }
 
 interface RenderOptions{
-    align?: 'right'|'left'|'center'|'justify',
-    link?: string,
-    continued?: boolean,
-    lineGap?: number,
+    align?: 'right'|'left'|'center'|'justify'
+    link?: string
+    continued?: boolean
+    lineGap?: number
     paragraphGap?: number
     font?:string
+    getHeight?: boolean
 }
 
 interface NodeAttrs {
@@ -287,7 +288,7 @@ class Node {
                     if (this.type !== 'code') {
                         fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ');
                     }
-                    if (renderOptions.height){
+                    if (renderOptions.getHeight){
                         height += doc.heightOfString(fragment.text, options);
                     } else {
                         doc.text(fragment.text, options);
@@ -307,7 +308,7 @@ class Node {
                 lastType = this.type;
             }
         }
-        if (renderOptions.height){
+        if (renderOptions.getHeight){
             return height;
         }
 
@@ -326,7 +327,7 @@ function render(doc:PDFKit.PDFDocument, input, options?:RenderOptions){
     if (!options){
         options = {};
     }
-    if (options.height){
+    if (options.getHeight){
         let height = 0;
         while (tree.length) {
             const node = new Node(tree.shift());

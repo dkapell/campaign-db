@@ -110,6 +110,7 @@ async function show(req, res, next){
             ],
             current: character.name
         };
+        res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.audits = await character.audits();
         res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
         res.locals.title += ` - Character - ${character.name}`;

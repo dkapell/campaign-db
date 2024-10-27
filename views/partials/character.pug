@@ -172,25 +172,29 @@ mixin characterSheet(character)
                         })
 
                         const grouped = _.groupBy(skills_filtered, 'usage_id')
-                    each group, type in grouped
-                        .card.mb-3
-                            h5.py-2.card-header #{type?group[0].usage.name:'Unset Usage'} Skills
 
-                            -
-                                const groupReduced = group.reduce((o, e) => {
-                                    const skill = _.findWhere(o, {name:e.name});
-                                    if (!skill) {
-                                        e.count = 1;
-                                        o.push(e);
-                                    } else {
-                                        skill.count++;
-                                    }
-                                    return o;
-                                }, [])
-                            ul.card-text.list-group.list-group-flush
-                                each skill in groupReduced
-                                    li.list-group-item.py-1
-                                        +characterSkill(skill, false, true)
+                    each usage in skill_usages
+                        - const type = usage.name
+                        if _.has(grouped, usage.id)
+                            - const group = grouped[usage.id];
+                            .card.mb-3
+                                h5.py-2.card-header #{type?group[0].usage.name:'Unset Usage'} Skills
+
+                                -
+                                    const groupReduced = group.reduce((o, e) => {
+                                        const skill = _.findWhere(o, {name:e.name});
+                                        if (!skill) {
+                                            e.count = 1;
+                                            o.push(e);
+                                        } else {
+                                            skill.count++;
+                                        }
+                                        return o;
+                                    }, [])
+                                ul.card-text.list-group.list-group-flush
+                                    each skill in groupReduced
+                                        li.list-group-item.py-1
+                                            +characterSkill(skill, false, true)
 
 
 

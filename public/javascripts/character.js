@@ -15,6 +15,13 @@ $(function(){
     $('#showSkillDescriptions').on('change', skillDescriptionsSwitch);
     toggleSkillDescriptions();
 
+    if (localStorage.getItem('cdb-skill-show-game-rules') === 'true'){
+        $('#showGameRules').prop('checked', true);
+    } else {
+        $('#showGameRules').prop('checked', false);
+    }
+    $('#showGameRules').on('change', gameRulesSwitch).trigger('change');
+
     $('.add-source-btn').on('click', addSource);
     $('.add-skill-btn').on('click', addSkill);
     $('#characterModal').find('.save-btn').on('click', submitModal);
@@ -87,12 +94,20 @@ async function showCharacterSheet(characterId){
     data.marked = marked;
 
     $('#character').html(charactersheetTemplate(data));
+    if (localStorage.getItem('cdb-skill-show-game-rules') === 'true'){
+        $('#showGameRules').prop('checked', true);
+    } else {
+        $('#showGameRules').prop('checked', false);
+    }
+    $('#showGameRules').on('change', gameRulesSwitch).trigger('change');
+
     if (localStorage.getItem('cdb-skill-show-skill-descriptions') === 'true'){
         $('#showSkillDescriptions').prop('checked', true);
     } else {
         $('#showSkillDescriptions').prop('checked', false);
     }
     $('#showSkillDescriptions').on('change', skillDescriptionsSwitch);
+
     toggleSkillDescriptions();
 }
 
@@ -164,6 +179,20 @@ function skillDescriptionsSwitch(e){
         localStorage.removeItem('cdb-skill-show-skill-descriptions');
     }
     toggleSkillDescriptions();
+}
+
+function gameRulesSwitch(e){
+    console.log('here');
+    if ($(this).prop('checked')){
+        console.log('checked');
+        localStorage.setItem('cdb-skill-show-game-rules', true);
+        $('#gameRuleList').show();
+    } else {
+        console.log('unchecked');
+
+        localStorage.removeItem('cdb-skill-show-game-rules');
+        $('#gameRuleList').hide();
+    }
 }
 
 function toggleSkillDescriptions(){

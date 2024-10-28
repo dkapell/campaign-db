@@ -598,8 +598,9 @@ async function exportPlayerPdfs(req, res, next){
             return character.data();
         });
         const pdf = await characterRenderer(characters, {
-            skillDescriptions:!!req.query.descriptions,
-            showLanguages:!!req.query.languages
+            skillDescriptions: req.query.descriptions,
+            showLanguages: req.query.languages,
+            showRules: req.query.rules
         });
 
         pdf.pipe(res);

@@ -145,6 +145,10 @@ block content
                                     .visually-hidden Toggle Dropdown
                                 ul.dropdown-menu.py-1
                                     li
+                                        a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
+                                            i.fas.fa-file
+                                            |  With Game Rules
+                                    li
                                         a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
                                             i.fas.fa-file
                                             |  With Skill Descriptions

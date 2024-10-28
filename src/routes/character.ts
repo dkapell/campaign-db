@@ -173,7 +173,11 @@ async function showPdf(req, res, next){
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');
         }
-        const pdf = await character.pdf(req.query.descriptions, req.query.languages);
+        const pdf = await character.pdf({
+            skillDescriptions: !!req.query.descriptions,
+            showLanguages: !!req.query.languages,
+            showRules: !!req.query.rules
+        });
 
         pdf.pipe(res);
         res.set('Content-Type', 'application/pdf');

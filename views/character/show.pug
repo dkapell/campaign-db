@@ -37,9 +37,13 @@ block content
                             .visually-hidden Toggle Dropdown
                         ul.dropdown-menu.py-1
                             li
+                                a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?rules=true')
+                                    i.fas.fa-file
+                                    |  With Game Rules
+                            li
                                 a.dropdown-item(role="button" href='/character/' + character.id + '/pdf?descriptions=true')
                                     i.fas.fa-file
-                                    |  With Skill Descriptions
+                                    |  With Rules and Skill Descriptions
 
             .row
                 .col.text-end

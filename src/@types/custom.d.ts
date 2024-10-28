@@ -48,3 +48,10 @@ interface CharacterOptions extends CharacterData {
     cloneId?: number,
 }
 
+interface CharacterSheetOptions {
+    margin?:number
+    skillDescriptions?:boolean
+    showLanguages?:boolean
+    showRules?:boolean
+    showInlineRules?:boolean
+}

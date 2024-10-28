@@ -15,12 +15,6 @@ const colors = {
     dark: '#7b8a8b'
 };
 
-interface CharacterSheetOptions {
-    margin?:number,
-    skillDescriptions?:boolean
-    showLanguages?:boolean
-}
-
 interface CharacterSheetTextOptions{
     font?:string
     nowrap?:boolean
@@ -35,6 +29,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     if (!_.has(options, 'margin')){
         options.margin = 20;
     }
+
+    console.log(options)
 
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
     registerFonts(doc);
@@ -73,15 +69,27 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const grouped = _.groupBy(skills, 'usage_id');
 
         const skill_usages = await models.skill_usage.find({campaign_id: character.campaign_id});
+
         for (const usage of skill_usages){
             if (_.has(grouped, ''+usage.id)){
                 renderSkills(grouped[''+usage.id]);
             }
         }
+        if (options.showRules ){
+            doc.addPage({margin: options.margin*2});
+            renderRules(character.provides.rules);
+        }
 
         if (options.skillDescriptions){
             doc.addPage({margin: options.margin*2});
-            renderAllSkills(character);
+            if (!options.showRules){
+                renderRules(character.provides.rules, true)
+            }
+            doc.font('Header Font').fontSize(14).text('All My Skills');
+            const allSkills = character.skills.filter(skill => {
+                return !_.findWhere(character.provides.rules, {id:skill.id});
+            })
+            renderAllSkills(allSkills);
         }
 
     }
@@ -253,6 +261,32 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const skillsSorted = _.sortBy(skillsReduced, 'name');
 
         doc.font('Header Font').fontSize(12).text(`${skills[0].usage?skills[0].usage.name:'Unset Usage'} Skills`);
+
+        addSkills(skillsSorted);
+        doc.moveDown(0.5);
+
+    }
+
+    function renderRules(skills:SkillModel[], drawBox?:boolean):void{
+        const startY = doc.y;
+        if (drawBox){
+            doc.x += options.margin/2
+            doc.moveDown(0.5);
+        }
+
+        doc.font('Header Font').fontSize(14).text('Game Rules');
+
+        renderAllSkills(skills, true);
+        doc.moveDown(0.5);
+
+        if (drawBox){
+            doc.x -= options.margin/2;
+            doc.rect(options.margin*2, startY, doc.page.width - (options.margin * 4), doc.y-startY).stroke();
+            doc.moveDown(0.5);
+        }
+    }
+
+    function addSkills(skillsSorted:SkillModel[]){
         doc.x += 5;
         for (const skill of skillsSorted){
             doc.font('Body Font Italic').fontSize(10).text(`${skill.name} `, {
@@ -263,7 +297,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 doc.font('Body Font Bold').fontSize(10).text(`X${skill.count} `, {continued:true});
             }
 
-            for (const tag of skill.tags){
+            for (const tag of skill.tags as TagModel[]){
                 if (tag.display_to_pc && tag.on_sheet){
                     doc.fillColor(colors[tag.color?tag.color:'info']);
                     doc.font('Body Font').fontSize(10).text('[', {continued:true});
@@ -283,21 +317,19 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             } else {
                 markdown(doc, skill.summary);
             }
+
             if (doc.page.height - doc.y < options.margin*2){
                 const preX = doc.x;
                 doc.addPage({margin: options.margin});
                 doc.x = preX;
             }
         }
-        doc.moveDown(0.5);
         doc.x -= 5;
-
-
     }
 
-    function renderAllSkills(character: CharacterData):void{
+    function renderAllSkills(skills:SkillModel[], noSource?:boolean):void{
 
-        const skills = _.sortBy(character.skills, 'name');
+        skills = _.sortBy(skills, 'name');
 
         const skillsAdded = [];
 
@@ -321,8 +353,11 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                     doc.fillColor('#000000');
                 }
             }
-
-            doc.font('Header Font').fontSize(12).text((skill.source.name as string), {align:'right'});
+            if (!noSource){
+                doc.font('Header Font').fontSize(12).text((skill.source.name as string), {align:'right'});
+            } else {
+                doc.text(' ', {align:'right'});
+            }
 
             doc.x += 5;
             doc.fontSize(10);
@@ -349,7 +384,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 markdown(doc, skill.summary);
             }
             const height = markdown(doc, skill.description, {getHeight:true});
-            if (doc.page.height - (doc.y + Number(height)) < options.margin *2){
+            if (doc.page.height - (doc.y + Number(height)) < options.margin *3){
                 doc.addPage({margin: options.margin*2});
             }
             //console.log(height);

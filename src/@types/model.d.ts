@@ -88,6 +88,7 @@ interface SkillModel extends ModelData{
     usage: Record<string, unknown>
     status: Record<string, unknown>
     tags: string[]|TagModel[]
+    count: number
     details?: {
         hide_on_sheet:boolean
         sheet_note:string
@@ -159,7 +160,8 @@ interface Provides {
     tagskills: string[]
     diagnose: string[]
     crafting: Record<string, number>
-    features: boolean,
-    skill:boolean,
+    features: boolean
+    skill:boolean
+    rules: SkillModel[]
 
 }

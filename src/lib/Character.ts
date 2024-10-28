@@ -690,11 +690,8 @@ class Character{
         return this.calculateCP();
     }
 
-    async pdf(skillDescriptions: boolean, showLanguages?:boolean){
-        return characterRenderer([await this.data()], {
-            skillDescriptions:skillDescriptions,
-            showLanguages:showLanguages
-        });
+    async pdf(options: CharacterSheetOptions){
+        return characterRenderer([await this.data()], options);
     }
 
     async possibleSkills(all?:boolean){
@@ -949,12 +946,13 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
             styles: {},
             traits: {},
             skills: [],
+            rules: [],
             languages: [],
             tagskills: [],
             diagnose: [],
             crafting: {},
             features: false,
-            skill:false,
+            skill:false
         };
     }
 
@@ -1072,6 +1070,12 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
 
                         break;
                     }
+
+                    case 'rule': {
+                        provides.rules.push(item);
+                        break;
+                    }
+
                     case 'skill': {
                         if (provider.value && provider.value.match(/^\s*\[/)){
                             if (item.details && item.details.skill){
@@ -1098,6 +1102,7 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
                         }
                         break;
                     }
+
                 }
             }
         } else {

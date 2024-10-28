@@ -865,6 +865,10 @@ function toggleProvidesFields($row){
             $row.find('.skill-provides-name').attr('disabled', false).attr('placeholder', 'Crafting Type');
             $row.find('.skill-provides-value').attr('disabled', false).val('1').attr('placeholder', 'Tiers (probably 1)');
             break;
+        case 'rule':
+            $row.find('.skill-provides-name').attr('disabled', true).val('').attr('placeholder', '');
+            $row.find('.skill-provides-value').attr('disabled', true).val('').attr('placeholder', '');
+            break;
         default:
             $row.find('.skill-provides-name').attr('disabled', true).val('').attr('placeholder', '');
             $row.find('.skill-provides-value').attr('disabled', true).val('').attr('placeholder', '');

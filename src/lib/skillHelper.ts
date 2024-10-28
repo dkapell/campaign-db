@@ -467,6 +467,11 @@ function getProvidesTypes(type){
                 helptext: ''
             },
             {
+                name: 'Rule',
+                value: 'rule',
+                helptext: ''
+            },
+            {
                 name: 'Crafting',
                 value: 'crafting',
                 helptext: ''
@@ -670,7 +675,6 @@ async function validate(skill){
                     });
                 }
                 break;
-
         }
     }
     return issues;

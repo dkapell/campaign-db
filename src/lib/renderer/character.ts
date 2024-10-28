@@ -360,9 +360,9 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             }
 
             doc.x += 5;
+            doc.fontSize(10);
 
             if (!rulesMode){
-                doc.fontSize(10);
 
                 const details = [];
                 for (const detail of _.pluck(_.where(skills, {id:skill.id}), 'details')){

@@ -83,7 +83,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         if (options.skillDescriptions){
             doc.addPage({margin: options.margin*2});
             if (!options.showRules){
-                renderRules(character.provides.rules, true)
+                renderRules(character.provides.rules)
             }
             doc.font('Header Font').fontSize(14).text('All My Skills');
             const allSkills = character.skills.filter(skill => {
@@ -327,7 +327,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         doc.x -= 5;
     }
 
-    function renderAllSkills(skills:SkillModel[], noSource?:boolean):void{
+    function renderAllSkills(skills:SkillModel[], rulesMode?:boolean):void{
 
         skills = _.sortBy(skills, 'name');
 
@@ -353,35 +353,38 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                     doc.fillColor('#000000');
                 }
             }
-            if (!noSource){
+            if (!rulesMode){
                 doc.font('Header Font').fontSize(12).text((skill.source.name as string), {align:'right'});
             } else {
                 doc.text(' ', {align:'right'});
             }
 
             doc.x += 5;
-            doc.fontSize(10);
 
-            const details = [];
-            for (const detail of _.pluck(_.where(skills, {id:skill.id}), 'details')){
-                if (_.isNull(detail)){
-                    continue;
-                }
-                for (const type of ['trait', 'style', 'attribute', 'language', 'tagskill']){
-                    if (detail && _.has(detail, type)){
-                        details.push(detail[type]);
+            if (!rulesMode){
+                doc.fontSize(10);
+
+                const details = [];
+                for (const detail of _.pluck(_.where(skills, {id:skill.id}), 'details')){
+                    if (_.isNull(detail)){
+                        continue;
+                    }
+                    for (const type of ['trait', 'style', 'attribute', 'language', 'tagskill']){
+                        if (detail && _.has(detail, type)){
+                            details.push(detail[type]);
+                        }
                     }
                 }
-            }
 
-            if (details.length){
-                markdown(doc, skill.summary, {continued:true});
-                doc.font('Header Font').text(`  [${details.join(', ')}]`);
-                doc.moveDown(0.5);
+                if (details.length){
+                    markdown(doc, skill.summary, {continued:true});
+                    doc.font('Header Font').text(`  [${details.join(', ')}]`);
+                    doc.moveDown(0.5);
 
 
-            } else {
-                markdown(doc, skill.summary);
+                } else {
+                    markdown(doc, skill.summary);
+                }
             }
             const height = markdown(doc, skill.description, {getHeight:true});
             if (doc.page.height - (doc.y + Number(height)) < options.margin *3){

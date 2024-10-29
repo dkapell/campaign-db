@@ -21,6 +21,9 @@ interface CharacterSheetTextOptions{
     align?:string
 }
 
+const sizeDoc = new PDFDocument({size: 'LETTER'});
+registerFonts(sizeDoc);
+
 async function renderCharacter(characters: CharacterData[], options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {
         options = {};
@@ -29,8 +32,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     if (!_.has(options, 'margin')){
         options.margin = 20;
     }
-
-    console.log(options)
+    let skill_usages = null
 
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
     registerFonts(doc);
@@ -61,15 +63,15 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         doc.text('', options.margin + 10, Math.max(row, tagHeight, languageHeight) + 10);
 
         renderDiagnose(character);
-
         const skills = _.reject(character.provides.skills, (skill) => {
             return _.has(skill.details, 'hide_on_sheet') && skill.details.hide_on_sheet;
         });
 
         const grouped = _.groupBy(skills, 'usage_id');
 
-        const skill_usages = await models.skill_usage.find({campaign_id: character.campaign_id});
-
+        if (!skill_usages){
+            skill_usages = await models.skill_usage.find({campaign_id: character.campaign_id});
+        }
         for (const usage of skill_usages){
             if (_.has(grouped, ''+usage.id)){
                 renderSkills(grouped[''+usage.id]);
@@ -459,16 +461,13 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
 
 function sizeText(text:string, options: CharacterSheetTextOptions, maxWidth:number, maxHeight:number, maxFontSize:number): number{
-    const doc = new PDFDocument({size: 'LETTER'});
-    registerFonts(doc);
-
-    doc.font(options.font);
-    doc.fontSize(maxFontSize);
+    sizeDoc.font(options.font);
+    sizeDoc.fontSize(maxFontSize);
     let actualSize = maxFontSize;
 
-    while (doc.widthOfString(text) > maxWidth || doc.heightOfString(text, {lineBreak: !options.nowrap}) > maxHeight){
-        actualSize -= 0.1;
-        doc.fontSize(actualSize)
+    while (sizeDoc.widthOfString(text) > maxWidth || sizeDoc.heightOfString(text, {lineBreak: !options.nowrap}) > maxHeight){
+        actualSize -= 0.25;
+        sizeDoc.fontSize(actualSize)
     }
     return actualSize;
 }

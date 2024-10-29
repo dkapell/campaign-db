@@ -209,9 +209,14 @@ async function postSelect(user, campaignId){
         user.campaignType = 'unset';
     }
 
-    user.typeForDisplay = user.type;
-    if (user.type === 'admin'){
-        user.typeForDisplay = 'core staff';
+    const campaign = await models.campaign.get(campaignId);
+
+    if (_.has(campaign.user_type_map, user.type)){
+        user.typeForDisplay = campaign.user_type_map[user.type].name;
+        user.typeOrder = campaign.user_type_map[user.type].order;
+    } else {
+        user.typeForDisplay = user.type;
+        user.typeOrder=99;
     }
 
     return user;

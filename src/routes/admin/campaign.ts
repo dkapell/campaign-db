@@ -52,7 +52,14 @@ function showNew(req, res){
         event_default_cost: null,
         event_default_location: null,
         event_fields: [],
-        timezone: 'America/New_York'
+        timezone: 'America/New_York',
+        user_type_map: {
+            'admin': { name: 'core staff', order: 0 },
+            'core staff': { name: 'core staff', order: 0 },
+            'contributing staff': { name: 'contributing staff', order: 1 },
+            'event staff':  { name: 'event staff', order: 3 },
+            'player':  { name: 'player', order: 2 },
+        }
     };
     res.locals.breadcrumbs = {
         path: [
@@ -76,6 +83,24 @@ async function showEdit(req, res, next){
 
     try{
         const campaign = await req.models.campaign.get(id);
+        if(!campaign.user_type_map){
+            campaign.user_type_map = {
+            'admin': { name: 'core staff', order: 0 },
+            'core staff': { name: 'core staff', order: 0 },
+            'contributing staff': { name: 'contributing staff', order: 1 },
+            'event staff':  { name: 'event staff', order: 3 },
+            'player':  { name: 'player', order: 2 },
+            };
+        }
+            /*[
+                { type: 'admin', name: 'core staff', order: 0 },
+                { type: 'core staff', name: 'core staff', order: 0 },
+                { type: 'contributing staff', name: 'contributing staff', order: 1 },
+                { type: 'event staff', name: 'event staff', order: 3 },
+                { type: 'player', name: 'player', order: 2 }
+            ];
+        }*/
+
         res.locals.campaign = campaign;
         if (_.has(req.session, 'campaignData')){
             res.locals.campaign = req.session.campaignData;
@@ -88,6 +113,7 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + campaign.name
         };
+
         res.locals.websiteImages = await req.models.image.find({campaign_id:id, type:'website'});
         res.locals.faviconImages = await req.models.image.find({campaign_id:id, type:'favicon'});
         res.locals.themes = _.keys(config.get('themes'));
@@ -146,8 +172,6 @@ async function update(req, res){
     if (campaign.event_fields === null || campaign.event_fields === ''){
         campaign.event_fields = JSON.stringify([]);
     }
-    //campaign.event_fields = JSON.stringify(campaign.event_fields);
-    console.log(campaign);
 
     try {
         await req.models.campaign.update(id, campaign);

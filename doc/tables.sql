@@ -51,7 +51,8 @@ create table campaigns (
     event_default_cost int,
     event_default_location varchar(255),
     event_fields jsonb,
-    timezone varchar(80) default ('America/New_York').
+    timezone varchar(80) default ('America/New_York'),
+    user_type_map jsonb,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -547,6 +548,7 @@ create table events (
     deleted boolean default false,
     created timestamp with time zone DEFAULT now(),
     hidden_fields jsonb,
+    hide_attendees boolean default false,
     primary key (id),
     CONSTRAINT events_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

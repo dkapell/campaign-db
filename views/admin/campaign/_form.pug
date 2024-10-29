@@ -137,6 +137,46 @@ fieldset.mb-2.border.p-2.rounded
 
                 #css-container.collapse(aria-labeledby="css-heading")
                     +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
+fieldset.mb-2.border.p-2.rounded
+    label.h5.w-100#user_type-heading(data-bs-toggle="collapse" data-bs-target="#user_type-container" aria-expanded="false" area-controls="user_type-container") User Type Names
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+
+    #user_type-container.collapse(aria-labeledby='user_type-heading')
+        .row.my-2
+            .col-md-4
+                strong User Type
+            .col-md-4
+                strong Name
+            .col-md-4
+                strong Order
+        -
+            const types = [];
+            for (const type of _.keys(campaign.user_type_map)){
+                const typeData = campaign.user_type_map[type];
+                typeData.type = type;
+                types.push(typeData);
+            }
+
+        each type in _.sortBy(types, 'order')
+            .row.my-2
+                .col-md-4= type.type
+                .col-md-4
+                    input.form-control(
+                        id=`campaign_user_type_map-${type.type}-name`
+                        placeholder="Name"
+                        name=`campaign[user_type_map][${type.type}][name]`
+                        value=type.name
+                    )
+                .col-md-4
+                     input.form-control(
+                        type='number'
+                        id=`campaign_user_type_map-${type.type}-name`
+                        placeholder="Order"
+                        name=`campaign[user_type_map][${type.type}][order]`
+                        value=type.order
+                    )
 
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#drive-heading(data-bs-toggle="collapse" data-bs-target="#drive-container" aria-expanded="false" area-controls="drive-container") Google Drive Options

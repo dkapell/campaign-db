@@ -46,7 +46,8 @@ const tableFields = [
     'event_default_cost',
     'event_default_location',
     'event_fields',
-    'timezone'
+    'timezone',
+    'user_type_map'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

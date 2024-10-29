@@ -59,7 +59,8 @@ async function showNew(req, res, next){
             end_hour: 14,
             registration_open: false,
             cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0,
-            location: req.campaign.event_default_location?req.campaign.event_default_location:null
+            location: req.campaign.event_default_location?req.campaign.event_default_location:null,
+            hide_attendees: false
         };
         res.locals.breadcrumbs = {
             path: [
@@ -125,9 +126,17 @@ async function create(req, res){
     const event = req.body.event;
 
     req.session.eventData = event;
-    if (!_.has(event, 'registration_open')){
-        event.registration_open = false;
+
+    for (const field of ['registration_open', 'hide_attendees']){
+        if (!_.has(event, field)){
+            event[field] = false;
+        }
     }
+
+    if (!_.has(event, 'cost') || event.cost === ''){
+        event.cost = 0
+    }
+
     try{
         event.campaign_id = req.campaign.id;
         event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour))
@@ -157,8 +166,10 @@ async function update(req, res){
     const event = req.body.event;
     req.session.eventData = event;
 
-    if (!_.has(event, 'registration_open')){
-        event.registration_open = false;
+    for (const field of ['registration_open', 'hide_attendees']){
+        if (!_.has(event, field)){
+            event[field] = false;
+        }
     }
 
     if (!_.has(event, 'cost') || event.cost === ''){

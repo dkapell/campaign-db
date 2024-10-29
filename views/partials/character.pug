@@ -159,16 +159,15 @@ mixin characterSheet(character)
 
         .col-md
             .row
-                .col
+                .col-md
                     .form-check.form-switch.pt-0.form-check-reverse.me-2
                         input.form-check-input#showGameRules(type="checkbox")
                         label.form-check-label(for="showGameRules") Show Game Rules
-                .col
+                .col-md
                     .form-check.form-switch.pt-0.form-check-reverse
                         input.form-check-input#showSkillDescriptions(type="checkbox" checked)
                         label.form-check-label(for="showSkillDescriptions") Show Skill Descriptions
             if character.provides.rules.length
-                - console.log(character.provides.rules)
                 .row#gameRuleList(style='display:none')
                     .col
                         .card.mb-3
@@ -176,7 +175,7 @@ mixin characterSheet(character)
                             ul.card-text.list-group.list-group-flush
                                 each skill in character.provides.rules
                                     li.list-group-item.py-1
-                                        +characterSkill(skill, false, true)
+                                        +characterSkill(skill, false, false)
             .row
                 .col
                     -

@@ -162,10 +162,13 @@ mixin customFieldEntry(field, type, data)
                 case field.type
                     when 'text'
                         label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
+                            if field.required
+                                span.ms-1.text-danger *
                             if checkPermission('contrib') && field.display_to_pc
                                 .badge.text-bg-info.mx-2 PC Visible
                             if checkPermission('contrib') && field.editable_by_pc
                                 .badge.text-bg-warning.mx-2 PC Editable
+
                         div.form-text!= marked.parseInline(field.description, {breaks:true})
                         input.form-control(
                             type="text"
@@ -214,10 +217,13 @@ mixin customFieldEntry(field, type, data)
                             div.form-text!= marked.parseInline(field.description, {breaks:true})
                     when 'dropdown'
                         label.control-label.mb-1(for=`${type}-custom_field-${field.id}`)= field.name
+                            if field.required
+                                span.ms-1.text-danger *
                             if checkPermission('contrib') && field.display_to_pc
                                 .badge.text-bg-info.mx-2 PC Visible
                             if checkPermission('contrib') && field.editable_by_pc
                                 .badge.text-bg-warning.mx-2 PC Editable
+
                         div.form-text!= marked.parseInline(field.description, {breaks:true})
                         select.form-select.complex-search-select2(
                             name=`${type}[custom_field][cf-${field.id}]`

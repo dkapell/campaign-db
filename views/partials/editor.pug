@@ -2,6 +2,8 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
     - if (!options) { options = {}; }
     if !showPreview
         label.control-label.mb-0.d-inline(for=id)= label
+            if options.required
+                span.ms-1.text-danger *
         small.form-text.text-muted.d-inline.ms-2 Supports
             a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                 i.fas.fa-external-link-alt.ms-1

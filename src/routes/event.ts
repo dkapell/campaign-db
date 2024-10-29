@@ -597,7 +597,10 @@ async function exportPlayerPdfs(req, res, next){
             await character.init();
             return character.data();
         });
-        const pdf = await characterRenderer(characters, {
+
+        const charactersSorted = characters.sort(campaignHelper.characterSorter);
+
+        const pdf = await characterRenderer(charactersSorted, {
             skillDescriptions: req.query.descriptions,
             showLanguages: req.query.languages,
             showRules: req.query.rules

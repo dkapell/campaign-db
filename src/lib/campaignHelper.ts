@@ -118,6 +118,18 @@ async function attributeSorter(attributes:ModelData[], campaignId:number): Promi
 
 };
 
+// Sort a list of characters by user, then active, then name
+function characterSorter(a, b){
+    if (a.user_id !== b.user_id){
+        return a.user.name.localeCompare(b.user.name);
+    }
+    if (a.active !== b.active){
+        if (a.active) { return -1; }
+        if (b.active) { return 1; }
+    }
+    return a.name.localeCompare(b.name);
+}
+
 interface cpData{
     base:number
     total:number
@@ -245,6 +257,7 @@ export default {
     getCharacterCSV,
     cpCalculator,
     attributeSorter,
+    characterSorter,
     parseTime,
     splitTime
 }

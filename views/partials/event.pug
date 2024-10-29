@@ -179,6 +179,8 @@ mixin customEventField(field, currentValue)
     case field.type
         when 'text'
             label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                if field.required
+                    span.ms-1.text-danger *
             input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required)
         when 'longtext'
              +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, 3, 100, currentValue, false, {required:field.required} )
@@ -188,6 +190,8 @@ mixin customEventField(field, currentValue)
                 label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
         when 'dropdown'
             label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                if field.required
+                    span.ms-1.text-danger *
             select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required)
                 if field.placeholder
                     option

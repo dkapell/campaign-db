@@ -26,12 +26,12 @@ block content
                 tr
                     th
                     th(data-priority="1") Player
-                    th Source
-                    th Amount
+                    th(data-priority="5") Source
+                    th(data-priority="3") Amount
                     if currentCampaign.cp_approval
-                        th Approved
-                    th Created
-                    th
+                        th(data-priority="4") Approved
+                    th(data-priority="6") Created
+                    th(data-priority="2")
 
 
             tbody
@@ -48,11 +48,11 @@ block content
                         if currentCampaign.cp_approval
                             td
                                 .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
-                        td= moment(grant.created).format('lll')
+                        td(data-sort=grant.created.getTime()) = moment(grant.created).format('lll')
 
                         td.text-end
                             if !grant.approved
-                                a.btn.btn-outline-success.btn-xs.action-btn.mx-2.cp-approve-btn(
+                                a.btn.btn-outline-success.btn-xs.action-btn.me-2.cp-approve-btn(
                                     role="button"
                                     data-bs-toggle='tooltip'
                                     title='Approve'

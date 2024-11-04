@@ -13,7 +13,7 @@ const tableFields = [
 ];
 
 const CpGrant = new Model('cp_grant', tableFields, {
-    order: ['created'],
+    order: ['created desc'],
     validator: validate
 });
 

@@ -290,7 +290,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
     function addSkills(skillsSorted:SkillModel[]){
         doc.x += 5;
-        for (const skill of skillsSorted){
+        for (const [idx, skill] of skillsSorted.entries()){
+            doc.font('Body Font').fontSize(10).text('●  ', {continued:true});
             doc.font('Body Font Italic').fontSize(10).text(`${skill.name} `, {
                 continued:true,
                 paragraphGap:3

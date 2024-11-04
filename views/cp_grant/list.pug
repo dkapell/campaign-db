@@ -26,11 +26,11 @@ block content
                 tr
                     th
                     th(data-priority="1") Player
-                    th(data-priority="5") Source
+                    th(data-priority="6") Source
                     th(data-priority="3") Amount
                     if currentCampaign.cp_approval
                         th(data-priority="4") Approved
-                    th(data-priority="6") Created
+                    th(data-priority="5") Created
                     th(data-priority="2")
 
 
@@ -48,7 +48,7 @@ block content
                         if currentCampaign.cp_approval
                             td
                                 .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
-                        td(data-sort=grant.created.getTime()) = moment(grant.created).format('lll')
+                        td(data-sort=grant.created.getTime())= moment(grant.created).format('lll')
 
                         td.text-end
                             if !grant.approved

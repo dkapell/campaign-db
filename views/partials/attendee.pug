@@ -70,7 +70,7 @@ mixin attendeeListItem(attendee, isPlayerList)
                         span.ms-1.d-none.d-md-inline Registration
 
 
-        if checkPermission('contrib') && isPlayerList
+        if checkPermission('contrib') && isPlayerList && attendee.character
             .row
                 .col
                     a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
@@ -127,9 +127,10 @@ mixin attendeeTable(attendees, isPlayerList)
                                         span.badge.text-bg-danger No
 
                             td
-                                 a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
-                                    i.far.fa-user.me-1
-                                    = attendee.character.name
+                                if attendee.character
+                                     a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                                        i.far.fa-user.me-1
+                                        = attendee.character.name
                         else
                             td(sort-order=attendee.user.typeOrder)= capitalize(attendee.user.typeForDisplay)
                         if checkPermission('contrib')

@@ -176,27 +176,29 @@ mixin eventDate(start, end)
 
 mixin customEventField(field, currentValue)
     - const fieldName = field.longname?field.longname:field.name
-    case field.type
-        when 'text'
-            label.control-label(for=`attendance_data_${field.name}`)= fieldName
-                if field.required
-                    span.ms-1.text-danger *
-            input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required)
-        when 'longtext'
-             +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, 3, 100, currentValue, false, {required:field.required} )
-        when 'boolean'
-            .form-check.form-switch
-                input.form-check-input(type="checkbox" id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` checked=currentValue)
-                label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
-        when 'dropdown'
-            label.control-label(for=`attendance_data_${field.name}`)= fieldName
-                if field.required
-                    span.ms-1.text-danger *
-            select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required)
-                if field.placeholder
-                    option
-                for item of field.options
-                    option(value=item selected=item===currentValue)= item
+    div.custom-event-field(data-fieldname=field.name data-fieldfor=field.fieldfor?field.fieldfor:'all')
+        case field.type
+            when 'text'
+
+                label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                    if field.required
+                        span.ms-1.text-danger *
+                input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required data-isrequired=field.required)
+            when 'longtext'
+                 +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, 3, 100, currentValue, false, {required:field.required} )
+            when 'boolean'
+                .form-check.form-switch
+                    input.form-check-input(type="checkbox" id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` checked=currentValue)
+                    label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
+            when 'dropdown'
+                label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                    if field.required
+                        span.ms-1.text-danger *
+                select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required)
+                    if field.placeholder
+                        option
+                    for item of field.options
+                        option(value=item selected=item===currentValue)= item
 
 mixin hourDisplay(hour)
     if hour === 0

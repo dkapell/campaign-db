@@ -45,6 +45,7 @@ $(function(){
         title: 'Unregister from this event?'
     }).on('click', deleteAttendance);
     $('#attendee-export-btn').on('click', exportAttendeeCsv);
+    updateCustomFieldVisibility();
 });
 
 function exportAttendeeCsv(e){
@@ -93,8 +94,63 @@ async function updateCharacterPicker(e){
         $('#characterPicker').show();
     } else {
         $('#characterPicker').hide();
-
     }
+    updateCustomFieldVisibility();
+}
+
+function updateCustomFieldVisibility(){
+    const userType = $('#attendance_user_id option:selected').data('type');
+    $('.custom-event-field').each( function(){
+        const $this = $(this);
+        const fieldFor = $this.data('fieldfor');
+        switch (fieldFor){
+            case 'all':
+                $this.show();
+                setRequired($this, true);
+
+                break;
+            case 'player':
+                if (userType === 'player'){
+                    $this.show();
+                    setRequired($this, true);
+                } else {
+                    $this.hide();
+                    setRequired($this, false);
+                }
+                break;
+            case 'staff':
+                if (userType === 'player'){
+                    $this.hide();
+                    setRequired($this, false);
+
+                } else {
+                    $this.show();
+                    setRequired($this, true);
+                }
+                break;
+        }
+
+    });
+}
+
+function setRequired($div, required){
+    if (!required){
+        for (const type of ['input', 'textarea', 'select']){
+            const $input = $div.find(type);
+            if ($input && $input.attr('required')){
+                console.log($input.attr('id'));
+                $input.attr('required', false);
+            }
+        }
+    } else {
+        for (const type of ['input', 'textarea', 'select']){
+            const $input = $div.find(type);
+            if ($input && $input.data('isrequired')){
+                $input.attr('required', true);
+            }
+        }
+    }
+
 }
 
 async function deleteAttendance(e){

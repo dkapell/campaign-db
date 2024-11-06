@@ -14,6 +14,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
             data-size= size
             data-preview=showPreview
             required=options.required
+            data-isrequired=options.required
             disabled=options.disabled
         )
             = contents

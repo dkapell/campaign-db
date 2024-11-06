@@ -9,6 +9,7 @@ if checkPermission('gm')
                     - const type = capitalize(user.typeForDisplay)
                     option(
                         value=user.id
+                        data-type=user.type
                         selected=Number(attendance.user_id)===user.id
                         title=user.name
                         data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`

@@ -16,7 +16,7 @@ async function showIndex(req, res){
         if (req.session.player_mode){
             user.type = 'player';
         }
-        if (user && user.type === 'player' && !user.site_admin){
+        if (user && user.type === 'player' && !req.session.admin_mode){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (characterData){
                 const character = new Character({id:characterData.id});

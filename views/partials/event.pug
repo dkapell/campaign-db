@@ -145,9 +145,12 @@ mixin eventListItemPlayer(event)
                 else
                     | Free
 
-    if attendance && !attendance.character.active
+    if attendance && attendance.character && !attendance.character.active
         .row
             .col=attendance.character.name
+    if attendance && ! attendance.character
+        .row
+            .col No Character Specified
 
 
 

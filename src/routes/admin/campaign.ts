@@ -35,7 +35,7 @@ function showNew(req, res){
         name: null,
         description: null,
         site: null,
-        theme: null,
+        theme: 'Flatly',
         css: null,
         default_to_player: false,
         display_map: false,

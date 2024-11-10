@@ -23,7 +23,8 @@ const tableFields = [
 ];
 
 const Attendance = new Model('attendance', tableFields, {
-    postSelect: fill
+    postSelect: fill,
+    skipAuditFields: ['event_id', 'created']
 });
 
 async function fill(record){

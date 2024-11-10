@@ -60,7 +60,7 @@ function prepAuditTable(){
                 render: function(data, type, row, meta) {
                     if (row.object){
                         const $a = $('<a>')
-                            .prop('href', `/${row.object_type}/${row.object_id}`)
+                            .prop('href', _.has(row.object, 'url')?row.object.url:`/${row.object_type}/${row.object_id}`)
                             .text(row.object.name?row.object.name:row.object.content);
                         return $a.prop('outerHTML');
                     }

@@ -13,6 +13,9 @@ import mapModel from './map';
 import rulebookModel from './rulebook';
 import custom_fieldModel from './custom_field';
 import cp_grantModel from './cp_grant';
+import eventModel from './event';
+import attendanceModel from './attendance';
+
 
 const models = {
     skill: skillModel,
@@ -25,7 +28,9 @@ const models = {
     map: mapModel,
     rulebook: rulebookModel,
     custom_field: custom_fieldModel,
-    cp_grant: cp_grantModel
+    cp_grant: cp_grantModel,
+    event: eventModel,
+    attendance: attendanceModel
 };
 
 const tableFields =  ['id',

@@ -77,12 +77,6 @@
                 "display_order": 3
             }
         ],
-        "skill_type": [
-            { "name": "Crafting" },
-            { "name": "Info" },
-            { "name": "BSA" },
-            { "name": "Other" }
-        ],
         "skill_usage": [
             {
                 "name": "Weapon Style",

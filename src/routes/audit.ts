@@ -80,6 +80,11 @@ async function query(req, res){
             } else if (audit.data) {
                 audit.diff = await objectDiff(audit.object_type, audit.data.old, audit.data.new);
             }
+            if (audit.object_type === 'attendance'){
+                audit.object.name = audit.object.user.name;
+                audit.object.url = `/event/${audit.object.event_id}/register/${audit.object_id}`;
+                console.log(audit.object);
+            }
             return audit;
         });
         response.recordsTotal = await req.models.audit.count();

@@ -27,7 +27,8 @@ const tableFields = [
 const Event = new Model('events', tableFields, {
     order: ['start_time'],
     validator: validate,
-    postSelect: fill
+    postSelect: fill,
+    skipAuditFields: ['created', 'deleted']
 });
 
 function validate(data){

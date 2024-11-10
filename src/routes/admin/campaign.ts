@@ -49,7 +49,7 @@ function showNew(req, res){
         cp_cap: 50,
         cp_factor: 0,
         cp_approval: true,
-        event_default_cost: null,
+        event_default_cost: 0,
         event_default_location: null,
         event_fields: [],
         timezone: 'America/New_York',

@@ -694,9 +694,7 @@
                 "type": "category",
                 "color": "dark",
                 "description": "Modifies another skill"
-            },
+            }
         ]
     }
-
-
 }

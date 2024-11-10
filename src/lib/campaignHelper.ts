@@ -18,7 +18,7 @@ async function init(campaignId:number, options?:{[key:string]:unknown}): Promise
     if (!options){
         options = {};
     }
-    const data = JSON.parse(await fs.readFile(__dirname + '/../data/campaignDefaults.json', 'utf8'));
+    const data = JSON.parse(await fs.readFile(__dirname + '/../../data/campaignDefaults.json', 'utf8'));
     await createGlossaryEntries(campaignId, data.glossary, options);
     await createAttributes(campaignId, data.attributes, options);
     await createSkillEntries(campaignId, data.skills, options);

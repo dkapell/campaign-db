@@ -8,8 +8,9 @@ const tableFields = [
     'user_id',
     'content',
     'amount',
-    'approved',
-    'created'
+    'status',
+    'created',
+    'updated'
 ];
 
 const CpGrant = new Model('cp_grant', tableFields, {

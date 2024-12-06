@@ -137,7 +137,7 @@ interface cpData{
 }
 async function cpCalculator(userId:number, campaignId:number): Promise<cpData> {
     const campaign = await models.campaign.get(campaignId);
-    const cpGrants = await models.cp_grant.find({user_id:userId, campaign_id:campaignId, approved:true});
+    const cpGrants = await models.cp_grant.find({user_id:userId, campaign_id:campaignId, status:'approved'});
     const result:cpData = {
         base: 0,
         total: 0,

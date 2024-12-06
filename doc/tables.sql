@@ -518,14 +518,21 @@ create table page_codes (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type cp_grant_status as ENUM (
+    'pending',
+    'denied',
+    'approved'
+);
+
 create table cp_grant (
     id serial,
     campaign_id int not null,
     user_id int not null,
     content varchar(255) not null,
     amount float not null,
-    approved boolean default false,
+    status cp_grant_status default 'pending',
     created timestamp with time zone DEFAULT now(),
+    updated timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT cp_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

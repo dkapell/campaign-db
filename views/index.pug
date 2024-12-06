@@ -38,8 +38,8 @@ append content
                         .list-group.mb-2.mb-3
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
-                                | Unapproved CP Grants
-                                span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Unapproved Grants')=cp_grants.length
+                                | Pending CP Grants
+                                span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=cp_grants.length
 
                 if checkPermission('player')
                     h3 Resources

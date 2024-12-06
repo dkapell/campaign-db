@@ -24,7 +24,10 @@ async function showIndex(req, res){
                 res.locals.character = await character.data();
             }
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
-            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false, user_id:user.id});
+            const cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
+            res.locals.cp_grants = cp_grants.filter( grant => {
+                return grant.status !== 'approved';
+            });
             let events = await req.models.event.find({campaign_id:req.campaign.id});
             events = events.filter( event => { return event.end_time > new Date(); })
             res.locals.events = events.map(event => {
@@ -45,7 +48,7 @@ async function showIndex(req, res){
                 return character.user.type === 'player';
             });
             res.locals.character = null;
-            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, approved:false});
+            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, status:'pending'});
             const events = await req.models.event.find({campaign_id:req.campaign.id});
             res.locals.events = events.filter( event => { return event.end_time > new Date(); })
 

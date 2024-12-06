@@ -14,7 +14,7 @@ block content
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
             style="display: none"
             data-orderable-object='cp'
             data-csrf=csrfToken
@@ -25,7 +25,7 @@ block content
                     th Source
                     th Amount
                     if currentCampaign.cp_approval
-                        th Approved
+                        th Status
                     th Created
 
 
@@ -37,7 +37,13 @@ block content
                         td= grant.amount
                         if currentCampaign.cp_approval
                             td
-                                .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
+                                case grant.status
+                                    when 'pending'
+                                        .badge.text-bg-warning Pending
+                                    when 'approved'
+                                        .badge.text-bg-success Approved
+                                    when 'denied'
+                                        .badge.text-bg-danger Denied
                         td= moment(grant.created).format('lll')
 
 

@@ -151,17 +151,18 @@ async function create(req, res){
     req.session.cpGrantData = grant;
     grant.campaign_id = req.campaign.id;
     grant.created = new Date();
+    grant.updated = new Date();
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
     if (user.type === 'player'){
         grant.user_id = user.id;
         if (req.campaign.cp_approval){
-            grant.approved = false;
+            grant.status = 'pending';
         } else {
-            grant.approved = true;
+            grant.status = 'approved';
         }
     } else {
-        grant.approved = true;
+        grant.status = 'approved';
     }
 
     try{
@@ -190,6 +191,7 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+        grant.updated = new Date();
 
         await req.models.cp_grant.update(id, grant);
         await req.audit('cp_grant', id, 'update', {old: current, new:grant});
@@ -233,9 +235,30 @@ async function approveGrant(req, res, next){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        current.approved = true;
+        current.status = 'approved';
+        current.updated = new Date();
         await req.models.cp_grant.update(id, current);
         await req.audit('cp_grant', id, 'approve', {});
+        res.json({success:true});
+    } catch(err) {
+        return next(err);
+    }
+}
+
+async function denyGrant(req, res, next){
+    const id = req.params.id;
+    if (!req.campaign.display_cp){
+        return res.json({error: 'Character Point Tracker is not enabled for this Campaign', success:false});
+    }
+    try {
+        const current = await req.models.cp_grant.get(id);
+        if (current.campaign_id !== req.campaign.id){
+            throw new Error('Can not edit record from different campaign');
+        }
+        current.status = 'denied';
+        current.updated = new Date();
+        await req.models.cp_grant.update(id, current);
+        await req.audit('cp_grant', id, 'denied', {});
         res.json({success:true});
     } catch(err) {
         return next(err);
@@ -262,6 +285,7 @@ router.get('/:id/edit', permission('gm'), csrf(),showEdit);
 router.post('/', csrf(), create);
 router.put('/:id', permission('gm'), csrf(), update);
 router.put('/:id/approve', permission('gm'), csrf(), approveGrant);
+router.put('/:id/deny', permission('gm'), csrf(), denyGrant);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

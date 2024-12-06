@@ -9,8 +9,8 @@ block content
         if currentCampaign.cp_approval
             .col
                 .form-check.form-switch
-                    input.form-check-input#unapproved-filter(type="checkbox", name="campaign[display_cp]")
-                    label.form-check-label(for="unapproved-filter") Show only unapproved
+                    input.form-check-input#pending-filter(type="checkbox", name="campaign[display_cp]")
+                    label.form-check-label(for="pending-filter") Show only pending
 
 
     .table-responsive.mt-2
@@ -29,14 +29,14 @@ block content
                     th(data-priority="6") Source
                     th(data-priority="3") Amount
                     if currentCampaign.cp_approval
-                        th(data-priority="4") Approved
+                        th(data-priority="4") Status
                     th(data-priority="5") Created
                     th(data-priority="2")
 
 
             tbody
                 for grant in grants
-                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-approved=grant.approved?'yes':'no')
+                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
                         td.dtr-control
                         td= grant.user.name
                         td
@@ -47,11 +47,19 @@ block content
                         td= grant.amount
                         if currentCampaign.cp_approval
                             td
-                                .badge(class=`text-bg-${grant.approved?'success':'danger'}`)=grant.approved?'Yes':'No'
+                                case grant.status
+                                    when 'pending'
+                                        .badge.text-bg-warning Pending
+                                    when 'approved'
+                                        .badge.text-bg-success Approved
+                                    when 'denied'
+                                        .badge.text-bg-danger Denied
+
+
                         td(data-sort=grant.created.getTime())= moment(grant.created).format('lll')
 
                         td.text-end
-                            if !grant.approved
+                            if grant.status === 'pending'
                                 a.btn.btn-outline-success.btn-xs.action-btn.me-1.cp-approve-btn(
                                     role="button"
                                     data-bs-toggle='tooltip'
@@ -61,6 +69,16 @@ block content
                                     data-back='/cp_grant'
                                 )
                                     i.fas.fa-thumbs-up.fa-fw
+
+                                a.btn.btn-outline-warning.btn-xs.action-btn.me-1.cp-deny-btn(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Deny'
+                                    data-id=grant.id
+                                    data-csrf=csrfToken
+                                    data-back='/cp_grant'
+                                )
+                                    i.fas.fa-thumbs-down.fa-fw
 
                             a.btn.btn-outline-danger.btn-xs.delete-btn(
                                 role="button",

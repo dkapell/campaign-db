@@ -12,4 +12,10 @@ function prepPageForm($form){
         tokenSeparators: [','],
         allowClear: true
     });
+    $form.find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve'
+    });
+
 }

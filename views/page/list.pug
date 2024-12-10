@@ -19,6 +19,7 @@ block content
                     th URL
                     th Menu
                     th Codes
+                    th Permission
                     th
 
 
@@ -36,6 +37,21 @@ block content
                         td
                             if page.codes.length
                                 | #{page.codes.length} Codes
+                        td
+                            case page.permission
+                                when 'any'
+                                when null
+                                    | Any (Non-authenticated)
+                                when 'login'
+                                    | Login
+                                when 'player'
+                                    | #{capitalize(currentCampaign.user_type_map.player.name)} or higher
+                                when 'event'
+                                    | #{capitalize(currentCampaign.user_type_map['event staff'].name)} or higher
+                                when 'contrib'
+                                    | #{capitalize(currentCampaign.user_type_map['contributing staff'].name)} or higher
+                                when 'gm'
+                                    | #{capitalize(currentCampaign.user_type_map['core staff'].name)} Only
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-2(

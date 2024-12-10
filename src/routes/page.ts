@@ -22,6 +22,23 @@ async function list(req, res, next){
     }
 }
 
+async function checkPagePermission(req, res, next){
+    const path = req.params.path;
+    try{
+        const page = await req.models.page.findOne({campaign_id:req.campaign.id, path:path});
+        if (!page){
+            throw new Error('Invalid Page');
+        }
+
+        if (page.permission && page.permission !== 'any'){
+            return (permission(page.permission, '/'))(req, res, next);
+        }
+        next();
+    } catch(err){
+        next(err);
+    }
+}
+
 async function show(req, res, next){
     const path = req.params.path;
     try{
@@ -74,6 +91,7 @@ async function showNew(req, res, next){
             name: null,
             path:null,
             content: null,
+            permission:'any',
             codes: []
         };
         res.locals.breadcrumbs = {
@@ -209,10 +227,12 @@ router.use(function(req, res, next){
     next();
 });
 
+
+
 router.get('/', csrf(), permission('gm'), list);
 router.get('/new', csrf(), permission('gm'), showNew);
 router.get('/:id/edit', csrf(), permission('gm'), showEdit);
-router.get('/:path(*)', csrf(), show);
+router.get('/:path(*)', csrf(), checkPagePermission, show);
 router.post('/', csrf(), permission('gm'), create);
 router.post('/:path(*)', csrf(), codeEnter);
 router.put('/:id', csrf(), permission('gm'), update);

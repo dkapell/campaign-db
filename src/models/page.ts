@@ -17,7 +17,8 @@ const tableFields = [
     'name',
     'path',
     'show_full_menu',
-    'content'
+    'content',
+    'permission'
 ];
 
 const Page = new Model('pages', tableFields, {

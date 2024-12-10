@@ -14,6 +14,19 @@
         .form-check.form-switch
             input.form-check-input#page_show_full_menu(type="checkbox", name="page[show_full_menu]", checked=page.show_full_menu)
             label.form-check-label(for="page_show_full_menu") Show the full menu on this page to non-logged-in users
+
+.row.my-2
+    .col
+        label.control-label(for='page_permission') Permission required to view
+        select.form-select.select2#page_permission(name='page[permission]' data-placeholder='Permission')
+            option
+
+            option(value='any' selected=page.permission==='any') Any (Non-authenticated)
+            option(value='login' selected=page.permission==='login') Login required
+            option(value='player' selected=page.permission==='player') #{capitalize(currentCampaign.user_type_map.player.name)} or higher required
+            option(value='event' selected=page.permission==='event') #{capitalize(currentCampaign.user_type_map['event staff'].name)} or higher required
+            option(value='contrib' selected=page.permission==='contrib') #{capitalize(currentCampaign.user_type_map['contributing staff'].name)} or higher required
+            option(value='gm' selected=page.permission==='gm') #{capitalize(currentCampaign.user_type_map['core staff'].name)} Only
 .row.my-2
     .col
         label.control-label(for="page_codes") Codes

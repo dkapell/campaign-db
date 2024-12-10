@@ -501,6 +501,7 @@ create table pages (
     path varchar(255) not null,
     show_full_menu boolean default false,
     content text,
+    permission varchar(80),
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT pages_campaign_fk FOREIGN KEY (campaign_id)

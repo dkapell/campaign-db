@@ -80,12 +80,8 @@ async function query(req, res){
             } else if (audit.data) {
                 audit.diff = await objectDiff(audit.object_type, audit.data.old, audit.data.new);
             }
-            if (audit.object_type === 'attendance'){
-                if (_.has(audit.object, 'user')){
-                    audit.object.name = audit.object.user.name;
-                } else {
-                    audit.object.name = 'Unknown';
-                }
+            if (audit.object_type === 'attendance' && audit.object){
+                audit.object.name = audit.object.user.name;
                 audit.object.url = `/event/${audit.object.event_id}/register/${audit.object_id}`;
             }
             return audit;

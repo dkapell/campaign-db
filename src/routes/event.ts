@@ -475,7 +475,7 @@ async function updateAttendance(req, res){
         await req.models.attendance.update(attendanceId, attendance);
         await req.audit('attendance', attendanceId, 'update', {old: current, new:attendance});
         delete req.session.attendanceData;
-        req.flash('success', `Updated registration of ${user.name} for ${event.name}`);
+        req.flash('success', `Updated registration of ${current.user.name} for ${event.name}`);
         res.redirect(`/event/${event.id}`);
     } catch(err) {
         req.flash('error', err.toString());
@@ -509,7 +509,7 @@ async function removeAttendance(req, res, next){
 
         await req.models.attendance.delete(attendanceId);
         await req.audit('attendance', attendanceId, 'delete', {old: current});
-        req.flash('success', `Unregistered ${user.name} from ${event.name}`);
+        req.flash('success', `Unregistered ${current.user.name} from ${event.name}`);
         res.redirect(`/event/${event.id}`);
     } catch(err) {
         return next(err);

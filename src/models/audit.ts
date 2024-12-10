@@ -100,7 +100,7 @@ async function fill(record){
         record.object = {};
     }
 
-    if (record.user_id === -1){
+    if (record.user_id === -1 || ! record.user_id){
         record.user = {name:'unknown'};
     } else {
         record.user = await models.user.get(record.campaign_id, record.user_id);

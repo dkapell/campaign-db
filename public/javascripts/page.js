@@ -3,6 +3,12 @@ $(function(){
 });
 
 function prepPageForm($form){
+    $form.find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 8,
+        width:'resolve'
+    });
+
     $form.find('.tag-select2').select2({
         theme:'bootstrap-5',
         closeOnSelect: false,
@@ -12,10 +18,4 @@ function prepPageForm($form){
         tokenSeparators: [','],
         allowClear: true
     });
-    $form.find('.select2').select2({
-        theme:'bootstrap-5',
-        minimumResultsForSearch: 6,
-        width:'resolve'
-    });
-
 }

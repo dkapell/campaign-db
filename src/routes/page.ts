@@ -183,7 +183,6 @@ async function update(req, res){
     } else if(!_.isArray(page.codes)){
         page.codes = [page.codes];
     }
-    console.log(JSON.stringify(page, null, 2));
     req.session.pageData = page;
 
     try {

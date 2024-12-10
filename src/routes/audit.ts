@@ -81,9 +81,12 @@ async function query(req, res){
                 audit.diff = await objectDiff(audit.object_type, audit.data.old, audit.data.new);
             }
             if (audit.object_type === 'attendance'){
-                audit.object.name = audit.object.user.name;
+                if (_.has(audit.object, 'user')){
+                    audit.object.name = audit.object.user.name;
+                } else {
+                    audit.object.name = 'Unknown';
+                }
                 audit.object.url = `/event/${audit.object.event_id}/register/${audit.object_id}`;
-                console.log(audit.object);
             }
             return audit;
         });

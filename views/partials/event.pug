@@ -85,12 +85,15 @@ mixin eventListItemStaff(event)
     .row
         .col
             - const attendance =  _.findWhere(event.attendees, {user_id: user.id})
-            if attendance && attendance.attending
-                i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
+            if attendance
+                if attendance.attending
+                    i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
+                else
+                    i.fas.fa-fw.fa-calendar-times.me-1.text-secondary(data-bs-toggle="tooltip" title='Not Attending')
             else if event.registration_open
-                i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Attending')
+                i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Registered')
             else
-                i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Attending')
+                i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Open for Registration')
             = event.name
         .col-auto.text-end
             +eventDate(event.start_time, event.end_time)
@@ -111,13 +114,15 @@ mixin eventListItemPlayer(event)
     - attendance = _.findWhere(event.attendees, {user_id: user.id})
     .row
         .col-md-5
-            if attendance && attendance.attending
-                i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
-
+            if attendance
+                if attendance.attending
+                    i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
+                else
+                    i.fas.fa-fw.fa-calendar-times.me-1.text-secondary(data-bs-toggle="tooltip" title='Not Attending')
             else if event.registration_open
-                i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Attending')
+                i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Registered')
             else
-                i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Attending')
+                i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Open for Registration')
             = event.name
         .col
             if !event.registration_open

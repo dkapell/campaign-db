@@ -44,6 +44,11 @@ $(function(){
     $('#event-unregister-btn').confirmation({
         title: 'Unregister from this event?'
     }).on('click', deleteAttendance);
+    $('#event-clear-not-attending-btn').confirmation({
+        title: 'Clear your Non-Attending status for this event?'
+    }).on('click', deleteAttendance);
+
+
     $('#attendee-export-btn').on('click', exportAttendeeCsv);
     $('#not-attending-btn-show').confirmation({
         title: 'Mark that you are not attending this event?'

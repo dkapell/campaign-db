@@ -164,7 +164,7 @@ mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
 
                                 a.btn.btn-outline-danger.btn-xs.delete-btn(
                                     role="button",
-                                    title="Delete Registration"
+                                    title=isNotAttendingList?"Remove Not-Attending Record":"Delete Registration"
                                     data-bs-toggle="tooltip"
                                     data-csrf=csrfToken
                                     url=`/event/${attendee.event_id}/register/${attendee.id}`

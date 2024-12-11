@@ -72,7 +72,7 @@ block content
                                 span.me-1= text
 
                         if !attendee
-                            a.btn.btn-outline-warning.btn-sm#not-attending-btn-show(
+                            a.btn.btn-outline-secondary.btn-sm#not-attending-btn-show(
                                 url=regOpen?`/event/${event.id}/not_attending`:''
                                 disabled=!regOpen
                                 class=!regOpen?'disabled':''
@@ -89,15 +89,22 @@ block content
                                     span.fa.fa-edit.me-2
                                     | Edit Registration
                             if new Date(event.end_time) > new Date()
-                                a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
-                                    role="button"
-                                    url=`/event/${event.id}/register/${attendee.id}`
-                                    data-csrf=csrfToken
-                                )
-                                    span.fa.fa-calendar-times.me-2
-                                    if attendee.attending
+                                if attendee.attending
+                                    a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
+                                        role="button"
+                                        url=`/event/${event.id}/register/${attendee.id}`
+                                        data-csrf=csrfToken
+                                    )
+                                        span.fa.fa-calendar-times.me-2
                                         | Unregister
-                                    else
+
+                                else
+                                    a.btn.btn-outline-danger.btn-sm#event-clear-not-attending-btn(
+                                        role="button"
+                                        url=`/event/${event.id}/register/${attendee.id}`
+                                        data-csrf=csrfToken
+                                    )
+                                        span.fa.fa-calendar-times.me-2
                                         | Clear Not Attending
 
                     if activeUser.type.match(/^(player|admin|core staff)$/)

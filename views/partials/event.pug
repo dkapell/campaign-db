@@ -46,8 +46,8 @@ mixin eventListDisplay(events, showPast=false)
                                 else
                                     span.badge.text-bg-danger No
                         if checkPermission('contrib')
-                            td=event.players.length
-                            td=event.attendees.length - event.players.length
+                            td=event.players.filter(a => { return a.attending}).length
+                            td=event.attendees.filter(a => { return a.attending}).length - event.players.filter(a => { return a.attending}).length
                         td
                             if _.findWhere(event.attendees, {user_id: activeUser.id})
                                 span.badge.text-bg-success
@@ -84,7 +84,8 @@ mixin eventListDisplay(events, showPast=false)
 mixin eventListItemStaff(event)
     .row
         .col
-            if _.findWhere(event.attendees, {user_id: user.id})
+            - const attendance =  _.findWhere(event.attendees, {user_id: user.id})
+            if attendance && attendance.attending
                 i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
             else if event.registration_open
                 i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Attending')
@@ -102,16 +103,17 @@ mixin eventListItemStaff(event)
         .col
             | Staff
             span.d-lg-none.d-xl-inline /NPCs
-            |: #{event.attendees.length - event.players.length}
+            |: #{event.attendees.filter(a => { return a.attending}).length - event.players.filter(a => { return a.attending}).length}
         .col
-            | Players: #{event.players.length}
+            | Players: #{event.players.filter(a => { return a.attending}).length}
 
 mixin eventListItemPlayer(event)
     - attendance = _.findWhere(event.attendees, {user_id: user.id})
     .row
         .col-md-5
-            if attendance
+            if attendance && attendance.attending
                 i.fas.fa-fw.fa-calendar-check.me-1.text-success(data-bs-toggle="tooltip" title='Attending')
+
             else if event.registration_open
                 i.fas.fa-fw.fa-calendar-times.me-1.text-danger(data-bs-toggle="tooltip" title='Not Attending')
             else
@@ -121,13 +123,16 @@ mixin eventListItemPlayer(event)
             if !event.registration_open
                 span.badge.text-bg-info Registration Not Open
             else if attendance
-                if attendance.paid
+                if attendance.attending
+                    if attendance.paid
 
-                    span.badge.text-bg-success Paid
-                else if event.cost
-                    span.badge.text-bg-warning Unpaid
+                        span.badge.text-bg-success Paid
+                    else if event.cost
+                        span.badge.text-bg-warning Unpaid
+                    else
+                        span.badge.text-bg-success Registered
                 else
-                    span.badge.text-bg-success Registered
+                    span.badge.text-bg-secondary Not Attending
             else
                 span.badge.text-bg-danger Not Registered
 
@@ -148,7 +153,7 @@ mixin eventListItemPlayer(event)
     if attendance && attendance.character && !attendance.character.active
         .row
             .col=attendance.character.name
-    if attendance && ! attendance.character
+    if attendance && ! attendance.character && attendance.attending
         .row
             .col No Character Specified
 

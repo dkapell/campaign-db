@@ -1,12 +1,12 @@
-mixin attendeeListDisplay(attendees, isPlayerList=false)
+mixin attendeeListDisplay(attendees, isPlayerList=false, isNotAttendingList=false)
     .d-lg-none
-        +attendeeList(attendees, isPlayerList)
+        +attendeeList(attendees, isPlayerList, isNotAttendingList)
     .d-none.d-lg-block
-        +attendeeTable(attendees, isPlayerList)
+        +attendeeTable(attendees, isPlayerList, isNotAttendingList)
 
 
 
-mixin attendeeList(attendees, isPlayerList=false)
+mixin attendeeList(attendees, isPlayerList=false, isNotAttendingList=false)
     if checkPermission('contrib')
         .row
             .col
@@ -18,9 +18,9 @@ mixin attendeeList(attendees, isPlayerList=false)
 
     ul.list-group
         each attendee in attendees
-            +attendeeListItem(attendee, isPlayerList)
+            +attendeeListItem(attendee, isPlayerList, isNotAttendingList)
 
-mixin attendeeListItem(attendee, isPlayerList)
+mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
     li.list-group-item.py-2
         .row
             .col
@@ -41,7 +41,7 @@ mixin attendeeListItem(attendee, isPlayerList)
                             span.badge.text-bg-success Paid
                         else
                             span.badge.text-bg-danger Unpaid
-            if checkPermission('contrib')
+            if checkPermission('contrib') && !isNotAttendingList
                 .col.text-end
                     if attendee.notes
                         a.btn.btn-outline-info.btn-xs.me-1.action-btn(
@@ -57,7 +57,7 @@ mixin attendeeListItem(attendee, isPlayerList)
                         if _.has(attendee.data, customField.name) && attendee.data[customField.name]
                             +attendeeCustomField(customField, attendee.data[customField.name])
 
-            if checkPermission('gm')
+            if checkPermission('gm') && !isNotAttendingList
                 .col-3.text-end
                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                         role="button",
@@ -82,14 +82,14 @@ mixin attendeeListItem(attendee, isPlayerList)
                         .badge.text-bg-success.badge-pill.ms-1 Active
             
             
-mixin attendeeTable(attendees, isPlayerList)
+mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
         table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
             style="display: none"
-            class=checkPermission('contrib')?'table-exportable':''
+            class=checkPermission('contrib')&&!isNotAttendingList?'table-exportable':''
             data-export=`/event/${event.id}/export?type=${isPlayerList?'player':'staff'}`
             )
             thead
@@ -102,7 +102,7 @@ mixin attendeeTable(attendees, isPlayerList)
                         th Character
                     else
                         th Type
-                    if checkPermission('contrib')
+                    if checkPermission('contrib') && !isNotAttendingList
                         th Details
                     if checkPermission('gm')
                         th
@@ -133,7 +133,7 @@ mixin attendeeTable(attendees, isPlayerList)
                                         = attendee.character.name
                         else
                             td(sort-order=attendee.user.typeOrder)= capitalize(attendee.user.typeForDisplay)
-                        if checkPermission('contrib')
+                        if checkPermission('contrib') && !isNotAttendingList
                             td
                                 if attendee.notes
                                     a.btn.btn-outline-info.btn-xs.me-1.action-btn(
@@ -152,14 +152,15 @@ mixin attendeeTable(attendees, isPlayerList)
 
                         if checkPermission('gm')
                             td.text-end
-                                a.btn.btn-outline-info.btn-xs.action-btn.me-1(
-                                    role="button",
-                                    title="View/Edit Registration"
-                                    data-bs-toggle="tooltip"
-                                    href=`/event/${attendee.event_id}/register/${attendee.id}`
-                                )
-                                    i.fas.fa-edit.fa-fw.me-1
-                                    | Edit Registration
+                                if !isNotAttendingList
+                                    a.btn.btn-outline-info.btn-xs.action-btn.me-1(
+                                        role="button",
+                                        title="View/Edit Registration"
+                                        data-bs-toggle="tooltip"
+                                        href=`/event/${attendee.event_id}/register/${attendee.id}`
+                                    )
+                                        i.fas.fa-edit.fa-fw.me-1
+                                        | Edit Registration
 
                                 a.btn.btn-outline-danger.btn-xs.delete-btn(
                                     role="button",

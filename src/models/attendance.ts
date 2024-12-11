@@ -19,6 +19,7 @@ const tableFields = [
     'paid',
     'notes',
     'data',
+    'attending',
     'created'
 ];
 

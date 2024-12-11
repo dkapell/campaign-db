@@ -572,6 +572,7 @@ create table attendance (
     paid boolean default false,
     notes text,
     data jsonb,
+    attending boolean default true,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     unique(event_id, user_id),

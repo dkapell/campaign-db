@@ -40,12 +40,8 @@ function validate(data){
 
 async function fill(record){
     record.attendees = await models.attendance.find({event_id:record.id});
-    record.attendees = record.attendees.sort((a, b) => {
-        if (a.user.typeForDisplay !== b.user.typeForDisplay){
-            return a.user.typeOrder - b.user.typeOrder;
-        }
-        return a.user.name.localeCompare(b.user.name);
-    });
+    record.attendees = record.attendees.sort(attendeeSorter);
+
     record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
     return record;
 }
@@ -53,3 +49,12 @@ async function fill(record){
 export = Event;
 
 
+function attendeeSorter(a, b){
+    if (a.attending !== b.attending){
+        return a.attending ? 1: -1;
+    }
+    if (a.user.typeForDisplay !== b.user.typeForDisplay){
+        return a.user.typeOrder - b.user.typeOrder;
+    }
+    return a.user.name.localeCompare(b.user.name);
+}

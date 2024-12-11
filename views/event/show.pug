@@ -40,11 +40,12 @@ block content
 
                 .row.my-2
                     .col-md
-                        if !attendee
-                            -
-                                const futureEvent = new Date(event.end_time) > new Date();
-                                const regOpen = event.registration_open && futureEvent;
+                        -
+                            const futureEvent = new Date(event.end_time) > new Date();
+                            const regOpen = event.registration_open && futureEvent;
 
+                        if !attendee || !attendee.attending
+                            -
                                 let text = 'Register as';
                                 if (activeUser.type === 'player'){
                                     text += ' a Player';
@@ -60,7 +61,7 @@ block content
                                     text = 'Event is in the Past'
                                 }
 
-                            a.btn.btn-outline-success.btn-sm(
+                            a.btn.btn-outline-success.btn-sm.me-2(
                                 href=regOpen?`/event/${event.id}/register`:''
                                 disabled=!regOpen
                                 class=!regOpen?'disabled':''
@@ -70,10 +71,23 @@ block content
                                 span.fa.fa-calendar-check.me-2
                                 span.me-1= text
 
+                        if !attendee
+                            a.btn.btn-outline-warning.btn-sm#not-attending-btn-show(
+                                url=regOpen?`/event/${event.id}/not_attending`:''
+                                disabled=!regOpen
+                                class=!regOpen?'disabled':''
+                                tab-index=!regOpen?'-1':''
+                                aria-disabled=regOpen?'false':'true'
+                                data-csrf=csrfToken
+                            )
+                                span.fa.fa-calendar-times.me-2
+                                span.me-1 Not Planning to Attend
+
                         else if attendee
-                            a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
-                                span.fa.fa-edit.me-2
-                                | Edit Registration
+                            if attendee.attending
+                                a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
+                                    span.fa.fa-edit.me-2
+                                    | Edit Registration
                             if new Date(event.end_time) > new Date()
                                 a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
                                     role="button"
@@ -81,7 +95,10 @@ block content
                                     data-csrf=csrfToken
                                 )
                                     span.fa.fa-calendar-times.me-2
-                                    | Unregister
+                                    if attendee.attending
+                                        | Unregister
+                                    else
+                                        | Clear Not Attending
 
                     if activeUser.type.match(/^(player|admin|core staff)$/)
                         .col-md-3.text-md-center
@@ -96,16 +113,19 @@ block content
 
                         .fs-5.d-inline.my-0
                             if attendee
-                                if activeUser.type === 'player'
-                                    span.me-2= attendee.character.name
-                                    if attendee.paid
-                                        span.badge.text-bg-success Paid
-                                    else if event.cost
-                                        span.badge.text-bg-warning Unpaid
+                                if attendee.attending
+                                    if activeUser.type === 'player'
+                                        span.me-2= attendee.character.name
+                                        if attendee.paid
+                                            span.badge.text-bg-success Paid
+                                        else if event.cost
+                                            span.badge.text-bg-warning Unpaid
+                                        else
+                                            span.badge.text-bg-success Registered
                                     else
                                         span.badge.text-bg-success Registered
                                 else
-                                    span.badge.text-bg-success Registered
+                                    span.badge.text-bg-secondary Not Attending
                             else
                                 span.badge.text-bg-danger Unregistered
 
@@ -166,17 +186,25 @@ block content
                                     li.nav-item(role="presentation")
                                         a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
 
+                                    li.nav-item(role="presentation")
+                                        a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
+
 
                                 .tab-content#eventTabContent
                                     .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
-                                        +attendeeListDisplay(event.players, true)
+                                        - const players = event.players.filter(player => {return player.attending});
+                                        +attendeeListDisplay(players, true)
 
 
                                     .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
-                                        - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player'});
+                                        - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
                                         +attendeeListDisplay(staff)
+                                    .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
+                                        - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
+                                        +attendeeListDisplay(nonAttending, false, true)
                             else
-                                +attendeeListDisplay(event.attendees, false, true)
+                                - const attendees = event.attendees.filter(attendee => { return attendee.attending });
+                                +attendeeListDisplay(attendees, false)
 
 
 append scripts

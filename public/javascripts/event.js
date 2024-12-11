@@ -45,6 +45,11 @@ $(function(){
         title: 'Unregister from this event?'
     }).on('click', deleteAttendance);
     $('#attendee-export-btn').on('click', exportAttendeeCsv);
+    $('#not-attending-btn-show').confirmation({
+        title: 'Mark that you are not attending this event?'
+    }).on('click', markNotAttending);
+    $('#not-attending-btn-form').on('click', markNotAttending);
+
     updateCustomFieldVisibility();
 });
 
@@ -138,7 +143,6 @@ function setRequired($div, required){
         for (const type of ['input', 'textarea', 'select']){
             const $input = $div.find(type);
             if ($input && $input.attr('required')){
-                console.log($input.attr('id'));
                 $input.attr('required', false);
             }
         }
@@ -169,6 +173,39 @@ async function deleteAttendance(e){
             'CSRF-Token': csrfToken
         },
         redirect:'manual'
+    });
+
+    if($this.attr('data-back')){
+        location = $this.attr('data-back');
+    } else {
+        location.reload();
+    }
+}
+
+async function markNotAttending(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+    $this.tooltip('hide');
+    const url = $this.attr('url');
+    const csrfToken = $this.data('csrf');
+
+    const data = {
+        attendance:{}
+    };
+
+    if ($('#attendance_user_id').length){
+        data.attendance.user_id = Number($('#attendance_user_id').val());
+    }
+
+    const result = await fetch(url, {
+        method:'POST',
+        headers: {
+            'CSRF-Token': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        redirect:'manual',
+        body: JSON.stringify(data)
     });
 
     if($this.attr('data-back')){

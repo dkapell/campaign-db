@@ -280,6 +280,7 @@ async function showNewAttendance(req, res, next){
             res.locals.attendance = req.session.attendanceData;
             delete req.session.attendanceData;
         }
+
         //fix for gm scenartio
         res.locals.attendance.user = user;
 
@@ -308,6 +309,10 @@ async function showEditAttendance(req, res, next){
 
         res.locals.event = event;
 
+        if (!_.has(attendance, 'data') || ! attendance.data){
+            attendance.data = {};
+        }
+
         res.locals.attendance = attendance;
 
         if (_.has(req.session, 'attendanceData')){
@@ -319,6 +324,12 @@ async function showEditAttendance(req, res, next){
 
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+
+        if (!attendance.character_id){
+            const characters = await req.models.character.find({campaign_id:req.campaign.id, user_id:user.id});
+            const activeCharacter = _.findWhere(characters, {active:true});
+            res.locals.attendance.character_id = activeCharacter?activeCharacter.id:null;
+        }
 
         if (user.type.match(/^(core staff|admin)$/)){
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
@@ -385,8 +396,12 @@ async function createAttendance(req, res){
 
         const currentAttendance = await req.models.attendance.findOne({event_id:event.id, user_id:attendance.user_id});
         if (currentAttendance){
-            req.flash('success', 'Already Registered');
-            return res.redirect(`/event/${event.id}`)
+            if (currentAttendance.attending){
+                req.flash('success', 'Already Registered');
+                return res.redirect(`/event/${event.id}`)
+            } else {
+                await req.models.attendance.delete(currentAttendance.id);
+            }
         }
 
         attendance.campaign_id = req.campaign.id;
@@ -404,6 +419,63 @@ async function createAttendance(req, res){
                 }
             }
         }
+        attendance.attending = true;
+        const id = await req.models.attendance.create(attendance);
+
+        await req.audit('attendance', id, 'create', {new:attendance});
+        delete req.session.attendanceData;
+        req.flash('success', `Registered ${user.name} for ${event.name}`);
+        res.redirect(`/event/${event.id}`);
+    } catch (err) {
+        req.flash('error', err.toString());
+        return res.redirect(`/event/${eventId}/register`);
+    }
+}
+
+async function createNotAttendance(req, res){
+    const eventId = req.params.id;
+    const attendance = req.body.attendance;
+    req.session.attendanceData = attendance;
+    try {
+
+        let user = req.session.assumed_user ? req.session.assumed_user: req.user;
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        attendance.event_id = eventId;
+
+        if (user.type.match(/^(core staff|admin)$/)) {
+            if (attendance.user_id) {
+                user = await req.models.user.get(req.campaign.id, attendance.user_id);
+            } else {
+                attendance.user_id = user.id;
+            }
+
+            if (!_.has(attendance, 'paid')){
+               attendance.paid = false;
+            }
+
+        } else {
+            attendance.user_id = user.id;
+        }
+
+        const currentAttendance = await req.models.attendance.findOne({event_id:event.id, user_id:attendance.user_id});
+        if (currentAttendance){
+            if (currentAttendance.attending){
+                req.flash('danger', 'Currently marked attending, unregister first');
+                return res.redirect(`/event/${event.id}`)
+            } else {
+                req.flash('success', 'Already marked as not attending');
+                return res.redirect(`/event/${event.id}`)
+            }
+        }
+
+        attendance.campaign_id = req.campaign.id;
+        attendance.character_id = null;
+        attendance.attending = false;
 
         const id = await req.models.attendance.create(attendance);
 
@@ -471,6 +543,8 @@ async function updateAttendance(req, res){
                 }
             }
         }
+
+        attendance.attending = true;
 
         await req.models.attendance.update(attendanceId, attendance);
         await req.audit('attendance', attendanceId, 'update', {old: current, new:attendance});
@@ -552,6 +626,10 @@ async function exportEventAttendees(req, res, next){
                 attendee.user.name,
                 attendee.user.email,
             ];
+            if (!attendee.attending) {
+                continue;
+            }
+
             if (exportType === 'player'){
                 if (attendee.user.type !== 'player'){
                     continue;
@@ -603,7 +681,8 @@ async function exportPlayerPdfs(req, res, next){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
-        const characters = await async.map(event.players, async(player) => {
+        const players = event.players.filter(player => { return player.attending });
+        const characters = await async.map(players, async(player) => {
             const character = new Character({id:player.character_id});
             await character.init();
             return character.data();
@@ -646,6 +725,7 @@ router.delete('/:id', permission('admin'), remove);
 
 router.get('/:id/register', csrf(), showNewAttendance);
 router.post('/:id/register', csrf(), createAttendance);
+router.post('/:id/not_attending', csrf(), createNotAttendance);
 router.get('/:id/register/:attendanceId', csrf(), showEditAttendance);
 router.put('/:id/register/:attendanceId', csrf(), updateAttendance);
 router.delete('/:id/register/:attendanceId', csrf(), removeAttendance);

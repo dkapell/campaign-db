@@ -109,6 +109,9 @@ async function updateCharacterPicker(e){
 }
 
 function updateCustomFieldVisibility(){
+    if (! $('#attendance_user_id').length ){
+        return;
+    }
     const userType = $('#attendance_user_id option:selected').data('type');
     $('.custom-event-field').each( function(){
         const $this = $(this);

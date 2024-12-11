@@ -16,7 +16,6 @@ if checkPermission('gm')
                         data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                     ) #{capitalize(user.name)} (#{type})
 
-
 #characterPicker(style=attendance.user.type==='player'?'':'display:none')
     .row.my-2
         .col
@@ -39,9 +38,27 @@ if checkPermission('gm') && attendance.user.type === 'player'
                 label.form-check-label(for="attendance_paid") Paid
 each customEventField in currentCampaign.event_fields
     if (_.indexOf(event.hidden_fields, customEventField.name) === -1)
-        .row.my-2
-            .col
-                +customEventField(customEventField, attendance.data[customEventField.name])
+        if checkPermission('gm')
+           .row.my-2
+                .col
+                    +customEventField(customEventField, attendance.data[customEventField.name])
+        else
+            case customEventField.fieldfor
+                when 'staff'
+                    if checkPermission('event')
+                        .row.my-2
+                            .col
+                                +customEventField(customEventField, attendance.data[customEventField.name])
+
+                when 'player'
+                    if (checkPermission('player') && !checkPermission('event'))
+                        .row.my-2
+                            .col
+                                +customEventField(customEventField, attendance.data[customEventField.name])
+                default
+                    .row.my-2
+                            .col
+                                +customEventField(customEventField, attendance.data[customEventField.name])
 
 .row.my-2
     .col

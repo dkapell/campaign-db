@@ -237,6 +237,7 @@ async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb)
             google_id: profile.id,
             email: profile.emails[0].value
         });
+        console.log(`${user.name} logged in`);
         cb(null, user);
     } catch (err) {
         cb(err);

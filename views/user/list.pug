@@ -30,8 +30,12 @@ block content
                     th Email
                     th Type
                     if currentCampaign.display_cp
-                        th CP
+                        th(title='CP Spendable (Total)' data-bs-toggle='tooltip') CP
+                            i.far.fa-question-circle.ms-1
+
                     th Drive
+                    th(title='How many upcoming events is this user registered for' data-bs-toggle='tooltip') Events
+                        i.far.fa-question-circle.ms-1
                     th
 
             tbody
@@ -75,6 +79,8 @@ block content
                                     i.fab.fa-google-drive.me-1
                                     | Player
                                     i.fa.fa-external-link.ms-1
+                        td=user.regCount
+
 
                         td
                             a.btn.btn-outline-info.btn-xs.action-btn.me-1(

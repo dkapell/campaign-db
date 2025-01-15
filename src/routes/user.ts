@@ -15,10 +15,19 @@ async function list(req, res, next){
     };
     try {
         if (!req.campaign.default_site){
+
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
+            let events = await req.models.event.find({campaign_id:req.campaign.id});
+            events = events.filter( event => { return event.end_time > new Date(); })
             res.locals.users = await async.map(campaign_users, async (campaign_user) => {
                 const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
                 user.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
+                const userEvents = events.filter(event => {
+                    event.attendees = _.where(event.attendees, {user_id: user.id, attending:true});
+
+                    return event.attendees.length;
+                });
+                user.regCount = userEvents.length;
                 return user;
             });
             res.locals.title += ' - Users';

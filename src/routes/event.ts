@@ -617,24 +617,63 @@ async function exportEventAttendees(req, res, next){
         } else {
             header.push('Type');
         }
-        for (const field of req.campaign.event_fields){
-            if (_.indexOf(event.hidden_fields, field.name) !== -1){
-                continue;
+        if (!(exportType === 'not attending' || exportType === 'no response')){
+            for (const field of req.campaign.event_fields){
+                if (_.indexOf(event.hidden_fields, field.name) !== -1){
+                    continue;
+                }
+                header.push(field.name);
             }
-            header.push(field.name);
-        }
 
-        header.push('Notes');
+            header.push('Notes');
+        }
         output.push(header);
 
-        for (const attendee of event.attendees){
+        let attendees = [];
+
+        switch(exportType){
+            case 'player':
+                attendees = event.attendees.filter(attendee => {
+                    return attendee.user.type === 'player';
+                }).filter(attendee => {
+                    return attendee.attending;
+                });
+                break;
+            case 'staff':
+                attendees = event.attendees.filter(attendee => {
+                    return attendee.attending;
+                });
+                break;
+            case 'not attending':
+                attendees = event.attendees.filter(attendee => {
+                    return !attendee.attending;
+                });
+                break;
+            case 'no response': {
+                const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
+                let users = await async.map(campaign_users, async (campaign_user) => {
+                    return req.models.user.get(req.campaign.id, campaign_user.user_id);
+                });
+                users = _.sortBy(users, 'typeForDisplay');
+                attendees = users
+                    .filter(user => {return user.type !== 'none'})
+                    .filter(user => {return !_.findWhere(event.attendees, {user_id: user.id})})
+                    .map(user => {
+                        return {
+                            user_id: user.id,
+                            user: user
+                        };
+                    });
+                break;
+            }
+
+        }
+
+        for (const attendee of attendees){
             const row = [
                 attendee.user.name,
                 attendee.user.email,
             ];
-            if (!attendee.attending) {
-                continue;
-            }
 
             if (exportType === 'player'){
                 if (attendee.user.type !== 'player'){
@@ -645,32 +684,36 @@ async function exportEventAttendees(req, res, next){
                     row.push(attendee.paid?'Yes':'No');
                 }
             } else {
-                if (attendee.user.type === 'player'){
+                if (exportType === 'staff' && attendee.user.type === 'player'){
                     continue;
                 }
                 row.push(attendee.user.typeForDisplay);
             }
-            for (const field of req.campaign.event_fields){
-                if (_.indexOf(event.hidden_fields, field.name) !== -1){
-                    continue;
-                }
 
-                if (_.has(attendee.data, field.name)){
-                    if (field.type === 'boolean'){
-                        row.push(attendee.data[field.name]?'Yes':'No');
-                    } else {
-                        row.push(attendee.data[field.name]);
+            if (!(exportType === 'not attending' || exportType === 'no response')){
+
+                for (const field of req.campaign.event_fields){
+                    if (_.indexOf(event.hidden_fields, field.name) !== -1){
+                        continue;
                     }
-                } else {
-                    row.push(null);
+
+                    if (_.has(attendee.data, field.name)){
+                        if (field.type === 'boolean'){
+                            row.push(attendee.data[field.name]?'Yes':'No');
+                        } else {
+                            row.push(attendee.data[field.name]);
+                        }
+                    } else {
+                        row.push(null);
+                    }
                 }
+                row.push(attendee.notes);
             }
-            row.push(attendee.notes);
 
             output.push(row);
         }
         const csvOutput = await stringify(output, {});
-        res.attachment(`${event.name} - ${exportType==='player'?'Players':'Staff'}.csv`);
+        res.attachment(`${event.name} - ${exportType}.csv`);
         res.end(csvOutput);
 
     } catch (err){

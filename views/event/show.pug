@@ -204,7 +204,7 @@ block content
                                 .tab-content#eventTabContent
                                     .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
                                         - const players = event.players.filter(player => {return player.attending});
-                                        +attendeeListDisplay(players, true)
+                                        +attendeeListDisplay(players, 'player')
 
 
                                     .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
@@ -212,7 +212,7 @@ block content
                                         +attendeeListDisplay(staff)
                                     .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
                                         - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
-                                        +attendeeListDisplay(nonAttending, false, true)
+                                        +attendeeListDisplay(nonAttending, 'not attending')
 
                                     .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
                                         -
@@ -225,10 +225,10 @@ block content
                                                 };
                                             });
 
-                                        +attendeeListDisplay(noResponse, false, true)
+                                        +attendeeListDisplay(noResponse, 'no response')
                             else
                                 - const attendees = event.attendees.filter(attendee => { return attendee.attending });
-                                +attendeeListDisplay(attendees, false)
+                                +attendeeListDisplay(attendees)
 
 
 append scripts

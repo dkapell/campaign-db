@@ -1,26 +1,26 @@
-mixin attendeeListDisplay(attendees, isPlayerList=false, isNotAttendingList=false)
+mixin attendeeListDisplay(attendees, type='staff')
     .d-lg-none
-        +attendeeList(attendees, isPlayerList, isNotAttendingList)
+        +attendeeList(attendees, type)
     .d-none.d-lg-block
-        +attendeeTable(attendees, isPlayerList, isNotAttendingList)
+        +attendeeTable(attendees, type)
 
 
 
-mixin attendeeList(attendees, isPlayerList=false, isNotAttendingList=false)
+mixin attendeeList(attendees, type)
     if checkPermission('contrib')
         .row
             .col
                 button.btn.btn-sm.btn-outline-info.my-2#attendee-export-btn(
-                    data-export=`/event/${event.id}/export?type=${isPlayerList?'player':'staff'}`
+                    data-export=`/event/${event.id}/export?type=${type}`
                 )
                     i.fa.fa-download.me-1
                     | Export CSV
 
     ul.list-group
         each attendee in attendees
-            +attendeeListItem(attendee, isPlayerList, isNotAttendingList)
+            +attendeeListItem(attendee, type)
 
-mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
+mixin attendeeListItem(attendee, type)
     li.list-group-item.py-2
         .row
             .col
@@ -31,7 +31,7 @@ mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
                 else
                     span=attendee.user.name
 
-                if !isPlayerList
+                if type !== 'player'
                     span.badge.text-bg-info.ms-2(class=!checkPermission('contrib')?'float-end':'')
                         =capitalize(attendee.user.typeForDisplay)
 
@@ -41,7 +41,7 @@ mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
                             span.badge.text-bg-success Paid
                         else
                             span.badge.text-bg-danger Unpaid
-            if checkPermission('contrib') && !isNotAttendingList
+            if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
                 .col.text-end
                     if attendee.notes
                         a.btn.btn-outline-info.btn-xs.me-1.action-btn(
@@ -57,7 +57,7 @@ mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
                         if _.has(attendee.data, customField.name) && attendee.data[customField.name]
                             +attendeeCustomField(customField, attendee.data[customField.name])
 
-            if checkPermission('gm') && !isNotAttendingList
+            if checkPermission('gm') && !(type === 'not attending' || type === 'no response')
                 .col-3.text-end
                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                         role="button",
@@ -70,7 +70,7 @@ mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
                         span.ms-1.d-none.d-md-inline Registration
 
 
-        if checkPermission('contrib') && isPlayerList && attendee.character
+        if checkPermission('contrib') && type === 'player' && attendee.character
             .row
                 .col
                     a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
@@ -82,29 +82,29 @@ mixin attendeeListItem(attendee, isPlayerList, isNotAttendingList)
                         .badge.text-bg-success.badge-pill.ms-1 Active
             
             
-mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
+mixin attendeeTable(attendees, type)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
         table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
             style="display: none"
-            class=checkPermission('contrib')&&!isNotAttendingList?'table-exportable':''
-            data-export=`/event/${event.id}/export?type=${isPlayerList?'player':'staff'}`
+            class=checkPermission('contrib')?'table-exportable':''
+            data-export=`/event/${event.id}/export?type=${type}`
             )
             thead
                 tr
                     th
                     th Attendee
-                    if checkPermission('contrib') && isPlayerList
+                    if checkPermission('contrib') && type === 'player'
                         if event.cost
                             th Paid
                         th Character
                     else
                         th Type
-                    if checkPermission('contrib') && !isNotAttendingList
+                    if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
                         th Details
-                    if checkPermission('gm')
+                    if checkPermission('gm') && type !== 'no response'
                         th
             tbody
                 each attendee in attendees
@@ -118,7 +118,7 @@ mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
                             else
                                 i.fas.fa-user.me-1
                                 = attendee.user.name
-                        if checkPermission('contrib') && isPlayerList
+                        if checkPermission('contrib') && type === 'player'
                             if event.cost
                                 td
                                     if attendee.paid
@@ -133,7 +133,7 @@ mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
                                         = attendee.character.name
                         else
                             td(sort-order=attendee.user.typeOrder)= capitalize(attendee.user.typeForDisplay)
-                        if checkPermission('contrib') && !isNotAttendingList
+                        if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
                             td
                                 if attendee.notes
                                     a.btn.btn-outline-info.btn-xs.me-1.action-btn(
@@ -150,9 +150,9 @@ mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
                                         if _.has(attendee.data, customField.name) && attendee.data[customField.name]
                                             +attendeeCustomField(customField, attendee.data[customField.name])
 
-                        if checkPermission('gm')
+                        if checkPermission('gm') && type !== 'no response'
                             td.text-end
-                                if !isNotAttendingList
+                                if type !== 'not attending'
                                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                                         role="button",
                                         title="View/Edit Registration"
@@ -161,10 +161,9 @@ mixin attendeeTable(attendees, isPlayerList, isNotAttendingList)
                                     )
                                         i.fas.fa-edit.fa-fw.me-1
                                         | Edit Registration
-
                                 a.btn.btn-outline-danger.btn-xs.delete-btn(
                                     role="button",
-                                    title=isNotAttendingList?"Remove Not-Attending Record":"Delete Registration"
+                                    title=type==='not attending'?"Remove Not-Attending Record":"Delete Registration"
                                     data-bs-toggle="tooltip"
                                     data-csrf=csrfToken
                                     url=`/event/${attendee.event_id}/register/${attendee.id}`

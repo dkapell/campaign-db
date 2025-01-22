@@ -39,6 +39,12 @@ async function show(req, res, next){
             ],
             current: event.name
         };
+        const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
+        let users = await async.map(campaign_users, async (campaign_user) => {
+            return req.models.user.get(req.campaign.id, campaign_user.user_id);
+        });
+        users = users.filter(user => {return user.type !== 'none'});
+        res.locals.users = _.sortBy(users, 'typeForDisplay');
         res.locals.csrfToken = req.csrfToken();
         res.locals.event = event;
         res.locals.title += ` - Event - ${event.name}`;

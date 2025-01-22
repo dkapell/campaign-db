@@ -196,6 +196,10 @@ block content
                                     li.nav-item(role="presentation")
                                         a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
 
+                                    li.nav-item(role="presentation")
+                                        a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
+
+
 
                                 .tab-content#eventTabContent
                                     .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
@@ -209,6 +213,19 @@ block content
                                     .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
                                         - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
                                         +attendeeListDisplay(nonAttending, false, true)
+
+                                    .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
+                                        -
+                                            const noResponse = users.filter(user => {
+                                                return !_.findWhere(event.attendees, {user_id: user.id});
+                                            }).map(user => {
+                                                return {
+                                                    user_id: user.id,
+                                                    user: user
+                                                };
+                                            });
+
+                                        +attendeeListDisplay(noResponse, false, true)
                             else
                                 - const attendees = event.attendees.filter(attendee => { return attendee.attending });
                                 +attendeeListDisplay(attendees, false)

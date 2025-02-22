@@ -6,6 +6,10 @@ import { docs_v1, drive_v3, google } from 'googleapis';
 import {Readable} from 'stream';
 import { auth, GoogleAuth } from 'google-auth-library';
 
+interface CustomClient {
+    scopes: string[];
+}
+
 class Drive {
     private static _instance:Drive;
     google_auth: GoogleAuth;
@@ -25,7 +29,10 @@ class Drive {
         const credentials = config.get('drive.credentials');
 
         const client = auth.fromJSON(credentials);
-        //client.scopes = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'];
+        (client as CustomClient).scopes = [
+            'https://www.googleapis.com/auth/drive',
+            'https://www.googleapis.com/auth/documents'
+        ];
 
         this.google_auth = client as unknown as GoogleAuth;
 
@@ -79,6 +86,7 @@ class Drive {
             console.log(`Found ${response.data.files.length} elements`);
             return response.data.files;
         } catch(err){
+            console.log(err);
             console.error(`Error listing files: ${err.message}`);
             throw err;
 

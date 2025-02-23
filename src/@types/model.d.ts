@@ -96,6 +96,10 @@ interface SkillModel extends ModelData{
     }
 }
 
+interface CharacterSkillModel extends SkillModel{
+    character_skill_id: number
+}
+
 interface SourceTypeModel extends ModelData{
     id: number
     campaign_id: number

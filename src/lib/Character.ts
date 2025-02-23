@@ -621,8 +621,10 @@ class Character{
         for (const source of requiredSources){
             await this.addSource(source.id, true);
         }
+
         // recalculate CP costs and required skills of Sources
         const charSources = _.groupBy(await this.sources(true), 'type_id');
+
         for (const type in charSources){
             const sources = charSources[type];
             if (sources[0].type.num_free){
@@ -649,6 +651,15 @@ class Character{
 
                     await this.addSkill(skill.id, null, true);
                 }
+            }
+        }
+
+        const allCharSkills:CharacterSkillModel[] = await this.skills();
+
+        // check for sources that are not purchasable and remove them
+        for (const skill of allCharSkills){
+            if (! skill.status.purchasable ){
+                await this.removeSkill(skill.character_skill_id, true);
             }
         }
 

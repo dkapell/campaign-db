@@ -164,14 +164,19 @@ class Character{
     }
 
     async addSource(sourceId:number, skipCost?:boolean){
-        const doc = {
+        interface sourceDoc {
+            character_id: number,
+            skill_source_id: number,
+            cost?:number,
+        }
+
+        const doc: sourceDoc = {
             character_id: this.id,
             skill_source_id: sourceId,
-            cost:null
         };
+
         const character_source = await models.character_skill_source.findOne(doc);
         if (character_source){ return; }
-
 
         const skill_source = await models.skill_source.get(sourceId);
         if (skill_source.campaign_id != this._data.campaign_id){
@@ -283,12 +288,18 @@ class Character{
             throw new Error('Do not have the source for this skill');
         }
 
-        const doc = {
-            character_id: this.id,
-            skill_id: skillId,
-            cost:null,
-            details:null
+        interface skillDoc{
+            character_id: number,
+            skill_id: number,
+            cost?: number,
+            details?:string
         };
+
+        const doc: skillDoc = {
+            character_id: this.id,
+            skill_id: skillId
+        };
+
         const character_skills = await models.character_skill.find(doc);
         if (character_skills.length === skillCosts.length){
             // already have the max number of this skill

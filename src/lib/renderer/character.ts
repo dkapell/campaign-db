@@ -344,6 +344,17 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (doc.page.height - doc.y < 72*1){
                 doc.addPage({margin: options.margin*2});
             }
+            let height = doc.font('Header Font Italic').fontSize(12).heightOfString(skill.name);
+
+            if (!rulesMode){
+                height += doc.font('Header Font').fontSize(10).heightOfString(skill.summary);
+            }
+
+            height += Number(markdown(doc, skill.description, {getHeight:true}));
+
+            if (doc.page.height - (doc.y + Number(height)) < options.margin *3){
+                doc.addPage({margin: options.margin*2});
+            }
 
             doc.font('Header Font Italic').fontSize(12).text(`${skill.name} `, {continued:true});
 
@@ -389,11 +400,6 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                     markdown(doc, skill.summary);
                 }
             }
-            const height = markdown(doc, skill.description, {getHeight:true});
-            if (doc.page.height - (doc.y + Number(height)) < options.margin *3){
-                doc.addPage({margin: options.margin*2});
-            }
-            //console.log(height);
 
             markdown(doc, skill.description);
             if (skill.details && skill.details.sheet_note){

@@ -255,23 +255,54 @@ fieldset.mb-2.border.p-2.rounded
                         i.fa.fa-chevron-down
 
                 #event_fields-container.collapse(aria-labeledby="event_fields-heading")
-                    +jsonEditor('campaign_event_fields', 'campaign[event_fields]', 5, 200, campaign.event_fields)
+                    ul.nav.nav-tabs.editor-tabs(id="campaign_event_fields-edit-tabs" role="tablist")
+                        li.nav-item(role="presentation")
+                            a.nav-link.active(
+                                id='campaign_event_fields-code-tab'
+                                data-bs-toggle="tab"
+                                href="#campaign_event_fields-code"
+                                role="tab"
+                                aria-controls="campaign_event_fields-code"
+                                aria-selected="true"
+                            ) Event Fields
+                        li.nav-item(role="presentation")
+                            a.nav-link(
+                                id="campaign_event_fields-help-tab"
+                                data-bs-toggle="tab"
+                                href="#campaign_event_fields-help"
+                                role="tab"
+                                aria-controls="campaign_event_fields-help"
+                                aria-selected="false"
+                            ) Help
 
-                    .card.mt-3
-                        .card-header#event_fields_example-heading(data-bs-toggle="collapse" data-bs-target="#event_fields_example-container" aria-expanded="false" aria-controls="event_fields_example-container")  Example
-                            span.float-end.ps-2
-                                i.fa.fa-chevron-up
-                                i.fa.fa-chevron-down
-                        #event_fields_example-container.collapse.card-body.text-bg-light(aria-labeledby="event_fields_example-heading")
-                            pre.my-0.
+                    .tab-content.pb-2(id="campaign_event_fields-editor")
+                        .tab-pane.fade.show.active(
+                            id="campaign_event_fields-code"
+                            role="tabpanel"
+                            aria-labelledby="campaign_event_fields-code-tab"
+                        )
+                            +jsonEditor('campaign_event_fields', 'campaign[event_fields]', 5, 200, campaign.event_fields)
 
-                                [
-                                    {
-                                        "name": "Field Name",
-                                        "type": "text" or "longtext" or "boolean",
-                                        "icon": "icon name from FontAwesome (optional"
-                                    }
-                                ]
+                        .tab-pane.fade(
+                            id="campaign_event_fields-help"
+                            role="tabpanel"
+                            aria-labelledby="campaign_event_fields-help-tab"
+                        )
+                            .card.mt-3
+                                .card-header  Example
+                                #event_fields_example-container.card-body.text-bg-light
+                                    pre.my-0.
+                                        [
+                                            {
+                                                "name": "Field Name",
+                                                "type": "text", "longtext", "boolean", "dropdown"
+                                                "icon": "icon name from FontAwesome (optional)",
+                                                "required": true or false,
+                                                "fieldfor": "all", "player", "staff",
+                                                "options": ["list", "of", "options", "for dropdown"]
+                                                "placeholder": "Placeholder for dropdown"
+                                            }
+                                        ]
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication Options
         span.float-end.ps-2

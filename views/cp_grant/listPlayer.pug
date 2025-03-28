@@ -22,18 +22,17 @@ block content
             thead
                 tr
                     th
-                    th Source
-                    th Amount
+                    th(data-priority="4") Source
+                    th(data-priority="1") Amount
                     if currentCampaign.cp_approval
-                        th Status
-                    th Created
-
+                        th(data-priority="2") Status
+                    th(data-priority="3") Created
 
             tbody
                 for grant in grants
                     tr
                         td.dtr-control
-                        td= grant.content
+                        td!= marked.parseInline(grant.content, {breaks: true})
                         td= grant.amount
                         if currentCampaign.cp_approval
                             td

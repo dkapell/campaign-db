@@ -200,6 +200,7 @@ async function postSelect(user, campaignId){
         user.notes = campaign_user.notes;
         user.drive_folder = campaign_user.drive_folder;
         user.staff_drive_folder = campaign_user.staff_drive_folder;
+        user.permissions = campaign_user.permissions;
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
@@ -245,6 +246,13 @@ async function postSave(id, data, campaignId){
                 changed = true;
             }
         }
+        if (_.has(data, 'permissions')){
+            const newPermissions = JSON.stringify(data.permissions);
+            if (campaign_user.permissions !== newPermissions){
+                campaign_user.permissions = newPermissions;
+                changed = true;
+            }
+        }
 
         if (changed){
             await models.campaign_user.update({user_id: (campaign_user.user_id as number), campaign_id:campaignId}, campaign_user);
@@ -267,6 +275,11 @@ async function postSave(id, data, campaignId){
                 campaign_user.name = data.campaign_user_name;
             }
         }
+
+        if (_.has(data, 'permissions')){
+            campaign_user.permissions = JSON.stringify(data.permissions);
+        }
+
         await models.campaign_user.create(campaign_user);
     }
 }

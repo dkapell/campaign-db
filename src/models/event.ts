@@ -1,11 +1,16 @@
 'use strict';
 
 import validator from 'validator';
+import _ from 'underscore';
 import Model from  '../lib/Model';
 import attendanceModel from './attendance';
+import surveyModel from './survey';
+import eventAddonModel from './event_addon';
 
 const models = {
-    attendance: attendanceModel
+    attendance: attendanceModel,
+    survey: surveyModel,
+    event_addon: eventAddonModel
 };
 
 const tableFields = [
@@ -20,14 +25,17 @@ const tableFields = [
     'location',
     'deleted',
     'created',
-    'hidden_fields',
     'hide_attendees',
+    'post_event_survey_deadline',
+    'pre_event_survey_id',
+    'post_event_survey_id',
 ];
 
 const Event = new Model('events', tableFields, {
     order: ['start_time'],
     validator: validate,
     postSelect: fill,
+    postSave: postSave,
     skipAuditFields: ['created', 'deleted']
 });
 
@@ -43,6 +51,16 @@ async function fill(record){
     record.attendees = record.attendees.sort(attendeeSorter);
 
     record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
+    if (record.pre_event_survey_id){
+        record.pre_event_survey = await models.survey.get(record.pre_event_survey_id);
+    }
+
+    if (record.post_event_survey_id){
+        record.post_event_survey = await models.survey.get(record.post_event_survey_id);
+    }
+
+    record.addons = await models.event_addon.find({campaign_id: record.campaign_id, event_id:record.id});
+
     return record;
 }
 
@@ -57,4 +75,35 @@ function attendeeSorter(a, b){
         return a.user.typeOrder - b.user.typeOrder;
     }
     return a.user.name.localeCompare(b.user.name);
+}
+
+
+async function postSave(id:number, data:ModelData):Promise<void>{
+    if (_.has(data, 'addons')){
+        const current = await models.event_addon.find({campaign_id: Number(data.campaign_id), event_id:id});
+        const updatedIds = [];
+        for (const addon of data.addons as ModelData[]){
+
+            addon.campaign_id = data.campaign_id;
+            addon.event_id = id;
+
+            if (addon.id === 'new' ){
+                await models.event_addon.create(addon);
+                continue;
+            }
+
+            if (!_.findWhere(current, {id:Number(addon.id)})){
+                throw new Error('Updating a missing addon');
+            }
+
+            await models.event_addon.update(Number(addon.id), addon);
+            updatedIds.push(Number(addon.id));
+        }
+
+        for (const addon of current){
+            if (_.indexOf(updatedIds, Number(addon.id)) === -1){
+                await models.event_addon.delete(Number(addon.id));
+            }
+        }
+    }
 }

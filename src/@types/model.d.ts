@@ -169,3 +169,9 @@ interface Provides {
     rules: SkillModel[]
 
 }
+
+interface AttendeeAddon {
+    id?: number
+    event_addon_id: number
+    paid?: boolean
+}

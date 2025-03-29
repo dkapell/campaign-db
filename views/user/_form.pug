@@ -45,6 +45,13 @@ if checkPermission('admin')
 
 .row.my-2
     .col-md
+        label.control-label(for="user_permissions") Extra Permissions
+        select.form-control.select2#user_type(name="user[permissions]" multiple)
+            for type in config.get('permissions')
+                option(value=type selected=_.indexOf(user.permissions, type) !==-1)= capitalize(type)
+
+.row.my-2
+    .col-md
         button.btn.btn-primary(type="submit")= user.id?'Update':'Create'
         a.btn.btn-link(href="/user") Cancel
 

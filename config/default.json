@@ -51,5 +51,9 @@
     },
     "images": {
         "thumbnailSize": 300
-    }
+    },
+    "permissions": [
+        "registration edit",
+        "registration view"
+    ]
 }

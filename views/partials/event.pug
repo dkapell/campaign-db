@@ -72,6 +72,13 @@ mixin eventListDisplay(events, showPast=false)
                                     href=`/event/${event.id}/edit`
                                 )
                                     i.fas.fa-edit.fa-fw
+                                a.btn.btn-outline-success.btn-xs.action-btn.me-1(
+                                    role="button",
+                                    title="Clone Event"
+                                    data-bs-toggle="tooltip"
+                                    href=`/event/new?clone=${event.id}`
+                                )
+                                    i.fas.fa-copy.fa-fw
                                 if checkPermission('admin')
                                     a.btn.btn-outline-danger.btn-xs.delete-btn(
                                         role="button",
@@ -187,32 +194,6 @@ mixin eventDate(start, end)
         }
     =dateStr
 
-mixin customEventField(field, currentValue)
-    - const fieldName = field.longname?field.longname:field.name
-    div.custom-event-field(data-fieldname=field.name data-fieldfor=field.fieldfor?field.fieldfor:'all')
-        case field.type
-            when 'text'
-
-                label.control-label(for=`attendance_data_${field.name}`)= fieldName
-                    if field.required
-                        span.ms-1.text-danger *
-                input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required data-isrequired=field.required)
-            when 'longtext'
-                 +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, 3, 100, currentValue, false, {required:field.required} )
-            when 'boolean'
-                .form-check.form-switch
-                    input.form-check-input(type="checkbox" id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` checked=currentValue)
-                    label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
-            when 'dropdown'
-                label.control-label(for=`attendance_data_${field.name}`)= fieldName
-                    if field.required
-                        span.ms-1.text-danger *
-                select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required)
-                    if field.placeholder
-                        option
-                    for item of field.options
-                        option(value=item selected=item===currentValue)= item
-
 mixin hourDisplay(hour)
     if hour === 0
         | 12 AM
@@ -222,5 +203,177 @@ mixin hourDisplay(hour)
         | #{hour} AM
     else
         | #{hour-12} PM
+
+mixin eventAddonsHeader()
+    .row.event_addon-header-row
+        .col-lg-6
+            label.control-label.event_addon-label Name
+        .col-lg-4
+            label.control-label.event_addon-label Cost
+        .col-lg-2.text-end
+            button.btn.btn-sm.btn-outline-success.add-event_addon-btn
+                i.fa.fa-plus.me-1
+                | Add Addon
+
+mixin eventAddon(addon, idx)
+    .event_addon-row.border-top.mt-2(id=`event_addon-${idx}`)
+        .row.my-2
+            input.event_addon-input(
+                type="hidden"
+                name=`event[addons][${idx}][id]`
+                value=addon.id
+                id=`event_addon_${idx}_id`
+                data-fieldtype='id'
+                )
+            .col-lg-6
+                input.form-control.event_addon-name.event_addon-input(
+                    type="text",placeholder="Name"
+                    name=`event[addons][${idx}][name]`
+                    value=addon.name
+                    id=`event_addon_${idx}_name`
+                    data-fieldtype='name'
+                    data-required="true"
+                )
+
+            .col-lg-4
+                .input-group
+                    .input-group-text $
+                    input.form-control.event_addon-input(
+                        id=`event_addon_${idx}_cost`
+                        placeholder="Dollars"
+                        name=`event[addons][${idx}][cost]`
+                        data-fieldtype='cost'
+                        data-required="true"
+                        value=addon.cost
+                        type='number'
+                    )
+                    .input-group-text .00
+
+
+            .col-lg-2.text-end.align-bottom
+                button.btn.btn-sm.btn-outline-danger.remove-event_addon-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Addon' data-placement="right")
+                    i.fas.fa-trash.fa-fw.me-1
+                    | Remove
+        .row.my-2
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][available_to_player]`
+                        checked=addon.available_to_player
+                        id=`event_addon_${idx}_available_to_player`
+                        data-fieldtype='available_to_player'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_available_to_player`
+                        data-fieldtype='available_to_player'
+                    )
+                        small Available for Players
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][available_to_staff]`
+                        checked=addon.available_to_staff
+                        id=`event_addon_${idx}available_to_staff`
+                        data-fieldtype='available_to_staff'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_available_to_staff`
+                        data-fieldtype='available_to_staff'
+                    )
+                        small Available for Staff
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][charge_player]`
+                        checked=addon.charge_player
+                        id=`event_addon_${idx}_charge_player`
+                        data-fieldtype='charge_player'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_charge_player`
+                        data-fieldtype='charge_player'
+                    )
+                        small Charge Players
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][charge_staff]`
+                        checked=addon.charge_staff
+                        id=`event_addon_${idx}_charge_staff`
+                        data-fieldtype='charge_staff'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_charge_staff`
+                        data-fieldtype='charge_staff'
+                    )
+                        small Charge Staff
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][on_checkin]`
+                        checked=addon.on_checkin
+                        id=`event_addon_${idx}_on_checkin`
+                        data-fieldtype='on_checkin'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_on_checkin`
+                        data-fieldtype='on_checkin'
+                    )
+                        small On Check-in Form
+
+mixin addonField(addon, attendance_addon, user)
+    - const showCost = (addon.charge_player && user.type === 'player') || (addon.charge_staff && user.type !== 'player') || !user
+    li.list-group-item.addon-row(
+        data-addon-id=addon.id
+        data-available_to_player=addon.available_to_player
+        data-available_to_staff=addon.available_to_staff
+        data-charge_player=addon.charge_player
+        data-charge_staff=addon.charge_staff
+    )
+        input(type='hidden' value=addon.id name=`attendance[addons][${addon.id}][addon_id]`)
+        input(type='hidden' value=attendance_addon.id name=`attendance[addons][${addon.id}][id]`)
+        if attendance_addon.paid
+            input(type='hidden' value='on' name=`attendance[addons][${addon.id}][selected]`)
+
+        input.form-check-input.me-1(
+            type="checkbox"
+            name=`attendance[addons][${addon.id}][selected]`
+            id=`attendance_addons_${addon.id}`
+            disabled=attendance_addon.paid?'true':null
+            checked=attendance_addon.id
+        )
+        label.form-check-label(for=`attendance_addons_${addon.id}`)
+            strong #{addon.name}
+
+            span.paid-cost.ms-2(style=showCost?'':'display:none')
+                | $#{addon.cost}
+        span.paid-badge.float-end(style=showCost?'':'display:none')
+            if (checkPermission('gm'))
+                span
+                    .form-check.form-switch
+                        input.form-check-input.me-1(
+                            type="checkbox"
+                            name=`attendance[addons][${addon.id}][paid]`
+                            id=`attendance_addons_${addon.id}_paid`
+                            checked=attendance_addon.paid
+                        )
+                        label.form-check-label(
+                            for=`attendance_addons_${addon.id}_paid`
+                        ) Paid
+            else
+                if attendance_addon.paid
+                    .badge.text-bg-success Paid
+                else
+                    .badge.text-bg-danger Unpaid
 
 

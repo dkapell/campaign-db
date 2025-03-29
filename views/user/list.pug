@@ -52,6 +52,9 @@ block content
                                 .badge.text-bg-success.ms-2 Site Admin
                         td= user.email
                         td= capitalize(user.type)
+                            if user.permissions.length
+                                i.fas.fa-plus.ms-1
+
                         if currentCampaign.display_cp
                             td
                                 if user.type === 'player'

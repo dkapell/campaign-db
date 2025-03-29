@@ -15,220 +15,264 @@ block content
                         a.btn.btn-outline-info.btn-sm.ms-4(href=`/event/${event.id}/edit?backto=event`)
                             span.fa.fa-edit.me-2
                             | Edit Event
+
+                    if checkPermission('contrib, registration view')
+                        a.btn.btn-outline-primary.btn-sm.ms-2(href=`/event/${event.id}/checkin`)
+                            span.fas.fa-clipboard-check.me-2
+                            | Event Check-in
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
 
             .card-body
 
+                ul.nav.nav-tabs.w-100.my-2#eventTabs(role="tablist")
+
+                    li.nav-item(role="presentation")
+                        a.nav-link.active#event-registration-tab(href="#event-registration" data-bs-toggle="tab" role="tab" aria-controls="event-registration" aria-selected="true") My Registration
+
+                    li.nav-item(role="presentation")
+                        a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
+
+                .tab-content#eventTabContent
+                    .tab-pane.fade.show.active#event-registration(role="tabpanel" aria-labelledby="event-registration-tab")
 
 
 
-                .row.mb-2
-                    .col-md
-                        .fs-5
-                            a(target='_blank' href=`https://www.google.com/maps/search/?api=1&query=${encodeURI(event.location)}`)
-                                i.fas.fa-map-marked-alt.me-1
-                                =event.location
-                    .col-md-4.text-md-end
-                        h4.d-inline.align-bottom
-                            if event.registration_open && new Date(event.end_time) > new Date()
-                                span.badge.text-bg-success Registration Open
-                            else
-                                span.badge.text-bg-danger Registration Closed
-
-
-                .row.my-2
-                    .col-md
-                        -
-                            const futureEvent = new Date(event.end_time) > new Date();
-                            const regOpen = event.registration_open && futureEvent;
-
-                        if !attendee || !attendee.attending
-                            -
-                                let text = 'Register as';
-                                if (activeUser.type === 'player'){
-                                    text += ' a Player';
-                                } else if (activeUser.type.match(/^(admin|core staff)/)){
-                                    text += ' Staff';
-                                } else {
-                                    text += ' an NPC';
-                                }
-                                if (!event.registration_open) {
-                                    text = 'Registration not Open';
-
-                                } else if (!futureEvent){
-                                    text = 'Event is in the Past'
-                                }
-
-                            a.btn.btn-outline-success.btn-sm.me-2(
-                                href=regOpen?`/event/${event.id}/register`:''
-                                disabled=!regOpen
-                                class=!regOpen?'disabled':''
-                                tab-index=!regOpen?'-1':''
-                                aria-disabled=regOpen?'false':'true'
-                            )
-                                span.fa.fa-calendar-check.me-2
-                                span.me-1= text
-
-                        if !attendee
-                            a.btn.btn-outline-secondary.btn-sm#not-attending-btn-show(
-                                url=regOpen?`/event/${event.id}/not_attending`:''
-                                disabled=!regOpen
-                                class=!regOpen?'disabled':''
-                                tab-index=!regOpen?'-1':''
-                                aria-disabled=regOpen?'false':'true'
-                                data-csrf=csrfToken
-                            )
-                                span.fa.fa-calendar-times.me-2
-                                span.me-1 Not Planning to Attend
-
-                        else if attendee
-                            if attendee.attending
-                                a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
-                                    span.fa.fa-edit.me-2
-                                    | Edit Registration
-                            if new Date(event.end_time) > new Date()
-                                if attendee.attending
-                                    a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
-                                        role="button"
-                                        url=`/event/${event.id}/register/${attendee.id}`
-                                        data-csrf=csrfToken
-                                    )
-                                        span.fa.fa-calendar-times.me-2
-                                        | Unregister
-
-                                else
-                                    a.btn.btn-outline-danger.btn-sm#event-clear-not-attending-btn(
-                                        role="button"
-                                        url=`/event/${event.id}/register/${attendee.id}`
-                                        data-csrf=csrfToken
-                                    )
-                                        span.fa.fa-calendar-times.me-2
-                                        | Clear Not Attending
-
-                    if activeUser.type.match(/^(player|admin|core staff)$/)
-                        .col-md-3.text-md-center
-                            span.fs-5
-                                span.me-1 Cost:
-                                if event.cost
-                                    | $#{event.cost}
-                                else
-                                    | Free
-
-                    .col-lg-4.text-lg-end
-
-                        .fs-5.d-inline.my-0
-                            if attendee
-                                if attendee.attending
-                                    if activeUser.type === 'player'
-                                        span.me-2= attendee.character.name
-                                        if attendee.paid
-                                            span.badge.text-bg-success Paid
-                                        else if event.cost
-                                            span.badge.text-bg-warning Unpaid
-                                        else
-                                            span.badge.text-bg-success Registered
+                        .row.mb-2
+                            .col-md
+                                .fs-5
+                                    a(target='_blank' href=`https://www.google.com/maps/search/?api=1&query=${encodeURI(event.location)}`)
+                                        i.fas.fa-map-marked-alt.me-1
+                                        =event.location
+                            .col-md-4.text-md-end
+                                h4.d-inline.align-bottom
+                                    if event.registration_open && new Date(event.end_time) > new Date()
+                                        span.badge.text-bg-success Registration Open
                                     else
-                                        span.badge.text-bg-success Registered
-                                else
-                                    span.badge.text-bg-secondary Not Attending
-                            else
-                                span.badge.text-bg-danger Unregistered
-
-                each customField in currentCampaign.event_fields
-                    if attendee && _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                        +attendeeCustomFieldDisplay(customField, attendee.data[customField.name])
-
-                if attendee && attendee.notes
-                    +attendeeCustomFieldDisplay({name:'Notes', type:'longtext'}, attendee.notes)
+                                        span.badge.text-bg-danger Registration Closed
 
 
+                        .row.my-2
+                            .col-md
+                                -
+                                    const futureEvent = new Date(event.end_time) > new Date();
+                                    const regOpen = event.registration_open && futureEvent;
 
-                if event.description
-                    .row.my-2
-                        .col
-                            .card
-                                .card-body!=marked.parseInline(event.description, {breaks: true})
+                                if !attendee || !attendee.attending
+                                    -
+                                        let text = 'Register as';
+                                        if (activeUser.type === 'player'){
+                                            text += ' a Player';
+                                        } else if (activeUser.type.match(/^(admin|core staff)/)){
+                                            text += ' Staff';
+                                        } else {
+                                            text += ' an NPC';
+                                        }
+                                        if (!event.registration_open) {
+                                            text = 'Registration not Open';
+
+                                        } else if (!futureEvent){
+                                            text = 'Event is in the Past'
+                                        }
+
+                                    a.btn.btn-outline-success.btn-sm.me-2(
+                                        href=regOpen?`/event/${event.id}/register`:''
+                                        disabled=!regOpen
+                                        class=!regOpen?'disabled':''
+                                        tab-index=!regOpen?'-1':''
+                                        aria-disabled=regOpen?'false':'true'
+                                    )
+                                        span.fa.fa-calendar-check.me-2
+                                        span.me-1= text
+
+                                if !attendee
+                                    a.btn.btn-outline-secondary.btn-sm#not-attending-btn-show(
+                                        url=regOpen?`/event/${event.id}/not_attending`:''
+                                        disabled=!regOpen
+                                        class=!regOpen?'disabled':''
+                                        tab-index=!regOpen?'-1':''
+                                        aria-disabled=regOpen?'false':'true'
+                                        data-csrf=csrfToken
+                                    )
+                                        span.fa.fa-calendar-times.me-2
+                                        span.me-1 Not Planning to Attend
+
+                                else if attendee
+                                    if attendee.attending
+                                        a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
+                                            span.fa.fa-edit.me-2
+                                            | Edit Registration
+                                    if new Date(event.end_time) > new Date()
+                                        if attendee.attending
+                                            a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
+                                                role="button"
+                                                url=`/event/${event.id}/register/${attendee.id}`
+                                                data-csrf=csrfToken
+                                            )
+                                                span.fa.fa-calendar-times.me-2
+                                                | Unregister
+
+                                        else
+                                            a.btn.btn-outline-danger.btn-sm#event-clear-not-attending-btn(
+                                                role="button"
+                                                url=`/event/${event.id}/register/${attendee.id}`
+                                                data-csrf=csrfToken
+                                            )
+                                                span.fa.fa-calendar-times.me-2
+                                                | Clear Not Attending
+
+                            if activeUser.type.match(/^(player|admin|core staff)$/)
+                                .col-md-3.text-md-center
+                                    span.fs-5
+                                        span.me-1 Cost:
+                                        if event.cost
+                                            | $#{event.cost}
+                                        else
+                                            | Free
+
+                            .col-lg-4.text-lg-end
+
+                                .fs-5.d-inline.my-0
+                                    if attendee
+                                        if attendee.attending
+                                            if activeUser.type === 'player'
+                                                span.me-2= attendee.character.name
+                                                if attendee.paid
+                                                    span.badge.text-bg-success Paid
+                                                else if event.cost
+                                                    span.badge.text-bg-warning Unpaid
+                                                else
+                                                    span.badge.text-bg-success Registered
+                                            else
+                                                span.badge.text-bg-success Registered
+                                        else
+                                            span.badge.text-bg-secondary Not Attending
+                                    else
+                                        span.badge.text-bg-danger Unregistered
+
+                        if attendee
+                            .row.my-2
+
+
+                                if attendee.addons.length
+                                    .col-lg.order-lg-2
+                                        h4 Addons
+
+                                        ul.list-group
+                                            each addon of attendee.addons
+                                                - const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+                                                li.list-group-item
+                                                    strong #{event_addon.name}
+                                                    if event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'
+
+                                                        if addon.paid
+                                                            .badge.text-bg-success.float-end Paid
+                                                        else
+                                                            .badge.text-bg-warning.float-end Unpaid
+                                                        span.me-2.float-end $#{event_addon.cost}
+
+                                .col-lg
+                                    if event.pre_event_survey
+                                        .row.my-2
+                                            .col
+                                                h4 Registration Questions
+                                                each customField in event.pre_event_survey.definition
+                                                    if attendee && _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                                                        +attendeeCustomFieldDisplay(customField, attendee.data[customField.name])
+
+                                    if attendee.notes
+                                        .row.my-2
+                                            .col
+                                                +attendeeCustomFieldDisplay({name:'Notes', type:'longtext'}, attendee.notes)
+
+
+                        if event.description
+                            .row.my-2
+                                .col
+                                    .card
+                                        .card-body!=marked.parseInline(event.description, {breaks: true})
 
 
 
-                if checkPermission('contrib') || !event.hide_attendees
-                    .row.my-2
-                        .col
-                            if checkPermission('contrib') && event.hide_attendees
-                                .fs-5.d-inline.float-end
-                                    span.badge.text-bg-danger Staff-only Attendee List
+                    .tab-pane.fade#event-attendees(role="tabpanel" aria-labelledby="event-attendees-tab")
 
-                            h3.d-inline.mt-3 Attendees
-                            if checkPermission('gm')
-                                a.btn.btn-outline-success.btn-sm.ms-2(href=`/event/${event.id}/register`)
-                                    span.fa.fa-calendar-check.me-2
-                                    | Create Registration
-                            if checkPermission('contrib')
-                                .btn-group.ms-2
-                                    a.btn.btn-outline-info.btn-sm(role="button" href=`/event/${event.id}/pdf`)
-                                        i.fas.fa-file-alt
-                                        |  Download PDFs
+                        if checkPermission('contrib') || !event.hide_attendees
+                            .row.my-2.mt-4
+                                .col
+                                    if checkPermission('contrib') && event.hide_attendees
+                                        .fs-5.d-inline.float-end
+                                            span.badge.text-bg-danger Staff-only Attendee List
 
-                                    a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
-                                        .visually-hidden Toggle Dropdown
-                                    ul.dropdown-menu.py-1
-                                        li
-                                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
-                                                i.fas.fa-file
-                                                |  With Game Rules
-                                        li
-                                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
-                                                i.fas.fa-file
-                                                |  With Skill Descriptions
-                    .row.my-2
-                        .col
-                            if checkPermission('contrib')
-                                ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
+                                    h4.d-inline.mt-3 Attendees
+                                    if checkPermission('gm')
+                                        a.btn.btn-outline-success.btn-sm.ms-2(href=`/event/${event.id}/register`)
+                                            span.fa.fa-calendar-check.me-2
+                                            | Create Registration
+                                    if checkPermission('contrib')
+                                        .btn-group.ms-2
+                                            a.btn.btn-outline-info.btn-sm(role="button" href=`/event/${event.id}/pdf`)
+                                                i.fas.fa-file-alt
+                                                |  Download PDFs
 
-                                    li.nav-item(role="presentation")
-                                        a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
+                                            a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                                                .visually-hidden Toggle Dropdown
+                                            ul.dropdown-menu.py-1
+                                                li
+                                                    a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
+                                                        i.fas.fa-file
+                                                        |  With Game Rules
+                                                li
+                                                    a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
+                                                        i.fas.fa-file
+                                                        |  With Skill Descriptions
+                            .row.my-2
+                                .col
+                                    if checkPermission('contrib') || checkPermission('registration view')
+                                        ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
 
-                                    li.nav-item(role="presentation")
-                                        a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
+                                            li.nav-item(role="presentation")
+                                                a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
 
-                                    li.nav-item(role="presentation")
-                                        a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
+                                            li.nav-item(role="presentation")
+                                                a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
 
-                                    li.nav-item(role="presentation")
-                                        a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
+                                            li.nav-item(role="presentation")
+                                                a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
 
-
-
-                                .tab-content#eventTabContent
-                                    .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
-                                        - const players = event.players.filter(player => {return player.attending});
-                                        +attendeeListDisplay(players, 'player')
+                                            li.nav-item(role="presentation")
+                                                a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
 
 
-                                    .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
-                                        - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
-                                        +attendeeListDisplay(staff)
-                                    .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
-                                        - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
-                                        +attendeeListDisplay(nonAttending, 'not attending')
 
-                                    .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
-                                        -
-                                            const noResponse = users.filter(user => {
-                                                return !_.findWhere(event.attendees, {user_id: user.id});
-                                            }).map(user => {
-                                                return {
-                                                    user_id: user.id,
-                                                    user: user
-                                                };
-                                            });
+                                        .tab-content#eventTabContent
+                                            .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
+                                                - const players = event.players.filter(player => {return player.attending});
+                                                +attendeeListDisplay(players, 'player')
 
-                                        +attendeeListDisplay(noResponse, 'no response')
-                            else
-                                - const attendees = event.attendees.filter(attendee => { return attendee.attending });
-                                +attendeeListDisplay(attendees)
+
+                                            .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
+                                                - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
+                                                +attendeeListDisplay(staff)
+                                            .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
+                                                - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
+                                                +attendeeListDisplay(nonAttending, 'not attending')
+
+                                            .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
+                                                -
+                                                    const noResponse = users.filter(user => {
+                                                        return !_.findWhere(event.attendees, {user_id: user.id});
+                                                    }).map(user => {
+                                                        return {
+                                                            user_id: user.id,
+                                                            user: user
+                                                        };
+                                                    });
+
+                                                +attendeeListDisplay(noResponse, 'no response')
+                                    else
+                                        - const attendees = event.attendees.filter(attendee => { return attendee.attending });
+                                        +attendeeListDisplay(attendees)
 
 
 append scripts

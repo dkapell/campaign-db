@@ -29,7 +29,6 @@ async function copyImageMarkdown(e){
     const url = $this.data('url');
     const name = $this.data('name');
     const string = `![${name}](${url})`;
-    console.log(string);
     try{
         await navigator.clipboard.writeText(string);
     } catch(err){

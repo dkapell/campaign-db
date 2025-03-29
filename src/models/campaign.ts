@@ -45,9 +45,10 @@ const tableFields = [
     'cp_approval',
     'event_default_cost',
     'event_default_location',
-    'event_fields',
     'timezone',
-    'user_type_map'
+    'user_type_map',
+    'post_event_survey_cp',
+    'post_event_survey_hide_days'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

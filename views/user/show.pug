@@ -15,6 +15,9 @@ block content
 
     h3.float-end
         span.badge.text-bg-info=user.type
+            if user.permissions.length
+                i.fas.fa-plus.ms-1
+
     
     .row.my-2
         .col
@@ -60,6 +63,14 @@ block content
             .col
                 h3 Notes
                 != marked.parse(user.notes)
+
+    if user.permissions.length
+        .row.my-2
+            .col
+                h3 Permissions
+                ul.list-unstyled
+                    each permission of user.permissions
+                        li= capitalize(permission)
 
     .row.my-2
         .col

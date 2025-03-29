@@ -52,25 +52,50 @@
     .col
          +markdownEditor('Event Description', 'event_description', 'event[description]', 3, 150, event.description, true )
 
-if currentCampaign.event_fields.length
-    .row.my-2
-        .col
-            .card.mt-2
-                .card-header#event_hidden_fields-header(data-bs-toggle="collapse" data-bs-target="#event_hidden_fields-container" aria-expanded="false" aria-controls="event_hidden_fields-container") Custom Fields
-                    i.expand-text-shown.ms-4 (click to hide)
-                    i.expand-text.ms-4 (click to show)
-                    span.float-end.ps-2
-                        i.fa.fa-chevron-up
-                        i.fa.fa-chevron-down
-                #event_hidden_fields-container.collapse.card-body(aria-labeledby="event_hidden_fields-header")
+
+.row.my-2
+    .col
+        label.control-label(for="event_pre_event_survey_id") Registration Survey
+        select.form-select.select2#event_pre_event_survey_id(name="event[pre_event_survey_id]" data-placeholder='Registration Survey')
+            option
+            for survey in surveys.pre
+                option(value=survey.id selected=event.pre_event_survey_id===survey.id || (!event.pre_event_survey_id && survey.is_default))=survey.name
+                    if survey.is_default
+                        |  ( Default )
+
+.row.my-2
+    .col-md-8
+        label.control-label(for="event_post_event_survey_id") Post-Event Survey
+        select.form-select.select2#event_post_event_survey_id(name="event[post_event_survey_id]" data-placeholder='Post Event Survey')
+            option
+            for survey in surveys.post
+                option(value=survey.id selected=event.pre_event_survey_id===survey.id || (!event.post_event_survey_id && survey.is_default))=survey.name
+                    if survey.is_default
+                        |  ( Default )
+
+    .col-md-4
+        label.control-label(for="event_post_event_survey_deadline") Post-event Survey Deadline
+        .input-group#event_post_event_survey_deadline
+            input.form-control#event_post_event_survey_deadline_date(type="text" placeholder="Date" name="event[post_event_survey_deadline_date]" value=event.post_event_survey_deadline_date)
+            select.select2#event_post_event_survey_deadline_hour(name="event[post_event_survey_deadline_hour]" data-placeholder="Hour")
+                option
+                for hour in _.range(0, 24)
+                    option(value=hour selected=Number(event.post_event_survey_deadline_hour)===hour)
+                        +hourDisplay(hour)
+
+.row.my-2
+    .col
+
+        legend.control-label Event Addons
+        #event_addons-list
+            +eventAddonsHeader()
+            - let idx = 0;
+            for addon in event.addons
+                +eventAddon(addon, idx)
+                - idx++;
+            +eventAddon({id: 'new'}, 'new')
 
 
-                    each field in currentCampaign.event_fields
-                        .row.my-1
-                            .col
-                                .form-check.form-switch
-                                    input.form-check-input(id=`event_hidden_field-${field.name.replace(/\s+/, '_')}` type="checkbox" name=`event[hidden_fields][${field.name}]` checked=_.indexOf(event.hidden_fields, field.name) === -1)
-                                    label.form-check-label(for=`event_hidden_field-${field.name.replace(/\s+/, '_')}`)= field.name
 .row.my-2
     .col
 

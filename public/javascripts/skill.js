@@ -907,7 +907,7 @@ function addProvides(e){
         const objtype = $input.data('objtype');
         $input.attr('id', `${objtype}_provides-new-${id}-${fieldtype}`);
         $input.attr('name', `${objtype}[provides][new-${id}][${fieldtype}]`);
-        if ($this.data('required')){
+        if ($input.data('required')){
             $input.attr('required', true);
         }
     });

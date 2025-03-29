@@ -51,7 +51,6 @@ function showNew(req, res){
         cp_approval: true,
         event_default_cost: 0,
         event_default_location: null,
-        event_fields: [],
         timezone: 'America/New_York',
         user_type_map: {
             'admin': { name: 'core staff', order: 0 },
@@ -168,9 +167,6 @@ async function update(req, res){
     }
     if (!req.campaign.default_site){
         delete campaign.default_site;
-    }
-    if (campaign.event_fields === null || campaign.event_fields === ''){
-        campaign.event_fields = JSON.stringify([]);
     }
 
     try {

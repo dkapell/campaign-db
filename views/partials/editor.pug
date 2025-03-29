@@ -7,6 +7,11 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
         small.form-text.text-muted.d-inline.ms-2 Supports
             a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                 i.fas.fa-external-link-alt.ms-1
+        if options.maxlength
+            .float-end
+                span.length-indicator
+                    span.me-1(id=`${id}-length`)= contents?contents.length:0
+                    | of #{options.maxlength}
         textarea.form-control.markdown-editor(
             id= id
             rows= rows
@@ -16,6 +21,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
             required=options.required
             data-isrequired=options.required
             disabled=options.disabled
+            maxlength=options.maxlength
         )
             = contents
     else
@@ -57,6 +63,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                     data-previewUrl=options.previewUrl
                     required=options.required
                     disabled=options.disabled
+                    maxlength=options.maxlength
                 )
                     = contents
                 small.form-text.text-muted

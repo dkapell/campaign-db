@@ -182,14 +182,10 @@ function skillDescriptionsSwitch(e){
 }
 
 function gameRulesSwitch(e){
-    console.log('here');
     if ($(this).prop('checked')){
-        console.log('checked');
         localStorage.setItem('cdb-skill-show-game-rules', true);
         $('#gameRuleList').show();
     } else {
-        console.log('unchecked');
-
         localStorage.removeItem('cdb-skill-show-game-rules');
         $('#gameRuleList').hide();
     }

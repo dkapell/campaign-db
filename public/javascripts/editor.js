@@ -4,6 +4,26 @@ function renderMarkdownEditor(id, size, showPreview, previewUrl){
     const $textarea = $('#' + id);
     $textarea.height(size);
 
+    if ($textarea.attr('maxlength')){
+        $textarea.on('input', function(e){
+            const len = $textarea.val().length;
+            const $lengthSpan = $(`#${id}-length`);
+            const $indicator = $lengthSpan.closest('.length-indicator');
+            $lengthSpan.html(len);
+            if (len >= $textarea.attr('maxlength')){
+                $indicator.addClass('text-danger');
+                $indicator.removeClass('text-warning');
+            } else if (len >= $textarea.attr('maxlength') * 0.8){
+                $indicator.addClass('text-warning');
+                $indicator.removeClass('text-danger');
+            } else {
+                $indicator.removeClass('text-danger');
+                $indicator.removeClass('text-warning');
+
+            }
+        });
+    }
+
     if (showPreview){
         $(`#${id}-edit-tabs a[data-bs-toggle="tab"]`).on('shown.bs.tab', async function(e) {
             if ($(e.target).attr('aria-controls') === `${id}-preview`){

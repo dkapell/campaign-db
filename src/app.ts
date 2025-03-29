@@ -56,6 +56,7 @@ import reportRouter from './routes/report';
 
 import pageRouter from './routes/page';
 
+import surveyRouter from './routes/survey';
 import eventRouter from './routes/event';
 
 const app = express();
@@ -296,7 +297,8 @@ app.use('/image', imageRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);
-app.use('/event', eventRouter)
+app.use('/event', eventRouter);
+app.use('/survey', surveyRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

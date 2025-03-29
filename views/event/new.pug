@@ -5,9 +5,13 @@ include ../partials/event
 
 block content
     .row
-        .col-sm-10.offset-sm-1
+        .col-lg-10.offset-lg-1
             .card
-                .card-header New Event
+                .card-header
+                    if clone
+                        | Clone Event - #{clone}
+                    else
+                        | New Event
                 .card-body
                     form.form.needs-validation#eventForm(method="POST" action="/event" novalidate)
                         input(type="hidden", name='_csrf',value=csrfToken)

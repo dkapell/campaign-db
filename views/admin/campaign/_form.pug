@@ -244,65 +244,21 @@ fieldset.mb-2.border.p-2.rounded
                     option
                     for timezone in moment.tz.names()
                         option(value=timezone, selected=campaign.timezone===timezone)= timezone
-
         .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_post_event_survey_cp") Post Event Survey CP
             .col
-                label.control-label.w-100#event_fields-heading(for="campaign_event_fields", data-bs-toggle="collapse" data-bs-target="#event_fields-container" aria-expanded="false" aria-controls="event_fields-container") Custom Event Fields
-                    i.expand-text-shown.ms-4 (click to hide editor)
-                    i.expand-text.ms-4 (click to show editor)
-                    span.float-end.ps-2
-                        i.fa.fa-chevron-up
-                        i.fa.fa-chevron-down
+                input.form-control#campaign_event_default_location(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campaign_post_event_survey_hide_days")
+                    | Hide Post Event Survey Results from Staff
+            .col
+                .input-group
+                    input.form-control#campaign_event_default_location(placeholder="Days",name="campaign[post_event_survey_hide_days]",value=campaign.post_event_survey_hide_days type='number' max=14, min=0)
+                    .input-group-text Days
 
-                #event_fields-container.collapse(aria-labeledby="event_fields-heading")
-                    ul.nav.nav-tabs.editor-tabs(id="campaign_event_fields-edit-tabs" role="tablist")
-                        li.nav-item(role="presentation")
-                            a.nav-link.active(
-                                id='campaign_event_fields-code-tab'
-                                data-bs-toggle="tab"
-                                href="#campaign_event_fields-code"
-                                role="tab"
-                                aria-controls="campaign_event_fields-code"
-                                aria-selected="true"
-                            ) Event Fields
-                        li.nav-item(role="presentation")
-                            a.nav-link(
-                                id="campaign_event_fields-help-tab"
-                                data-bs-toggle="tab"
-                                href="#campaign_event_fields-help"
-                                role="tab"
-                                aria-controls="campaign_event_fields-help"
-                                aria-selected="false"
-                            ) Help
 
-                    .tab-content.pb-2(id="campaign_event_fields-editor")
-                        .tab-pane.fade.show.active(
-                            id="campaign_event_fields-code"
-                            role="tabpanel"
-                            aria-labelledby="campaign_event_fields-code-tab"
-                        )
-                            +jsonEditor('campaign_event_fields', 'campaign[event_fields]', 5, 200, campaign.event_fields)
-
-                        .tab-pane.fade(
-                            id="campaign_event_fields-help"
-                            role="tabpanel"
-                            aria-labelledby="campaign_event_fields-help-tab"
-                        )
-                            .card.mt-3
-                                .card-header  Example
-                                #event_fields_example-container.card-body.text-bg-light
-                                    pre.my-0.
-                                        [
-                                            {
-                                                "name": "Field Name",
-                                                "type": "text", "longtext", "boolean", "dropdown"
-                                                "icon": "icon name from FontAwesome (optional)",
-                                                "required": true or false,
-                                                "fieldfor": "all", "player", "staff",
-                                                "options": ["list", "of", "options", "for dropdown"]
-                                                "placeholder": "Placeholder for dropdown"
-                                            }
-                                        ]
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication Options
         span.float-end.ps-2

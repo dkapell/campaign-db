@@ -15,6 +15,9 @@ if checkPermission('gm')
                         data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                         data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                     ) #{capitalize(user.name)} (#{type})
+else if checkPermission('registration edit')
+    input#attendance_user_id(type="hidden" value=attendance.user.type)
+
 
 #characterPicker(style=attendance.user.type==='player'?'':'display:none')
     .row.my-2
@@ -36,29 +39,47 @@ if checkPermission('gm') && attendance.user.type === 'player'
             .form-check.form-switch
                 input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid)
                 label.form-check-label(for="attendance_paid") Paid
-each customEventField in currentCampaign.event_fields
-    if (_.indexOf(event.hidden_fields, customEventField.name) === -1)
-        if checkPermission('gm')
-           .row.my-2
-                .col
-                    +customEventField(customEventField, attendance.data[customEventField.name])
-        else
-            case customEventField.fieldfor
-                when 'staff'
-                    if checkPermission('event')
-                        .row.my-2
-                            .col
-                                +customEventField(customEventField, attendance.data[customEventField.name])
 
-                when 'player'
-                    if (checkPermission('player') && !checkPermission('event'))
+if event.addons
+    .row.my-2
+        .col
+            legend Event Addons
+            ul.list-group
+                each addon in event.addons
+                    - const attendance_addon = _.findWhere(attendance.addons, {event_addon_id: addon.id}) || {}
+                    if checkPermission('gm')
+                        +addonField(addon, attendance_addon, {})
+                    else if addon.available_to_player && checkPermission('player') && !checkPermission('event')
+                        +addonField(addon, attendance_addon, attendance.user)
+                    else if addon.available_to_staff && checkPermission('event')
+                        +addonField(addon, attendance_addon, attendance.user)
+
+
+if event.pre_event_survey
+    each customSurveyField in event.pre_event_survey.definition
+        if (_.indexOf(event.hidden_fields, customSurveyField.name) === -1)
+            if checkPermission('gm, registration edit')
+               .row.my-2
+                    .col
+                        +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], true)
+            else
+                - const canEditStaffFields = checkPermission('gm, registration edit');
+                case customSurveyField.visible_to
+                    when 'staff'
+                        if checkPermission('event')
+                            .row.my-2
+                                .col
+                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
+
+                    when 'player'
+                        if (checkPermission('player') && !checkPermission('event'))
+                            .row.my-2
+                                .col
+                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
+                    default
                         .row.my-2
-                            .col
-                                +customEventField(customEventField, attendance.data[customEventField.name])
-                default
-                    .row.my-2
-                            .col
-                                +customEventField(customEventField, attendance.data[customEventField.name])
+                                .col
+                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
 
 .row.my-2
     .col

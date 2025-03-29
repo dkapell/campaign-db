@@ -50,13 +50,15 @@ create table campaigns (
     cp_approval boolean default true,
     event_default_cost int,
     event_default_location varchar(255),
-    event_fields jsonb,
+    post_event_survey_cp float,
+    post_event_survey_hide_days int,
     timezone varchar(80) default ('America/New_York'),
     user_type_map jsonb,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE SET NULL
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+
 );
 
 create index campaigns_site_idx ON campaigns (site);
@@ -69,6 +71,7 @@ create table campaigns_users(
     staff_drive_folder varchar(255),
     notes              text,
     type                user_type not null default 'none',
+    permissions         jsonb default [],
     created             timestamp with time zone DEFAULT now(),
     primary key(user_id, campaign_id),
     CONSTRAINT campaigns_users_user_fk FOREIGN KEY (user_id)
@@ -543,6 +546,26 @@ create table cp_grant (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type survey_type as ENUM(
+    'registration',
+    'post event',
+    'other'
+);
+
+create table surveys (
+    id serial,
+    campaign_id int not null,
+    name varchar(255) not null,
+    type survey_type not null,
+    default boolean default false,
+    definition jsonb,
+    created timestamp with time zone DEFAULT now(),
+    primary key (id),
+    CONSTRAINT survey_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 create table events (
     id serial,
     campaign_id int not null,
@@ -555,11 +578,38 @@ create table events (
     location varchar(255),
     deleted boolean default false,
     created timestamp with time zone DEFAULT now(),
+    pre_event_survey_id int,
+    post_event_survey_id int,
     hidden_fields jsonb,
     hide_attendees boolean default false,
+    post_event_survey_deadline timestamp with time zone,
     primary key (id),
     CONSTRAINT events_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+
+    CONSTRAINT events_pre_event_survey_fk FOREIGN KEY (event_registration_survey_id)
+        REFERENCES "surveys" (id ) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT events_post_event_survey_fk FOREIGN KEY (post_event_survey_id)
+        REFERENCES "surveys" (id ) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+);
+
+create table event_addons (
+    id serial,
+    campaign_id int not null,
+    event_id int not null,
+    name varchar(255),
+    cost int default 0,
+    available_to_player boolean not null default true,
+    available_to_staff boolean not null default true,
+    charge_player boolean not null default true,
+    charge_staff boolean not null default false,
+    on_checkin boolean not null default false,
+    primary key (id),
+    CONSTRAINT event_addons_event_fk FOREIGN KEY (event_id)
+        REFERENCES "events" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
@@ -572,7 +622,10 @@ create table attendance (
     paid boolean default false,
     notes text,
     data jsonb,
+    post_event_data jsonb,
+    post_event_submitted boolean default false,
     attending boolean default true,
+    checked_in boolean default false,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     unique(event_id, user_id),
@@ -586,3 +639,15 @@ create table attendance (
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+create table attendance_addons (
+    id serial,
+    campaign_id int not null,
+    attendance_id int not null,
+    paid boolean default false,
+    primary key (id),
+    CONSTRAINT attendance_addons_attendance_fk FOREIGN KEY (attendance_id)
+        REFERENCES "attendance" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+

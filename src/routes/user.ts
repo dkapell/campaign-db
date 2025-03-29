@@ -87,7 +87,8 @@ function showNew(req, res){
         email: null,
         type: 'none',
         drive_folder: null,
-        staff_drive_folder: null
+        staff_drive_folder: null,
+        permissions: []
     };
     res.locals.breadcrumbs = {
         path: [
@@ -141,6 +142,12 @@ async function create(req, res){
     req.session.userData = user;
 
     try{
+        if (!user.permissions){
+            user.permissions = [];
+        } else if(!_.isArray(user.permissions)){
+            user.permissions = [user.permissions];
+        }
+
         await req.models.user.findOrCreate(req.campaign.id, user, true);
         delete req.session.userData;
         req.flash('success', 'Created User ' + user.name);
@@ -164,6 +171,12 @@ async function update(req, res){
             delete user.name;
             delete user.email;
             delete user.type;
+        }
+
+        if (!user.permissions){
+            user.permissions = [];
+        } else if(!_.isArray(user.permissions)){
+            user.permissions = [user.permissions];
         }
 
         await req.models.user.update(req.campaign.id, id, user);

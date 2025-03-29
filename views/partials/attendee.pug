@@ -7,7 +7,7 @@ mixin attendeeListDisplay(attendees, type='staff')
 
 
 mixin attendeeList(attendees, type)
-    if checkPermission('contrib')
+    if checkPermission('contrib, registration view')
         .row
             .col
                 button.btn.btn-sm.btn-outline-info.my-2#attendee-export-btn(
@@ -24,7 +24,7 @@ mixin attendeeListItem(attendee, type)
     li.list-group-item.py-2
         .row
             .col
-                if checkPermission('contrib')
+                if checkPermission('contrib, registration view')
                     a(href=`/user/${attendee.user.id}`)
                         i.fas.fa-user.me-1
                         = attendee.user.name
@@ -35,14 +35,16 @@ mixin attendeeListItem(attendee, type)
                     span.badge.text-bg-info.ms-2(class=!checkPermission('contrib')?'float-end':'')
                         =capitalize(attendee.user.typeForDisplay)
 
-                if checkPermission('contrib') && attendee.user.type === 'player' && event.cost
+                if checkPermission('contrib, registration view') && attendee.user.type === 'player' && event.cost
                     .float-end
                         if attendee.paid
-                            span.badge.text-bg-success Paid
+                            span.badge.text-bg-success.me-1 Paid
                         else
-                            span.badge.text-bg-danger Unpaid
-            if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
+                            span.badge.text-bg-danger.me-1 Unpaid
+
+            if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
                 .col.text-end
+                    +showAddons(attendee, type)
                     if attendee.notes
                         a.btn.btn-outline-info.btn-xs.me-1.action-btn(
                             tabindex="0"
@@ -53,11 +55,12 @@ mixin attendeeListItem(attendee, type)
                             title="Notes"
                         )
                             i.fas.fa-sticky-note.fa-fw
-                    each customField in currentCampaign.event_fields
-                        if _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                            +attendeeCustomField(customField, attendee.data[customField.name])
+                    if event.pre_event_survey
+                        each customField in event.pre_event_survey.definition
+                            if _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                                +attendeeCustomField(customField, attendee.data[customField.name])
 
-            if checkPermission('gm') && !(type === 'not attending' || type === 'no response')
+            if checkPermission('gm, registration edit') && !(type === 'not attending' || type === 'no response')
                 .col-3.text-end
                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                         role="button",
@@ -70,12 +73,17 @@ mixin attendeeListItem(attendee, type)
                         span.ms-1.d-none.d-md-inline Registration
 
 
-        if checkPermission('contrib') && type === 'player' && attendee.character
+        if checkPermission('contrib, registration view') && type === 'player' && attendee.character
             .row
                 .col
-                    a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                    if checkPermission('contrib')
+                        a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                            i.far.fa-user.me-1
+                            = attendee.character.name
+                    else
                         i.far.fa-user.me-1
                         = attendee.character.name
+
                     if attendee.character.pronouns
                         span.ms-2 (#{attendee.character.pronouns})
                     if attendee.character.active
@@ -83,28 +91,32 @@ mixin attendeeListItem(attendee, type)
             
             
 mixin attendeeTable(attendees, type)
+    - const twoHoursBeforeEventStart = (new Date(event.start_time)).valueOf() - (60*60*2*1000)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
         table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
             style="display: none"
-            class=checkPermission('contrib')?'table-exportable':''
+            class=checkPermission('contrib, registration view')?'table-exportable':''
             data-export=`/event/${event.id}/export?type=${type}`
             )
             thead
                 tr
                     th
                     th Attendee
-                    if checkPermission('contrib') && type === 'player'
+                    if checkPermission('contrib, registration view') && type === 'player'
                         if event.cost
                             th Paid
                         th Character
                     else
                         th Type
-                    if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
+                    if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
                         th Details
-                    if checkPermission('gm') && type !== 'no response'
+                        if twoHoursBeforeEventStart < Date.now()
+
+                            th Checked In
+                    if checkPermission('gm, registration edit') && type !== 'no response'
                         th
             tbody
                 each attendee in attendees
@@ -118,23 +130,32 @@ mixin attendeeTable(attendees, type)
                             else
                                 i.fas.fa-user.me-1
                                 = attendee.user.name
-                        if checkPermission('contrib') && type === 'player'
+                        if checkPermission('contrib, registration view') && type === 'player'
                             if event.cost
                                 td
                                     if attendee.paid
-                                        span.badge.text-bg-success Yes
+                                        span.badge.text-bg-success.me-1 Yes
                                     else
-                                        span.badge.text-bg-danger No
+                                        span.badge.text-bg-danger.me-1 No
+
+                                    +showAddons(attendee, 'player')
 
                             td
                                 if attendee.character
-                                     a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                                    if checkPermission('contrib')
+                                        a(href=`/character/${attendee.character.id}` style='font-size: 1rem')
+                                            i.far.fa-user.me-1
+                                            = attendee.character.name
+                                    else
                                         i.far.fa-user.me-1
                                         = attendee.character.name
                         else
                             td(sort-order=attendee.user.typeOrder)= capitalize(attendee.user.typeForDisplay)
-                        if checkPermission('contrib') && !(type === 'not attending' || type === 'no response')
+                        if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
                             td
+                                if type === 'staff'
+                                    +showAddons(attendee, 'staff')
+
                                 if attendee.notes
                                     a.btn.btn-outline-info.btn-xs.me-1.action-btn(
                                         tabindex="0"
@@ -145,12 +166,20 @@ mixin attendeeTable(attendees, type)
                                         title="Notes"
                                     )
                                         i.fas.fa-sticky-note.fa-fw
-                                each customField in currentCampaign.event_fields
-                                    if (_.indexOf(event.hidden_fields, customField.name) === -1)
-                                        if _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                                            +attendeeCustomField(customField, attendee.data[customField.name])
+                                if event.pre_event_survey
 
-                        if checkPermission('gm') && type !== 'no response'
+                                    each customField in event.pre_event_survey.definition
+                                        if (_.indexOf(event.hidden_fields, customField.name) === -1)
+                                            if _.has(attendee.data, customField.name) && attendee.data[customField.name]
+                                                +attendeeCustomField(customField, attendee.data[customField.name])
+
+                            if twoHoursBeforeEventStart < Date.now()
+                                td
+                                    if attendee.checked_in
+                                        .badge.text-bg-success Yes
+                                    else
+                                        .badge.text-bg-danger No
+                        if checkPermission('gm, registration edit') && type !== 'no response'
                             td.text-end
                                 if type !== 'not attending'
                                     a.btn.btn-outline-info.btn-xs.action-btn.me-1(
@@ -161,14 +190,15 @@ mixin attendeeTable(attendees, type)
                                     )
                                         i.fas.fa-edit.fa-fw.me-1
                                         | Edit Registration
-                                a.btn.btn-outline-danger.btn-xs.delete-btn(
-                                    role="button",
-                                    title=type==='not attending'?"Remove Not-Attending Record":"Delete Registration"
-                                    data-bs-toggle="tooltip"
-                                    data-csrf=csrfToken
-                                    url=`/event/${attendee.event_id}/register/${attendee.id}`
-                                )
-                                    i.fas.fa-trash.fa-fw
+                                if checkPermission('gm')
+                                    a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                        role="button",
+                                        title=type==='not attending'?"Remove Not-Attending Record":"Delete Registration"
+                                        data-bs-toggle="tooltip"
+                                        data-csrf=csrfToken
+                                        url=`/event/${attendee.event_id}/register/${attendee.id}`
+                                    )
+                                        i.fas.fa-trash.fa-fw
 
 mixin attendeeCustomField(customField, data)
     -
@@ -194,9 +224,31 @@ mixin attendeeCustomFieldDisplay(customField, data)
             data = !!data?'Yes':'No'
         }
     .row.my-2
-        .col-md-2
+        .col-md-4
             i.fas.me-1.fa-fw(class=icon)
             strong= customField.name
         .col-md
                 !=marked.parseInline(data, {breaks:true})
+
+mixin showAddons(attendee, type)
+    if attendee.addons && attendee.addons.length
+        -
+            let addons = '';
+            for (const addon of attendee.addons){
+                addons += `**${addon.addon.name}**`
+                if ((type === 'player' && addon.addon.charge_player) || (type=== 'staff' && addon.addon.charge_staff)){
+                    addons += ` ($${addon.addon.cost}): ${addon.paid?'Paid':'Unpaid'}\n`;
+                } else {
+                    addons += '\n';
+                }
+            }
+        a.btn.btn-outline-info.btn-xs.me-1.action-btn(
+            tabindex="0"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-content=marked.parseInline(addons, {breaks: true})
+            data-bs-html="true"
+            title="Addons"
+        )
+            i.fas.fa-cart-plus.fa-fw
 

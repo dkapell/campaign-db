@@ -1,0 +1,18 @@
+extends ../layout
+include ../partials/editor
+include ../partials/survey
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header New Survey
+                .card-body
+                    form.form.needs-validation(method="POST" action="/survey" novalidate)
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        include ./_form.pug
+
+append scripts
+    script(src='https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/survey.js')

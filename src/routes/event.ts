@@ -56,27 +56,65 @@ async function show(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        res.locals.event = {
-            name: null,
-            description: null,
-            start_date: null,
-            start_hour: 22,
-            end_date: null,
-            end_hour: 14,
-            registration_open: false,
-            cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0,
-            location: req.campaign.event_default_location?req.campaign.event_default_location:null,
-            hide_attendees: false
-        };
-        res.locals.breadcrumbs = {
-            path: [
-                { url: '/', name: 'Home'},
-                { url: '/event', name: 'Events'},
-            ],
-            current: 'New'
-        };
+        if (req.query.clone){
+            let event = await req.models.event.get(req.query.clone);
+            if (!event || event.campaign_id !== req.campaign.id){
+                throw new Error('Invalid Event');
+            }
+            delete event.id;
+            for (const addon of event.addons){
+                addon.id = 'new';
+            }
+            res.locals.clone = event.name;
+            event.name += ' (copy)';
+            event.registration_open = false;
+            event = await fillEventTimes(req.campaign.id, event);
+            res.locals.event = event;
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/event', name: 'Events'},
+                ],
+                current: `Clone - ${event.name}`
+            };
+
+        } else {
+            res.locals.event = {
+                name: null,
+                description: null,
+                start_date: null,
+                start_hour: 22,
+                end_date: null,
+                end_hour: 14,
+                registration_open: false,
+                cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0,
+                location: req.campaign.event_default_location?req.campaign.event_default_location:null,
+                hide_attendees: false,
+                post_event_survey_deadline_date: null,
+                post_event_survey_deadline_hour: 0,
+                pre_event_survey_id: null,
+                post_event_survey_id: null
+
+            };
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/event', name: 'Events'},
+                ],
+                current: 'New'
+            };
+        }
 
         res.locals.csrfToken = req.csrfToken();
+
+        res.locals.surveys = await async.parallel({
+            pre: async function(){
+                return req.models.survey.find({campaign_id:req.campaign.id, type:'registration'});
+            },
+            post: async function(){
+                return req.models.survey.find({campaign_id:req.campaign.id, type:'post event'});
+            }
+        });
 
         if (_.has(req.session, 'eventData')){
             res.locals.event = req.session.eventData;
@@ -89,22 +127,42 @@ async function showNew(req, res, next){
     }
 }
 
+async function fillEventTimes(campaignId, event){
+    const start_times = await campaignHelper.splitTime(campaignId, event.start_time);
+    event.start_date = start_times.date;
+    event.start_hour = start_times.hour;
+    const end_times = await campaignHelper.splitTime(campaignId, event.end_time);
+    event.end_date = end_times.date;
+    event.end_hour = end_times.hour;
+    const post_event_survey_deadline_times = await campaignHelper.splitTime(campaignId, event.post_event_survey_deadline);
+    event.post_event_survey_deadline_date = post_event_survey_deadline_times.date;
+    event.post_event_survey_deadline_hour = post_event_survey_deadline_times.hour;
+    return event;
+}
+
 async function showEdit(req, res, next){
     const id = req.params.id;
     res.locals.csrfToken = req.csrfToken();
 
     try{
-        const event = await req.models.event.get(id);
+        let event = await req.models.event.get(id);
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
-        const start_times = await campaignHelper.splitTime(req.campaign.id, event.start_time);
-        event.start_date = start_times.date;
-        event.start_hour = start_times.hour;
-        const end_times = await campaignHelper.splitTime(req.campaign.id, event.end_time);
-        event.end_date = end_times.date;
-        event.end_hour = end_times.hour;
+        event = await fillEventTimes(req.campaign.id, event);
+
         res.locals.event = event;
+
+
+        res.locals.surveys = await async.parallel({
+            pre: async function(){
+                return req.models.survey.find({campaign_id:req.campaign.id, type:'registration'});
+            },
+            post: async function(){
+                return req.models.survey.find({campaign_id:req.campaign.id, type:'post event'});
+            }
+        });
+
         if (_.has(req.session, 'eventData')){
             res.locals.event = req.session.eventData;
             delete req.session.eventData;
@@ -143,18 +201,20 @@ async function create(req, res){
         event.cost = 0
     }
 
+    if (event.pre_event_survey_id === ''){
+        event.pre_event_survey_id = null;
+    }
+    if (event.post_event_survey_id === ''){
+        event.post_event_survey_id = null;
+    }
+
+    event.addons = parseEventAddons(event.addons);
+
     try{
         event.campaign_id = req.campaign.id;
-        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour))
-        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour))
-
-        const hidden_fields = [];
-        for (const field of req.campaign.event_fields){
-            if (!_.has(event.hidden_fields, field.name)){
-                hidden_fields.push(field.name);
-            }
-        }
-        event.hidden_fields = JSON.stringify(hidden_fields);
+        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour));
+        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour));
+        event.post_event_survey_deadline = await campaignHelper.parseTime(req.campaign.id, event.post_event_survey_deadline_date, Number(event.post_event_survey_deadline_hour));
 
         const id = await req.models.event.create(event);
         await req.audit('event', id, 'create', {new:event});
@@ -181,6 +241,14 @@ async function update(req, res){
     if (!_.has(event, 'cost') || event.cost === ''){
         event.cost = 0
     }
+    if (event.pre_event_survey_id === ''){
+        event.pre_event_survey_id = null;
+    }
+    if (event.post_event_survey_id === ''){
+        event.post_event_survey_id = null;
+    }
+
+    event.addons = parseEventAddons(event.addons);
 
     try {
         const current = await req.models.event.get(id);
@@ -191,17 +259,10 @@ async function update(req, res){
             throw new Error('Can not edit deleted record');
         }
 
-        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour))
-        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour))
-
-        const hidden_fields = [];
-        for (const field of req.campaign.event_fields){
-            if (!_.has(event.hidden_fields, field.name)){
-                hidden_fields.push(field.name);
-            }
-        }
-        event.hidden_fields = JSON.stringify(hidden_fields);
-
+        event.campaign_id = current.campaign_id;
+        event.start_time = await campaignHelper.parseTime(req.campaign.id, event.start_date, Number(event.start_hour));
+        event.end_time = await campaignHelper.parseTime(req.campaign.id, event.end_date, Number(event.end_hour));
+        event.post_event_survey_deadline = await campaignHelper.parseTime(req.campaign.id, event.post_event_survey_deadline_date, Number(event.post_event_survey_deadline_hour));
         await req.models.event.update(id, event);
         await req.audit('event', id, 'update', {old: current, new:event});
         delete req.session.eventData;
@@ -337,7 +398,7 @@ async function showEditAttendance(req, res, next){
             res.locals.attendance.character_id = activeCharacter?activeCharacter.id:null;
         }
 
-        if (user.type.match(/^(core staff|admin)$/)){
+        if (user.type.match(/^(core staff|admin)$/)) {
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             let users = await async.map(campaign_users, async (campaign_user) => {
                 const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
@@ -345,7 +406,7 @@ async function showEditAttendance(req, res, next){
             });
             users = users.filter(user => { return user.type !== 'none'});
             res.locals.users = _.sortBy(users, 'typeForDisplay')
-        } else if ( attendance.user_id !== user.id){
+        } else if ( attendance.user_id !== user.id && !res.locals.checkPermission('registration edit')){
             return res.redirect(`/event/${eventId}/register`);
         }
 
@@ -416,16 +477,19 @@ async function createAttendance(req, res){
             attendance.character_id = null;
         }
 
-        for (const field of req.campaign.event_fields){
-            if (field.type === 'boolean'){
-                if(!_.has(attendance.data, field.name)){
-                    attendance.data[field.name] = false;
-                } else {
-                    attendance.data[field.name] = true;
+        if (event.pre_event_survey){
+            for (const field of event.pre_event_survey.definition){
+                if (field.type === 'boolean'){
+                    if(!_.has(attendance.data, field.name)){
+                        attendance.data[field.name] = false;
+                    } else {
+                        attendance.data[field.name] = true;
+                    }
                 }
             }
         }
         attendance.attending = true;
+        attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
         const id = await req.models.attendance.create(attendance);
 
         await req.audit('attendance', id, 'create', {new:attendance});
@@ -436,6 +500,52 @@ async function createAttendance(req, res){
         req.flash('error', err.toString());
         return res.redirect(`/event/${eventId}/register`);
     }
+}
+
+async function markCheckedIn(req, res, next){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Attendance');
+        }
+
+        await req.models.attendance.update(attendance.id, {checked_in:true})
+        res.json({success:true, checked_in:true});
+    } catch(err){
+        return next(err);
+    }
+
+}
+
+async function unmarkCheckedIn(req, res, next){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Attendance');
+        }
+
+        await req.models.attendance.update(attendance.id, {checked_in:false})
+        res.json({success:true, checked_in:false});
+    } catch(err){
+        return next(err);
+    }
+
 }
 
 async function createNotAttendance(req, res){
@@ -502,7 +612,6 @@ async function updateAttendance(req, res){
     const attendance = req.body.attendance;
     req.session.attendanceData = attendance;
 
-
     try {
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
@@ -527,30 +636,36 @@ async function updateAttendance(req, res){
             if (!_.has(attendance, 'paid')){
                 attendance.paid = false
             }
+        } else if (res.locals.checkPermission('registration edit')){
+            delete attendance.paid;
+            delete attendance.user_id;
+
         } else {
             if (current.user_id !== user.id){
                 throw new Error('Not allowed to edit this registration');
             }
-            delete attendance.paid;
-            delete attendance.user_id;
         }
 
         if (attendance.character_id === ''){
             attendance.character_id = null;
         }
 
-
-        for (const field of req.campaign.event_fields){
-            if (field.type === 'boolean'){
-                if(!_.has(attendance.data, field.name)){
-                    attendance.data[field.name] = false;
-                } else {
-                    attendance.data[field.name] = true;
+        if (event.pre_event_survey){
+            for (const field of event.pre_event_survey.definition){
+                if (field.type === 'boolean'){
+                    if(!_.has(attendance.data, field.name)){
+                        attendance.data[field.name] = false;
+                    } else {
+                        attendance.data[field.name] = true;
+                    }
                 }
             }
         }
 
         attendance.attending = true;
+
+        attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.campaign_id = current.campaign_id;
 
         await req.models.attendance.update(attendanceId, attendance);
         await req.audit('attendance', attendanceId, 'update', {old: current, new:attendance});
@@ -614,17 +729,30 @@ async function exportEventAttendees(req, res, next){
             if (event.cost){
                 header.push('Paid');
             }
+            if (event.addons.length){
+                for (const addon of event.addons){
+                    if (addon.available_to_player){
+                        header.push(addon.name);
+                    }
+                }
+            }
         } else {
             header.push('Type');
+            if (event.addons.length){
+                for (const addon of event.addons){
+                    if (addon.available_to_staff){
+                        header.push(addon.name);
+                    }
+                }
+            }
         }
         if (!(exportType === 'not attending' || exportType === 'no response')){
-            for (const field of req.campaign.event_fields){
-                if (_.indexOf(event.hidden_fields, field.name) !== -1){
-                    continue;
+            header.push('Checked In');
+            if (event.pre_event_survey){
+                for (const field of event.pre_event_survey.definition){
+                    header.push(field.name);
                 }
-                header.push(field.name);
             }
-
             header.push('Notes');
         }
         output.push(header);
@@ -683,28 +811,58 @@ async function exportEventAttendees(req, res, next){
                 if (event.cost){
                     row.push(attendee.paid?'Yes':'No');
                 }
+                if (event.addons.length){
+                    for (const addon of event.addons){
+                        if (addon.available_to_player){
+                            const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
+                            if (attendee_addon){
+                                if (addon.charge_player){
+                                    row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                } else {
+                                    row.push('Yes');
+                                }
+                            } else {
+                                row.push('No');
+                            }
+                        }
+                    }
+                }
             } else {
                 if (exportType === 'staff' && attendee.user.type === 'player'){
                     continue;
                 }
                 row.push(attendee.user.typeForDisplay);
+                if (event.addons.length){
+                    for (const addon of event.addons){
+                        if (addon.available_to_staff){
+                            const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
+                            if (attendee_addon){
+                                if (addon.charge_staff){
+                                    row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                } else {
+                                    row.push('Yes');
+                                }
+                            } else {
+                                row.push('No');
+                            }
+                        }
+                    }
+                }
             }
 
             if (!(exportType === 'not attending' || exportType === 'no response')){
-
-                for (const field of req.campaign.event_fields){
-                    if (_.indexOf(event.hidden_fields, field.name) !== -1){
-                        continue;
-                    }
-
-                    if (_.has(attendee.data, field.name)){
-                        if (field.type === 'boolean'){
-                            row.push(attendee.data[field.name]?'Yes':'No');
+                row.push(attendee.checked_in?'Yes':'No');
+                if (event.pre_event_survey){
+                    for (const field of event.pre_event_survey.definition){
+                        if (_.has(attendee.data, field.name)){
+                            if (field.type === 'boolean'){
+                                row.push(attendee.data[field.name]?'Yes':'No');
+                            } else {
+                                row.push(attendee.data[field.name]);
+                            }
                         } else {
-                            row.push(attendee.data[field.name]);
+                            row.push(null);
                         }
-                    } else {
-                        row.push(null);
                     }
                 }
                 row.push(attendee.notes);
@@ -715,6 +873,36 @@ async function exportEventAttendees(req, res, next){
         const csvOutput = await stringify(output, {});
         res.attachment(`${event.name} - ${exportType}.csv`);
         res.end(csvOutput);
+
+    } catch (err){
+        return next(err);
+    }
+
+}
+
+async function showCheckin(req, res, next){
+    const eventId = req.params.id;
+    try {
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        };
+
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/event', name: 'Events'},
+                { url: `/event/${event.id}`, name: event.name },
+            ],
+            current: `Check-in`
+        };
+
+        res.locals.event = event;
+        res.locals.title += ` - ${event.name} - Check-in`;
+        res.locals.csrfToken = req.csrfToken();
+
+        res.render('event/checkin');
 
     } catch (err){
         return next(err);
@@ -754,6 +942,46 @@ async function exportPlayerPdfs(req, res, next){
     }
 }
 
+function parseEventAddons(input){
+    const output = [];
+
+    for (const id in input){
+        if (id === 'new'){
+            continue;
+        }
+
+
+        const addon = input[id];
+        for (const field of ['available_to_player', 'available_to_staff', 'charge_player', 'charge_staff', 'on_checkin']){
+            if (!_.has(addon, field)){
+                addon[field] = false;
+            }
+        }
+
+        output.push(input[id]);
+    }
+    return output;
+}
+
+function parseAttendeeAddons(input, forGm){
+    const output = [];
+    for (const addon of input){
+        if (addon.selected){
+            const doc:  AttendeeAddon = {
+                event_addon_id: Number(addon.addon_id)
+            }
+            if (addon.id !== ''){
+                doc.id = Number(addon.id)
+            }
+            if (forGm){
+                doc.paid = _.has(addon, 'paid');
+            }
+            output.push(doc);
+        }
+    }
+    return output;
+}
+
 const router = express.Router();
 
 router.use(permission('player'));
@@ -766,7 +994,10 @@ router.get('/', list);
 router.get('/new', csrf(), permission('gm'), showNew);
 router.get('/:id', csrf(), show);
 router.get('/:id/edit', csrf(), permission('gm'), showEdit);
-router.get('/:id/export', csrf(), permission('contrib'), exportEventAttendees);
+router.get('/:id/export', csrf(), permission('contrib, registration view'), exportEventAttendees);
+router.get('/:id/checkin', csrf(), permission('contrib, registration view'), showCheckin);
+router.post('/:id/checkin/:attendanceId', csrf(), permission('contrib, registration edit'), markCheckedIn);
+router.post('/:id/uncheckin/:attendanceId', csrf(), permission('contrib, registration edit'), unmarkCheckedIn);
 router.get('/:id/pdf', csrf(), permission('contrib'), exportPlayerPdfs);
 router.post('/', csrf(), permission('gm'), create);
 router.put('/:id', csrf(), permission('gm'), update);

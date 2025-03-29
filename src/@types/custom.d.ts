@@ -55,3 +55,16 @@ interface CharacterSheetOptions {
     showRules?:boolean
     showInlineRules?:boolean
 }
+
+interface SurveyField {
+    name: string
+    type: string
+    icon?: string
+    sort_order?: number
+    visible_to?: string
+    editable_by?: string
+    options?: string[]
+    placeholder?: string
+    rows?: number
+    maxlength?: number
+}

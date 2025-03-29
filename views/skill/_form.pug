@@ -100,10 +100,10 @@ if checkPermission('gm')
                                 option(value=item.id selected=_.indexOf(skill.conflicts, item.id) !== -1) #{capitalize(item.source.name)}: #{item.name}
             #provides-list
                 +providesHeader()
-                - let i = 0;
+                - let idx = 0;
                 for provides in skill.provides
-                    +provides(provides, 'skill', i)
-                    - i++;
+                    +provides(provides, 'skill', idx)
+                    - idx++;
                 +provides({}, 'skill', 'new')
 
 if !modal

@@ -995,7 +995,7 @@ async function showPostEventSurvey(req, res, next){
                 { url: '/event', name: 'Events'},
                 { url: `/event/${event.id}`, name: event.name},
             ],
-            current: 'Post Event Survey'
+            current: req.campaign.renames.post_event_survey.singular
         };
 
         if (user.type.match(/^(core staff|admin)$/) && attendanceId){
@@ -1065,11 +1065,11 @@ async function submitPostEventSurvey(req, res){
         }
 
         if (!event.post_event_survey){
-             throw new Error('Event does not have a Post Event Survey');
+             throw new Error(`Event does not have a ${req.campaign.renames.post_event_survey.singular}`);
         }
 
         if (current.post_event_submitted){
-            req.flash('warning', 'Post Event Survey already submitted');
+            req.flash('warning', `${req.campaign.renames.post_event_survey.singular} already submitted`);
             return res.redirect('/');
         }
 
@@ -1096,7 +1096,7 @@ async function submitPostEventSurvey(req, res){
                         await req.models.cp_grant.create({
                             campaign_id: req.campaign.id,
                             user_id: current.user_id,
-                            content: `Post Event Survey for ${event.name}`,
+                            content: `${req.campaign.renames.post_event_survey.singular} for ${event.name}`,
                             amount: req.campaign.post_event_survey_cp,
                             status: 'approved'
                         });
@@ -1112,13 +1112,13 @@ async function submitPostEventSurvey(req, res){
 
         switch (action){
             case 'hide':
-                req.flash('success', `Post Event Survey for ${event.name} has been removed from the Task List.`);
+                req.flash('success', `${req.campaign.renames.post_event_survey.singular} for ${event.name} has been removed from the Task List.`);
                 break
             case 'unhide':
-                req.flash('success', `Post Event Survey for ${event.name} has been restored to the Task List.`);
+                req.flash('success', `${req.campaign.renames.post_event_survey.singular} for ${event.name} has been restored to the Task List.`);
                 break
             case 'submit': {
-                let resultStr = `Submitted Post Event Survey for ${event.name}`;
+                let resultStr = `Submitted ${req.campaign.renames.post_event_survey.singular} for ${event.name}`;
                 if (cpGranted){
                     resultStr += ` and granted ${req.campaign.post_event_survey_cp} CP.`;
                 } else {
@@ -1128,7 +1128,7 @@ async function submitPostEventSurvey(req, res){
                 break;
             }
             default:
-                req.flash('success', `Saved Post Event Survey for ${event.name} for later submission.`);
+                req.flash('success', `Saved ${req.campaign.renames.post_event_survey.singular} for ${event.name} for later submission.`);
                 break;
         }
 
@@ -1174,11 +1174,11 @@ async function savePostEventSurveyApi(req, res){
         }
 
         if (current.post_event_submitted){
-            return res.json({success:false, message: 'Post Event Survey already submitted'});
+            return res.json({success:false, message: `${req.campaign.renames.post_event_survey.singular} already submitted`});
         }
 
         if (!event.post_event_survey){
-             throw new Error('Event does not have a Post Event Survey');
+             throw new Error(`Event does not have a ${req.campaign.renames.post_event_survey.singular}`);
         }
 
         current.post_event_data = surveyHelper.parseData(
@@ -1290,7 +1290,7 @@ async function exportPostEventSurveys(req, res, next){
             output.push(row);
         }
         const csvOutput = await stringify(output, {});
-        res.attachment(`${event.name} - Post Event Surveys.csv`);
+        res.attachment(`${event.name} - ${req.campaign.renames.post_event_survey.plural}.csv`);
         res.end(csvOutput);
 
     } catch (err) {

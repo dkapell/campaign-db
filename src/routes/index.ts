@@ -29,6 +29,7 @@ async function showIndex(req, res){
         if (res.locals.post_event_surveys.length){
             res.locals.showTasks = true;
         }
+        res.locals.pending_cp_grants = await req.models.cp_grant.count({campaign_id:req.campaign.id, status:'pending'});
 
         // User is a Player - show my cp grants, events, current character
         if (user && user.type === 'player' && !req.session.admin_mode){
@@ -39,10 +40,6 @@ async function showIndex(req, res){
                 res.locals.character = await character.data();
             }
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
-            const cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
-            res.locals.cp_grants = cp_grants.filter( grant => {
-                return grant.status !== 'approved';
-            });
             res.locals.events = futureEvents.map(event => {
                 event.attendees = _.where(event.attendees, {user_id: user.id});
                 return event;
@@ -61,16 +58,11 @@ async function showIndex(req, res){
                 return character.user.type === 'player';
             });
             res.locals.character = null;
-            res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, status:'pending'});
-            if (res.locals.cp_grants.length && req.campaign.display_cp){
-                res.locals.showTasks = true;
-            }
             res.locals.events = futureEvents;
 
         // User is Event Staff - no CP Grants, show events, owned characters
         } else {
             res.locals.cp = null
-            res.locals.cp_grants = []
 
             if (user){
                 const characters = await req.models.character.find({user_id: user.id, active: true, campaign_id:req.campaign.id});
@@ -89,6 +81,9 @@ async function showIndex(req, res){
                 res.locals.characters = [];
                 res.locals.events = futureEvents;
             }
+        }
+        if (res.locals.checkPermission('gm, cp grant') && res.locals.pending_cp_grants && req.campaign.display_cp){
+            res.locals.showTasks = true;
         }
 
 

@@ -46,7 +46,7 @@ block content
 
                     if checkPermission('contrib') && post_event_surveys.length
                         li.nav-item(role="presentation")
-                            a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") Post Event Surveys
+                            a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") #{currentCampaign.renames.post_event_survey.plural}
 
 
                 .tab-content#eventTabContent

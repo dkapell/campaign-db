@@ -22,22 +22,25 @@ async function list(req, res, next){
         res.locals.title += ' - Character Points';
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
-        if (user.type === 'player'){
-            res.locals.grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
-            res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
-            res.render('cp_grant/listPlayer', { pageTitle: 'Character Point Grants' });
-        } else if (user.type === 'event staff'){
-            req.flash('warning', 'Not allowed to view');
-            return res.redirect('/');
-
-        } else {
+        if (res.locals.checkPermission('contrib, cp grant')){
             const grants = await req.models.cp_grant.find({campaign_id:req.campaign.id});
             res.locals.grants = await async.map(grants, async (grant) => {
                 grant.user = await req.models.user.get(req.campaign.id, grant.user_id);
                 return grant;
             });
-            res.render('cp_grant/list', { pageTitle: 'Character Point Grants' });
         }
+
+        if (user.type === 'player'){
+            res.locals.myGrants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
+            res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
+            //res.render('cp_grant/listPlayer', { pageTitle: 'Character Point Grants' });
+        } else if (user.type === 'event staff'){
+            req.flash('warning', 'Not allowed to view');
+            return res.redirect('/');
+
+        }
+        res.render('cp_grant/list', { pageTitle: 'Character Point Grants' });
+
     } catch (err){
         next(err);
     }
@@ -73,11 +76,13 @@ async function showNew(req, res, next){
         return res.redirect('/');
     }
     try{
+        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
         res.locals.grant = {
             content: null,
-            user_id: null,
+            user_id: user.type ==='player'?user.id:null,
             amount:0
         };
+
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -154,7 +159,9 @@ async function create(req, res){
     grant.updated = new Date();
     const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
-    if (user.type === 'player'){
+    if (res.locals.checkPermission('contrib, cp grant')){
+        grant.status = 'approved';
+    } else if (user.type === 'player'){
         grant.user_id = user.id;
         if (req.campaign.cp_approval){
             grant.status = 'pending';
@@ -162,7 +169,7 @@ async function create(req, res){
             grant.status = 'approved';
         }
     } else {
-        grant.status = 'approved';
+        throw new Error('Can not create CP Grants.')
     }
 
     try{
@@ -280,12 +287,12 @@ router.use(function(req, res, next){
 
 router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
-router.get('/:id',  permission('gm'), csrf(), showEdit);
-router.get('/:id/edit', permission('gm'), csrf(),showEdit);
+router.get('/:id',  permission('gm, cp grant'), csrf(), showEdit);
+router.get('/:id/edit', permission('gm, cp grant'), csrf(),showEdit);
 router.post('/', csrf(), create);
-router.put('/:id', permission('gm'), csrf(), update);
-router.put('/:id/approve', permission('gm'), csrf(), approveGrant);
-router.put('/:id/deny', permission('gm'), csrf(), denyGrant);
+router.put('/:id', permission('gm, cp grant'), csrf(), update);
+router.put('/:id/approve', permission('gm, cp grant'), csrf(), approveGrant);
+router.put('/:id/deny', permission('gm, cp grant'), csrf(), denyGrant);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

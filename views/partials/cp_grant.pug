@@ -1,0 +1,120 @@
+mixin playerGrants(grants)
+    .table-responsive.mt-2
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-orderable-object='cp'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="4") Source
+                    th(data-priority="1") Amount
+                    if currentCampaign.cp_approval
+                        th(data-priority="2") Status
+                    th(data-priority="3") Created
+
+            tbody
+                for grant in grants
+                    tr
+                        td.dtr-control
+                        td!= marked.parseInline(grant.content, {breaks: true})
+                        td= grant.amount
+                        if currentCampaign.cp_approval
+                            td
+                                case grant.status
+                                    when 'pending'
+                                        .badge.text-bg-warning Pending
+                                    when 'approved'
+                                        .badge.text-bg-success Approved
+                                    when 'denied'
+                                        .badge.text-bg-danger Denied
+                        td= moment(grant.created).format('lll')
+
+mixin staffGrants(grants)
+    if currentCampaign.cp_approval
+        .row.my-2
+            .col-md.offset-md-6
+                .form-check.form-switch
+                    input.form-check-input#pending-filter(type="checkbox", name="campaign[display_cp]")
+                    label.form-check-label(for="pending-filter") Show only pending
+
+
+    .table-responsive.mt-2
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100#grant-table(
+            style="display: none"
+            data-orderable-object='cp'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Player
+                    th(data-priority="6") Source
+                    th(data-priority="3") Amount
+                    if currentCampaign.cp_approval
+                        th(data-priority="4") Status
+                    th(data-priority="5") Created
+                    th(data-priority="2")
+
+
+            tbody
+                for grant in grants
+                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
+                        td.dtr-control
+                        td= grant.user.name
+                        td
+                            if grant.content.length>83
+                                | !{marked.parseInline(grant.content.substr(0, 80)+'...')}
+                            else
+                                | !{marked.parseInline(grant.content)}
+                        td= grant.amount
+                        if currentCampaign.cp_approval
+                            td
+                                case grant.status
+                                    when 'pending'
+                                        .badge.text-bg-warning Pending
+                                    when 'approved'
+                                        .badge.text-bg-success Approved
+                                    when 'denied'
+                                        .badge.text-bg-danger Denied
+
+
+                        td(data-sort=grant.created.getTime())= moment(grant.created).format('lll')
+
+                        td.text-end
+                            if grant.status === 'pending'
+                                a.btn.btn-outline-success.btn-xs.action-btn.me-1.cp-approve-btn(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Approve'
+                                    data-id=grant.id
+                                    data-csrf=csrfToken
+                                    data-back='/cp_grant'
+                                )
+                                    i.fas.fa-thumbs-up.fa-fw
+
+                                a.btn.btn-outline-warning.btn-xs.action-btn.me-1.cp-deny-btn(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Deny'
+                                    data-id=grant.id
+                                    data-csrf=csrfToken
+                                    data-back='/cp_grant'
+                                )
+                                    i.fas.fa-thumbs-down.fa-fw
+                            if checkPermission('admin')
+                                a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                    role="button",
+                                    data-bs-toggle='tooltip'
+                                    title='Delete'
+                                    url=`/cp_grant/${grant.id}`,
+                                    data-back='/cp_grant'
+                                )
+                                    i.fas.fa-trash.fa-fw

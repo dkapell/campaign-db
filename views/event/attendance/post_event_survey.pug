@@ -8,7 +8,7 @@ block content
     .row
         .col-sm-10.offset-sm-1
             .card
-                .card-header Post Event Survey for #{event.name}
+                .card-header #{currentCampaign.renames.post_event_survey.singular} for #{event.name}
                     .badge.text-bg-warning.ms-4#save-pending-indicator(style='display:none') Changed
                     .badge.text-bg-info.ms-4#saving-indicator(style='display:none') Saving
                     .badge.text-bg-success.ms-4#saved-indicator(style='display:none') Saved
@@ -91,7 +91,9 @@ block content
                                         name='action'
                                         value='submit'
                                         data-bs-toggle='tooltip'
-                                        title='Submit to Staff'
+                                        title=`Submit ${currentCampaign.renames.post_event_survey.singular} to Staff?`
+                                        message=`You will not be able to make additional changes to this ${currentCampaign.renames.post_event_survey.singular} after you submit, although you can create addendums.`
+                                        showMessage="true"
                                     )
                                         i.fas.fa-share-square.me-1
                                         | Submit
@@ -111,8 +113,10 @@ block content
                                             type="submit"
                                             name='action'
                                             value='hide'
+                                            title=`Hide ${currentCampaign.renames.post_event_survey.singular}?`
                                             data-bs-toggle='tooltip'
-                                            title='Hide from Task List'
+                                            message=`This will remove the reminder from the front page.  You can return to the ${currentCampaign.renames.post_event_survey.plural} page to submit later.`
+                                            showMessage='true'
                                         )
                                             i.fas.fa-eye-slash.me-1
                                             | Hide

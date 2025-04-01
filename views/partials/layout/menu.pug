@@ -28,7 +28,7 @@
                                     a.dropdown-item(href='/skill') Skills
                                 a.dropdown-item(href='/character') Characters
                                 a.dropdown-item(href='/event') Events
-                                a.dropdown-item(href='/post_event_survey') Post Event Surveys
+                                a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames.post_event_survey.plural}
 
                             if checkPermission('contrib')
                                 if currentCampaign.display_cp
@@ -66,7 +66,7 @@
 
                             a.dropdown-item(href='/skill/doc') Skills
                             a.dropdown-item(href='/event') Events
-                            a.dropdown-item(href='/post_event_survey') Post Event Surveys
+                            a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames.post_event_survey.plural}
 
 
                 if (currentCampaign.display_glossary && checkPermission('player')) || currentCampaign.display_map

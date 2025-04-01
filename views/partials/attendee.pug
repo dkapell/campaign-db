@@ -49,7 +49,7 @@ mixin attendeeListItem(attendee, type)
                     if attendee.attendance_cp_granted
                         .badge.text-bg-info.mx-1 Event CP Granted
                     if attendee.post_event_cp_granted
-                        .badge.text-bg-info.mx-1 PES CP Granted
+                        .badge.text-bg-info.mx-1 #{currentCampaign.renames.pes.singular} CP Granted
 
 
             if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
@@ -200,7 +200,7 @@ mixin attendeeTable(attendees, type)
                                     if attendee.attendance_cp_granted
                                         .badge.text-bg-info.mx-1 Event
                                     if attendee.post_event_cp_granted
-                                        .badge.text-bg-info.mx-1 PES
+                                        .badge.text-bg-info.mx-1 #{currentCampaign.renames.pes.singular}
                         if checkPermission('gm, registration edit') && type !== 'no response'
                             td.text-end
                                 if type !== 'not attending'

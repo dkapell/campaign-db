@@ -10,11 +10,11 @@ async function list(req, res, next){
         path: [
             { url: '/', name: 'Home'},
         ],
-        current: 'Post Event Surveys'
+        current: req.campaign.renames.post_event_survey.plural
     };
     try {
         res.locals.csrfToken = req.csrfToken();
-        res.locals.title += ' - Post Event Surveys';
+        res.locals.title += ` - ${req.campaign.renames.post_event_survey.plural}`;
         const events:EventData[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         const pastEvents = events.filter( (event) => { return event.end_time <= new Date(); })
         res.locals.events = pastEvents;
@@ -39,7 +39,7 @@ async function list(req, res, next){
                 return surveyHelper.formatPostEventData(attendance, event);
             });
         }
-        res.render('post_event_survey/list', {pageTitle:'Post Event Surveys'});
+        res.render('post_event_survey/list', {pageTitle:req.campaign.renames.post_event_survey.plural});
     } catch (err){
         next(err);
     }
@@ -73,14 +73,14 @@ async function show(req, res, next){
                     { url: '/event', name: 'Events'},
                     { url: `/event/${event.id}`, name: event.name},
                 ],
-                current: `Post Event Survey: ${attendance.user.name}`
+                current: `${req.campaign.renames.post_event_survey.singular}: ${attendance.user.name}`
             }
             res.locals.backto = `/event/${event.id}`;
         } else {
             res.locals.breadcrumbs = {
                 path: [
                     { url: '/', name: 'Home'},
-                    { url: '/post_event_survey', name: 'Post Event Surveys'},
+                    { url: '/post_event_survey', name: req.campaign.renames.post_event_survey.plural},
                 ],
                 current: `${event.name}: ${attendance.user.name}`
             };

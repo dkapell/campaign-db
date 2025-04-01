@@ -79,8 +79,8 @@ if (backto)
 
 .row.my-2
     .col-md-8
-        label.control-label(for="event_post_event_survey_id") Post-Event Survey
-        select.form-select.complex-select2#event_post_event_survey_id(name="event[post_event_survey_id]" data-placeholder='Post Event Survey' data-allowClear=true)
+        label.control-label(for="event_post_event_survey_id") #{currentCampaign.renames.post_event_survey.singular}
+        select.form-select.complex-select2#event_post_event_survey_id(name="event[post_event_survey_id]" data-placeholder=currentCampaign.renames.post_event_survey.singular data-allowClear=true)
             option(
                 value=-1
                 selected=!event.post_event_survey_id

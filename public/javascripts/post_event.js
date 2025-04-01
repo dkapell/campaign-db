@@ -3,17 +3,9 @@ let dataSaving = false;
 let saveTimeoutId = null;
 $(function(){
     $('.custom-event-field').each(watchField);
-    $('#postEventSubmitBtn').confirmation({
-        title: "Submit Survey to Staff?",
-        message:"You will not be able to make additional changes after you submit, although you can create addendums.",
-        showMessage:true
-    })
-    $('#postEventHideBtn').confirmation({
-        title: "Hide Survey?",
-        message:"This will remove the reminder from the front page.  You can return to the Post Event Surveys page to submit later.",
-        showMessage:true
-    })
-    $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+    $('#postEventSubmitBtn').confirmation({});
+    $('#postEventHideBtn').confirmation({});
+    $('[data-bs-toggle="tooltip"]').tooltip();
 
     $('.select2').select2({
         theme:'bootstrap-5',

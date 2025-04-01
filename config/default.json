@@ -54,6 +54,7 @@
     },
     "permissions": [
         "registration edit",
-        "registration view"
+        "registration view",
+        "cp grant"
     ]
 }

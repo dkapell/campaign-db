@@ -1,4 +1,5 @@
 extends ../layout
+include ../partials/cp_grant
 
 block content
     .row
@@ -6,91 +7,39 @@ block content
             a.btn.btn-outline-success.my-2(href='/cp_grant/new')
                 span(class="fa fa-plus")
                 |  New Character Point Grant
-        if currentCampaign.cp_approval
-            .col
-                .form-check.form-switch
-                    input.form-check-input#pending-filter(type="checkbox", name="campaign[display_cp]")
-                    label.form-check-label(for="pending-filter") Show only pending
 
+        if myGrants && grants
+            ul.nav.nav-tabs.w-100.my-2#grantTabs(role="tablist")
+                li.nav-item(role="presentation")
+                    a.nav-link.active#my-grants-tab(href="#my-grants" data-bs-toggle="tab" role="tab" aria-controls="my-grants" aria-selected="true") My CP Grants
 
-    .table-responsive.mt-2
-        .col-sm-6.offset-sm-3.text-center#tableLoading
-            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100#grant-table(
-            style="display: none"
-            data-orderable-object='cp'
-            data-csrf=csrfToken
-            )
-            thead
-                tr
-                    th
-                    th(data-priority="1") Player
-                    th(data-priority="6") Source
-                    th(data-priority="3") Amount
-                    if currentCampaign.cp_approval
-                        th(data-priority="4") Status
-                    th(data-priority="5") Created
-                    th(data-priority="2")
+                li.nav-item(role="presentation")
+                    a.nav-link#all-grants-tab(href="#all-grants" data-bs-toggle="tab" role="tab" aria-controls="all-grants-tab" aria-selected="false") All CP Grants
 
+            .tab-content#grantTabsContent
+                .tab-pane.fade.show.active#my-grants(role="tabpanel" aria-labelledby="my-grants-tab")
+                    +playerGrants(myGrants)
+                .tab-pane.fade#all-grants(role="tabpanel" aria-labelledby="all-grants-tab")
+                    +staffGrants(grants)
 
-            tbody
-                for grant in grants
-                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
-                        td.dtr-control
-                        td= grant.user.name
-                        td
-                            if grant.content.length>83
-                                | !{marked.parseInline(grant.content.substr(0, 80)+'...')}
-                            else
-                                | !{marked.parseInline(grant.content)}
-                        td= grant.amount
-                        if currentCampaign.cp_approval
-                            td
-                                case grant.status
-                                    when 'pending'
-                                        .badge.text-bg-warning Pending
-                                    when 'approved'
-                                        .badge.text-bg-success Approved
-                                    when 'denied'
-                                        .badge.text-bg-danger Denied
+        else if myGrants
+            +playerGrants(myGrants)
 
-
-                        td(data-sort=grant.created.getTime())= moment(grant.created).format('lll')
-
-                        td.text-end
-                            if grant.status === 'pending'
-                                a.btn.btn-outline-success.btn-xs.action-btn.me-1.cp-approve-btn(
-                                    role="button"
-                                    data-bs-toggle='tooltip'
-                                    title='Approve'
-                                    data-id=grant.id
-                                    data-csrf=csrfToken
-                                    data-back='/cp_grant'
-                                )
-                                    i.fas.fa-thumbs-up.fa-fw
-
-                                a.btn.btn-outline-warning.btn-xs.action-btn.me-1.cp-deny-btn(
-                                    role="button"
-                                    data-bs-toggle='tooltip'
-                                    title='Deny'
-                                    data-id=grant.id
-                                    data-csrf=csrfToken
-                                    data-back='/cp_grant'
-                                )
-                                    i.fas.fa-thumbs-down.fa-fw
-
-                            a.btn.btn-outline-danger.btn-xs.delete-btn(
-                                role="button",
-                                data-bs-toggle='tooltip'
-                                title='Delete'
-                                url=`/cp_grant/${grant.id}`,
-                                data-back='/cp_grant'
-                            )
-                                i.fas.fa-trash.fa-fw
-
+        else if grants
+            +staffGrants(grants)
 
 
 append scripts
     script(src='/javascripts/data-table.js')
     script(src='/javascripts/cp-grant.js')
+    script.
+        $(function(){
+            const grantTabStorageId = 'cdb-grants-tab';
+            const selectedTab = localStorage.getItem(grantTabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#grantTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(grantTabStorageId, $(e.target).attr('id'));
+            });
+        });

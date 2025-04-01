@@ -61,7 +61,12 @@ function showNew(req, res){
             'contributing staff': { name: 'contributing staff', order: 1 },
             'event staff':  { name: 'event staff', order: 3 },
             'player':  { name: 'player', order: 2 },
+        },
+        rename_map: {
+            post_event_survey: 'Post Event Survey',
+            pes: 'PES'
         }
+
     };
     res.locals.breadcrumbs = {
         path: [
@@ -92,6 +97,13 @@ async function showEdit(req, res, next){
             'contributing staff': { name: 'contributing staff', order: 1 },
             'event staff':  { name: 'event staff', order: 3 },
             'player':  { name: 'player', order: 2 },
+            };
+        }
+
+        if (!campaign.rename_map){
+            campaign.rename_map = {
+               post_event_survey: 'Post Event Survey',
+                pes: 'PES'
             };
         }
 

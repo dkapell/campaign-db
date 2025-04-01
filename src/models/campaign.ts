@@ -3,6 +3,8 @@ import validator from 'validator';
 import cache from '../lib/cache';
 
 import Model from '../lib/Model';
+import pluralize from 'pluralize';
+
 
 import imageModel from './image';
 
@@ -49,7 +51,8 @@ const tableFields = [
     'user_type_map',
     'post_event_survey_cp',
     'post_event_survey_hide_days',
-    'event_attendance_cp'
+    'event_attendance_cp',
+    'rename_map'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {
@@ -78,6 +81,15 @@ async function postSelect(data:ModelData){
     }
     if (data.site){
         await cache.store('campaign-site', (data.site as string), data);
+    }
+    if (data.rename_map){
+        data.renames = {};
+        for (const name in data.rename_map as Record<string, unknown>){
+            data.renames[name] = {
+                singular: data.rename_map[name],
+                plural: pluralize(data.rename_map[name])
+            };
+        }
     }
     return data;
 }

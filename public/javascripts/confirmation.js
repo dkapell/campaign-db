@@ -22,6 +22,15 @@
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
+            for (const field in settings){
+                if ($(this).attr(field)){
+                    settings[field] = $(this).attr(field);
+                }
+            }
+            if ($(this).attr('data-bs-original-title')){
+                settings.title = $(this).attr('data-bs-original-title');
+            }
+            $(this).tooltip('hide');
             buildModal();
             modal.modal('show');
             (async () => {

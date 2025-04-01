@@ -138,15 +138,18 @@ fieldset.mb-2.border.p-2.rounded
                 #css-container.collapse(aria-labeledby="css-heading")
                     +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
 fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#user_type-heading(data-bs-toggle="collapse" data-bs-target="#user_type-container" aria-expanded="false" area-controls="user_type-container") User Type Names
+    label.h5.w-100#naming-heading(data-bs-toggle="collapse" data-bs-target="#naming-container" aria-expanded="false" area-controls="naming-container") Campaign-specific Names
         span.float-end.ps-2
             i.fa.fa-chevron-up
             i.fa.fa-chevron-down
 
-    #user_type-container.collapse(aria-labeledby='user_type-heading')
+    #naming-container.collapse(aria-labeledby='naming-heading')
+        .row.my-2
+            .col
+                .alert.alert-info These fields allow you to rename certain objects/names on the website to be correct for your campaign's nomenclature.
         .row.my-2
             .col-md-4
-                strong User Type
+                h4 User Type
             .col-md-4
                 strong Name
             .col-md-4
@@ -161,7 +164,8 @@ fieldset.mb-2.border.p-2.rounded
 
         each type in _.sortBy(types, 'order')
             .row.my-2
-                .col-md-4= type.type
+                .col-md-4
+                    strong= type.type
                 .col-md-4
                     input.form-control(
                         id=`campaign_user_type_map-${type.type}-name`
@@ -177,6 +181,24 @@ fieldset.mb-2.border.p-2.rounded
                         name=`campaign[user_type_map][${type.type}][order]`
                         value=type.order
                     )
+        .row.my-2
+            .col-md
+                h4 Other
+
+        each value, type in campaign.rename_map
+            .row.my-2
+                .col-md-4
+                    strong=type
+                .col-md-8
+                    input.form-control(
+                        type='text'
+                        id=`campaign_user_rename_map-${type}`
+                        name=`campaign[rename_map][${type}]`
+                        value=value
+                    )
+
+
+
 
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#drive-heading(data-bs-toggle="collapse" data-bs-target="#drive-container" aria-expanded="false" area-controls="drive-container") Google Drive Options
@@ -252,14 +274,14 @@ fieldset.mb-2.border.p-2.rounded
 
         .row.my-2
             .col-md-4
-                label.control-label(for="campaign_post_event_survey_cp") Post Event Survey CP
+                label.control-label(for="campaign_post_event_survey_cp") #{currentCampaign.renames.post_event_survey.singular} CP
             .col
                 input.form-control#campaign_post_event_survey_cp(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
 
         .row.my-2
             .col-md-4
                 label.control-label(for="campaign_post_event_survey_hide_days")
-                    | Hide Post Event Survey Results from Staff
+                    | Hide #{currentCampaign.renames.post_event_survey.singular} Results from Staff
             .col
                 .input-group
                     input.form-control#campaign_event_default_location(placeholder="Days",name="campaign[post_event_survey_hide_days]",value=campaign.post_event_survey_hide_days type='number' max=14, min=0)

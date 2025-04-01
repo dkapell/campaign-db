@@ -55,6 +55,7 @@ create table campaigns (
     event_attendance_cp float not null default 0,
     timezone varchar(80) default ('America/New_York'),
     user_type_map jsonb,
+    rename_map jsonb,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE

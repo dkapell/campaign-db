@@ -22,6 +22,7 @@ alter table campaigns
     add COLUMN post_event_survey_cp float not null, default 0,
     add COLUMN post_event_survey_hide_days int not null default 0;
     add COLUMN event_attendance_cp float not null default 0,
+    add COLUMN rename_map jsonb;
 
 alter table events
     add column post_event_survey_deadline timestamp with time zone,

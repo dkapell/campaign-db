@@ -1,6 +1,8 @@
 extends ../layout
 
 include ../partials/character.pug
+include ../partials/event
+include ../partials/post_event_survey
 
 block content
     h2.d-inline= user.name
@@ -61,21 +63,28 @@ block content
     if user.notes
         .row.my-2
             .col
-                h3 Notes
+                h4 Notes
                 != marked.parse(user.notes)
 
     if user.permissions.length
         .row.my-2
             .col
-                h3 Permissions
+                h4 Permissions
                 ul.list-unstyled
                     each permission of user.permissions
                         li= capitalize(permission)
 
-    .row.my-2
-        .col
-            h3 Characters
-            +characterListDisplay(characters, true, true, true, true)
+    if characters.length
+        .row.my-2
+            .col
+                h4 Characters
+                +characterListDisplay(characters, true, true, true, true)
+
+    if surveys.length
+        .row.my-2
+            .col
+                h4 Post Event Surveys
+                +postEventSurveyGmTable(surveys)
 
 append scripts
     script(src='/javascripts/data-table.js')

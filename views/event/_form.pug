@@ -1,3 +1,6 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+
 .row.my-2
     .col
         label.control-label(for="event_name") Event Name
@@ -56,20 +59,43 @@
 .row.my-2
     .col
         label.control-label(for="event_pre_event_survey_id") Registration Survey
-        select.form-select.select2#event_pre_event_survey_id(name="event[pre_event_survey_id]" data-placeholder='Registration Survey')
-            option
+        select.form-select.complex-select2#event_pre_event_survey_id(name="event[pre_event_survey_id]" data-placeholder='Registration Survey')
+            option(
+                value=-1
+                selected=!event.pre_event_survey_id
+                data-html='<i>None</i>'
+                data-text='<i>None</i>'
+
+            ) None
             for survey in surveys.pre
-                option(value=survey.id selected=event.pre_event_survey_id===survey.id || (!event.pre_event_survey_id && survey.is_default))=survey.name
+                option(
+                    value=survey.id
+                    selected=event.pre_event_survey_id===survey.id
+                    data-html=`${survey.name}${survey.is_default?'<span class="badge text-bg-info ms-2">Default</span>':''}`
+                    data-text=`${survey.name}${survey.is_default?'<span class="badge text-bg-info ms-2">Default</span>':''}`
+                )= survey.name
                     if survey.is_default
                         |  ( Default )
 
 .row.my-2
     .col-md-8
         label.control-label(for="event_post_event_survey_id") Post-Event Survey
-        select.form-select.select2#event_post_event_survey_id(name="event[post_event_survey_id]" data-placeholder='Post Event Survey')
-            option
+        select.form-select.complex-select2#event_post_event_survey_id(name="event[post_event_survey_id]" data-placeholder='Post Event Survey' data-allowClear=true)
+            option(
+                value=-1
+                selected=!event.post_event_survey_id
+                data-html='<i>None</i>'
+                data-text='<i>None</i>'
+
+            ) None
             for survey in surveys.post
-                option(value=survey.id selected=event.pre_event_survey_id===survey.id || (!event.post_event_survey_id && survey.is_default))=survey.name
+                option(
+                    value=survey.id
+                    selected=event.post_event_survey_id===survey.id
+                    data-html=`${survey.name}${survey.is_default?'<span class="badge text-bg-info ms-2">Default</span>':''}`
+                    data-text=`${survey.name}${survey.is_default?'<span class="badge text-bg-info ms-2">Default</span>':''}`
+
+                )=survey.name
                     if survey.is_default
                         |  ( Default )
 

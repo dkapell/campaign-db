@@ -2,7 +2,7 @@
     .col-md-3
         label.control-label(for="survey_name") Name
     .col
-        input.form-control(type="text",placeholder="Campaign Name",name="survey[name]",value=survey.name,id='survey_name')
+        input.form-control(type="text",placeholder="Survey Name",name="survey[name]",value=survey.name,id='survey_name')
 
 .row.my-2
     .col-md-3
@@ -20,14 +20,15 @@
             label.form-check-label(for="survey_is_default") Is Default for this Type
 .row.my-2
     .col
+        - if (typeof survey.definition === 'string'){ survey.definition = JSON.parse(survey.definition); }
+        +surveyDefinitionHeader()
         #survey_fields-list
-            +surveyDefinitionHeader()
             - let idx = 0;
-            - if (typeof survey.definition === 'string'){ survey.definition = JSON.parse(survey.definition); }
             for field in survey.definition
                 +surveyField(field, idx)
                 - idx++;
             +surveyField({}, 'new')
+        +surveyDefinitionFooter(survey.definition.length)
 
 
 .row.my-2

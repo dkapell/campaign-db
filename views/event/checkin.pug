@@ -4,99 +4,205 @@ include ../partials/event.pug
 include ../partials/attendee.pug
 
 block content
-    .row
-        .col.card
-            .row.card-header
-                .col-md
-                    h3.d-inline #{event.name} - Check-in
+    input#eventId(type='hidden' value=event.id)
+    .row.my-2.text-bg-light.rounded.border.p-2
+        .col-lg
+            h3.d-inline #{event.name} - Check-in
 
-                    
-                .col-md.text-md-end
-                    h4.d-inline.align-bottom
-                        +eventDate(event.start_time, event.end_time)
 
-            .card-body
-                - const players = event.players.filter(player => {return player.attending});
-                .table-responsive.my-2
-                    .col-sm-6.offset-sm-3.text-center.table-loading
-                        .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                            .visually-hidden Table is Loading
-                    table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
-                        style="display: none"
-                    )
-                        thead
-                            tr
-                                th
-                                th
-                                th Attendee
-                                th Character
-                                th Paid
-                                if event.addons
-                                    each addon in event.addons
-                                        if addon.available_to_player && addon.on_checkin
-                                            th=addon.name
-                                if event.pre_event_survey
-                                    each field in event.pre_event_survey.definition
-                                        if field.on_checkin && (!field.visible_to || field.visible_to !== 'staff')
-                                            th= field.name
-                        tbody
-                            for attendee in players
+        .col-lg.text-lg-end
+            h4.d-inline.align-bottom
+                +eventDate(event.start_time, event.end_time)
+
+    .row.my-3
+        .col
+
+            ul.nav.nav-tabs.w-100.my-2#checkinTabs(role="tablist")
+                li.nav-item(role="presentation")
+                    a.nav-link.active#player-checkin-tab(href="#player-checkin" data-bs-toggle="tab" role="tab" aria-controls="player-checkin" aria-selected="true") Players
+
+                li.nav-item(role="presentation")
+                    a.nav-link#staff-checkin-tab(href="#staff-checkin" data-bs-toggle="tab" role="tab" aria-controls="staff-checkin" aria-selected="false") Staff
+
+            .tab-content#checkinContent
+                .tab-pane.fade.show.active#player-checkin(role="tabpanel" aria-labelledby="player-checkin-tab")
+                    h4 Players
+
+                    - const players = event.players.filter(player => {return player.attending});
+                    .table-responsive.my-2
+                        .col-sm-6.offset-sm-3.text-center.table-loading
+                            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                                .visually-hidden Table is Loading
+                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+                            style="display: none"
+                        )
+                            thead
                                 tr
-                                    td.dtr-control
-                                    td(data-priority=1)
-                                        span.badge.text-bg-success.event-uncheckin-btn(
-                                            id=`event-checkedin-${attendee.id}`
-                                            data-attendee_id=attendee.id
-                                            data-csrf=csrfToken
-                                            data-url=`/event/${event.id}/uncheckin/${attendee.id}`
-                                            style=attendee.checked_in?'':'display:none'
-                                        )
-                                            i.fas.fa-clipboard-check.fa-fw.me-1
-                                            | Checked In
-
-                                        button.btn.btn-xs.btn-outline-primary.event-checkin-btn(
-                                            role="button" id=`event-checkedin-${attendee.id}`
-                                            data-attendee_id=attendee.id
-                                            data-csrf=csrfToken
-                                            data-url=`/event/${event.id}/checkin/${attendee.id}`
-                                            style=attendee.checked_in?'display:none':''
-                                        )
-                                            i.fas.fa-clipboard.fa-fw.me-1
-                                            | Check In
-                                    td(data-priority=2)= attendee.user.name
-                                    td(data-priority=3)= attendee.character.name
-                                    td(data-priority=4)
-                                        if attendee.paid
-                                            .badge.text-bg-success Yes
-                                        else
-                                            .badge.text-bg-danger No
+                                    th
+                                    th(data-priority=1)
+                                    th(data-priority=2) Attendee
+                                    th(data-priority=99) Character
+                                    th(data-priority=3) Paid
                                     if event.addons
                                         each addon in event.addons
                                             if addon.available_to_player && addon.on_checkin
-                                                td
-                                                    - const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:Number(addon.id)})
-                                                    if attendee_addon
-                                                        if addon.charge_player
-                                                            if attendee_addon.paid
-                                                                .badge.text-bg-success Paid
-                                                            else
-                                                                .badge.text-bg-danger Unpaid
-                                                        else
-                                                            .badge.text-bg-success Yes
-                                                    else
-                                                        .badge.text-bg-warning No
+                                                th(data-priority=4)=addon.name
                                     if event.pre_event_survey
                                         each field in event.pre_event_survey.definition
                                             if field.on_checkin && (!field.visible_to || field.visible_to !== 'staff')
-                                                td
-                                                    if _.has(attendee.data, field.name)
-                                                        if field.type === 'boolean'
-                                                            if attendee.data[field.name]
-                                                                .badge.text-bg-success Yes
+                                                th(data-priority=5)= field.name
+                            tbody
+                                for attendee in players
+                                    tr
+                                        td.dtr-control
+                                        td(data-priority=1)
+                                            span.badge.text-bg-success.event-uncheckin-btn(
+                                                id=`event-checkedin-${attendee.id}`
+                                                data-attendee_id=attendee.id
+                                                data-csrf=csrfToken
+                                                data-url=`/event/${event.id}/uncheckin/${attendee.id}`
+                                                style=attendee.checked_in?'':'display:none'
+                                            )
+                                                i.fas.fa-clipboard-check.fa-fw.me-1
+                                                | Checked In
+
+                                            button.btn.btn-xs.btn-outline-primary.event-checkin-btn(
+                                                role="button" id=`event-checkedin-${attendee.id}`
+                                                data-attendee_id=attendee.id
+                                                data-csrf=csrfToken
+                                                data-url=`/event/${event.id}/checkin/${attendee.id}`
+                                                style=attendee.checked_in?'display:none':''
+                                            )
+                                                i.fas.fa-clipboard.fa-fw.me-1
+                                                | Check In
+                                        td(data-priority=2)= attendee.user.name
+                                        td(data-priority=3)= attendee.character.name
+                                        td(data-priority=4)
+                                            if attendee.paid
+                                                .badge.text-bg-success Yes
+                                            else
+                                                .badge.text-bg-danger No
+                                        if event.addons
+                                            each addon in event.addons
+                                                if addon.available_to_player && addon.on_checkin
+                                                    td
+                                                        - const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:Number(addon.id)})
+                                                        if attendee_addon
+                                                            if addon.charge_player
+                                                                if attendee_addon.paid
+                                                                    .badge.text-bg-success Paid
+                                                                else
+                                                                    .badge.text-bg-danger Unpaid
                                                             else
-                                                                .badge.text-bg-danger No
+                                                                .badge.text-bg-success Yes
                                                         else
-                                                            != marked.parseInline(attendee.data[field.name], {breaks:false})
+                                                            .badge.text-bg-warning No
+                                        if event.pre_event_survey
+                                            each field in event.pre_event_survey.definition
+                                                if field.on_checkin && (!field.visible_to || field.visible_to !== 'staff')
+                                                    td
+                                                        - console.log(attendee.pre_event_data)
+                                                        if _.has(attendee.pre_event_data, field.id)
+                                                            if field.type === 'boolean'
+                                                                if attendee.pre_event_data[field.id].data
+                                                                    .badge.text-bg-success Yes
+                                                                else
+                                                                    .badge.text-bg-danger No
+                                                            else
+                                                                != marked.parseInline(attendee.pre_event_data[field.id].data, {breaks:false})
+                                                        else if _.has(attendee.pre_event_data, field.name)
+                                                            if field.type === 'boolean'
+                                                                if attendee.pre_event_data[field.name]
+                                                                    .badge.text-bg-success Yes
+                                                                else
+                                                                    .badge.text-bg-danger No
+                                                            else
+                                                                != marked.parseInline(attendee.pre_event_data[field.name], {breaks:false})
+
+                .tab-pane.fade#staff-checkin(role="tabpanel" aria-labelledby="staff-checkin-tab")
+                    h4 Staff
+                    - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
+                    .table-responsive.my-2
+                        .col-sm-6.offset-sm-3.text-center.table-loading
+                            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                                .visually-hidden Table is Loading
+                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+                            style="display: none"
+                        )
+                            thead
+                                tr
+                                    th
+                                    th(data-priority=1)
+                                    th(data-priority=2) Attendee
+                                    if event.addons
+                                        each addon in event.addons
+                                            if addon.available_to_staff && addon.on_checkin
+                                                th(data-priority=3)=addon.name
+                                    if event.pre_event_survey
+                                        each field in event.pre_event_survey.definition
+                                            if field.on_checkin && (!field.visible_to || field.visible_to !== 'player')
+                                                th(data-priority=4)= field.name
+                            tbody
+                                for attendee in staff
+                                    tr
+                                        td.dtr-control
+                                        td(data-priority=1)
+                                            span.badge.text-bg-success.event-uncheckin-btn(
+                                                id=`event-checkedin-${attendee.id}`
+                                                data-attendee_id=attendee.id
+                                                data-csrf=csrfToken
+                                                data-url=`/event/${event.id}/uncheckin/${attendee.id}`
+                                                style=attendee.checked_in?'':'display:none'
+                                            )
+                                                i.fas.fa-clipboard-check.fa-fw.me-1
+                                                | Checked In
+
+                                            button.btn.btn-xs.btn-outline-primary.event-checkin-btn(
+                                                role="button" id=`event-checkedin-${attendee.id}`
+                                                data-attendee_id=attendee.id
+                                                data-csrf=csrfToken
+                                                data-url=`/event/${event.id}/checkin/${attendee.id}`
+                                                style=attendee.checked_in?'display:none':''
+                                            )
+                                                i.fas.fa-clipboard.fa-fw.me-1
+                                                | Check In
+                                        td(data-priority=2)= attendee.user.name
+                                        if event.addons
+                                            each addon in event.addons
+                                                if addon.available_to_staff && addon.on_checkin
+                                                    td
+                                                        - const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:Number(addon.id)})
+                                                        if attendee_addon
+                                                            if addon.charge_staff
+                                                                if attendee_addon.paid
+                                                                    .badge.text-bg-success Paid
+                                                                else
+                                                                    .badge.text-bg-danger Unpaid
+                                                            else
+                                                                .badge.text-bg-success Yes
+                                                        else
+                                                            .badge.text-bg-warning No
+                                        if event.pre_event_survey
+                                            each field in event.pre_event_survey.definition
+                                                if field.on_checkin && (!field.visible_to || field.visible_to !== 'player')
+                                                    td
+                                                        if _.has(attendee.pre_event_data, field.id)
+                                                            if field.type === 'boolean'
+                                                                if attendee.pre_event_data[field.id].data
+                                                                    .badge.text-bg-success Yes
+                                                                else
+                                                                    .badge.text-bg-danger No
+                                                            else
+                                                                != marked.parseInline(attendee.pre_event_data[field.id].data, {breaks:false})
+                                                        else if _.has(attendee.pre_event_data, field.name)
+                                                            if field.type === 'boolean'
+                                                                if attendee.pre_event_data[field.name]
+                                                                    .badge.text-bg-success Yes
+                                                                else
+                                                                    .badge.text-bg-danger No
+                                                            else
+                                                                != marked.parseInline(attendee.pre_event_data[field.name], {breaks:false})
+
 
 
 
@@ -105,3 +211,14 @@ block content
 append scripts
     script(src='/javascripts/data-table.js')
     script(src='/javascripts/event.js')
+    script.
+        $(function(){
+            const checkinTabStorageId = `cdb-checkin-tab-${$('#eventId').val()}`;
+            const selectedTab = localStorage.getItem(checkinTabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#checkinTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(checkinTabStorageId, $(e.target).attr('id'));
+            });
+        });

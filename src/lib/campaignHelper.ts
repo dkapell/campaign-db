@@ -5,6 +5,7 @@ import models from './models';
 import fs from 'fs/promises';
 import stringify from 'csv-stringify-as-promised';
 import moment from 'moment-timezone';
+import surveyHelper from '../lib/surveyHelper';
 
 type SkillTableTypes = 'skill_source_type'|'skill_type'|'skill_usage'|'skill_status'|'skill_tag';
 type GlossaryTypes = 'glossary_status';
@@ -252,6 +253,20 @@ async function splitTime(campaignId:number, time:Date){
     }
 }
 
+async function getPostEventSurveys(userId: number, events:ModelData[]){
+    const postEventSurveys = [];
+    for (const event of events as EventData[]){
+        if (!event.post_event_survey_id){ continue; }
+        const attendance: AttendanceData = _.findWhere(event.attendees as ModelData[], {user_id: userId});
+        if (!attendance || !attendance.attending ){ continue; }
+        postEventSurveys.push(surveyHelper.formatPostEventData(attendance, event));
+    }
+
+    return postEventSurveys.sort((a, b) => {
+        return b.eventStartTime - a.eventStartTime;
+    });
+}
+
 export default {
     init,
     getCharacterCSV,
@@ -259,5 +274,6 @@ export default {
     attributeSorter,
     characterSorter,
     parseTime,
-    splitTime
+    splitTime,
+    getPostEventSurveys:getPostEventSurveys
 }

@@ -148,6 +148,55 @@ interface CharacterData extends ModelData {
     user?:CampaignUser
 }
 
+interface SurveyData extends ModelData {
+    id?: number
+    campaign_id?: number
+    name?: string
+    type?: string
+    is_default?: boolean
+    definition?: Record<string, unknown>
+    created?: Date
+
+}
+
+interface EventData extends ModelData {
+    id?: number
+    campaign_id?: number
+    name?: string
+    description?: string
+    start_time?: Date
+    end_time?: Date
+    registration_open?:boolean
+    cost?: number
+    deleted?: boolean
+    created?: Date
+    hide_attendees?: boolean
+    post_event_survey_deadline?: Date
+    post_event_survey_id?: number
+    post_event_survey?: SurveyData
+    pre_event_survey_id?: number
+    pre_event_survey?: SurveyData
+}
+
+interface AttendanceData extends ModelData {
+    id?: number
+    campaign_id?: number
+    event_id?: number
+    user_id?: number
+    character_id?: number
+    paid?: boolean
+    notes?: string
+    pre_event_data?: Record<string, unknown>
+    post_event_data?: Record<string, unknown>
+    post_event_submitted?: boolean
+    attending?: boolean
+    created?: Date
+    checked_in?: boolean
+    attendance_cp_granted?: boolean
+    post_event_cp_granted?: boolean
+    post_event_hidden?: boolean
+}
+
 interface AttributeRecord {
     name: string
     value: number
@@ -175,3 +224,4 @@ interface AttendeeAddon {
     event_addon_id: number
     paid?: boolean
 }
+

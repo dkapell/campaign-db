@@ -1,41 +1,67 @@
 
-mixin customSurveyField(field, currentValue, isStaff)
-    - const fieldName = field.longname?field.longname:field.name
-    - const disabled = !isStaff && field.editable_by ==='staff'
+mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff, options={})
+    - const disabled = (!isStaff && field.editable_by ==='gm') || options.disabled
     div.custom-event-field(
-        data-fieldname=field.name
         data-visible_to=field.visible_to?field.visible_to:'all'
         data-editable_by=field.editable_by?field.editable_by:'submitter'
     )
         case field.type
             when 'text'
-
-                label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                label.control-label(for=`${idPrefix}_${field.id}`)= field.name
                     if field.required
                         span.ms-1.text-danger *
-                input.form-control( id=`attendance_data_${field.name}` type="text" name=`attendance[data][${field.name}]` value=currentValue required=field.required data-isrequired=field.required disabled=disabled)
+                if field.description
+                    .form-text!=marked.parseInline(field.description, {breaks:true})
+
+                input.form-control( id=`${idPrefix}_${field.id}` type="text" name=`${namePrefix}[${field.id}]` value=currentValue required=field.required data-isrequired=field.required disabled=disabled)
+
             when 'longtext'
                 -
                     const rows = field.rows?Number(field.rows):3;
                     const height = rows * 24;
 
-                +markdownEditor(fieldName, `attendance_data_${field.name}`, `attendance[data][${field.name}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength})
+                +markdownEditor(field.name, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
+
             when 'boolean'
                 .form-check.form-switch
-                    input.form-check-input(type="checkbox" id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` checked=currentValue disabled=disabled)
-                    label.form-check-label(for=`attendance_data_${field.name}`)= fieldName
+                    input.form-check-input(type="checkbox" id=`${idPrefix}_${field.id}` name=`${namePrefix}[${field.id}]` checked=currentValue disabled=disabled)
+                    if field.description
+                        .form-text!=marked.parseInline(field.description, {breaks:true})
+
+                    label.form-check-label(for=`${idPrefix}_${field.id}`)= field.name
+
             when 'dropdown'
-                label.control-label(for=`attendance_data_${field.name}`)= fieldName
+                label.control-label(for=`${idPrefix}_${field.id}`)= field.name
                     if field.required
                         span.ms-1.text-danger *
-                select.form-select.select2(id=`attendance_data_${field.name}` name=`attendance[data][${field.name}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required disabled=disabled)
+                if field.description
+                    .form-text!=marked.parseInline(field.description, {breaks:true})
+
+                select.form-select.select2(id=`${idPrefix}_${field.id}` name=`${namePrefix}[${field.id}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required disabled=disabled)
                     if field.placeholder
                         option
                     for item of field.options
                         option(value=item selected=item===currentValue)= item
 
+            when 'text content'
+                != marked.parseInline(field.content, {breaks:true})
+
+mixin customSurveyFieldDisplay(field, value)
+    h5= field.name
+    .card.text-bg-light.ms-md-4
+        .card-body.p-2
+            case field.type
+                when 'text'
+                    != marked.parseInline(value, {breaks:false})
+                when 'longtext'
+                    != marked.parseInline(value, {breaks:true})
+                when 'dropdown'
+                    = value
+                when 'boolean'
+                    =value?'Yes':'No'
+
 mixin surveyDefinitionHeader()
-    .row.my-2.survey_field-header-row
+    .row.my-2#survey_field-header-row
         .col-lg
             h4 Survey Fields
         .col-lg.text-end
@@ -43,14 +69,30 @@ mixin surveyDefinitionHeader()
                 i.fa.fa-plus.me-1
                 | Add Field
 
+mixin surveyDefinitionFooter(show)
+    .row.my-2#survey_field-footer-row(style=show?'':'display:none')
+        .col-lg.text-end
+            .border-top.border-2.pt-2.px-2
+                button.btn.btn-sm.btn-outline-success.add-survey_field-btn
+                    i.fa.fa-plus.me-1
+                    | Add Field
+
 mixin surveyField(field,  idx)
     .survey_field-row.border-top.border-start.border-2.my-1.px-2(id=`survey_field-${idx}` )
+        - console.log(field)
         input.sort-order.survey_field-input(
             type='hidden'
             id=`survey_field_${idx}_sort_order`
             name=`survey[definition][${idx}][sort_order]`
             value=idx
             data-fieldtype='sort_order'
+        )
+        input.survey_field-input(
+            type='hidden'
+            id=`survey_field_${idx}_id`
+            name=`survey[definition][${idx}][id]`
+            value=field.id
+            data-fieldtype='id'
         )
         .row.my-2
             .col-lg-4
@@ -90,7 +132,7 @@ mixin surveyField(field,  idx)
                     for=`survey_field_${idx}_type`
                     data-fieldtype='type'
                 ) Type
-                select.form-select.survey_field-type(
+                select.form-select.survey_field-input.survey_field-type(
                     name=`survey[definition][${idx}][type]`
                     id=`survey_field_${idx}_name`
                     data-fieldtype='type'
@@ -98,13 +140,31 @@ mixin surveyField(field,  idx)
                     data-placeholder='Type'
                 )
                     option
-                    each type in ['text', 'longtext', 'boolean', 'dropdown']
+                    each type in ['text', 'longtext', 'boolean', 'dropdown', 'text content']
                         option(value=type selected=type===field.type)= type
 
             .col-lg-3.text-end.align-bottom
+                button.btn.btn-sm.btn-outline-success.add-description-btn.align-bottom.me-1(data-bs-toggle="tooltip" title='Add Description' data-placement="right")
+                    i.fas.fa-plus.fa-fw.me-1
+                    | Description
                 button.btn.btn-sm.btn-outline-danger.remove-survey_field-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Field' data-placement="right")
                     i.fas.fa-trash.fa-fw.me-1
                     | Remove
+        .row.my-2.field-description.ps-4
+             .col-lg
+
+                label.control-label.mb-0.d-inline(for=`survey_field_${idx}_description`)= Description
+                    small.form-text.text-muted.d-inline Supports
+                        a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                            i.fas.fa-external-link-alt.ms-1
+                textarea.form-control.markdown-editor.survey_field-input(
+                    id= `survey_field_${idx}_description`
+                    rows=3
+                    name=`survey[definition][${idx}][description]`
+                    data-size= size
+                    data-fieldtype='description'
+                )
+                    = field.description
 
         .row.my-2.field-options.ps-4
             .col-lg-2
@@ -116,32 +176,28 @@ mixin surveyField(field,  idx)
                     name=`survey[definition][${idx}][visible_to]`
                     id=`survey_field_${idx}_visible_to`
                     data-fieldtype='visible_to'
-                    data-placeholder='Visibility'
                 )
-                    option
+                    - field.visible_to ||= 'all';
                     each visibility in ['all', 'player', 'staff']
                         option(value=visibility selected=visibility===field.visible_to)= visibility
-                .form-text Default: all
             .col-lg-2
                 label.control-label.survey_field-label(
                     for=`survey_field_${idx}_editable_by`
                     data-fieldtype='editable_by'
                 ) Editable By
-                select.form-select.form-select-sm.survey_field-input(
+                select.form-select.form-select-sm.survey_field-input.survey_field-editable_by(
                     name=`survey[definition][${idx}][editable_by]`
                     id=`survey_field_${idx}_editable_by`
                     data-fieldtype='editable_by'
-                    data-placeholder='Editability'
                 )
-                    option
-                    each editablity in ['submitter', 'staff']
+                    - field.editable_by ||= 'submitter';
+                    each editablity in ['submitter', 'gm']
                         option(value=editablity selected=editablity===field.editable_by)= editablity
-                .form-text Default: submitter
             .col-lg-4
                 label.control-label Options
                 br
                 .form-check.form-switch.form-check-inline
-                    input.form-check-input(
+                    input.form-check-input.survey_field-input.survey_field-required(
                         type='checkbox'
                         name=`survey[definition][${idx}][required]`
                         id=`survey_field_${idx}_required`
@@ -153,8 +209,8 @@ mixin surveyField(field,  idx)
                         data-fieldtype='required'
                     ) Required
 
-                .form-check.form-switch.form-check-inline
-                    input.form-check-input(
+                .form-check.form-switch.form-check-inline.survey_field-input
+                    input.form-check-input.survey_field-input.survey_field-on_checkin(
                         type='checkbox'
                         name=`survey[definition][${idx}][on_checkin]`
                         id=`survey_field_${idx}_on_checkin`
@@ -171,6 +227,7 @@ mixin surveyField(field,  idx)
                     for=`survey_field_${idx}_rows`
                     data-fieldtype='rows'
                 ) Rows
+                - field.rows ||= 3
                 input.form-control.survey_field-input.form-control-sm(
                     type="number",
                     placeholder="Rows"
@@ -179,7 +236,6 @@ mixin surveyField(field,  idx)
                     id=`survey_field_${idx}_rows`
                     data-fieldtype='rows'
                 )
-                .form-text Default: 3
             .col-lg-2.textarea-options.survey_field-type-options
                 label.control-label.survey_field-label(
                     for=`survey_field_${idx}_maxlength`
@@ -187,13 +243,13 @@ mixin surveyField(field,  idx)
                 ) Max Length
                 input.form-control.survey_field-input.form-control-sm(
                     type="number",
-                    placeholder="Characters"
+                    placeholder="Unlimited"
                     name=`survey[definition][${idx}][maxlength]`
                     value=field.maxlength
                     id=`survey_field_${idx}_maxlength`
                     data-fieldtype='maxlength'
                 )
-                .form-text Default: unlimited
+
         .row.my-2.dropdown-options.survey_field-type-options.ps-4
             .col-lg-8
                 label.control-label.survey_field-label(
@@ -221,6 +277,20 @@ mixin surveyField(field,  idx)
                     id=`survey_field_${idx}_placeholder`
                     data-fieldtype='placeholder'
                 )
+        .row.my-2.markdown-options.survey_field-type-options.ps-4
+            .col-lg
+                label.control-label.mb-0.d-inline(for=`survey_field_${idx}_content`)= Content
+                    small.form-text.text-muted.d-inline Supports
+                        a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                            i.fas.fa-external-link-alt.ms-1
+                textarea.form-control.markdown-editor.survey_field-input(
+                    id= `survey_field_${idx}_content`
+                    rows=3
+                    name=`survey[definition][${idx}][content]`
+                    data-size= size
+                    data-fieldtype='content'
+                )
+                    = field.content
 
 
 

@@ -51,6 +51,9 @@ function showNew(req, res){
         cp_approval: true,
         event_default_cost: 0,
         event_default_location: null,
+        post_event_survey_cp: 0,
+        post_event_survey_hide_days: 0,
+        event_attendance_cp: 0,
         timezone: 'America/New_York',
         user_type_map: {
             'admin': { name: 'core staff', order: 0 },
@@ -91,14 +94,6 @@ async function showEdit(req, res, next){
             'player':  { name: 'player', order: 2 },
             };
         }
-            /*[
-                { type: 'admin', name: 'core staff', order: 0 },
-                { type: 'core staff', name: 'core staff', order: 0 },
-                { type: 'contributing staff', name: 'contributing staff', order: 1 },
-                { type: 'event staff', name: 'event staff', order: 3 },
-                { type: 'player', name: 'player', order: 2 }
-            ];
-        }*/
 
         res.locals.campaign = campaign;
         if (_.has(req.session, 'campaignData')){

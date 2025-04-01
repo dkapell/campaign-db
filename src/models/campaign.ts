@@ -48,7 +48,8 @@ const tableFields = [
     'timezone',
     'user_type_map',
     'post_event_survey_cp',
-    'post_event_survey_hide_days'
+    'post_event_survey_hide_days',
+    'event_attendance_cp'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

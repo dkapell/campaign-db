@@ -21,12 +21,15 @@ const tableFields = [
     'character_id',
     'paid',
     'notes',
-    'data',
+    'pre_event_data',
     'post_event_data',
     'post_event_submitted',
     'attending',
     'created',
-    'checked_in'
+    'checked_in',
+    'attendance_cp_granted',
+    'post_event_cp_granted',
+    'post_event_hidden'
 ];
 
 const Attendance = new Model('attendance', tableFields, {
@@ -42,6 +45,8 @@ async function fill(record){
     if (record.character_id){
         record.character = await models.character.get(record.character_id);
     }
+
+    record.post_event_data = record.post_event_data ||= {};
 
     record.addons = await models.attendance_addon.find({campaign_id: record.campaign_id, attendance_id:record.id});
     return record;

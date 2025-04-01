@@ -111,13 +111,14 @@ function validatePermission(req, permission, user, bypass){
                 return true;
             }
             break;
-        default:
+        default:{
             const permissionList = config.get("permissions") as string[];
             if (_.indexOf(permissionList, permission) !== -1 && _.indexOf(user.permissions, permission) !== -1){
                 return true;
             }
 
             return false;
+        }
     }
 }
 export default permission;

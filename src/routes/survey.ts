@@ -3,6 +3,7 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
+import surveyHelper from '../lib/surveyHelper';
 
 /* GET surveys listing. */
 async function list(req, res, next){
@@ -22,7 +23,7 @@ async function list(req, res, next){
     }
 }
 
-/*
+
 async function show(req, res, next){
     const id = req.params.id;
     try{
@@ -33,19 +34,17 @@ async function show(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/skill', name: 'Skills'},
-                { url: '/survey', name: 'Statuses'},
+                { url: '/survey', name: 'Surveys'}
             ],
             current: survey.name
         };
-        res.locals.skills = await req.models.skill.find({source_id:id});
+        res.locals.survey = survey;
         res.locals.title += ` - Survey - ${survey.name}`;
         res.render('survey/show');
     } catch(err){
         next(err);
     }
 }
-*/
 
 async function showNew(req, res, next){
     try{
@@ -138,6 +137,8 @@ async function create(req, res){
 
     try{
 
+        survey.definition = JSON.stringify(surveyHelper.parseFields(survey.definition));
+
         if (survey.is_default && survey.type !== 'other'){
             const surveys = await req.models.survey.find({campaign_id:req.campaign.id, type: survey.type});
             await async.each(surveys, async function(existingSurvey: ModelData){
@@ -147,7 +148,6 @@ async function create(req, res){
                 }
             });
         }
-        survey.definition = JSON.stringify(parseSurveyFields(survey.definition));
 
         const id = await req.models.survey.create(survey);
         await req.audit('survey', id, 'create', {new:survey});
@@ -175,6 +175,10 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+        console.log('here1')
+        survey.definition = JSON.stringify(surveyHelper.parseFields(survey.definition));
+
+        console.log('here2')
 
          if (!current.is_default && survey.is_default && survey.type !== 'other'){
             const surveys = await req.models.survey.find({campaign_id:req.campaign.id, type: survey.type});
@@ -186,7 +190,6 @@ async function update(req, res){
             });
         }
 
-        survey.definition = JSON.stringify(parseSurveyFields(survey.definition));
 
         await req.models.survey.update(id, survey);
         await req.audit('survey', id, 'update', {old: current, new:survey});
@@ -198,62 +201,6 @@ async function update(req, res){
         return (res.redirect(`/survey/${id}/edit`));
 
     }
-}
-
-function parseSurveyFields(input){
-    let output = [];
-
-    for (const id in input){
-        if (id === 'new'){
-            continue;
-        }
-
-        const surveyField = input[id];
-
-        const doc: SurveyField = {
-            name: surveyField.name,
-            type: surveyField.type,
-            icon: surveyField.icon,
-            sort_order: surveyField.sort_order
-        }
-
-        for (const field of ['required', 'on_checkin']){
-            if (_.has(surveyField, field)){
-                doc[field] = true;
-            } else {
-                doc[field] = false;
-            }
-        }
-
-        if (_.has(surveyField, 'visible_to') && surveyField.visible_to !== ''){
-            doc.visible_to = surveyField.visible_to;
-        }
-        if (_.has(surveyField, 'editable_by') && surveyField.editable_by !== ''){
-            doc.editable_by = surveyField.editable_by;
-        }
-
-        if (surveyField.type === 'dropdown'){
-            if(_.has(surveyField, 'options') ){
-                doc.options = surveyField.options.split(/\s*,\s*/);
-            }
-            if(_.has(surveyField, 'placeholder') && surveyField.placeholder !== ''){
-                doc.placeholder = surveyField.placeholder;
-            }
-        } else if (surveyField.type === 'longtext'){
-            if (_.has(surveyField, 'rows') && surveyField.rows !== ''){
-                doc.rows = Number(surveyField.rows);
-            }
-            if (_.has(surveyField, 'maxlength') && surveyField.maxlength !== ''){
-                doc.maxlength = Number(surveyField.maxlength);
-            }
-        }
-
-        output.push(doc);
-    }
-    output = output.sort((a, b) => {
-        return Number(a.sort_order) - Number(b.sort_order);
-    });
-    return output;
 }
 
 async function remove(req, res, next){
@@ -282,7 +229,7 @@ router.use(function(req, res, next){
 
 router.get('/', csrf(), list);
 router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
+router.get('/:id', csrf(), show);
 router.get('/:id/edit', csrf(),showEdit);
 router.post('/', csrf(), create);
 router.put('/:id', csrf(), update);

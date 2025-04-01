@@ -1,0 +1,123 @@
+extends ../../layout
+
+include ../../partials/editor
+include ../../partials/event
+include ../../partials/survey
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header Post Event Survey for #{event.name}
+                    .badge.text-bg-warning.ms-4#save-pending-indicator(style='display:none') Changed
+                    .badge.text-bg-info.ms-4#saving-indicator(style='display:none') Saving
+                    .badge.text-bg-success.ms-4#saved-indicator(style='display:none') Saved
+                    .badge.text-bg-danger.ms-4#error-indicator(style='display:none') Errored
+                    if checkPermission('gm')
+                        .float-end #{attendance.user.name}
+                .card-body
+                    - const canEditStaffFields = checkPermission('gm');
+                     form.form.needs-validation#postEventSurveyForm(
+                        method="POST"
+                        action=`/event/${event.id}/post_event/${attendance.id}`
+                        data-apiurl=`/event/${event.id}/post_event/${attendance.id}/api`
+                        novalidate
+                    )
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        if (backto)
+                            input(type="hidden" name="backto" value=backto)
+
+
+                        each field in event.post_event_survey.definition
+                            -
+                                let fieldData = null;
+                                if (_.has(attendance.post_event_data, field.id)){
+                                    fieldData = attendance.post_event_data[field.id].data;
+                                }
+
+                            case field.visible_to
+                                when 'staff'
+                                    if attendance.user.type !== 'player'
+                                        .row.my-2
+                                            .col
+                                                +customSurveyFieldInput(
+                                                    'attendance[post_event_data]',
+                                                    'attendance_post_event_data',
+                                                    field,
+                                                    fieldData,
+                                                    canEditStaffFields,
+                                                    {disabled:attendance.post_event_submitted}
+                                                )
+
+                                when 'player'
+                                    if attendance.user.type === 'player'
+                                        .row.my-2
+                                            .col
+                                                +customSurveyFieldInput(
+                                                    'attendance[post_event_data]',
+                                                    'attendance_post_event_data',
+                                                    field,
+                                                    fieldData,
+                                                    canEditStaffFields,
+                                                    {disabled:attendance.post_event_submitted}
+                                                )
+                                default
+                                    .row.my-2
+                                            .col
+                                                +customSurveyFieldInput(
+                                                    'attendance[post_event_data]',
+                                                    'attendance_post_event_data',
+                                                    field,
+                                                    fieldData,
+                                                    canEditStaffFields,
+                                                    {disabled:attendance.post_event_submitted}
+                                                )
+
+                        .row.my-2
+                            .col
+                                if (!attendance.post_event_submitted)
+                                    button.btn.btn-success.me-2(
+                                        type="submit"
+                                        name='action'
+                                        value='save'
+                                        data-bs-toggle='tooltip'
+                                        title='Save for Later'
+                                    )
+                                        i.fas.fa-save.me-1
+                                        | Save
+                                    button.btn.btn-primary.me-2#postEventSubmitBtn(
+                                        type="submit"
+                                        name='action'
+                                        value='submit'
+                                        data-bs-toggle='tooltip'
+                                        title='Submit to Staff'
+                                    )
+                                        i.fas.fa-share-square.me-1
+                                        | Submit
+
+                                    if attendance.post_event_hidden
+                                        button.btn.btn-info#postEventUnhideBtn(
+                                            type="submit"
+                                            name='action'
+                                            value='unhide'
+                                            data-bs-toggle='tooltip'
+                                            title='Restore to Task List'
+                                        )
+                                            i.fas.fa-eye.me-1
+                                            | Unhide
+                                    else if new Date(event.post_event_survey_deadline) < new Date()
+                                        button.btn.btn-info#postEventHideBtn(
+                                            type="submit"
+                                            name='action'
+                                            value='hide'
+                                            data-bs-toggle='tooltip'
+                                            title='Hide from Task List'
+                                        )
+                                            i.fas.fa-eye-slash.me-1
+                                            | Hide
+
+                                a.btn.btn-link(href=`/event/${event.id}`) Cancel
+
+append scripts
+    script(src='/javascripts/post_event.js')

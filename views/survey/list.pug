@@ -15,7 +15,6 @@ block content
             thead
                 tr
                     th
-                    th.sort-handle
                     th(data-priority="1") Name
                     th Type
                     th
@@ -25,7 +24,6 @@ block content
                 for survey in surveys
                     tr(class='clickable-row', data-click-object='survey' data-click-id=survey.id)
                         td.dtr-control
-                        td= survey.id
                         td= survey.name
 
                         td= capitalize(survey.type)
@@ -33,11 +31,19 @@ block content
                                 .badge.text-bg-success.ms-2 Default
 
                         td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/survey/${survey.id}/edit`
+                                title='Edit Survey'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-edit.fa-fw
 
-                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
                                 role="button",
                                 url=`/survey/${survey.id}`,
                                 data-back='/survey'
+                                title='Delete Survey'
+                                data-bs-toggle='tooltip'
                             )
                                 i.fas.fa-trash.fa-fw
 
@@ -45,5 +51,9 @@ block content
 
 append scripts
     script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+        });
 
 

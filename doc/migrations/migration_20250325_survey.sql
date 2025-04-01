@@ -19,8 +19,9 @@ create table surveys (
 );
 
 alter table campaigns
-    add COLUMN post_event_survey_cp float,
+    add COLUMN post_event_survey_cp float not null, default 0,
     add COLUMN post_event_survey_hide_days int not null default 0;
+    add COLUMN event_attendance_cp float not null default 0,
 
 alter table events
     add column post_event_survey_deadline timestamp with time zone,
@@ -34,9 +35,14 @@ alter table events
         ON UPDATE NO ACTION ON DELETE SET NULL;
 
 alter table attendance
+    rename column data to pre_event_data,
     add column post_event_data jsonb,
     add column post_event_submitted boolean default false,
-    add column checked_in boolean default false;
+    add column checked_in boolean default false
+    add column attendance_cp_granted boolean default false,
+    add column post_event_cp_granted boolean default false,
+    add column post_event_hidden boolean default false;
+
 
 create table event_addons (
     id serial,

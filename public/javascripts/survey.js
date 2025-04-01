@@ -7,9 +7,15 @@ $(function(){
     });
 
     prepSurveyFields();
+
+    $('#survey-preview-as').on('change', updateSurveyFieldVisibility);
+    updateSurveyFieldVisibility();
 });
 
 function prepSurveyFields(){
+    if (!$('#survey_fields-list').length){
+        return;
+    }
     $('#survey_field-new').hide();
     $('.add-survey_field-btn').on('click', addSurveyField);
 
@@ -35,6 +41,12 @@ function prepSurveyFields(){
             updateNames($(this));
         }
     });
+
+    $('#survey_type').on('change', function(){
+        $('.survey_field-row').each(function(idx){
+            toggleFieldOptions($(this));
+        });
+    })
 }
 
 function updateNames($list){
@@ -48,7 +60,12 @@ function toggleFieldOptions($row){
     if ($row.attr('id') === 'survey_field-new'){
         return;
     }
-    $row.find('.survey_field-type-options').hide()
+    $row.find('.survey_field-type-options').hide();
+    $row.find('.survey_field-required').attr('disabled', false);
+    $row.find('.survey_field-on_checkin').attr('disabled', false);
+    $row.find('.survey_field-editable_by').attr('disabled', false);
+    $row.find('.survey_field-on_checkin').attr('disabled', false)
+    $row.find('.add-description-btn').show();
     switch (type){
         case 'longtext':
             $row.find('.textarea-options').show();
@@ -56,7 +73,37 @@ function toggleFieldOptions($row){
         case 'dropdown':
             $row.find('.dropdown-options').show();
             break;
+         case 'text content':
+            $row.find('.markdown-options').show();
+            $row.find('.survey_field-required').attr('disabled', true);
+            $row.find('.survey_field-on_checkin').attr('disabled', true);
+            $row.find('.survey_field-editable_by').attr('disabled', true);
+            $row.find('.add-description-btn').hide();
+            $row.find('.field-description').hide();
+            break;
+        case 'boolean':
+            $row.find('.survey_field-required').attr('disabled', true);
+            break;
     }
+
+    if ($('#survey_type').val() !== 'registration'){
+        $row.find('.survey_field-on_checkin').attr('disabled', true);
+    }
+
+    $survey_field_description = $row.find('.field-description').find('textarea');
+
+    if ($survey_field_description.val()){
+        $row.find('.field-description').show();
+        $row.find('.add-description-btn').hide();
+    } else {
+        $row.find('.field-description').hide();
+    }
+    $row.find('.add-description-btn').on('click', function(e){
+        e.preventDefault();
+        $row.find('.field-description').show();
+        $(this).hide();
+    });
+
     $row.find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
 }
 
@@ -104,5 +151,71 @@ function addSurveyField(e){
     toggleFieldOptions($new)
     $new.appendTo('#survey_fields-list');
     $new.show();
+    $('#survey_field-footer-row').show();
 
+}
+
+function updateSurveyFieldVisibility(e){
+    type = $('#survey-preview-as').val();
+    if (!type) { return; }
+    $('.custom-event-field').each(function(){
+        const $field = $(this);
+        const visible_to = $field.data('visible_to');
+        const editable_by = $field.data('editable_by');
+        switch (type){
+            case 'Player':
+                if (visible_to === 'staff'){
+                    $field.hide();
+                } else {
+                    $field.show();
+                }
+                if (editable_by === 'gm'){
+                    $field.find('input').attr('disabled', true);
+                    $field.find('select').attr('disabled', true);
+
+                    $field.find('textarea').attr('disabled', true);
+                } else {
+                    $field.find('input').attr('disabled', false);
+                    $field.find('textarea').attr('disabled', false);
+                    $field.find('select').attr('disabled', false);
+                }
+                break;
+            case 'Staff':
+                if (visible_to === 'player'){
+                    $field.hide();
+                } else {
+                    $field.show();
+                }
+                if (editable_by === 'gm'){
+                    $field.find('input').attr('disabled', true);
+                    $field.find('select').attr('disabled', true);
+                    $field.find('textarea').attr('disabled', true);
+                } else {
+                    $field.find('input').attr('disabled', false);
+                    $field.find('textarea').attr('disabled', false);
+                    $field.find('select').attr('disabled', false);
+                }
+                break;
+            case 'Player (GM View)':
+                if (visible_to === 'staff'){
+                    $field.hide();
+                } else {
+                    $field.show();
+                }
+                $field.find('input').attr('disabled', false);
+                $field.find('textarea').attr('disabled', false);
+                $field.find('select').attr('disabled', false);
+                break;
+            case 'Staff (GM View)':
+                if (visible_to === 'player'){
+                    $field.hide();
+                } else {
+                    $field.show();
+                }
+                $field.find('input').attr('disabled', false);
+                $field.find('textarea').attr('disabled', false);
+                $field.find('select').attr('disabled', false);
+                break;
+        }
+    });
 }

@@ -1,0 +1,32 @@
+extends ../layout
+include ../partials/event
+include ../partials/post_event_survey
+
+block content
+    if checkPermission('contrib')
+        ul.nav.nav-tabs.w-100.my-2#postEventSurveyTabs(role="tablist")
+            li.nav-item(role="presentation")
+                a.nav-link.active#all-surveys-tab(href="#all-surveys" data-bs-toggle="tab" role="tab" aria-controls="all-surveys" aria-selected="true") All Surveys
+
+            li.nav-item(role="presentation")
+                a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My Surveys
+
+        .tab-content#postEventSurveyContent
+            .tab-pane.fade.show.active#all-surveys(role="tabpanel" aria-labelledby="all-surveys-tab")
+                h4 All Surveys
+                +postEventSurveyGmTable(post_event_surveys)
+            .tab-pane.fade#my-surveys(role="tabpanel" aria-labelledby="my-surveys-tab")
+
+                h4 My Surveys
+                +postEventSurveySelfTable(my_post_event_surveys)
+    else
+        +postEventSurveySelfTable(my_post_event_surveys)
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+        });

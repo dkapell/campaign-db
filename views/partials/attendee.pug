@@ -42,6 +42,16 @@ mixin attendeeListItem(attendee, type)
                         else
                             span.badge.text-bg-danger.me-1 Unpaid
 
+
+                if new Date(event.end_time) < Date.now()
+                    if attendee.checked_in
+                        .badge.text-bg-success.mx-1 Checked In
+                    if attendee.attendance_cp_granted
+                        .badge.text-bg-info.mx-1 Event CP Granted
+                    if attendee.post_event_cp_granted
+                        .badge.text-bg-info.mx-1 PES CP Granted
+
+
             if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
                 .col.text-end
                     +showAddons(attendee, type)
@@ -57,8 +67,10 @@ mixin attendeeListItem(attendee, type)
                             i.fas.fa-sticky-note.fa-fw
                     if event.pre_event_survey
                         each customField in event.pre_event_survey.definition
-                            if _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                                +attendeeCustomField(customField, attendee.data[customField.name])
+                            if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id].data
+                                +attendeeCustomField(customField, attendee.pre_event_data[customField.id].data)
+                            else if _.has(attendee.pre_event_data, customField.name) && attendee.pre_event_data[customField.name]
+                                +attendeeCustomField(customField, attendee.pre_event_data[customField.name])
 
             if checkPermission('gm, registration edit') && !(type === 'not attending' || type === 'no response')
                 .col-3.text-end
@@ -116,6 +128,8 @@ mixin attendeeTable(attendees, type)
                         if twoHoursBeforeEventStart < Date.now()
 
                             th Checked In
+                        if new Date(event.end_time) < Date.now()
+                            th CP
                     if checkPermission('gm, registration edit') && type !== 'no response'
                         th
             tbody
@@ -169,9 +183,11 @@ mixin attendeeTable(attendees, type)
                                 if event.pre_event_survey
 
                                     each customField in event.pre_event_survey.definition
-                                        if (_.indexOf(event.hidden_fields, customField.name) === -1)
-                                            if _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                                                +attendeeCustomField(customField, attendee.data[customField.name])
+                                        if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id].data
+                                            +attendeeCustomField(customField, attendee.pre_event_data[customField.id].data)
+
+                                        else if _.has(attendee.pre_event_data, customField.name) && attendee.pre_event_data[customField.name]
+                                            +attendeeCustomField(customField, attendee.pre_event_data[customField.name])
 
                             if twoHoursBeforeEventStart < Date.now()
                                 td
@@ -179,6 +195,12 @@ mixin attendeeTable(attendees, type)
                                         .badge.text-bg-success Yes
                                     else
                                         .badge.text-bg-danger No
+                            if new Date(event.end_time) < Date.now()
+                                td
+                                    if attendee.attendance_cp_granted
+                                        .badge.text-bg-info.mx-1 Event
+                                    if attendee.post_event_cp_granted
+                                        .badge.text-bg-info.mx-1 PES
                         if checkPermission('gm, registration edit') && type !== 'no response'
                             td.text-end
                                 if type !== 'not attending'

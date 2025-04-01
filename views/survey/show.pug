@@ -1,0 +1,37 @@
+extends ../layout
+
+include ../partials/editor
+include ../partials/event
+include ../partials/survey
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header
+                    .row
+                        .col-md-6
+                            | #{survey.name} Preview
+                            a.btn.btn-sm.btn-outline-info.ms-2(href=`/survey/${survey.id}/edit`)
+                                i.fas.fa-edit.me-1
+                                | Edit
+                        .col-md-3.text-md-end
+                            label.col-form-label.col-form-label-sm(for='survey-preview-as') Preview As:
+                        .col-md-3
+                            select.form-select.form-select-sm#survey-preview-as
+                                each type in ['Player', 'Player (GM View)', 'Staff', 'Staff (GM View)']
+                                        option(value=type)=type
+
+                .card-body
+                    each field in survey.definition
+                        .row.my-2
+                            .col
+                                +customSurveyFieldInput('survey[post_event_data]', 'survey_post_event_data',field, null, null)
+
+                    .row.my-2
+                        .col
+                            a.btn.btn-primary(href=`/survey`) Cancel
+
+
+append scripts
+    script(src='/javascripts/survey.js')

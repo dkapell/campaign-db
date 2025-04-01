@@ -1,0 +1,106 @@
+mixin postEventSurveyGmTable(post_event_surveys, options={})
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            class=options.exportUrl?'table-exportable':''
+            data-export=options.exportUrl?options.exportUrl:''
+            )
+            thead
+                tr
+                    th
+                    if !options.noEvent
+                        th(data-priority="1") Event
+                        th Event Date
+                    th Attendee
+                    th Type
+                    th Submitted At
+                    th
+
+
+            tbody
+                for survey in post_event_surveys
+                    tr
+                        td.dtr-control
+                        if !options.noEvent
+                            td
+                                a.action-btn(href=`/event/${survey.eventId}`)
+                                    i.fa.fa-calendar.me-1
+                                    = survey.eventName
+                            td(data-search=survey.eventStartTime.getTime())
+                                +eventDays(survey.eventStartTime, survey.eventEndTime)
+                        td
+                            if checkPermission('gm')
+                                a.action-btn(href=`/user/${survey.user.id}`)
+                                    i.fas.fa-user.me-1
+                                    = survey.user.name
+                            else
+                                = survey.user.name
+
+                        td= capitalize(survey.user.typeForDisplay)
+                        td= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/post_event_survey/${survey.attendanceId}${options.backto?'?backto='+options.backto:''}`
+                                title='View Survey'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-eye.me-1
+                                | View
+
+mixin postEventSurveySelfTable(post_event_surveys, options={})
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Event
+                    th Event Date
+                    th Submitted
+                    th
+            tbody
+                for survey in post_event_surveys
+                    tr
+                        td.dtr-control
+                        td
+                            a.action-btn(href=`/event/${survey.eventId}`)
+                                i.fa.fa-calendar.me-1
+                                = survey.eventName
+                        td(data-search=survey.eventStartTime.getTime())
+                            +eventDays(survey.eventStartTime, survey.eventEndTime)
+                        td
+                            if survey.post_event_submitted
+                                = moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+                            else
+                                i.me-2 Not Yet
+                                if survey.hidden
+                                    .badge.text-bg-danger
+                                        i.fa.fa-eye-slash.me-1
+                                        | Hidden
+
+
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/event/${survey.eventId}/post_event/${survey.attendanceId}?backto=list`
+                                title=survey.post_event_submitted?'View Survey':'Edit Survey'
+                                data-bs-toggle='tooltip'
+                            )
+                                if survey.post_event_submitted
+                                    i.fas.fa-eye.me-1
+                                    | View Survey
+                                else if survey.started
+                                    i.fas.fa-edit.me-1
+                                    | Continue Survey
+                                else
+                                    i.fas.fa-edit.me-1
+                                    | Start Survey
+
+

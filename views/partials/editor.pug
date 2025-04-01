@@ -4,14 +4,17 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
         label.control-label.mb-0.d-inline(for=id)= label
             if options.required
                 span.ms-1.text-danger *
-        small.form-text.text-muted.d-inline.ms-2 Supports
-            a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
-                i.fas.fa-external-link-alt.ms-1
-        if options.maxlength
-            .float-end
-                span.length-indicator
-                    span.me-1(id=`${id}-length`)= contents?contents.length:0
-                    | of #{options.maxlength}
+        if !options.description
+            small.form-text.text-muted.d-inline.ms-2 Supports
+                a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                    i.fas.fa-external-link-alt.ms-1
+            if options.maxlength
+                .float-end
+                    span.length-indicator
+                        span.me-1(id=`${id}-length`)= contents?contents.length:0
+                        | of #{options.maxlength}
+        if options.description
+            .form-text!=marked.parseInline(options.description, {breaks:true})
         textarea.form-control.markdown-editor(
             id= id
             rows= rows
@@ -22,8 +25,18 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
             data-isrequired=options.required
             disabled=options.disabled
             maxlength=options.maxlength
+            class=options.class
         )
             = contents
+        if options.description
+            small.form-text.text-muted.d-inline Supports
+                a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                    i.fas.fa-external-link-alt.ms-1
+            if options.maxlength
+                .float-end
+                    span.length-indicator
+                        span.me-1(id=`${id}-length`)= contents?contents.length:0
+                        | of #{options.maxlength}
     else
         ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")
             li.nav-item(role="presentation")
@@ -54,6 +67,9 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                 role="tabpanel"
                 aria-labelledby=`${id}-code-tab`
             )
+                if options.description
+                    .form-text!=marked.parseInline(options.description, {breaks:true})
+
                 textarea.form-control.markdown-editor(
                     id= id
                     rows= rows
@@ -64,6 +80,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                     required=options.required
                     disabled=options.disabled
                     maxlength=options.maxlength
+                    class=options.class
                 )
                     = contents
                 small.form-text.text-muted

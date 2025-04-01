@@ -2,9 +2,11 @@ extends ../layout
 
 include ../partials/event.pug
 include ../partials/attendee.pug
+include ../partials/post_event_survey.pug
 
 block content
     - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id});
+    input#eventId(type='hidden' value=event.id)
     .row
         .col.card
             .row.card-header
@@ -20,6 +22,14 @@ block content
                         a.btn.btn-outline-primary.btn-sm.ms-2(href=`/event/${event.id}/checkin`)
                             span.fas.fa-clipboard-check.me-2
                             | Event Check-in
+                    if checkPermission('gm') && new Date(event.end_time) < new Date()
+                        a.btn.btn-sm.btn-outline-primary.my-2.ms-2#grantEventCPBtn(
+                            href='#'
+                            data-csrf=csrfToken
+                            data-url=`/event/${event.id}/grant_cp`
+                        )
+                            i.fas.fa-hat-wizard.recalc-icon
+                            |  Grant Event CP
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
@@ -34,11 +44,13 @@ block content
                     li.nav-item(role="presentation")
                         a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
 
+                    if checkPermission('contrib') && post_event_surveys.length
+                        li.nav-item(role="presentation")
+                            a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") Post Event Surveys
+
+
                 .tab-content#eventTabContent
                     .tab-pane.fade.show.active#event-registration(role="tabpanel" aria-labelledby="event-registration-tab")
-
-
-
                         .row.mb-2
                             .col-md
                                 .fs-5
@@ -178,8 +190,11 @@ block content
                                             .col
                                                 h4 Registration Questions
                                                 each customField in event.pre_event_survey.definition
-                                                    if attendee && _.has(attendee.data, customField.name) && attendee.data[customField.name]
-                                                        +attendeeCustomFieldDisplay(customField, attendee.data[customField.name])
+                                                    if attendee
+                                                        if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id]
+                                                            +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.id].data)
+                                                        else if _.has(attendee.pre_event_data, customField.name) && attendee.pre_event_data[customField.name]
+                                                            +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.name])
 
                                     if attendee.notes
                                         .row.my-2
@@ -273,8 +288,26 @@ block content
                                     else
                                         - const attendees = event.attendees.filter(attendee => { return attendee.attending });
                                         +attendeeListDisplay(attendees)
+                    if checkPermission('contrib') && post_event_surveys.length
+                        .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")
+                            +postEventSurveyGmTable(post_event_surveys, {
+                                noEvent:true,
+                                backto:'event',
+                                exportUrl:`/event/${event.id}/export_survey`
+                            })
 
 
 append scripts
     script(src='/javascripts/data-table.js')
     script(src='/javascripts/event.js')
+    script.
+        $(function(){
+            const eventTabStorageId = `cdb-event-tab-${$('#eventId').val()}`;
+            const selectedTab = localStorage.getItem(eventTabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#eventTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(eventTabStorageId, $(e.target).attr('id'));
+            });
+        });

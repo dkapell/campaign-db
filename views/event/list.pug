@@ -24,7 +24,7 @@ block content
             -
                 const now = new Date()
                 const futureEvents = events.filter(event => {
-                    return event.start_time > now
+                    return event.end_time > now
                 });
             +eventListDisplay(futureEvents)
 
@@ -32,7 +32,7 @@ block content
         .tab-pane.fade#past-events(role="tabpanel" aria-labelledby="past-events-tab")
             -
                 const pastEvents = events.filter(event => {
-                    return event.start_time <= now
+                    return event.end_time <= now
                 });
             +eventListDisplay(pastEvents, true)
 
@@ -40,6 +40,17 @@ block content
 
 append scripts
     script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            const eventListStorageId = 'cdb-event-list-tab';
+            const selectedTab = localStorage.getItem(eventListStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#eventTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(eventListStorageId, $(e.target).attr('id'));
+            });
+        });
 
 
 

@@ -32,14 +32,26 @@ append content
                         =currentCampaign.name
         .row.my-2
             .col-lg-5
-                if checkPermission('gm')
-                    if cp_grants.length && currentCampaign.display_cp
-                        h3 Tasks
-                        .list-group.mb-2.mb-3
+                if showTasks
+                    h3 Tasks
+                    .list-group.mb-2.mb-3
+                        if checkPermission('gm') && cp_grants.length && currentCampaign.display_cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
                                 | Pending CP Grants
                                 span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=cp_grants.length
+                        if post_event_surveys.length
+                            each survey in post_event_surveys
+                                a.list-group-item.list-group-item-action(
+                                    href=`/event/${survey.eventId}/post_event`
+                                )
+                                    i.fas.fa-fw.fa-tasks.me-1
+                                    | Post Event Survey for #{survey.eventName}
+                                    if survey.started
+                                        span.badge.text-bg-info.float-end Started
+                                    else
+                                        span.badge.text-bg-info.float-end New
+
 
                 if checkPermission('player')
                     h3 Resources
@@ -94,6 +106,9 @@ append content
                         a.list-group-item.list-group-item-action(href='/event')
                                 i.fa.fa-fw.fa-calendar.me-1
                                 | Events
+                        a.list-group-item.list-group-item-action(href='/post_event_survey')
+                                i.fa.fa-fw.fa-comment.me-1
+                                | Post Event Surveys
                         if currentCampaign.display_cp && cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-hat-wizard.me-1

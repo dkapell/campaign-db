@@ -16,6 +16,21 @@ async function showIndex(req, res){
         if (req.session.player_mode){
             user.type = 'player';
         }
+
+        const events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
+        const futureEvents = events.filter( event => { return event.end_time > new Date(); })
+        const pastEvents = events.filter( event => { return event.end_time <= new Date(); })
+
+        res.locals.showTasks = false;
+
+        const post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
+        res.locals.post_event_surveys = post_event_surveys.filter( survey => {return !survey.post_event_submitted && !survey.hidden});
+
+        if (res.locals.post_event_surveys.length){
+            res.locals.showTasks = true;
+        }
+
+        // User is a Player - show my cp grants, events, current character
         if (user && user.type === 'player' && !req.session.admin_mode){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (characterData){
@@ -28,14 +43,12 @@ async function showIndex(req, res){
             res.locals.cp_grants = cp_grants.filter( grant => {
                 return grant.status !== 'approved';
             });
-            let events = await req.models.event.find({campaign_id:req.campaign.id});
-            events = events.filter( event => { return event.end_time > new Date(); })
-            res.locals.events = events.map(event => {
+            res.locals.events = futureEvents.map(event => {
                 event.attendees = _.where(event.attendees, {user_id: user.id});
                 return event;
             });
 
-
+        // User is Contributing Staff or higher - show pending CP grants, events, active player characters
         } else if (user && (user.site_admin || user.type.match(/^(admin|core staff|contributing staff)$/))){
             const characters =  await req.models.character.find({active:true, campaign_id:req.campaign.id});
             await async.map(characters, async(character) => {
@@ -49,14 +62,15 @@ async function showIndex(req, res){
             });
             res.locals.character = null;
             res.locals.cp_grants = await req.models.cp_grant.find({campaign_id:req.campaign.id, status:'pending'});
-            const events = await req.models.event.find({campaign_id:req.campaign.id});
-            res.locals.events = events.filter( event => { return event.end_time > new Date(); })
+            if (res.locals.cp_grants.length && req.campaign.display_cp){
+                res.locals.showTasks = true;
+            }
+            res.locals.events = futureEvents;
 
+        // User is Event Staff - no CP Grants, show events, owned characters
         } else {
             res.locals.cp = null
             res.locals.cp_grants = []
-            let events = await req.models.event.find({campaign_id:req.campaign.id});
-            events = events.filter( event => { return event.end_time > new Date(); })
 
             if (user){
                 const characters = await req.models.character.find({user_id: user.id, active: true, campaign_id:req.campaign.id});
@@ -73,9 +87,11 @@ async function showIndex(req, res){
                 });
             } else {
                 res.locals.characters = [];
-                res.locals.events = events;
+                res.locals.events = futureEvents;
             }
         }
+
+
     } catch (err) {
         console.trace(err);
     }

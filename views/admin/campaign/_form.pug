@@ -246,9 +246,16 @@ fieldset.mb-2.border.p-2.rounded
                         option(value=timezone, selected=campaign.timezone===timezone)= timezone
         .row.my-2
             .col-md-4
+                label.control-label(for="campaign_event_attendance_cp") Event Attendance CP
+            .col
+                input.form-control#campaign_event_attendance_cp(placeholder="CP",name="campaign[event_attendance_cp]",value=campaign.event_attendance_cp type='number' min=0 step=0.125)
+
+        .row.my-2
+            .col-md-4
                 label.control-label(for="campaign_post_event_survey_cp") Post Event Survey CP
             .col
-                input.form-control#campaign_event_default_location(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
+                input.form-control#campaign_post_event_survey_cp(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
+
         .row.my-2
             .col-md-4
                 label.control-label(for="campaign_post_event_survey_hide_days")

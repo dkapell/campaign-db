@@ -2,6 +2,8 @@
 let nextEventAddonIndex = 0;
 
 $(function(){
+
+
     $('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -73,6 +75,8 @@ $(function(){
     $('.event-uncheckin-btn').confirmation({
         title:'Uncheck in from this event?'
     }).on('click', eventCheckin);
+
+    $('#grantEventCPBtn').on('click', assignEventCP);
 });
 
 function prepEventAddons(){
@@ -359,5 +363,28 @@ async function eventCheckin(e){
         $this.hide();
         $this.closest('td').find('.event-checkin-btn').show();
 
+    }
+}
+
+async function assignEventCP(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const $this = $(this);
+    $this.find('.recalc-icon').removeClass('fa-wizard-hat').addClass('fa-sync').addClass('fa-spin');
+
+    const csrfToken = $this.data('csrf');
+    const url = $this.data('url');
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': csrfToken
+        }
+    });
+    const data = await result.json();
+    if (data.success){
+        location.reload();
+    } else {
+        $this.find('.recalc-icon').removeClass('fa-spin').removeClass('fa-sync').addClass('fa-exclamation-triangle');
     }
 }

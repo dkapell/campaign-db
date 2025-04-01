@@ -1,3 +1,6 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+
 if checkPermission('gm')
     .row.my-2
         .col
@@ -56,30 +59,41 @@ if event.addons
 
 
 if event.pre_event_survey
-    each customSurveyField in event.pre_event_survey.definition
-        if (_.indexOf(event.hidden_fields, customSurveyField.name) === -1)
-            if checkPermission('gm, registration edit')
-               .row.my-2
-                    .col
-                        +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], true)
-            else
-                - const canEditStaffFields = checkPermission('gm, registration edit');
-                case customSurveyField.visible_to
-                    when 'staff'
-                        if checkPermission('event')
-                            .row.my-2
-                                .col
-                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
-
-                    when 'player'
-                        if (checkPermission('player') && !checkPermission('event'))
-                            .row.my-2
-                                .col
-                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
-                    default
+    - const canEditStaffFields = checkPermission('gm, registration edit');
+    each field in event.pre_event_survey.definition
+        -
+            let fieldData = null;
+            if (_.has(attendance.pre_event_data, field.id)){
+                - console.log(attendance.pre_event_data[field.id])
+                if (typeof attendance.pre_event_data[field.id] === 'string' ){
+                    fieldData = attendance.pre_event_data[field.id];
+                } else {
+                    fieldData = attendance.pre_event_data[field.id].data;
+                }
+            } else if (_.has(attendance.pre_event_data, field.name)){
+                fieldData = attendance.pre_event_data[field.name];
+            }
+        if checkPermission('gm, registration edit')
+           .row.my-2
+                .col
+                    +customSurveyFieldInput('attendance[pre_event_data]',  'attendance_pre_event_data', field, fieldData, true)
+        else
+            case customSurveyFieldInput.visible_to
+                when 'staff'
+                    if checkPermission('event')
                         .row.my-2
-                                .col
-                                    +customSurveyField(customSurveyField, attendance.data[customSurveyField.name], canEditStaffFields)
+                            .col
+                                +customSurveyFieldInput('attendance[pre_event_data]', 'attendance_pre_event_data', field, fieldData, canEditStaffFields)
+
+                when 'player'
+                    if (checkPermission('player') && !checkPermission('event'))
+                        .row.my-2
+                            .col
+                                +customSurveyFieldInput('attendance[pre_event_data]', 'attendance_pre_event_data', field, fieldData, canEditStaffFields)
+                default
+                    .row.my-2
+                            .col
+                                +customSurveyFieldInput('attendance[pre_event_data]', 'attendance_pre_event_data', field, fieldData, canEditStaffFields)
 
 .row.my-2
     .col

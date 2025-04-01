@@ -194,6 +194,28 @@ mixin eventDate(start, end)
         }
     =dateStr
 
+mixin eventDays(start, end)
+    -
+        const startM = moment.utc(start).tz(currentCampaign.timezone);
+
+        const endM = moment.utc(end).tz(currentCampaign.timezone)
+        let dateStr = '';
+
+        if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD')){
+            dateStr = startM.format('ll');
+
+        } else if (startM.format('YYYY-MM') === endM.format('YYYY-MM')){
+            dateStr = `${startM.format('MMM D')} - ${endM.format('D, YYYY')}`;
+
+        } else if (startM.format('YYYY') === endM.format('YYYY')){
+            dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
+
+        } else {
+            dateStr = `${startM.format('MMM D')} - ${endM.format('MMM D, YYYY')}` ;
+
+        }
+    =dateStr
+
 mixin hourDisplay(hour)
     if hour === 0
         | 12 AM

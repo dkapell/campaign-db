@@ -58,6 +58,7 @@ import pageRouter from './routes/page';
 
 import surveyRouter from './routes/survey';
 import eventRouter from './routes/event';
+import postEventSurveyRouter from './routes/post_event_survey';
 
 const app = express();
 
@@ -299,6 +300,7 @@ app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);
 app.use('/event', eventRouter);
 app.use('/survey', surveyRouter);
+app.use('/post_event_survey', postEventSurveyRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

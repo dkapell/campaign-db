@@ -1,0 +1,33 @@
+extends ../layout
+include ../partials/event
+include ../partials/survey
+
+
+block content
+    .card
+        .card-header
+            .row
+                .col-lg
+                    strong= attendance.user.name
+                    if attendance.character
+                        span.ms-2 ( #{attendance.character.name} )
+                .col-lg.text-lg-center= event.name
+                    span.ms-2 (
+                        +eventDays(event.start_time, event.end_time)
+                        | )
+                .col-lg.text-lg-end
+                    span.me-1 Submitted:
+                    = moment.utc(attendance.post_event_data.submittedAt).tz(currentCampaign.timezone).format('lll')
+        .card-body
+            each field in event.post_event_survey.definition
+                if _.has(attendance.post_event_data, field.id)
+                    .row.my-2
+                        .col
+                            +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
+    
+    .row.my-2
+        .col
+            a.btn.btn-primary(href=backto)
+                i.fa.fa-arrow-left.me-1
+                | Back
+

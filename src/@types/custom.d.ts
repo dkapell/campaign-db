@@ -57,6 +57,7 @@ interface CharacterSheetOptions {
 }
 
 interface SurveyField {
+    id?: string
     name: string
     type: string
     icon?: string
@@ -67,4 +68,6 @@ interface SurveyField {
     placeholder?: string
     rows?: number
     maxlength?: number
+    content?: string
+    description?: string
 }

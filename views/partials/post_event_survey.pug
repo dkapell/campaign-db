@@ -17,6 +17,7 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
                     th Attendee
                     th Type
                     th Submitted At
+                    th Addendums
                     th
 
 
@@ -41,6 +42,7 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
 
                         td= capitalize(survey.user.typeForDisplay)
                         td= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+                        td= survey.addendums
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
@@ -63,9 +65,9 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
                 tr
                     th
                     th(data-priority="1") Event
-                    th Event Date
-                    th Submitted
-                    th
+                    th(data-priority="4") Event Date
+                    th(data-priority="3") Submitted
+                    th(data-priority="2")
             tbody
                 for survey in post_event_surveys
                     tr
@@ -79,6 +81,8 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
                         td
                             if survey.post_event_submitted
                                 = moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+                            if (survey.addendums)
+                                .badge.text-bg-info.ms-1 #{survey.addendums} Addendum(s)
                             else
                                 i.me-2 Not Yet
                                 if survey.hidden
@@ -88,6 +92,18 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
 
 
                         td.text-end
+                            if survey.post_event_submitted
+                                a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                    href=`/event/${survey.eventId}/post_event/${survey.attendanceId}/addendum?backto=list`
+                                    title=survey.activeAddendum?'Edit Addendum':'Create Addendum'
+                                    data-bs-toggle='tooltip'
+                                )
+                                    i.fas.fa-edit.me-1
+                                    if survey.activeAddendum
+                                        | Edit Addendum
+                                    else
+                                        | Add Addendum
+
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
                                 href=`/event/${survey.eventId}/post_event/${survey.attendanceId}?backto=list`
                                 title=survey.post_event_submitted?'View Survey':'Edit Survey'

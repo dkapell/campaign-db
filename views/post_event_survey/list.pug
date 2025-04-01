@@ -29,4 +29,13 @@ append scripts
     script.
         $(function(){
             $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+            const tabStorageId = `cdb-post_event_survey-tab}`;
+            const selectedTab = localStorage.getItem(tabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#postEventSurveyTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(tabStorageId, $(e.target).attr('id'));
+            });
         });
+

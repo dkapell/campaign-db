@@ -16,11 +16,18 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                 input.form-control( id=`${idPrefix}_${field.id}` type="text" name=`${namePrefix}[${field.id}]` value=currentValue required=field.required data-isrequired=field.required disabled=disabled)
 
             when 'longtext'
-                -
-                    const rows = field.rows?Number(field.rows):3;
-                    const height = rows * 24;
+                if options.disabled
+                    label.control-label(for=`${idPrefix}_${field.id}`)= field.name
+                    if field.description
+                        .form-text!=marked.parseInline(field.description, {breaks:true})
+                    .text-bg-light.border.rounded.p-2
+                        != marked.parseInline(currentValue, {breaks:true})
+                else
+                    -
+                        const rows = field.rows?Number(field.rows):3;
+                        const height = rows * 24;
 
-                +markdownEditor(field.name, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
+                    +markdownEditor(field.name, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
 
             when 'boolean'
                 .form-check.form-switch

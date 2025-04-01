@@ -1,0 +1,58 @@
+extends ../../layout
+
+include ../../partials/editor
+include ../../partials/event
+include ../../partials/survey
+
+block content
+    .row
+        .col-sm-10.offset-sm-1
+            .card
+                .card-header #{currentCampaign.renames.post_event_survey.singular} Addendum for #{event.name}
+                    .badge.text-bg-warning.ms-4#save-pending-indicator(style='display:none') Changed
+                    .badge.text-bg-info.ms-4#saving-indicator(style='display:none') Saving
+                    .badge.text-bg-success.ms-4#saved-indicator(style='display:none') Saved
+                    .badge.text-bg-danger.ms-4#error-indicator(style='display:none') Errored
+                    if checkPermission('gm')
+                        .float-end #{attendance.user.name}
+                .card-body
+                    form.form.needs-validation#postEventAddendumForm(
+                        method="POST"
+                        action=`/event/${event.id}/post_event/${attendance.id}/addendum`
+                        data-apiurl=`/event/${event.id}/post_event/${attendance.id}/addendum/api`
+                        novalidate
+                    )
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        if (backto)
+                            input(type="hidden" name="backto" value=backto)
+                        .custom-event-field
+                            +markdownEditor('Addendum Content', `addendum_content`, `addendum[content]`, 10, 300, addendum.content, false, {required:true})
+
+                        .row.my-2
+                            .col
+                                button.btn.btn-success.me-2(
+                                    type="submit"
+                                    name='action'
+                                    value='save'
+                                    data-bs-toggle='tooltip'
+                                    title='Save for Later'
+                                )
+                                    i.fas.fa-save.me-1
+                                    | Save
+                                button.btn.btn-primary.me-2#postEventSubmitBtn(
+                                    type="submit"
+                                    name='action'
+                                    value='submit'
+                                    data-bs-toggle='tooltip'
+                                    title=`Submit ${currentCampaign.renames.post_event_survey.singular} Addendum to Staff?`
+                                    message=`You will not be able to make additional changes to this ${currentCampaign.renames.post_event_survey.singular} Addendum after you submit, although you can create additional addendums.`
+                                    showMessage="true"
+                                )
+                                    i.fas.fa-share-square.me-1
+                                    | Submit
+
+                                a.btn.btn-link(href=backto==='list'?'/post_event_survey':`/event/${event.id}`) Cancel
+
+append scripts
+    script(src='/javascripts/post_event.js')

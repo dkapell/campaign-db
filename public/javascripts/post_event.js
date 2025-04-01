@@ -16,22 +16,21 @@ $(function(){
 
 function watchField(){
     $field = $(this);
-
+    const $form = $field.closest('form');
     $field.find('input').on('change', function(){
-        startSaveForm();
+        startSaveForm($form);
     });
 
     $field.find('textarea').on('input', function() {
-        startSaveForm();
+        startSaveForm($form);
     });
 
     $field.find('select').on('change', function() {
-        startSaveForm();
+        startSaveForm($form);
     });
 }
 
-
-function startSaveForm(){
+function startSaveForm($form){
     if (!dataPending){
         $('#saved-indicator').hide();
         $('#saving-indicator').hide();
@@ -39,16 +38,18 @@ function startSaveForm(){
         $('#save-pending-indicator').show();
     }
     clearTimeout(saveTimeoutId);
-    saveTimeoutId = setTimeout(saveForm, 1000);
+    saveTimeoutId = setTimeout(function(){
+        saveForm($form);
+    }, 1000);
 }
 
-async function saveForm(){
+async function saveForm($form){
     dataSaving = true;
     $('#saving-indicator').show();
     $('#saved-indicator').hide();
     $('#save-pending-indicator').hide();
     dataPending = false;
-    const $form = $('#postEventSurveyForm');
+
     const data = new URLSearchParams();
     for (const pair of new FormData($form[0])) {
         data.append(pair[0], pair[1]);

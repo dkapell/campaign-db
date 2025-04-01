@@ -29,7 +29,8 @@ const tableFields = [
     'checked_in',
     'attendance_cp_granted',
     'post_event_cp_granted',
-    'post_event_hidden'
+    'post_event_hidden',
+    'post_event_addendums'
 ];
 
 const Attendance = new Model('attendance', tableFields, {

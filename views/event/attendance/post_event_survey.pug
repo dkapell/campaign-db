@@ -73,6 +73,17 @@ block content
                                                     canEditStaffFields,
                                                     {disabled:attendance.post_event_submitted}
                                                 )
+                        if attendance.post_event_addendums
+                            each addendum in attendance.post_event_addendums
+                                .row-my-2
+                                    .col
+                                        strong Addendum
+                                        .float-end
+                                            span.me-1 Submitted:
+                                            = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
+
+                                        .text-bg-light.border.rounded.p-2
+                                            != marked.parseInline(addendum.content, {breaks:true})
 
                         .row.my-2
                             .col
@@ -121,7 +132,12 @@ block content
                                             i.fas.fa-eye-slash.me-1
                                             | Hide
 
-                                a.btn.btn-link(href=`/event/${event.id}`) Cancel
+                                if backto === 'list'
+                                    a.btn.btn-link(href=`/post_event_survey`) Cancel
+                                else if backto === 'event'
+                                    a.btn.btn-link(href=`/event/${event.id}`) Cancel
+                                else
+                                    a.btn.btn-link(href='/') Cancel
 
 append scripts
     script(src='/javascripts/post_event.js')

@@ -4,7 +4,7 @@ include ../partials/survey
 
 
 block content
-    .card
+    .card.my-2
         .card-header
             .row
                 .col-lg
@@ -17,14 +17,27 @@ block content
                         | )
                 .col-lg.text-lg-end
                     span.me-1 Submitted:
-                    = moment.utc(attendance.post_event_data.submittedAt).tz(currentCampaign.timezone).format('lll')
+                    = moment.utc(attendance.post_event_data.submitted_at).tz(currentCampaign.timezone).format('lll')
         .card-body
             each field in event.post_event_survey.definition
                 if _.has(attendance.post_event_data, field.id)
                     .row.my-2
                         .col
                             +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
-    
+    if attendance.post_event_addendums
+        each addendum in attendance.post_event_addendums
+            .card.my-2
+                .card-header
+                    .row
+                        .col-lg
+                            strong Addendum
+                        .col-lg.text-lg-end
+                            span.me-1 Submitted:
+                            = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
+                .card-body.text-bg-light
+                    .row
+                        .col.p-2
+                            != marked.parseInline(addendum.content, {breaks:true})
     .row.my-2
         .col
             a.btn.btn-primary(href=backto)

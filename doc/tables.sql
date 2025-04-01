@@ -632,6 +632,7 @@ create table attendance (
     attendance_cp_granted boolean default false,
     post_event_cp_granted boolean default false,
     post_event_hidden boolean default false,
+    post_event_addendums jsonb default '[]',
     primary key (id),
     unique(event_id, user_id),
     CONSTRAINT attendance_user_id FOREIGN KEY (user_id)

@@ -118,7 +118,9 @@ function formatPostEventData(attendance, event){
         started: _.keys(attendance.post_event_data).length,
         deadline: event.post_event_survey_deadline,
         hidden: attendance.post_event_hidden,
-        data:{}
+        data:{},
+        addendums:attendance.post_event_addendums?attendance.post_event_addendums.filter(addendum => {return addendum.submitted_at}).length:0,
+        activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true}))
     }
 }
 

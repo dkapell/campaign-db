@@ -42,7 +42,8 @@ alter table attendance
     add column checked_in boolean default false
     add column attendance_cp_granted boolean default false,
     add column post_event_cp_granted boolean default false,
-    add column post_event_hidden boolean default false;
+    add column post_event_hidden boolean default false,
+    add column post_event_addendums jsonb default '[]';
 
 
 create table event_addons (

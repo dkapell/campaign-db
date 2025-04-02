@@ -2,10 +2,12 @@
 
 import validator from 'validator';
 import _ from 'underscore';
+import async from 'async';
 import Model from  '../lib/Model';
 import attendanceModel from './attendance';
 import surveyModel from './survey';
 import eventAddonModel from './event_addon';
+import surveyHelper from '../lib/surveyHelper';
 
 const models = {
     attendance: attendanceModel,
@@ -48,6 +50,9 @@ function validate(data){
 
 async function fill(record){
     record.attendees = await models.attendance.find({event_id:record.id});
+    record.attendees = await async.map(record.attendees, async (attendee) => {
+        return surveyHelper.fillAttendance(attendee, record);
+    })
     record.attendees = record.attendees.sort(attendeeSorter);
 
     record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});

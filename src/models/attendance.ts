@@ -5,12 +5,16 @@ import Model from  '../lib/Model';
 
 import userModel from './user';
 import characterModel from './character';
-import attendanceAddonModel from './attendance_addon'
+import attendanceAddonModel from './attendance_addon';
+import eventModel from './event';
+import surveyResponseModel from './survey_response';
 
 const models = {
     user: userModel,
     character: characterModel,
-    attendance_addon: attendanceAddonModel
+    attendance_addon: attendanceAddonModel,
+    event: eventModel,
+    survey_response: surveyResponseModel
 };
 
 const tableFields = [
@@ -21,16 +25,15 @@ const tableFields = [
     'character_id',
     'paid',
     'notes',
-    'pre_event_data',
-    'post_event_data',
-    'post_event_submitted',
+    'pre_event_survey_response_id',
+    'post_event_survey_response_id',
     'attending',
     'created',
     'checked_in',
     'attendance_cp_granted',
     'post_event_cp_granted',
     'post_event_hidden',
-    'post_event_addendums'
+    'post_event_addendums' // todo remove
 ];
 
 const Attendance = new Model('attendance', tableFields, {

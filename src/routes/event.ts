@@ -47,6 +47,7 @@ async function show(req, res, next){
         let users = await async.map(campaign_users, async (campaign_user) => {
             return req.models.user.get(req.campaign.id, campaign_user.user_id);
         });
+
         if (res.locals.checkPermission('contrib')){
 
             res.locals.post_event_surveys = event.attendees.filter(attendance => {

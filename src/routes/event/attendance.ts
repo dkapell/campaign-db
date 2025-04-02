@@ -88,14 +88,14 @@ async function showEditAttendance(req, res, next){
             attendance.data = {};
         }
 
-        res.locals.attendance = attendance;
+        res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
 
         if (_.has(req.session, 'attendanceData')){
             res.locals.attendance = req.session.attendanceData;
             delete req.session.attendanceData;
         }
 
-        res.locals.attendance.user = await req.models.user.get(req.campaign.id,res.locals.attendance.user_id )
+        res.locals.attendance.user = await req.models.user.get(req.campaign.id, res.locals.attendance.user_id )
 
 
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
@@ -195,6 +195,9 @@ async function createAttendance(req, res){
         }
         attendance.attending = true;
         attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+
+        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(null, attendance);
+
         const id = await req.models.attendance.create(attendance);
 
         await req.audit('attendance', id, 'create', {new:attendance});
@@ -206,6 +209,7 @@ async function createAttendance(req, res){
         return res.redirect(`/event/${eventId}/register`);
     }
 }
+
 
 async function createNotAttendance(req, res){
     const eventId = req.params.id;
@@ -290,7 +294,6 @@ async function updateAttendance(req, res){
             throw new Error('Can not edit record from different campaign');
         }
 
-
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
                 attendance.paid = false
@@ -316,14 +319,14 @@ async function updateAttendance(req, res){
                 current.pre_event_data,
                 user.type
             );
-
         }
 
         attendance.attending = true;
+        attendance.event_id = event.id;
 
         attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(current.pre_event_survey_response_id, attendance);
         attendance.campaign_id = current.campaign_id;
-
         await req.models.attendance.update(attendanceId, attendance);
         await req.audit('attendance', attendanceId, 'update', {old: current, new:attendance});
         delete req.session.attendanceData;
@@ -541,7 +544,6 @@ async function exportEventAttendees(req, res, next){
     } catch (err){
         return next(err);
     }
-
 }
 
 function parseAttendeeAddons(input, forGm){
@@ -561,7 +563,6 @@ function parseAttendeeAddons(input, forGm){
         }
     }
     return output;
-
 }
 
 export default {

@@ -5,7 +5,6 @@ import stringify from 'csv-stringify-as-promised';
 
 import surveyHelper from '../../lib/surveyHelper';
 
-
 async function showPostEventSurvey(req, res, next){
     const id = req.params.id;
     //const attendanceId = req.params.attendanceId;
@@ -25,36 +24,30 @@ async function showPostEventSurvey(req, res, next){
         }
 
         res.locals.event = event;
-
-        res.locals.breadcrumbs = {
-            path: [
-                { url: '/', name: 'Home'},
-                { url: '/event', name: 'Events'},
-                { url: `/event/${event.id}`, name: event.name},
-            ],
-            current: req.campaign.renames.post_event_survey.singular
-        };
-
-
-        /*
-        if (user.type.match(/^(core staff|admin)$/) && attendanceId){
-            const attendance = await req.models.attendance.get(attendanceId);
-            if (!attendance || attendance.event_id !== event.id){
-                throw new Error ('Invalid Attendance');
+        if (req.query.backto === 'list'){
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/post_event_survey', name: req.campaign.renames.post_event_survey.plural },
+                ],
+                current: `${event.name}`
             }
-
-            res.locals.attendance = attendance;
-
         } else {
-            */
-            const attendance = await req.models.attendance.findOne({event_id:event.id, user_id:user.id});
-            if (!attendance || attendance.event_id !== event.id){
-                throw new Error ('Invalid Attendance');
-            }
-            res.locals.attendance = attendance;
-        /*
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/event', name: 'Events'},
+                    { url: `/event/${event.id}`, name: event.name},
+                ],
+                current: req.campaign.renames.post_event_survey.singular
+            };
         }
-        */
+
+        const attendance = await req.models.attendance.findOne({event_id:event.id, user_id:user.id});
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error ('Invalid Attendance');
+        }
+        res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
 
         if (_.has(req.session, 'postEventData')){
             res.locals.attendance.post_event_data = req.session.postEventData.post_event_data;
@@ -110,17 +103,33 @@ async function submitPostEventSurvey(req, res){
              throw new Error(`Event does not have a ${req.campaign.renames.post_event_survey.singular}`);
         }
 
-        if (current.post_event_submitted){
-            req.flash('warning', `${req.campaign.renames.post_event_survey.singular} already submitted`);
-            return res.redirect('/');
+        let surveyResult = null;
+        if (current.post_event_survey_response_id){
+            surveyResult = await req.models.survey_response.get(current.post_event_survey_response_id)
+            if (surveyResult.submitted){
+                return res.json({success:false, message: `${req.campaign.renames.post_event_survey.singular} already submitted`});
+            }
+        } else {
+            surveyResult = {
+                campaign_id: event.campaign_id,
+                user_id: user.id,
+                event_id: event.id,
+                submitted:false,
+                data: {}
+            };
         }
 
-        current.post_event_data = surveyHelper.parseData(
+        surveyResult.survey_id = event.post_event_survey_id;
+        surveyResult.survey_definition = JSON.stringify(event.post_event_survey.definition);
+        surveyResult.updated = new Date();
+
+        surveyResult.data = surveyHelper.parseData(
             attendance.post_event_data,
             event.post_event_survey.definition,
-            current.post_event_data,
+            surveyResult.data,
             user.type
         );
+
         let cpGranted = false;
 
         switch (action){
@@ -131,8 +140,8 @@ async function submitPostEventSurvey(req, res){
                 current.post_event_hidden = false;
                 break;
             case 'submit':
-                current.post_event_submitted = true;
-                current.post_event_data.submitted_at = new Date();
+                surveyResult.submitted = true;
+                surveyResult.submitted_at = new Date();
                 if (req.campaign.post_event_survey_cp && !current.post_event_cp_granted && current.user.type === 'player'){
                     if (new Date(event.post_event_survey_deadline) > new Date()){
                         await req.models.cp_grant.create({
@@ -142,14 +151,19 @@ async function submitPostEventSurvey(req, res){
                             amount: req.campaign.post_event_survey_cp,
                             status: 'approved'
                         });
-                        current.post_event_cp_granted = true;
+                        await req.models.attendance.update(current.id, {post_event_cp_granted:true});
                         cpGranted = true;
                     }
                 }
                 break;
         }
+        if (current.post_event_survey_response_id){
+            await req.models.survey_response.update(surveyResult.id, surveyResult);
 
-        await req.models.attendance.update(attendanceId, current);
+        } else {
+            const surveyResponseId = await req.models.survey_response.create(surveyResult);
+            await req.models.attendance.update(current.id, {post_event_survey_response_id:surveyResponseId});
+        }
         delete req.session.postEventData;
 
         switch (action){
@@ -204,6 +218,7 @@ async function savePostEventSurveyApi(req, res){
 
         const current = await req.models.attendance.get(attendanceId);
 
+
         if (!current || current.event_id !== event.id){
             throw new Error('Invalid Registration');
         }
@@ -216,22 +231,43 @@ async function savePostEventSurveyApi(req, res){
             throw new Error('Not allowed to edit this post event survey');
         }
 
-        if (current.post_event_submitted){
-            return res.json({success:false, message: `${req.campaign.renames.post_event_survey.singular} already submitted`});
-        }
-
         if (!event.post_event_survey){
              throw new Error(`Event does not have a ${req.campaign.renames.post_event_survey.singular}`);
         }
 
-        current.post_event_data = surveyHelper.parseData(
+        let surveyResult = null;
+        if (current.post_event_survey_response_id){
+            surveyResult = await req.models.survey_response.get(current.post_event_survey_response_id)
+            if (surveyResult.submitted){
+                return res.json({success:false, message: `${req.campaign.renames.post_event_survey.singular} already submitted`});
+            }
+        } else {
+            surveyResult = {
+                campaign_id: event.campaign_id,
+                user_id: user.id,
+                event_id: event.id,
+                submitted:false,
+                data: {}
+            };
+        }
+        surveyResult.survey_id = event.post_event_survey_id;
+        surveyResult.survey_definition = JSON.stringify(event.post_event_survey.definition);
+        surveyResult.updated = new Date();
+        surveyResult.data = surveyHelper.parseData(
             attendance.post_event_data,
             event.post_event_survey.definition,
-            current.post_event_data,
+            surveyResult.data,
             user.type
         );
 
-        await req.models.attendance.update(attendanceId, current);
+        if (current.post_event_survey_response_id){
+            await req.models.survey_response.update(surveyResult.id, surveyResult);
+
+        } else {
+            const surveyResponseId = await req.models.survey_response.create(surveyResult);
+            await req.models.attendance.update(current.id, {post_event_survey_response_id:surveyResponseId});
+        }
+
         res.json({success:true});
 
     } catch (err){
@@ -341,25 +377,21 @@ async function showAddendum(req, res, next){
             };
         }
 
-        const attendance = await req.models.attendance.findOne({event_id:event.id, user_id:user.id});
+        let attendance = await req.models.attendance.findOne({event_id:event.id, user_id:user.id});
         if (!attendance || attendance.event_id !== event.id){
             throw new Error ('Invalid Attendance');
         }
+        attendance = await surveyHelper.fillAttendance(attendance, event);
         if (!attendance.post_event_submitted){
             req.flash('warning', `${req.campaign.renames.post_event_survey.singular} not yet submitted.`)
             return res.redirect('/post_event_survey');
         }
 
         res.locals.attendance = attendance;
-        if (attendance.post_event_addendums && attendance.post_event_addendums.length){
-            const addendum = _.findWhere(attendance.post_event_addendums, {current:true});
-            if (addendum){
-                res.locals.addendum = addendum;
-            } else {
-                res.locals.addendum = {
-                   content:null
-                }
-            }
+
+        const addendum = await req.models.post_event_addendum.findOne({submitted:false, user_id:user.id, event_id:event.id});
+        if (addendum){
+            res.locals.addendum = addendum;
         } else {
             res.locals.addendum = {
                 content:null
@@ -401,7 +433,8 @@ async function submitAddendum(req, res){
             throw new Error('Invalid Event');
         }
 
-        const current = await req.models.attendance.get(attendanceId);
+        let current = await req.models.attendance.get(attendanceId);
+        current = await surveyHelper.fillAttendance(current, event);
 
         if (!current || current.event_id !== event.id){
             throw new Error('Invalid Registration');
@@ -424,21 +457,32 @@ async function submitAddendum(req, res){
             req.flash('warning', `${req.campaign.renames.post_event_survey.singular} not yet submitted`);
             return res.redirect('/');
         }
+
+        let currentAddendum = await req.models.post_event_addendum.findOne({submitted:false, user_id:user.id, event_id:event.id});
+        if (!currentAddendum){
+            currentAddendum = {
+                campaign_id: event.campaign_id,
+                user_id: user.id,
+                attendance_id: current.id,
+                submitted:false
+            };
+        }
+        currentAddendum.updated = new Date();
+        currentAddendum.content = addendum.content;
+
+
         if (action === 'submit') {
-            addendum.curent = false;
-            addendum.submitted_at = new Date();
+            currentAddendum.submitted = true
+            currentAddendum.submitted_at = new Date();
+        }
+        console.log(currentAddendum);
+
+        if (currentAddendum.id){
+            await req.models.post_event_addendum.update(currentAddendum.id, currentAddendum);
         } else {
-            addendum.current = true;
+            await req.models.post_event_addendum.create(currentAddendum);
         }
 
-        current.addendums ||= [];
-        const addendums = current.post_event_addendums.filter( item => {
-            return !item.current;
-        })
-
-        addendums.push(addendum);
-
-        await req.models.attendance.update(attendanceId, {post_event_addendums:JSON.stringify(addendums)});
 
         delete req.session.addendumData;
 
@@ -473,7 +517,6 @@ async function saveAddendumApi(req, res){
     const attendanceId = req.params.attendanceId;
     const addendum = req.body.addendum;
 
-
     try {
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
@@ -483,7 +526,8 @@ async function saveAddendumApi(req, res){
             throw new Error('Invalid Event');
         }
 
-        const current = await req.models.attendance.get(attendanceId);
+        let current = await req.models.attendance.get(attendanceId);
+        current = await surveyHelper.fillAttendance(current, event);
 
         if (!current || current.event_id !== event.id){
             throw new Error('Invalid Registration');
@@ -504,15 +548,25 @@ async function saveAddendumApi(req, res){
         if (!event.post_event_survey){
              throw new Error(`Event does not have a ${req.campaign.renames.post_event_survey.singular}`);
         }
-        addendum.current = true;
-        current.addendums ||= [];
-        const addendums = current.post_event_addendums.filter( item => {
-            return !item.current;
-        })
 
-        addendums.push(addendum);
+        let currentAddendum = await req.models.post_event_addendum.findOne({submitted:false, user_id:user.id, event_id:event.id});
+        if (!currentAddendum){
+            currentAddendum = {
+                campaign_id: event.campaign_id,
+                user_id: user.id,
+                attendance_id: current.id,
+                submitted:false
+            };
+        }
+        currentAddendum.updated = new Date();
+        currentAddendum.content = addendum.content;
 
-        await req.models.attendance.update(attendanceId, {post_event_addendums:JSON.stringify(addendums)});
+        if (currentAddendum.id){
+            await req.models.post_event_addendum.update(currentAddendum.id, currentAddendum);
+        } else {
+            await req.models.post_event_addendum.create(currentAddendum);
+        }
+
         res.json({success:true});
 
     } catch (err){

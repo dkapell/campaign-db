@@ -1,6 +1,7 @@
 'use strict';
 import _ from 'underscore';
 import { v4 as uuidv4 } from 'uuid';
+import models from './models';
 
 function parseSurveyData(data, survey, current, userType){
     const post_event_data = {};
@@ -124,8 +125,122 @@ function formatPostEventData(attendance, event){
     }
 }
 
+async function formatPostEventResponses(response, event){
+    const user = await models.user.get(event.campaign_id, response.user_id);
+    const attendance = _.findWhere(event.attendees, {user_id:user.id});
+    return {
+        attendanceId: attendance.id,
+        eventId: response.event_id,
+        eventName: event.name,
+        eventStartTime: event.start_time,
+        eventEndTime: event.end_time,
+        post_event_submitted: response.submitted,
+        definition: event.post_event_survey.definition,
+        user: user,
+        submittedAt: response.submitted_at,
+        started: _.keys(response.data).length,
+        deadline: event.post_event_survey_deadline,
+        data:{},
+        addendums: [],
+        activeAddendums:false
+        //addendums:attendance.post_event_addendums?attendance.post_event_addendums.filter(addendum => {return addendum.submitted_at}).length:0,
+        //activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true}))
+    }
+}
+
+async function fillAttendance(attendance, event){
+    if (event.pre_event_survey_id){
+        if (attendance.pre_event_survey_response_id){
+            const preEventResult = await models.survey_response.get(attendance.pre_event_survey_response_id);
+            if (preEventResult){
+                attendance.pre_event_data = preEventResult.data;
+            }
+        } else {
+            // Migrated data
+            const preEventResult = await models.survey_response.findOne({
+                user_id:attendance.user_id,
+                event_id:attendance.event_id,
+                survey_id:event.pre_event_survey_id
+            });
+            if (preEventResult){
+                attendance.pre_event_data = preEventResult.data;
+            }
+        }
+    }
+    if (event.post_event_survey_id && attendance.post_event_survey_response_id){
+        const postEventResult = await models.survey_response.get(attendance.post_event_survey_response_id);
+        if (postEventResult){
+            attendance.post_event_data = postEventResult.data;
+            if (postEventResult.submitted){
+                attendance.post_event_submitted = true;
+                attendance.post_event_data.submitted_at = postEventResult.submitted_at;
+            }
+        }
+        const addendums = await models.post_event_addendum.find({attendance_id: attendance.id});
+        attendance.post_event_addendums = [];
+        for (const addendum of addendums){
+            attendance.post_event_addendums.push({
+                submitted: addendum.submitted,
+                submitted_at: addendum.submitted_at,
+                current: !addendum.submitted,
+                content: addendum.content
+            });
+        }
+    }
+    return attendance;
+}
+
+async function savePreEventSurveyData(responseId, attendance){
+    if (!_.has(attendance, 'pre_event_data')){
+        return null;
+    }
+    const event = await models.event.get(attendance.event_id);
+    // Check for existing record
+    if (responseId){
+        const surveyResponse = await models.survey_response.get(responseId);
+        surveyResponse.data = attendance.pre_event_data;
+        surveyResponse.updated = new Date();
+        surveyResponse.survey_id = event.pre_event_survey_id;
+        surveyResponse.survey_definition = JSON.stringify(event.pre_event_survey.definition);
+        await models.survey_response.update(surveyResponse.id, surveyResponse);
+        return surveyResponse.id;
+
+    } else {
+        // Handle unmigrated data
+        const surveyResponse = await models.survey_response.findOne({
+            event_id: event.id,
+            user_id: attendance.user_id,
+            survey_id: event.pre_event_survey_id
+        });
+        if (surveyResponse){
+            surveyResponse.data = attendance.pre_event_data;
+            surveyResponse.updated = new Date();
+            surveyResponse.survey_id = event.pre_event_survey_id;
+            surveyResponse.survey_definition = JSON.stringify(event.pre_event_survey.definition);
+            await models.survey_response.update(surveyResponse.id, surveyResponse);
+            return surveyResponse.id;
+        }
+
+        // Create new record
+        const doc = {
+            campaign_id: event.campaign_id,
+            user_id: attendance.user_id,
+            survey_id: event.pre_event_survey_id,
+            event_id: attendance.event_id,
+            survey_definition: JSON.stringify(event.pre_event_survey.definition),
+            data: attendance.pre_event_data,
+            submitted:true,
+            submitted_at: new Date(),
+        }
+        return models.survey_response.create(doc);
+    }
+}
+
 export default {
     parseData: parseSurveyData,
     parseFields: parseSurveyFields,
-    formatPostEventData: formatPostEventData
+    formatPostEventData: formatPostEventData,
+    formatPostEventResponses: formatPostEventResponses,
+    fillAttendance: fillAttendance,
+    savePreEventData: savePreEventSurveyData
 }

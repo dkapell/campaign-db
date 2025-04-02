@@ -23,21 +23,21 @@ async function list(req, res, next){
             res.locals.my_post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
         } else {
             res.locals.my_post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
-            const attendances = await req.models.attendance.find({campaign_id:req.campaign.id, post_event_submitted:true})
-            res.locals.post_event_surveys = attendances.filter(attendance => {
-                const event = _.findWhere(events, {id:attendance.event_id});
-                if (!event) { return false; }
-
-                const visibleAt = new Date(event.end_time);
-                visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
-                if (visibleAt > new Date()){
-                    return false;
+            const responses = [];
+            const surveys = await req.models.survey.find({type: 'post event'});
+            for (const survey of surveys){
+                const surveyResponses = await req.models.survey_response.find({survey_id: survey.id, submitted:true});
+                for (const response of surveyResponses){
+                    const event = _.findWhere(events, {id:response.event_id});
+                    const visibleAt = new Date(event.end_time);
+                    visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
+                    if (visibleAt > new Date()){
+                        continue;
+                    }
+                    responses.push(await surveyHelper.formatPostEventResponses(response, event));
                 }
-                return true;
-            }).map((attendance) => {
-                const event = _.findWhere(events, {id:attendance.event_id});
-                return surveyHelper.formatPostEventData(attendance, event);
-            });
+            }
+            res.locals.post_event_surveys = responses;
         }
         res.render('post_event_survey/list', {pageTitle:req.campaign.renames.post_event_survey.plural});
     } catch (err){
@@ -48,15 +48,19 @@ async function list(req, res, next){
 async function show(req, res, next){
     const attendanceId = req.params.id;
     try{
-        const attendance = await req.models.attendance.get(attendanceId);
+        let attendance = await req.models.attendance.get(attendanceId);
         if (!attendance || attendance.campaign_id !== req.campaign.id){
             throw new Error('Invalid Attendance');
         }
+
+        const event = await req.models.event.get(attendance.event_id);
+        attendance = await surveyHelper.fillAttendance(attendance, event);
+
         if (!attendance.post_event_submitted){
             req.flash('warning', 'That survey has not been submited yet.')
             return res.redirect('/post_event_survey');
         }
-        const event = await req.models.event.get(attendance.event_id);
+
         const visibleAt = new Date(event.end_time);
         visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
 
@@ -65,7 +69,7 @@ async function show(req, res, next){
             return res.redirect('/post_event_survey');
         }
         res.locals.event = event;
-        res.locals.attendance = attendance;
+        res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
         if (req.query.backto && req.query.backto === 'event'){
             res.locals.breadcrumbs = {
                 path: [

@@ -18,6 +18,41 @@ create table surveys (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+insert into surveys (campaign_id, name, type, definition, "is_default") select id, 'registration', 'registration', event_fields, true from campaigns
+
+create table survey_response (
+    id serial,
+    campaign_id int not null,
+    user_id int not null,
+    survey_id int,
+    event_id int,
+    survey_definition jsonb,
+    data jsonb,
+    submitted boolean default false,
+    submitted_at timestamp with time zone,
+    created timestamp with time zone default now(),
+    updated timestamp with time zone default now(),
+    primary key (id),
+    CONSTRAINT survey_response_user_id FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT survey_response_survey_id FOREIGN KEY (survey_id)
+        REFERENCES "surveys" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_event_id FOREIGN KEY (event_id)
+        REFERENCES "events" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+-- migrate to survey_response here
+-- pre_event_survey
+-- insert into survey_response (campaign_id, survey_id, event_id, user_id, data, submitted, submitted_at)
+-- select campaign_id, {ID}, event_id, user_id, pre_event_data, true, now() from attendance where pre_event_data is not null;
+
+
 alter table campaigns
     add COLUMN post_event_survey_cp float not null, default 0,
     add COLUMN post_event_survey_hide_days int not null default 0;
@@ -37,13 +72,20 @@ alter table events
 
 alter table attendance
     rename column data to pre_event_data,
-    add column post_event_data jsonb,
-    add column post_event_submitted boolean default false,
+    add column pre_event_survey_response_id int,
+    add column post_event_survey_response_id int,
+
     add column checked_in boolean default false
     add column attendance_cp_granted boolean default false,
     add column post_event_cp_granted boolean default false,
     add column post_event_hidden boolean default false,
-    add column post_event_addendums jsonb default '[]';
+    add CONSTRAINT attendance_pre_event_survey_response_fk FOREIGN KEY (pre_event_survey_response_id)
+        REFERENCES "survey_response" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    add CONSTRAINT attendance_post_event_survey_response_fk FOREIGN KEY (post_event_survey_response_id)
+        REFERENCES "survey_response" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL;
+    --add column post_event_addendums jsonb default '[]';
 
 
 create table event_addons (
@@ -78,7 +120,27 @@ create table attendance_addons (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-insert into surveys (campaign_id, name, type, definition, "is_default") select id, 'registration', 'registration', event_fields, true from campaigns
+create table post_event_addendum (
+    id serial,
+    campaign_id int not null,
+    user_id int not null,
+    attendance_id int,
+    content text,
+    submitted boolean default false,
+    submitted_at timestamp with time zone,
+    created timestamp with time zone default now(),
+    updated timestamp with time zone default now(),
+    primary key (id),
+    CONSTRAINT survey_response_user_id FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT aurvey_response_attendance_fk FOREIGN KEY (attendance_id)
+        REFERENCES "attendance" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
 
 -- alter table campaigns drop column event_fields;
 

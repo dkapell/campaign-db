@@ -582,7 +582,6 @@ create table events (
     created timestamp with time zone DEFAULT now(),
     pre_event_survey_id int,
     post_event_survey_id int,
-    hidden_fields jsonb,
     hide_attendees boolean default false,
     post_event_survey_deadline timestamp with time zone,
     primary key (id),
@@ -615,6 +614,33 @@ create table event_addons (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create table survey_response (
+    id serial,
+    campaign_id int not null,
+    user_id int not null,
+    event_id int,
+    survey_id int,
+    survey_definition jsonb,
+    data jsonb,
+    submitted boolean default false,
+    submitted_at timestamp with time zone,
+    created timestamp with time zone default now(),
+    updated timestamp with time zone default now(),
+    primary key (id),
+    CONSTRAINT survey_response_user_id FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT survey_response_survey_id FOREIGN KEY (survey_id)
+        REFERENCES "surveys" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_event_id FOREIGN KEY (event_id)
+        REFERENCES "events" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 create table attendance (
     id serial,
     campaign_id int not null,
@@ -623,16 +649,18 @@ create table attendance (
     character_id int,
     paid boolean default false,
     notes text,
-    pre_event_data jsonb,
-    post_event_data jsonb,
-    post_event_submitted boolean default false,
+    pre_event_survey_response_id int,
+    post_event_survey_response_id int,
+    --pre_event_data jsonb,
+    --post_event_data jsonb,
+    --post_event_submitted boolean default false,
     attending boolean default true,
     checked_in boolean default false,
     created timestamp with time zone DEFAULT now(),
     attendance_cp_granted boolean default false,
     post_event_cp_granted boolean default false,
     post_event_hidden boolean default false,
-    post_event_addendums jsonb default '[]',
+    --post_event_addendums jsonb default '[]',
     primary key (id),
     unique(event_id, user_id),
     CONSTRAINT attendance_user_id FOREIGN KEY (user_id)
@@ -643,7 +671,13 @@ create table attendance (
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT attendance_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT attendance_pre_event_survey_response_fk FOREIGN KEY (pre_event_survey_response_id)
+        REFERENCES "survey_response" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT attendance_post_event_survey_response_fk FOREIGN KEY (post_event_survey_response_id)
+        REFERENCES "survey_response" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL
 );
 
 create table attendance_addons (
@@ -657,3 +691,24 @@ create table attendance_addons (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create table post_event_addendum (
+    id serial,
+    campaign_id int not null,
+    user_id int not null,
+    attendance_id int,
+    content text,
+    submitted boolean default false,
+    submitted_at timestamp with time zone,
+    created timestamp with time zone default now(),
+    updated timestamp with time zone default now(),
+    primary key (id),
+    CONSTRAINT survey_response_user_id FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT aurvey_response_attendance_fk FOREIGN KEY (attendance_id)
+        REFERENCES "attendance" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT survey_response_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);

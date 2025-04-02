@@ -81,8 +81,8 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
                         td
                             if survey.post_event_submitted
                                 = moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
-                            if (survey.addendums)
-                                .badge.text-bg-info.ms-1 #{survey.addendums} Addendum(s)
+                                if (survey.addendums)
+                                    .badge.text-bg-info.ms-1 #{survey.addendums} Addendum(s)
                             else
                                 i.me-2 Not Yet
                                 if survey.hidden

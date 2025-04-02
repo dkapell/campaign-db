@@ -117,13 +117,14 @@ block content
                                             | Edit Registration
                                     if new Date(event.end_time) > new Date()
                                         if attendee.attending
-                                            a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
-                                                role="button"
-                                                url=`/event/${event.id}/register/${attendee.id}`
-                                                data-csrf=csrfToken
-                                            )
-                                                span.fa.fa-calendar-times.me-2
-                                                | Unregister
+                                            if !(attendee.paid || attendee.addons.filter(addon => { return addon.paid}).length)
+                                                a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
+                                                    role="button"
+                                                    url=`/event/${event.id}/register/${attendee.id}`
+                                                    data-csrf=csrfToken
+                                                )
+                                                    span.fa.fa-calendar-times.me-2
+                                                    | Unregister
 
                                         else
                                             a.btn.btn-outline-danger.btn-sm#event-clear-not-attending-btn(
@@ -144,14 +145,16 @@ block content
                                             | Free
                                         -
                                             let owed = 0;
-                                            if (event.cost && !event.paid && attendee.user.type === 'player'){
-                                                owed += event.cost
-                                            }
-                                            for ( const addon of attendee.addons ){
-                                                const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                                                if (!addon.paid){
-                                                    if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
-                                                        owed += event_addon.cost;
+                                            if (attendee && attendee.user){
+                                                if (event.cost && !attendee.paid && attendee.user.type === 'player'){
+                                                    owed += event.cost
+                                                }
+                                                for ( const addon of attendee.addons ){
+                                                    const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+                                                    if (!addon.paid){
+                                                        if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
+                                                            owed += event_addon.cost;
+                                                        }
                                                     }
                                                 }
                                             }

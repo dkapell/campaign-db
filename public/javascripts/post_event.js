@@ -15,7 +15,7 @@ $(function(){
 });
 
 function watchField(){
-    $field = $(this);
+    const $field = $(this);
     const $form = $field.closest('form');
     $field.find('input').on('change', function(){
         startSaveForm($form);

@@ -236,11 +236,47 @@ async function savePreEventSurveyData(responseId, attendance){
     }
 }
 
+async function getPostEventSurveys(campaignId:number, userId?:number){
+    const responses = [];
+    const surveys = await models.survey.find({campaign_id: campaignId, type:'post event'});
+    const events:EventData[] = await models.event.find({campaign_id:campaignId, deleted:false});
+    const campaign = await models.campaign.get(campaignId);
+    for (const survey of surveys){
+        interface SurveyQuery {
+            survey_id: number
+            submitted?: boolean
+            user_id?: number
+        }
+
+        const query: SurveyQuery = {
+            survey_id: survey.id,
+            submitted:true
+        };
+        if (userId){
+            query.user_id = userId;
+        }
+
+        const surveyResponses = await models.survey_response.find(query);
+        for (const response of surveyResponses){
+            const event = _.findWhere(events, {id:response.event_id});
+            const visibleAt = new Date(event.end_time);
+            visibleAt.setDate(visibleAt.getDate() + campaign.post_event_survey_hide_days);
+            if (visibleAt > new Date()){
+                continue;
+            }
+            responses.push(await formatPostEventResponses(response, event));
+
+        }
+    }
+    return responses;
+}
+
 export default {
     parseData: parseSurveyData,
     parseFields: parseSurveyFields,
     formatPostEventData: formatPostEventData,
     formatPostEventResponses: formatPostEventResponses,
     fillAttendance: fillAttendance,
-    savePreEventData: savePreEventSurveyData
+    savePreEventData: savePreEventSurveyData,
+    getPostEventSurveys: getPostEventSurveys
 }

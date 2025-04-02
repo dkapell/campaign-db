@@ -1,4 +1,4 @@
-/* globals DateRangePicker DatePicker*/
+/* globals DateRangePicker Datepicker */
 let nextEventAddonIndex = 0;
 
 $(function(){
@@ -185,7 +185,7 @@ function updateCustomFieldVisibility(){
     }
     let userType = $('#attendance_user_id option:selected').data('type');
     if (!userType){
-        userType = $('#attendance_user_id').val()
+        userType = $('#attendance_user_id').val();
     }
     $('.custom-event-field').each( function(){
         const $this = $(this);
@@ -223,42 +223,42 @@ function updateCustomFieldVisibility(){
             if ($this.data('available_to_player')){
                 $this.show();
                 if ($this.data('charge_player')){
-                    $this.find('.paid-cost').show()
-                    $this.find('.paid-badge').show()
+                    $this.find('.paid-cost').show();
+                    $this.find('.paid-badge').show();
                 } else {
-                    $this.find('.paid-cost').hide()
-                    $this.find('.paid-badge').hide()
+                    $this.find('.paid-cost').hide();
+                    $this.find('.paid-badge').hide();
                 }
             } else {
-                $this.hide()
+                $this.hide();
             }
         } else {
             if ($this.data('available_to_staff')){
                 $this.show();
                 if ($this.data('charge_staff')){
-                    $this.find('.paid-cost').show()
-                    $this.find('.paid-badge').show()
+                    $this.find('.paid-cost').show();
+                    $this.find('.paid-badge').show();
                 } else {
-                    $this.find('.paid-cost').hide()
-                    $this.find('.paid-badge').hide()
+                    $this.find('.paid-cost').hide();
+                    $this.find('.paid-badge').hide();
                 }
             } else {
-                $this.hide()
+                $this.hide();
             }
         }
 
     });
 
-    $(".addon-row:visible").each(function(index) {
+    $('.addon-row:visible').each(function(index) {
         if(index == 0){
-            $(this).css("border-top-left-radius", "inherit");
-            $(this).css("border-top-right-radius", "inherit");
-            $(this).css("border-top-width", "1px");
+            $(this).css('border-top-left-radius', 'inherit');
+            $(this).css('border-top-right-radius', 'inherit');
+            $(this).css('border-top-width', '1px');
         }
-        if(index == $(".addon-row:visible").length - 1){
-            $(this).css("border-bottom-left-radius", "inherit");
-            $(this).css("border-bottom-right-radius", "inherit");
-            $(this).css("border-bottom-width", "1px");
+        if(index == $('.addon-row:visible').length - 1){
+            $(this).css('border-bottom-left-radius', 'inherit');
+            $(this).css('border-bottom-right-radius', 'inherit');
+            $(this).css('border-bottom-width', '1px');
         }
     });
 }

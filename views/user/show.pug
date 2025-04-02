@@ -84,7 +84,7 @@ block content
         .row.my-2
             .col
                 h4 #{currentCampaign.renames.post_event_survey.plural}
-                +postEventSurveyGmTable(surveys)
+                +postEventSurveyGmTable(surveys, {backto:'user'})
 
 append scripts
     script(src='/javascripts/data-table.js')

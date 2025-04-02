@@ -24,22 +24,8 @@ async function list(req, res, next){
             res.locals.my_post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
         } else {
             res.locals.my_post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
-            const responses = [];
-            const surveys = await req.models.survey.find({type: 'post event'});
-            for (const survey of surveys){
-                const surveyResponses = await req.models.survey_response.find({survey_id: survey.id, submitted:true});
-                for (const response of surveyResponses){
-                    const event = _.findWhere(events, {id:response.event_id});
-                    const visibleAt = new Date(event.end_time);
-                    visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
-                    if (visibleAt > new Date()){
-                        continue;
-                    }
-                    responses.push(await surveyHelper.formatPostEventResponses(response, event));
 
-                }
-            }
-
+            const responses = await surveyHelper.getPostEventSurveys(req.campaign.id);
             res.locals.post_event_surveys = responses;
 
             let addendums = await req.models.post_event_addendum.find({campaign_id:req.campaign.id, submitted:true});
@@ -101,6 +87,16 @@ async function show(req, res, next){
                 current: `${req.campaign.renames.post_event_survey.singular}: ${attendance.user.name}`
             }
             res.locals.backto = `/event/${event.id}`;
+        } else if (req.query.backto && req.query.backto === 'user'){
+            res.locals.breadcrumbs = {
+                path: [
+                    { url: '/', name: 'Home'},
+                    { url: '/user', name: 'Users'},
+                    { url: `/user/${attendance.user.id}`, name: attendance.user.name},
+                ],
+                current: `${req.campaign.renames.post_event_survey.singular}: ${event.name}`
+            }
+            res.locals.backto = `/user/${attendance.user.id}`;
         } else {
             res.locals.breadcrumbs = {
                 path: [

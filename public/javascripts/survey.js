@@ -46,7 +46,7 @@ function prepSurveyFields(){
         $('.survey_field-row').each(function(idx){
             toggleFieldOptions($(this));
         });
-    })
+    });
 }
 
 function updateNames($list){
@@ -64,7 +64,7 @@ function toggleFieldOptions($row){
     $row.find('.survey_field-required').attr('disabled', false);
     $row.find('.survey_field-on_checkin').attr('disabled', false);
     $row.find('.survey_field-editable_by').attr('disabled', false);
-    $row.find('.survey_field-on_checkin').attr('disabled', false)
+    $row.find('.survey_field-on_checkin').attr('disabled', false);
     $row.find('.add-description-btn').show();
     switch (type){
         case 'longtext':
@@ -73,7 +73,7 @@ function toggleFieldOptions($row){
         case 'dropdown':
             $row.find('.dropdown-options').show();
             break;
-         case 'text content':
+        case 'text content':
             $row.find('.markdown-options').show();
             $row.find('.survey_field-required').attr('disabled', true);
             $row.find('.survey_field-on_checkin').attr('disabled', true);
@@ -90,7 +90,7 @@ function toggleFieldOptions($row){
         $row.find('.survey_field-on_checkin').attr('disabled', true);
     }
 
-    $survey_field_description = $row.find('.field-description').find('textarea');
+    const $survey_field_description = $row.find('.field-description').find('textarea');
 
     if ($survey_field_description.val()){
         $row.find('.field-description').show();
@@ -148,7 +148,7 @@ function addSurveyField(e){
     });
 
 
-    toggleFieldOptions($new)
+    toggleFieldOptions($new);
     $new.appendTo('#survey_fields-list');
     $new.show();
     $('#survey_field-footer-row').show();
@@ -156,7 +156,7 @@ function addSurveyField(e){
 }
 
 function updateSurveyFieldVisibility(e){
-    type = $('#survey-preview-as').val();
+    const type = $('#survey-preview-as').val();
     if (!type) { return; }
     $('.custom-event-field').each(function(){
         const $field = $(this);

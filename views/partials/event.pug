@@ -26,6 +26,7 @@ mixin eventListDisplay(events, showPast=false)
 
             tbody
                 for event in events
+                    - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id})
                     tr(class='clickable-row', data-click-object='event' data-click-id=event.id)
                         td.dtr-control
                         td= event.name
@@ -37,8 +38,14 @@ mixin eventListDisplay(events, showPast=false)
                         td 
                             if event.cost
                                 | $#{event.cost}.00
-                            else 
+                                if attendee && attendee.user.type === 'player'
+                                    if attendee.paid
+                                        .badge.text-bg-success.ms-2 Paid
+                                    else
+                                        .badge.text-bg-danger.ms-2 Unpaid
+                            else
                                 | Free Event
+
                         if !showPast
                             td
                                 if event.registration_open
@@ -49,7 +56,7 @@ mixin eventListDisplay(events, showPast=false)
                             td=event.players.filter(a => { return a.attending}).length
                             td=event.attendees.filter(a => { return a.attending}).length - event.players.filter(a => { return a.attending}).length
                         td
-                            if _.findWhere(event.attendees, {user_id: activeUser.id})
+                            if attendee
                                 span.badge.text-bg-success
                                     i.fas.fa-calendar-check.me-1
                                     if event.end_time < new Date()
@@ -57,7 +64,7 @@ mixin eventListDisplay(events, showPast=false)
                                     else
                                         | Attending
                             else
-                                span.badge.text-bg-danger
+                                span.badge.text-bg-warning
                                     i.fas.fa-calendar-times.me-1
                                     if event.end_time < new Date()
                                         | Did not Attend

@@ -4,6 +4,7 @@ import async from 'async';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import campaignHelper from '../lib/campaignHelper';
+import surveyHelper from '../lib/surveyHelper';
 
 /* GET users listing. */
 async function list(req, res, next){
@@ -72,38 +73,7 @@ async function show(req, res, next){
         for (const character of characters){
             character.user = user;
         }
-        const events:EventData[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
-        const attendances = await req.models.attendance.find({
-            campaign_id:req.campaign.id,
-            user_id:user.id,
-            post_event_submitted:true
-        });
-        res.locals.surveys = attendances.filter(attendance => {
-            const event = _.findWhere(events, {id:attendance.event_id});
-            if (!event) { return false; }
-
-            const visibleAt = new Date(event.end_time);
-            visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
-            if (visibleAt > new Date()){
-                return false;
-            }
-            return true;
-        }).map((attendance) => {
-            const event = _.findWhere(events, {id:attendance.event_id});
-
-            return {
-                attendanceId: attendance.id,
-                eventId: event.id,
-                eventName: event.name,
-                eventStartTime: event.start_time,
-                eventEndTime: event.end_time,
-                post_event_submitted: attendance.post_event_submitted,
-                definition: event.post_event_survey.definition,
-                checkedIn: attendance.checked_id,
-                user: attendance.user,
-                submittedAt: attendance.post_event_data.submitted_at
-            }
-        });
+        res.locals.surveys = await surveyHelper.getPostEventSurveys(req.campaign.id, user.id);
         res.locals.characters = characters;
         res.locals.user = user;
         res.locals.title += ` - Users - ${user.name}`;

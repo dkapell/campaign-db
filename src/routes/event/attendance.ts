@@ -51,12 +51,21 @@ async function showNewAttendance(req, res, next){
 
         };
 
+        const preEventResult = await req.models.survey_response.findOne({
+            user_id:user.id,
+            event_id:event.id,
+            survey_id:event.pre_event_survey_id
+        });
+
+        if (preEventResult){
+            res.locals.attendance.pre_event_data = preEventResult.data;
+        }
+
         if (_.has(req.session, 'attendanceData')){
             res.locals.attendance = req.session.attendanceData;
             delete req.session.attendanceData;
         }
 
-        //fix for gm scenartio
         res.locals.attendance.user = user;
 
         res.locals.title += ' - Register';
@@ -167,7 +176,6 @@ async function createAttendance(req, res){
         } else {
             attendance.user_id = user.id;
         }
-
 
         const currentAttendance = await req.models.attendance.findOne({event_id:event.id, user_id:attendance.user_id});
         if (currentAttendance){
@@ -362,6 +370,12 @@ async function removeAttendance(req, res, next){
             throw new Error('Not allowed to edit this registration');
         }
 
+        const isPaid = current.paid || current.addons.filter(addon => { return addon.paid}).length;
+        if (isPaid){
+            req.flash('error', 'Can not withdraw from a paid event.  Please contact staff to manage this event registration.');
+            return res.redirect(`/event/${event.id}`);
+        }
+
         await req.models.attendance.delete(attendanceId);
         await req.audit('attendance', attendanceId, 'delete', {old: current});
         req.flash('success', `Unregistered ${current.user.name} from ${event.name}`);
@@ -380,7 +394,6 @@ async function exportEventAttendees(req, res, next){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
-
 
         const output = [];
         const header = ['Name', 'Email'];

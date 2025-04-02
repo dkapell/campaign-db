@@ -175,12 +175,9 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        console.log('here1')
         survey.definition = JSON.stringify(surveyHelper.parseFields(survey.definition));
 
-        console.log('here2')
-
-         if (!current.is_default && survey.is_default && survey.type !== 'other'){
+        if (!current.is_default && survey.is_default && survey.type !== 'other'){
             const surveys = await req.models.survey.find({campaign_id:req.campaign.id, type: survey.type});
             await async.each(surveys, async function(existingSurvey: ModelData){
                 if (existingSurvey.id !== id && existingSurvey.is_default){

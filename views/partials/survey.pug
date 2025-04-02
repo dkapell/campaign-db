@@ -86,7 +86,6 @@ mixin surveyDefinitionFooter(show)
 
 mixin surveyField(field,  idx)
     .survey_field-row.border-top.border-start.border-2.my-1.px-2(id=`survey_field-${idx}` )
-        - console.log(field)
         input.sort-order.survey_field-input(
             type='hidden'
             id=`survey_field_${idx}_sort_order`

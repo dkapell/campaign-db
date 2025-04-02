@@ -47,7 +47,7 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
                                 href=`/post_event_survey/${survey.attendanceId}${options.backto?'?backto='+options.backto:''}`
-                                title='View Survey'
+                                title=`View ${currentCampaign.renames.post_event_survey.singular}`
                                 data-bs-toggle='tooltip'
                             )
                                 i.fas.fa-eye.me-1
@@ -106,17 +106,17 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
 
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
                                 href=`/event/${survey.eventId}/post_event/${survey.attendanceId}?backto=list`
-                                title=survey.post_event_submitted?'View Survey':'Edit Survey'
+                                title=survey.post_event_submitted?`View ${currentCampaign.renames.post_event_survey.singular}`:`Edit ${currentCampaign.renames.post_event_survey.singular}`
                                 data-bs-toggle='tooltip'
                             )
                                 if survey.post_event_submitted
                                     i.fas.fa-eye.me-1
-                                    | View Survey
+                                    | View
                                 else if survey.started
                                     i.fas.fa-edit.me-1
-                                    | Continue Survey
+                                    | Continue
                                 else
                                     i.fas.fa-edit.me-1
-                                    | Start Survey
+                                    | Start
 
 

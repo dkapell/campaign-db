@@ -64,7 +64,6 @@ if event.pre_event_survey
         -
             let fieldData = null;
             if (_.has(attendance.pre_event_data, field.id)){
-                - console.log(attendance.pre_event_data[field.id])
                 if (typeof attendance.pre_event_data[field.id] === 'string' ){
                     fieldData = attendance.pre_event_data[field.id];
                 } else {
@@ -78,7 +77,7 @@ if event.pre_event_survey
                 .col
                     +customSurveyFieldInput('attendance[pre_event_data]',  'attendance_pre_event_data', field, fieldData, true)
         else
-            case customSurveyFieldInput.visible_to
+            case field.visible_to
                 when 'staff'
                     if checkPermission('event')
                         .row.my-2

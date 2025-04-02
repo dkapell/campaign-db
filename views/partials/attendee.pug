@@ -250,7 +250,8 @@ mixin attendeeCustomFieldDisplay(customField, data)
             i.fas.me-1.fa-fw(class=icon)
             strong= customField.name
         .col-md
-                !=marked.parseInline(data, {breaks:true})
+                if data
+                    !=marked.parseInline(data, {breaks:true})
 
 mixin showAddons(attendee, type)
     if attendee.addons && attendee.addons.length

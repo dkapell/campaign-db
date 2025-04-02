@@ -6,18 +6,18 @@ block content
     if checkPermission('contrib')
         ul.nav.nav-tabs.w-100.my-2#postEventSurveyTabs(role="tablist")
             li.nav-item(role="presentation")
-                a.nav-link.active#all-surveys-tab(href="#all-surveys" data-bs-toggle="tab" role="tab" aria-controls="all-surveys" aria-selected="true") All Surveys
+                a.nav-link.active#all-surveys-tab(href="#all-surveys" data-bs-toggle="tab" role="tab" aria-controls="all-surveys" aria-selected="true") All #{currentCampaign.renames.post_event_survey.plural}
 
             li.nav-item(role="presentation")
-                a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My Surveys
+                a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My #{currentCampaign.renames.post_event_survey.plural}
 
         .tab-content#postEventSurveyContent
             .tab-pane.fade.show.active#all-surveys(role="tabpanel" aria-labelledby="all-surveys-tab")
-                h4 All Surveys
+                h4 All #{currentCampaign.renames.post_event_survey.plural}
                 +postEventSurveyGmTable(post_event_surveys)
             .tab-pane.fade#my-surveys(role="tabpanel" aria-labelledby="my-surveys-tab")
 
-                h4 My Surveys
+                h4 My #{currentCampaign.renames.post_event_survey.plural}
                 +postEventSurveySelfTable(my_post_event_surveys)
     else
         +postEventSurveySelfTable(my_post_event_surveys)

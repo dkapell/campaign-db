@@ -432,7 +432,7 @@ async function submitAddendum(req, res){
         }
 
         current.addendums ||= [];
-        const addendums = current.addendums.filter( item => {
+        const addendums = current.post_event_addendums.filter( item => {
             return !item.current;
         })
 
@@ -473,6 +473,7 @@ async function saveAddendumApi(req, res){
     const attendanceId = req.params.attendanceId;
     const addendum = req.body.addendum;
 
+
     try {
         const user = req.session.assumed_user ? req.session.assumed_user: req.user;
 
@@ -505,7 +506,7 @@ async function saveAddendumApi(req, res){
         }
         addendum.current = true;
         current.addendums ||= [];
-        const addendums = current.addendums.filter( item => {
+        const addendums = current.post_event_addendums.filter( item => {
             return !item.current;
         })
 

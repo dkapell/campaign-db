@@ -101,7 +101,6 @@ block content
                                             each field in event.pre_event_survey.definition
                                                 if field.on_checkin && (!field.visible_to || field.visible_to !== 'staff')
                                                     td
-                                                        - console.log(attendee.pre_event_data)
                                                         if _.has(attendee.pre_event_data, field.id)
                                                             if field.type === 'boolean'
                                                                 if attendee.pre_event_data[field.id].data

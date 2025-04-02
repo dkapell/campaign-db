@@ -135,13 +135,28 @@ block content
                                                 | Clear Not Attending
 
                             if activeUser.type.match(/^(player|admin|core staff)$/)
-                                .col-md-3.text-md-center
+                                .col-md-4.text-md-center
                                     span.fs-5
                                         span.me-1 Cost:
                                         if event.cost
                                             | $#{event.cost}
                                         else
                                             | Free
+                                        -
+                                            let owed = 0;
+                                            if (event.cost && !event.paid && attendee.user.type === 'player'){
+                                                owed += event.cost
+                                            }
+                                            for ( const addon of attendee.addons ){
+                                                const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+                                                if (!addon.paid){
+                                                    if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
+                                                        owed += event_addon.cost;
+                                                    }
+                                                }
+                                            }
+                                        if owed
+                                            span.ms-2 Owed: $#{owed}
 
                             .col-lg-4.text-lg-end
 
@@ -191,7 +206,7 @@ block content
                                                 h4 Registration Questions
                                                 each customField in event.pre_event_survey.definition
                                                     if attendee
-                                                        if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id]
+                                                        if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id].data
                                                             +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.id].data)
                                                         else if _.has(attendee.pre_event_data, customField.name) && attendee.pre_event_data[customField.name]
                                                             +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.name])

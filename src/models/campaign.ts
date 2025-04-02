@@ -82,8 +82,8 @@ async function postSelect(data:ModelData){
     if (data.site){
         await cache.store('campaign-site', (data.site as string), data);
     }
+    data.renames = {};
     if (data.rename_map){
-        data.renames = {};
         for (const name in data.rename_map as Record<string, unknown>){
             data.renames[name] = {
                 singular: data.rename_map[name],

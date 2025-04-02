@@ -475,7 +475,6 @@ async function submitAddendum(req, res){
             currentAddendum.submitted = true
             currentAddendum.submitted_at = new Date();
         }
-        console.log(currentAddendum);
 
         if (currentAddendum.id){
             await req.models.post_event_addendum.update(currentAddendum.id, currentAddendum);

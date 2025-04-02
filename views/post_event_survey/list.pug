@@ -11,6 +11,9 @@ block content
             li.nav-item(role="presentation")
                 a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My #{currentCampaign.renames.post_event_survey.plural}
 
+            li.nav-item(role="presentation")
+                a.nav-link#updates-tab(href="#updates" data-bs-toggle="tab" role="tab" aria-controls="updates" aria-selected="false") Changelog
+
         .tab-content#postEventSurveyContent
             .tab-pane.fade.show.active#all-surveys(role="tabpanel" aria-labelledby="all-surveys-tab")
                 h4 All #{currentCampaign.renames.post_event_survey.plural}
@@ -19,6 +22,9 @@ block content
 
                 h4 My #{currentCampaign.renames.post_event_survey.plural}
                 +postEventSurveySelfTable(my_post_event_surveys)
+            .tab-pane.fade#updates(role="tabpanel" aria-labelledby="updates-tab")
+                h4 #{currentCampaign.renames.post_event_survey.plural} Changelog
+                +postEventUpdatesTable(allItems)
     else
         +postEventSurveySelfTable(my_post_event_surveys)
 

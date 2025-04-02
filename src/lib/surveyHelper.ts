@@ -115,13 +115,14 @@ function formatPostEventData(attendance, event){
         definition: event.post_event_survey.definition,
         checkedIn: attendance.checked_id,
         user: attendance.user,
-        submittedAt: attendance.post_event_data.submitted_at,
+        submittedAt: new Date(attendance.post_event_data.submitted_at),
         started: _.keys(attendance.post_event_data).length,
         deadline: event.post_event_survey_deadline,
         hidden: attendance.post_event_hidden,
         data:{},
         addendums:attendance.post_event_addendums?attendance.post_event_addendums.filter(addendum => {return addendum.submitted_at}).length:0,
-        activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true}))
+        activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true})),
+        type: 'post event response'
     }
 }
 
@@ -137,14 +138,13 @@ async function formatPostEventResponses(response, event){
         post_event_submitted: response.submitted,
         definition: event.post_event_survey.definition,
         user: user,
-        submittedAt: response.submitted_at,
+        submittedAt: new Date(response.submitted_at),
         started: _.keys(response.data).length,
         deadline: event.post_event_survey_deadline,
         data:{},
-        addendums: [],
-        activeAddendums:false
-        //addendums:attendance.post_event_addendums?attendance.post_event_addendums.filter(addendum => {return addendum.submitted_at}).length:0,
-        //activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true}))
+        addendums:attendance.post_event_addendums?attendance.post_event_addendums.filter(addendum => {return addendum.submitted_at}).length:0,
+        activeAddendum:!!(attendance.post_event_addendums && _.findWhere(attendance.post_event_addendums, {current:true})),
+        type: 'post event response',
     }
 }
 

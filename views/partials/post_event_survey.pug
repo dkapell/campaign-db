@@ -41,7 +41,7 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
                                 = survey.user.name
 
                         td= capitalize(survey.user.typeForDisplay)
-                        td= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+                        td(data-sort=survey.submittedAt.getTime())= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
                         td= survey.addendums
 
                         td.text-end
@@ -78,7 +78,7 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
                                 = survey.eventName
                         td(data-search=survey.eventStartTime.getTime())
                             +eventDays(survey.eventStartTime, survey.eventEndTime)
-                        td
+                        td(data-sort=survey.submittedAt?survey.submittedAt.getTime():'Not Yet')
                             if survey.post_event_submitted
                                 = moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
                                 if (survey.addendums)
@@ -120,3 +120,55 @@ mixin postEventSurveySelfTable(post_event_surveys, options={})
                                     | Start
 
 
+mixin postEventUpdatesTable(surveys, options={})
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Event
+                    th(data-priority="7") Event Date
+                    th(data-priority="3") Attendee
+                    th(data-priority="4") Submitted
+                    th(data-priority="5") Type
+                    th(data-priority="2")
+            tbody
+                for survey in surveys
+                    tr
+                        td.dtr-control
+                        td
+                            a.action-btn(href=`/event/${survey.eventId}`)
+                                i.fa.fa-calendar.me-1
+                                = survey.eventName
+                        td(data-search=survey.eventStartTime.getTime())
+                            +eventDays(survey.eventStartTime, survey.eventEndTime)
+                        td
+                            if checkPermission('gm')
+                                a.action-btn(href=`/user/${survey.user.id}`)
+                                    i.fas.fa-user.me-1
+                                    = survey.user.name
+                            else
+                                = survey.user.name
+                            .badge.text-bg-info.ms-2= capitalize(survey.user.typeForDisplay)
+                        td(data-sort=survey.submittedAt.getTime())= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
+                        td
+                            case survey.type
+                                when 'addendum'
+                                    | Addendum
+                                when 'post event response'
+                                    =currentCampaign.renames.post_event_survey.singular
+                                default
+                                    = survey.type
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/post_event_survey/${survey.attendanceId}${options.backto?'?backto='+options.backto:''}`
+                                title=`View ${currentCampaign.renames.post_event_survey.singular}`
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-eye.me-1
+                                | View

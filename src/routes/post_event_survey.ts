@@ -1,5 +1,6 @@
 import express from 'express';
 import csrf from 'csurf';
+import async from 'async';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import campaignHelper from '../lib/campaignHelper';
@@ -35,9 +36,29 @@ async function list(req, res, next){
                         continue;
                     }
                     responses.push(await surveyHelper.formatPostEventResponses(response, event));
+
                 }
             }
+
             res.locals.post_event_surveys = responses;
+
+            let addendums = await req.models.post_event_addendum.find({campaign_id:req.campaign.id, submitted:true});
+            addendums = await async.map(addendums, async (addendum) => {
+                addendum.type = 'addendum';
+                addendum.user = await req.models.user.get(req.campaign.id, addendum.user_id);
+                const attendance = await req.models.attendance.get(addendum.attendance_id);
+                const event = _.findWhere(events, {id:attendance.event_id});
+                addendum.eventName= event.name;
+                addendum.eventStartTime= event.start_time;
+                addendum.eventEndTime= event.end_time;
+                addendum.submittedAt = new Date(addendum.submitted_at);
+                addendum.attendanceId = addendum.attendance_id;
+                return addendum;
+            });
+
+            res.locals.allItems = ([...responses, ...addendums]).sort((a, b) => {
+                return b.submittedAt - a.submittedAt;
+            });
         }
         res.render('post_event_survey/list', {pageTitle:req.campaign.renames.post_event_survey.plural});
     } catch (err){

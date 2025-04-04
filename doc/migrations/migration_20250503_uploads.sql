@@ -34,8 +34,8 @@ alter table images add COLUMN upload_id int,
 
 update images set for_cms = true;
 
-insert into uploads (campaign_id, name, display_name, description, status, type)
-    select campaign_id, name, display_name, description, status, 'image' from images;
+insert into uploads (campaign_id, name, display_name, description, status, size, type)
+    select campaign_id, name, display_name, description, status, size, 'image' from images;
 
 update images i
     set upload_id = u.id

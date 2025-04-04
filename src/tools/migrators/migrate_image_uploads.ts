@@ -23,12 +23,12 @@ const models = {
         const oldKey = getKey(image);
         const newKey = uploadHelper.getKey(image.upload);
         console.log(`${oldKey} -> ${newKey}`);
-        //await uploadHelper.rename(oldKey, newKey);
+        await uploadHelper.rename(oldKey, newKey);
 
         const oldThumbKey = getThumbnailKey(image);
         const newThumbKey = imageHelper.getThumbnailKey(image);
         console.log(`${oldThumbKey} -> ${newThumbKey}`);
-        //await uploadHelper.rename(oldThumbKey, newThumbKey);
+        await uploadHelper.rename(oldThumbKey, newThumbKey);
 
     }
 

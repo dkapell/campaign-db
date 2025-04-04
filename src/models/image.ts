@@ -1,6 +1,5 @@
 'use strict';
 import _ from 'underscore';
-import validator from 'validator';
 
 import Model from  '../lib/Model';
 import imageHelper from '../lib/imageHelper';
@@ -22,18 +21,9 @@ const tableFields = [
 ];
 
 const Image = new Model('images', tableFields, {
-    order: ['name'],
-    validator: validate,
     postSelect: postProcess,
     postSave: postSave
 });
-
-function validate(data){
-    if (_.has(data, 'name') && ! validator.isLength(data.name, {min:2, max:80})){
-        return false;
-    }
-    return true;
-}
 
 async function postProcess(image:ModelData){
     image.upload = await models.upload.get(image.upload_id);

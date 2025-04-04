@@ -132,7 +132,6 @@ async function copy(oldKey:string, newKey:string){
             CopySource: encodeURI(`${config.get('aws.imageBucket')}/${oldKey}`),
             Key: newKey
         }, function(err, data){
-            console.log(err);
             if (err) return reject(err);
             resolve(data);
         });

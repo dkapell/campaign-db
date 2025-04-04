@@ -190,7 +190,7 @@ function submitDropdownOptionModal(e){
     if (Number(imageId) !== -1){
         $target.find('.option-image').val(imageId);
         const image = _.findWhere(imageList, {id:Number(imageId)});
-        $target.find('.option-image-display').html(`<strong class="me-1">Image:</strong>${image.display_name?image.display_name:image.name}`);
+        $target.find('.option-image-display').html(`<strong class="me-1">Image:</strong>${image.upload.display_name?image.upload.display_name:image.upload.name}`);
     } else {
         $target.find('.option-image').val(null);
         $target.find('.option-image-display').html(null);

@@ -410,27 +410,55 @@ create table rulebooks(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type upload_type as ENUM(
+    'image',
+    'font',
+    'document'
+);
+
+create table uploads (
+    id              serial,
+    campaign_id     int not null,
+    user_id         int,
+    name            varchar(255) not null,
+    display_name    varchar(255),
+    description     text,
+    status          varchar(20) default 'new' not null,
+    size            int,
+    type            upload_type,
+    primary key (id),
+    CONSTRAINT uploads_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT uploads_user_fk FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 create type image_type as ENUM(
     'favicon',
     'website',
     'content',
-    'map'
+    'map',
+    'survey',
+    'custom field response'
 );
 
 create table images (
     id              serial,
     campaign_id     int not null,
-    name            varchar(255) not null,
-    display_name    varchar(255),
     type            image_type default 'content' not null,
-    description     text,
-    status          varchar(20) default 'new' not null,
-    size            int,
     width           int,
     height          int,
+    upload_id       int,
+    for_cms         boolean not null default false,
+    created timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT images_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT images_upload_fk FOREIGN KEY (upload_id)
+        REFERENCES "uploads" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
@@ -448,6 +476,7 @@ create table maps (
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
 
 create type custom_field_type as ENUM(
     'text',

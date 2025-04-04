@@ -3,6 +3,7 @@ import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import imageHelper from '../lib/imageHelper';
+import uploadHelper from '../lib/uploadHelper';
 
 /* GET images listing. */
 async function list(req, res, next){
@@ -13,9 +14,9 @@ async function list(req, res, next){
         current: 'Images'
     };
     try {
-        const images = await req.models.image.find({campaign_id: req.campaign.id});
+        const images = await req.models.image.find({campaign_id: req.campaign.id, for_cms:true});
         res.locals.imageCounts = _.countBy(images, 'type');
-        res.locals.images = images.sort(imageHelper.sorter);
+        res.locals.images = images.sort(uploadHelper.sorter);
         res.render('image/list', { pageTitle: 'Images' });
     } catch (err){
         next(err);
@@ -24,13 +25,13 @@ async function list(req, res, next){
 
 async function listApi (req, res, next){
     try {
-        let images = await req.models.image.find({campaign_id: req.campaign.id});
+        let images = await req.models.image.find({campaign_id: req.campaign.id, for_cms:true});
         if (req.query.type){
             images = images.filter(image => {
                 return image.type === req.query.type;
             });
         }
-        images = images.sort(imageHelper.sorter);
+        images = images.sort(uploadHelper.sorter);
         res.json(images);
     } catch (err){
         next(err);
@@ -39,8 +40,10 @@ async function listApi (req, res, next){
 
 function showNew(req, res){
     res.locals.image = {
-        display_name: null,
-        description:null,
+        upload: {
+            display_name: null,
+            description:null,
+        },
         type: 'content'
     };
     res.locals.breadcrumbs = {
@@ -77,7 +80,7 @@ async function showEdit(req, res, next){
                 { url: '/', name: 'Home'},
                 { url: '/image', name: 'Images'},
             ],
-            current: 'Edit: ' + image.name
+            current: 'Edit: ' + image.upload.name
         };
 
         res.render('image/edit');
@@ -99,24 +102,25 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        if (current.status === 'new' && image.status === 'ready'){
-            console.log('getting metadata for ' + imageHelper.getKey(current));
+        if (current.upload.status === 'new' && image.upload.status === 'ready'){
+            console.log('getting metadata for ' + uploadHelper.getKey(current.upload));
             try {
                 const details = await imageHelper.getImageDetails(current);
                 if (details){
-                    image.size = details.size;
+                    image.upload.size = details.size;
                     image.width = details.width;
                     image.height = details.height;
                 }
             } catch (err){
                 console.error(err);
-                console.log(`unsupported image format for ${image.id}:${image.name}`);
+                console.log(`unsupported image format for ${image.id}:${image.upload.name}`);
             }
         }
+        image.upload_id = current.upload_id;
         await req.models.image.update(id, image);
         delete req.session.imageData;
         await imageHelper.buildThumbnail(await req.models.image.get(id));
-        req.flash('success', 'Updated Image ' + image.name);
+        req.flash('success', 'Updated Image ' + image.upload.name);
         res.redirect('/image');
     } catch(err) {
         req.flash('error', err.toString());
@@ -137,9 +141,9 @@ async function remove(req, res, next){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not delete record from different campaign');
         }
-        await req.models.image.delete(id);
-        await imageHelper.remove(imageHelper.getKey(current));
-        await imageHelper.remove(imageHelper.getThumbnailKey(current));
+        await req.models.upload.delete(current.upload_id);
+        await uploadHelper.remove(uploadHelper.getKey(current.upload));
+        await uploadHelper.remove(imageHelper.getThumbnailKey(current));
         req.flash('success', 'Removed Image');
         res.redirect('/image');
     } catch(err) {
@@ -155,25 +159,26 @@ async function signS3(req, res, next){
     if (!fileType.match(/^image/)){
         return res.json({success:false, error: 'invalid file type'});
     }
+    const upload = await req.upload.makeEmptyUpload(fileName, 'image');
 
     const image = {
         id: null,
-        name: fileName,
-        campaign_id: req.campaign.id
+        upload_id: upload.id,
+        campaign_id: req.campaign.id,
+        upload: upload,
+        for_cms: true
     };
 
     image.id = await req.models.image.create(image);
-
-    const key = imageHelper.getKey(image);
-
+    const key = uploadHelper.getKey(image.upload);
     try{
-        const signedRequest = await imageHelper.signS3(key, fileType);
+        const signedRequest = await uploadHelper.signS3(key, fileType);
         res.json({
             success:true,
             data: {
                 signedRequest: signedRequest,
-                url: imageHelper.getUrl(image),
-                imageId: image.id
+                url: uploadHelper.getUrl(image.upload),
+                objectId: image.id
             }
         });
     }

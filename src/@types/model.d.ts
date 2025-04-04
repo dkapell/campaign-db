@@ -23,6 +23,7 @@ interface RequestOptions {
     offset?: number,
     order?: string[],
     skipRelations?:boolean
+    skipPostSelect?:boolean
 }
 
 interface Conditions {
@@ -45,10 +46,18 @@ interface IModel {
    delete: (condition:ComplexId) => Promise<void>
 }
 
+interface UploadModel extends ModelData{
+    id:number,
+    name:string,
+    display_name?:string
+    upload?: UploadModel
+}
+
 interface ImageModel extends ModelData{
     id:number,
     name:string,
     display_name?:string
+    upload?: UploadModel
 }
 
 interface SkillProvide{

@@ -21,6 +21,7 @@ import models from './lib/models';
 import permission from './lib/permission';
 import audit from './lib/audit';
 import mapHelper from './lib/mapHelper';
+import uploadHelper from './lib/uploadHelper';
 
 // Routers
 import indexRouter from './routes/index';
@@ -47,6 +48,7 @@ import rulebookRouter from './routes/rulebook';
 import mapRouter from './routes/map';
 
 import imageRouter from './routes/image';
+import uploadRouter from './routes/upload';
 
 import characterRouter from './routes/character';
 import characterFieldRouter from './routes/character_field';
@@ -57,6 +59,7 @@ import reportRouter from './routes/report';
 import pageRouter from './routes/page';
 
 import eventRouter from './routes/event';
+
 
 const app = express();
 
@@ -274,6 +277,7 @@ app.use(async function(req, res, next){
     next();
 });
 
+app.use(uploadHelper.middleware());
 
 app.use('/', indexRouter);
 app.use('/user', userRouter);
@@ -293,6 +297,7 @@ app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/cp_grant', cpGrantRouter);
 app.use('/image', imageRouter);
+app.use('/upload', uploadRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);

@@ -5,12 +5,27 @@ import validator from 'validator';
 import Model from  '../lib/Model';
 import imageHelper from '../lib/imageHelper';
 
-const tableFields = ['id', 'campaign_id', 'name', 'display_name', 'description', 'status', 'type', 'size', 'width', 'height'];
+import uploadModel from './upload';
+
+const models = {
+    upload: uploadModel
+}
+
+const tableFields = [
+    'id',
+    'upload_id',
+    'campaign_id',
+    'type',
+    'width',
+    'height',
+    'for_cms'
+];
 
 const Image = new Model('images', tableFields, {
     order: ['name'],
     validator: validate,
-    postSelect: postProcess
+    postSelect: postProcess,
+    postSave: postSave
 });
 
 function validate(data){
@@ -21,37 +36,21 @@ function validate(data){
 }
 
 async function postProcess(image:ModelData){
-    image.url = imageHelper.getUrl(image as ImageModel);
+    image.upload = await models.upload.get(image.upload_id);
     image.thumbnailUrl = imageHelper.getThumbnailUrl(image as ImageModel);
-    image.sizePrint = prettyPrintSize((image.size as number));
     return image;
 }
 
-function prettyPrintSize(value:number, type?:string):string {
-    if (!value) {
-        return '0';
+async function postSave(id, data){
+    if (_.has(data, 'upload') && data.upload_id){
+        const upload = await models.upload.get(data.upload_id);
+        for (const field of ['display_name', 'description', 'size', 'status']){
+            if (_.has(data.upload, field)){
+                upload[field] = data.upload[field];
+            }
+        }
+        await models.upload.update(upload.id, upload);
     }
-    if (!type){
-        type = 'B';
-    }
-    const prefixes = [ '', 'K', 'M', 'G', 'T', 'P', 'E' ];
-    let index = 0;
-    for (index = 0; value >= 1024 && index < prefixes.length - 1; index++)
-        value /= 1024;
-
-    if (value > 1024 || Math.round(value) === value)
-        value = Math.round(value);
-    else if (value < 10)
-        value = Number(value.toFixed(2));
-    else
-        value = Number(value.toPrecision(4));
-
-    const output = `${value} ${prefixes[index]}`;
-
-    if (index !== 0)
-        return `${output}${type}`;
-
-    return output;
 }
 
-export = Image;
+export default Image;

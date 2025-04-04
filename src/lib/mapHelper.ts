@@ -5,7 +5,7 @@ import async from 'async';
 import unzipper from 'unzip-stream';
 import _ from 'underscore';
 import models from '../lib/models';
-import imageHelper from '../lib/imageHelper';
+import uploadHelper from '../lib/uploadHelper';
 import { pipeline } from 'node:stream/promises';
 
 function timeout(ms) {
@@ -15,10 +15,10 @@ function timeout(ms) {
 
 async function build(mapId:number): Promise<void> {
     let map = await models.map.get(mapId);
-    const s3Stream = imageHelper.getStream(map.image);
+    const s3Stream = uploadHelper.getStream(map.image.upload);
     await buildTiles(map, s3Stream);
     await async.until(
-        async ()=> {return !imageHelper.uploadCount;},
+        async ()=> {return !uploadHelper.uploadCount;},
         async ()=> {
             await timeout(200);
         }
@@ -31,9 +31,9 @@ async function build(mapId:number): Promise<void> {
 async function clean(mapId:number): Promise<void> {
     let map = await models.map.get(mapId);
     console.log(`Cleaning ${getMapPrefix(map.id, map.uuid)}`);
-    const fileList = await imageHelper.list(getMapPrefix(map.id, map.uuid));
+    const fileList = await uploadHelper.list(getMapPrefix(map.id, map.uuid));
     const files = _.pluck(fileList, 'Key');
-    await async.each(files, imageHelper.remove);
+    await async.each(files, uploadHelper.remove);
     map = await models.map.get(mapId);
     map.status = 'cleaned';
     return models.map.update(mapId, map);
@@ -56,7 +56,7 @@ function buildTiles(map, inStream){
             console.log(filename);
             parseStream.pause();
             //await limiter.removeTokens(1);
-            await imageHelper.upload(getTileKey(map.id, map.uuid, filename), entry);
+            await uploadHelper.upload(getTileKey(map.id, map.uuid, filename), entry);
             parseStream.resume();
 
         });

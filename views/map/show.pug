@@ -12,7 +12,7 @@ block content
             #toolbarDiv(class=`${checkPermission(gm)?'':'py-4'}`)
                 .float-end.align-middle.mb-2
                     if checkPermission('gm')
-                        a.btn.btn-sm.btn-outline-info(href=map.image.url) Download Full Image #{map.image.sizePrint}
+                        a.btn.btn-sm.btn-outline-info(href=map.image.upload.url) Download Full Image #{map.image.upload.sizePrint}
 
             #worldmap.img-fluid.mx-auto( style="width: 1110px; height: 780px;")
 

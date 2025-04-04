@@ -98,7 +98,7 @@ fieldset.mb-2.border.p-2.rounded
                     select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image")
                         option
                         for image in websiteImages
-                            option(value=image.id, selected=campaign.image_id===image.id)= image.name
+                            option(value=image.id, selected=campaign.image_id===image.id)= image.upload.name
 
         if faviconImages
             .row.my-2
@@ -108,7 +108,7 @@ fieldset.mb-2.border.p-2.rounded
                     select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon")
                         option
                         for image in faviconImages
-                            option(value=image.id, selected=campaign.favicon_id===image.id)= image.name
+                            option(value=image.id, selected=campaign.favicon_id===image.id)= image.upload.name
         .row.my-2
             .col-md-3
                 label.control-label(for="campaign_header_font") Header Font

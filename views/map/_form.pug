@@ -12,7 +12,7 @@ if images.length
             select.form-select.select2#map_image(name="map[image_id]" data-placeholder="Image", required)
                 option
                 for image in images
-                    option(value=image.id, selected=map.image_id===image.id)= image.name
+                    option(value=image.id, selected=map.image_id===image.id)= image.upload.name
         
 
 .row.my-2

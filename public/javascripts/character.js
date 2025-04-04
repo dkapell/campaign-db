@@ -182,7 +182,6 @@ function skillDescriptionsSwitch(e){
 }
 
 function gameRulesSwitch(e){
-    console.log('here');
     if ($(this).prop('checked')){
         console.log('checked');
         localStorage.setItem('cdb-skill-show-game-rules', true);

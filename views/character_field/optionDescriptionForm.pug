@@ -8,7 +8,7 @@ block content
                     option
                     option(value=-1 selected=!imageId) No Image
                     for image in images
-                        option(value=image.id, selected=imageId===image.id)= image.display_name?image.display_name:image.name
+                        option(value=image.id, selected=imageId===image.id)= image.upload.display_name?image.upload.display_name:image.upload.name
     .row.my-1
         .col
             input#target-id(type='hidden' value=targetId)

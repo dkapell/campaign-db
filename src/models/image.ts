@@ -43,4 +43,4 @@ async function postSave(id, data){
     }
 }
 
-export default Image;
+export = Image;

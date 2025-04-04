@@ -16,9 +16,9 @@ append content
                 .col-lg-4.d-none.d-lg-block
                     if currentCampaign.display_map && mapCount
                         a(href='/map')
-                            img.rounded.img-fluid(src=currentCampaign.image.url)
+                            img.rounded.img-fluid(src=currentCampaign.image.upload.url)
                     else
-                        img.rounded.img-fluid(src=currentCampaign.image.url)
+                        img.rounded.img-fluid(src=currentCampaign.image.upload.url)
     else
         .row.my-2
             .col

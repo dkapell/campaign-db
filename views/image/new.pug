@@ -10,12 +10,12 @@ block content
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
                         input#image-id(type="hidden", name='image[id]',value='')
-                        input#image-status(type="hidden", name='image[status]',value='new')
+                        input#image-status(type="hidden", name='image[upload][status]',value='new')
                         .row.my-2
                             .col
 
                                 label.form-label(for="imagePicker") Image File
-                                input.form-control#imagePicker(type="file", name="image[file]")
+                                input.form-control#imagePicker(type="file", name="image[upload][file]")
                         .row.my-2
 
                             .col#upload-type
@@ -26,7 +26,7 @@ block content
                         .row.my-2
                             .col
                                 label.control-label(for="image_display_name") Display Name
-                                input.form-control(type="text",placeholder="Name",name="image[display_name]",value=image.display_name,id='image_display_name')
+                                input.form-control(type="text",placeholder="Name",name="image[upload][display_name]",value=image.upload.display_name,id='image_display_name')
 
                         .row.my-2
                             .col
@@ -39,7 +39,7 @@ block content
                         .row.my-2
                             .col
                                 label.control-label(for="image_description") Description
-                                textarea.form-control(name="image[description]",id="image_description",rows=3) #{image.description}
+                                textarea.form-control(name="image[upload][description]",id="image_description",rows=3) #{image.upload.description}
 
 
                         .row.my-2

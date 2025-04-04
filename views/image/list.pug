@@ -25,24 +25,24 @@ block content
                     .card-header
                         .badge.text-bg-info.float-end=capitalize(image.type)
                         .card-title
-                            h5= image.display_name?image.display_name:image.name
-                            .small= image.display_name?image.name:''
+                            h5= image.upload.display_name?image.upload.display_name:image.upload.name
+                            .small= image.upload.display_name?image.upload.name:''
                         .row
                             .col
                                 if image.height && image.width
                                     span.float-start
                                         .small #{image.width}x#{image.height}px
-                                if image.size
+                                if image.upload.size
                                     span.float-end
-                                        .small= image.sizePrint
+                                        .small= image.upload.sizePrint
 
                     div.position-relative.border-bottom.border-light
-                        a(href=image.url target='_blank')
-                            img.card-img-top(src=image.thumbnailUrl alt=image.display_name?image.display_name:image.name)
-                        .badge.position-absolute.top-0.end-0.mt-1.me-1(class=image.status==='ready'?'text-bg-success':'text-bg-danger')=image.status
+                        a(href=image.upload.url target='_blank')
+                            img.card-img-top(src=image.thumbnailUrl alt=image.upload.display_name?image.upload.display_name:image.upload.name)
+                        .badge.position-absolute.top-0.end-0.mt-1.me-1(class=image.upload.status==='ready'?'text-bg-success':'text-bg-danger')=image.upload.status
                     .card-body
-                        if image.description
-                            p.mt-2.card-text=image.description
+                        if image.upload.description
+                            p.mt-2.card-text=image.upload.description
 
                     if checkPermission('gm')
                         .card-footer
@@ -53,8 +53,8 @@ block content
                                     a.btn.btn-outline-info.btn-xs.me-2.copy-img-btn(
                                         role="button",
                                         href='#'
-                                        data-name=image.display_name?image.display_name:image.name
-                                        data-url=image.url
+                                        data-name=image.upload.display_name?image.upload.display_name:image.upload.name
+                                        data-url=image.upload.url
                                         data-bs-toggle="tooltip"
                                         title="Copy Markdown to Clipboard"
                                     )

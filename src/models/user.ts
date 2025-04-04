@@ -15,11 +15,14 @@ const models = {
 
 const tableFields = ['name', 'email', 'google_id', 'site_admin'];
 
-async function get(campaignId, id){
+async function get(campaignId, id, options:RequestOptions = {}){
     if (!id){ throw new Error('no id specified'); }
     let user = await cache.check('user', id);
 
     if (user) {
+        if (options.skipPostSelect){
+            return user;
+        }
         return postSelect(user, campaignId);
     }
 
@@ -28,7 +31,9 @@ async function get(campaignId, id){
     if (result.rows.length){
         user = result.rows[0];
         await cache.store('user', id, user);
-
+        if (options.skipPostSelect){
+            return user;
+        }
         return postSelect(user, campaignId);
     }
     return;
@@ -57,6 +62,9 @@ async function find (campaignId, conditions = {}, options:RequestOptions = {}){
         query += ` limit ${Number(options.limit)}`;
     }
     const result = await database.query(query, queryData);
+    if (options.skipPostSelect){
+        return result.rows;
+    }
     return async.map(result.rows, async(row) => {
         return postSelect(row, campaignId);
     });

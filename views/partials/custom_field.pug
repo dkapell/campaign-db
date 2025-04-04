@@ -117,7 +117,8 @@ mixin dropdownOptionEditor(option, id)
                         if option.image
                             strong.me-1 Image:
                             - const image = _.findWhere(images, {id:Number(option.image)})
-                            =image.display_name?image.display_name:image.name
+                            if image
+                                =image.upload.display_name?image.upload.display_name:image.upload.name
                     .option-description-display.ps-3
                         if option.description
                             !=marked.parse(option.description, {breaks: true})
@@ -238,7 +239,9 @@ mixin customFieldEntry(field, type, data)
                                     let imgHtml = '';
                                     if (option.image){
                                         const image = _.findWhere(images, {id:Number(option.image)})
-                                        imgHtml = `<img src='${image.url}' class='img-fluid'>`
+                                        if (image){
+                                            imgHtml = `<img src='${image.upload.url}' class='img-fluid'>`
+                                        }
                                     }
                                     let detailHtml = '';
                                     if (option.image || option.description){
@@ -306,7 +309,7 @@ mixin customFieldDisplay(field, showBorder)
                         )
                             .col-auto
                                 if option.image
-                                    img.img-fluid(src=_.findWhere(images, {id:Number(option.image)}).url )
+                                    img.img-fluid(src=_.findWhere(images, {id:Number(option.image)}).upload.url )
                             .col
                                 if option.description
                                     !=marked.parse(option.description, {breaks: true})

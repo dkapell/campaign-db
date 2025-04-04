@@ -82,9 +82,9 @@ async function getSignedRequest(file){
             $('#upload-feedback').text(response.error);
             return false;
         }
-        const imageId = response.data.imageId;
-        $('#image-id').val(imageId);
-        $('#new-image-form').attr('action', '/image/' + imageId);
+        const objectId = response.data.objectId;
+        $('#image-id').val(objectId);
+        $('#new-image-form').attr('action', '/image/' + objectId);
         return await uploadFile(file, response.data.signedRequest, response.data.url);
 
     } catch (err){

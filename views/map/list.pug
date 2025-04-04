@@ -33,7 +33,7 @@ block content
                         td
                             .badge(class=`text-bg-${map.display_to_pc?'success':'warning'}`)=map.display_to_pc?'Yes':'No'
                         td= map.description
-                        td= map.image?map.image.name:'None'
+                        td= map.image?map.image.upload.name:'None'
                         
                         if checkPermission('gm')
                             td.text-end

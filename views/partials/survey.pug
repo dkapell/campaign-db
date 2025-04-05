@@ -10,6 +10,9 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                 label.control-label(for=`${idPrefix}_${field.id}`)= field.name
                     if field.required
                         span.ms-1.text-danger *
+                    if options.showDaysBefore && field.days_before
+                        span.ms-1 ( #{field.days_before} Days Before )
+
                 if field.description
                     .form-text!=marked.parseInline(field.description, {breaks:true})
 
@@ -18,6 +21,8 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
             when 'longtext'
                 if options.disabled
                     label.control-label(for=`${idPrefix}_${field.id}`)= field.name
+                        if options.showDaysBefore && field.days_before
+                            span.ms-1 ( #{field.days_before} Days Before )
                     if field.description
                         .form-text!=marked.parseInline(field.description, {breaks:true})
                     .text-bg-light.border.rounded.p-2
@@ -26,8 +31,12 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     -
                         const rows = field.rows?Number(field.rows):3;
                         const height = rows * 24;
+                        let label = field.name;
 
-                    +markdownEditor(field.name, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
+                        if (options.showDaysBefore && field.days_before) {
+                            label += ` ( ${field.days_before} Days Before )`}
+
+                    +markdownEditor(label, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
 
             when 'boolean'
                 .form-check.form-switch
@@ -36,11 +45,15 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         .form-text!=marked.parseInline(field.description, {breaks:true})
 
                     label.form-check-label(for=`${idPrefix}_${field.id}`)= field.name
+                        if options.showDaysBefore && field.days_before
+                            span.ms-1 ( #{field.days_before} Days Before )
 
             when 'dropdown'
                 label.control-label(for=`${idPrefix}_${field.id}`)= field.name
                     if field.required
                         span.ms-1.text-danger *
+                    if options.showDaysBefore && field.days_before
+                        span.ms-1 ( #{field.days_before} Days Before )
                 if field.description
                     .form-text!=marked.parseInline(field.description, {breaks:true})
 
@@ -85,7 +98,7 @@ mixin surveyDefinitionFooter(show)
                     | Add Field
 
 mixin surveyField(field,  idx)
-    .survey_field-row.border-top.border-start.border-2.my-1.px-2(id=`survey_field-${idx}` )
+    .survey_field-row.border-top.border-2.my-1.px-2.pb-2(id=`survey_field-${idx}` )
         input.sort-order.survey_field-input(
             type='hidden'
             id=`survey_field_${idx}_sort_order`
@@ -100,17 +113,18 @@ mixin surveyField(field,  idx)
             value=field.id
             data-fieldtype='id'
         )
-        .row.my-2
+        .row.my-0
+            .col.text-center
+                .handle(
+                        style='cursor:ns-resize'
+                        for=`survey_field_${idx}_name`
+                        data-fieldtype='name'
+                    )
+                        i.fas.fa-grip-lines.fa-fw
+        .row.my-1
             .col-lg-4
-                label.control-label.survey_field-label.handle(
-                    style='cursor:ns-resize'
-                    for=`survey_field_${idx}_name`
-                    data-fieldtype='name'
-                )
-                    i.fas.fa-arrows-alt-v.fa-fw.me-2
-                    | Name
-                .ms-4
-                    input.form-control.survey_field-input.me-2(
+                .form-floating
+                    input.form-control.survey_field-input(
                         type="text",
                         placeholder="Name"
                         name=`survey[definition][${idx}][name]`
@@ -119,90 +133,86 @@ mixin surveyField(field,  idx)
                         data-fieldtype='name'
                         data-required="true"
                     )
-            .col-lg-3
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_icon`
-                    data-fieldtype='icon'
-                ) Icon
-                input.form-control.survey_field-input(
-                    type="text"
-                    placeholder="Icon"
-                    name=`survey[definition][${idx}][icon]`
-                    value=field.icon
-                    id=`survey_field_${idx}_icon`
-                    data-fieldtype='icon'
-                )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_name`
+                        data-fieldtype='name'
+                    ) Name
 
             .col-lg-2
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_type`
-                    data-fieldtype='type'
-                ) Type
-                select.form-select.survey_field-input.survey_field-type(
-                    name=`survey[definition][${idx}][type]`
-                    id=`survey_field_${idx}_name`
-                    data-fieldtype='type'
-                    data-required="true"
-                    data-placeholder='Type'
-                )
-                    option
-                    each type in ['text', 'longtext', 'boolean', 'dropdown', 'text content']
-                        option(value=type selected=type===field.type)= type
+                .form-floating
+                    select.form-select.survey_field-input.survey_field-type(
+                        name=`survey[definition][${idx}][type]`
+                        id=`survey_field_${idx}_name`
+                        data-fieldtype='type'
+                        data-required="true"
+                        data-placeholder='Type'
+                    )
+                        option
+                        each type in ['text', 'longtext', 'boolean', 'dropdown', 'text content']
+                            option(value=type selected=type===field.type)= type
 
-            .col-lg-3.text-end.align-bottom
-                button.btn.btn-sm.btn-outline-success.add-description-btn.align-bottom.me-1(data-bs-toggle="tooltip" title='Add Description' data-placement="right")
-                    i.fas.fa-plus.fa-fw.me-1
-                    | Description
-                button.btn.btn-sm.btn-outline-danger.remove-survey_field-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Field' data-placement="right")
-                    i.fas.fa-trash.fa-fw.me-1
-                    | Remove
-        .row.my-2.field-description.ps-4
-             .col-lg
-
-                label.control-label.mb-0.d-inline(for=`survey_field_${idx}_description`)= Description
-                    small.form-text.text-muted.d-inline Supports
-                        a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
-                            i.fas.fa-external-link-alt.ms-1
-                textarea.form-control.markdown-editor.survey_field-input(
-                    id= `survey_field_${idx}_description`
-                    rows=3
-                    name=`survey[definition][${idx}][description]`
-                    data-size= size
-                    data-fieldtype='description'
-                )
-                    = field.description
-
-        .row.my-2.field-options.ps-4
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_type`
+                        data-fieldtype='type'
+                    ) Type
             .col-lg-2
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_visible_to`
-                    data-fieldtype='visible_to'
-                ) Visible To
-                select.form-select.form-select-sm.survey_field-input(
-                    name=`survey[definition][${idx}][visible_to]`
-                    id=`survey_field_${idx}_visible_to`
-                    data-fieldtype='visible_to'
-                )
-                    - field.visible_to ||= 'all';
-                    each visibility in ['all', 'player', 'staff']
-                        option(value=visibility selected=visibility===field.visible_to)= visibility
+                .form-floating
+                    select.form-select.survey_field-input(
+                        name=`survey[definition][${idx}][visible_to]`
+                        id=`survey_field_${idx}_visible_to`
+                        data-fieldtype='visible_to'
+                        data-placeholder='Visibility'
+                    )
+                        - field.visible_to ||= 'all';
+                        option
+                        each visibility in ['all', 'player', 'staff']
+                            option(value=visibility selected=visibility===field.visible_to)= visibility
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_visible_to`
+                        data-fieldtype='visible_to'
+                    ) Visible To
+
             .col-lg-2
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_editable_by`
-                    data-fieldtype='editable_by'
-                ) Editable By
-                select.form-select.form-select-sm.survey_field-input.survey_field-editable_by(
-                    name=`survey[definition][${idx}][editable_by]`
-                    id=`survey_field_${idx}_editable_by`
-                    data-fieldtype='editable_by'
-                )
-                    - field.editable_by ||= 'submitter';
-                    each editablity in ['submitter', 'gm']
-                        option(value=editablity selected=editablity===field.editable_by)= editablity
-            .col-lg-4
+                .form-floating
+                    input.form-control.survey_field-input(
+                        type="text"
+                        placeholder="Icon"
+                        name=`survey[definition][${idx}][icon]`
+                        value=field.icon
+                        id=`survey_field_${idx}_icon`
+                        data-fieldtype='icon'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_icon`
+                        data-fieldtype='icon'
+                    ) Icon
+
+            .col-lg-2.text-end.align-bottom
+                button.btn.btn-outline-success.add-description-btn.align-bottom(data-bs-toggle="tooltip" title='Add Description' data-placement="right")
+                    i.far.fa-file-alt.fa-fw
+
+                button.btn.btn-outline-danger.remove-survey_field-btn.align-bottom.ms-1(data-bs-toggle="tooltip" title='Remove Field' data-placement="right")
+                    i.fas.fa-trash.fa-fw
+
+        .row.my-2.field-options
+            .col-lg-6.ps-4
                 label.control-label Options
                 br
-                .form-check.form-switch.form-check-inline
+                .form-check.form-switch.form-check-inline.survey_field-input
+                    input.form-check-input.survey_field-input.survey_field-editable_by(
+                        type='checkbox'
+                        name=`survey[definition][${idx}][editable_by]`
+                        id=`survey_field_${idx}_editable_by`
+                        data-fieldtype='editable_by'
+                        value='gm'
+                        checked=field.editable_by==='gm'
+                    )
+                    label.form-check-label(
+                        for=`survey_field_${idx}_required`
+                        data-fieldtype='required'
+                    ) GM only Edit
+
+                .form-check.form-switch.form-check-inline.survey_field-input
                     input.form-check-input.survey_field-input.survey_field-required(
                         type='checkbox'
                         name=`survey[definition][${idx}][required]`
@@ -227,76 +237,121 @@ mixin surveyField(field,  idx)
                         for=`survey_field_${idx}_on_checkin`
                         data-fieldtype='on_checkin'
                     ) On Check-in Form
+            .col-lg-2
+                - field.days_before ||= 0;
+                .form-floating
+                    input.form-control.survey_field-input.form-control-sm.survey_field-days_before(
+                        type="number",
+                        placeholder="Days Before"
+                        name=`survey[definition][${idx}][days_before]`
+                        value=field.days_before
+                        id=`survey_field_${idx}_days_before`
+                        data-fieldtype='days_before'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_days_before`
+                        data-fieldtype='days_before'
+                    ) Show N days before
 
             .col-lg-2.textarea-options.survey_field-type-options
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_rows`
-                    data-fieldtype='rows'
-                ) Rows
                 - field.rows ||= 3
-                input.form-control.survey_field-input.form-control-sm(
-                    type="number",
-                    placeholder="Rows"
-                    name=`survey[definition][${idx}][rows]`
-                    value=field.rows
-                    id=`survey_field_${idx}_rows`
-                    data-fieldtype='rows'
-                )
-            .col-lg-2.textarea-options.survey_field-type-options
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_maxlength`
-                    data-fieldtype='maxlength'
-                ) Max Length
-                input.form-control.survey_field-input.form-control-sm(
-                    type="number",
-                    placeholder="Unlimited"
-                    name=`survey[definition][${idx}][maxlength]`
-                    value=field.maxlength
-                    id=`survey_field_${idx}_maxlength`
-                    data-fieldtype='maxlength'
-                )
+                .form-floating
+                    input.form-control.survey_field-input.form-control-sm(
+                        type="number",
+                        placeholder="Rows"
+                        name=`survey[definition][${idx}][rows]`
+                        value=field.rows
+                        id=`survey_field_${idx}_rows`
+                        data-fieldtype='rows'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_rows`
+                        data-fieldtype='rows'
+                    ) Rows
 
-        .row.my-2.dropdown-options.survey_field-type-options.ps-4
-            .col-lg-8
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_options`
-                    data-fieldtype='options'
-                ) Options (comma seperated)
-                input.form-control.survey_field-input.form-control-sm(
-                    type="text",
-                    placeholder="Option 1, Option 2"
-                    name=`survey[definition][${idx}][options]`
-                    value=field.options?field.options.join(', '):''
-                    id=`survey_field_${idx}_options`
-                    data-fieldtype='options'
-                )
+            .col-lg-2.textarea-options.survey_field-type-options
+                .form-floating
+                    input.form-control.survey_field-input.form-control-sm(
+                        type="number",
+                        placeholder="Unlimited"
+                        name=`survey[definition][${idx}][maxlength]`
+                        value=field.maxlength
+                        id=`survey_field_${idx}_maxlength`
+                        data-fieldtype='maxlength'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_maxlength`
+                        data-fieldtype='maxlength'
+                    ) Max Length
+
+
+        .row.my-2.dropdown-options.survey_field-type-options
+            .col-lg-8.ps-4
+                .form-floating
+                    input.form-control.survey_field-input.form-control-sm(
+                        type="text",
+                        placeholder="Option 1, Option 2"
+                        name=`survey[definition][${idx}][options]`
+                        value=field.options?field.options.join(', '):''
+                        id=`survey_field_${idx}_options`
+                        data-fieldtype='options'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_options`
+                        data-fieldtype='options'
+                    ) Options (comma seperated)
             .col-lg-4
-                label.control-label.survey_field-label(
-                    for=`survey_field_${idx}_placeholder`
-                    data-fieldtype='placeholder'
-                ) Placeholder
-                input.form-control.survey_field-input.form-control-sm(
-                    type="text",
-                    placeholder="Placeholder Text"
-                    name=`survey[definition][${idx}][placeholder]`
-                    value=field.placeholder
-                    id=`survey_field_${idx}_placeholder`
-                    data-fieldtype='placeholder'
-                )
-        .row.my-2.markdown-options.survey_field-type-options.ps-4
-            .col-lg
-                label.control-label.mb-0.d-inline(for=`survey_field_${idx}_content`)= Content
-                    small.form-text.text-muted.d-inline Supports
-                        a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
-                            i.fas.fa-external-link-alt.ms-1
-                textarea.form-control.markdown-editor.survey_field-input(
-                    id= `survey_field_${idx}_content`
-                    rows=3
-                    name=`survey[definition][${idx}][content]`
-                    data-size= size
-                    data-fieldtype='content'
-                )
-                    = field.content
+                .form-floating
+                    input.form-control.survey_field-input.form-control-sm(
+                        type="text",
+                        placeholder="Placeholder Text"
+                        name=`survey[definition][${idx}][placeholder]`
+                        value=field.placeholder
+                        id=`survey_field_${idx}_placeholder`
+                        data-fieldtype='placeholder'
+                    )
+                    label.control-label.survey_field-label(
+                        for=`survey_field_${idx}_placeholder`
+                        data-fieldtype='placeholder'
+                    ) Placeholder
+
+        .row.my-2.markdown-options.survey_field-type-options
+            .col-lg.ps-4
+                .form-floating
+                    textarea.form-control.markdown-editor.survey_field-input(
+                        id= `survey_field_${idx}_content`
+                        rows=3
+                        name=`survey[definition][${idx}][content]`
+                        data-size= size
+                        data-fieldtype='content'
+                        style='height: 100px'
+                    )
+                        = field.content
+                    label.control-label.mb-0.d-inline(for=`survey_field_${idx}_content`) Content
+
+
+                small.form-text.text-muted.d-inline.ms-2 Supports
+                    a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                        i.fas.fa-external-link-alt.ms-1
+        .row.my-2.field-description
+             .col-lg.ps-4
+                .form-floating
+                    textarea.form-control.markdown-editor.survey_field-input(
+                        id= `survey_field_${idx}_description`
+                        rows=3
+                        name=`survey[definition][${idx}][description]`
+                        data-size= size
+                        data-fieldtype='description'
+                        style='height: 100px'
+                    )
+                        = field.description
+                    label.control-label.mb-0.d-inline(for=`survey_field_${idx}_description`) Description
+
+                small.form-text.text-muted.d-inline.ms-2 Supports
+                    a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                        i.fas.fa-external-link-alt.ms-1
+
+
 
 
 

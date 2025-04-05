@@ -47,6 +47,14 @@ function prepSurveyFields(){
             toggleFieldOptions($(this));
         });
     });
+
+    $('.survey_field-row').on('mouseenter', function(e){
+        $(this).addClass('bg-light');
+    });
+    $('.survey_field-row').on('mouseleave', function(e){
+        $(this).removeClass('bg-light');
+    });
+
 }
 
 function updateNames($list){
@@ -104,7 +112,7 @@ function toggleFieldOptions($row){
         $(this).hide();
     });
 
-    $row.find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+    $row.find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 200, 'hide': 100 }});
 }
 
 function removeSurveyField(e){

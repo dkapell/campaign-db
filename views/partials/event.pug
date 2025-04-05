@@ -240,7 +240,7 @@ mixin eventAddonsHeader()
         .col-lg-4
             label.control-label.event_addon-label Cost
         .col-lg-2.text-end
-            button.btn.btn-sm.btn-outline-success.add-event_addon-btn
+            a.btn.btn-sm.btn-outline-success.add-event_addon-btn(href='#')
                 i.fa.fa-plus.me-1
                 | Add Addon
 
@@ -280,7 +280,7 @@ mixin eventAddon(addon, idx)
 
 
             .col-lg-2.text-end.align-bottom
-                button.btn.btn-sm.btn-outline-danger.remove-event_addon-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Addon' data-placement="right")
+                a.btn.btn-sm.btn-outline-danger.remove-event_addon-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Addon' data-placement="right" href='#')
                     i.fas.fa-trash.fa-fw.me-1
                     | Remove
         .row.my-2

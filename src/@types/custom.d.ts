@@ -70,4 +70,5 @@ interface SurveyField {
     maxlength?: number
     content?: string
     description?: string
+    days_before?:number
 }

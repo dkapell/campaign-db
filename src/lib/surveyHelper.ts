@@ -73,6 +73,11 @@ function parseSurveyFields(input){
         if (_.has(surveyField, 'description') && surveyField.description !== ''){
             doc.description = surveyField.description;
         }
+
+        if (_.has(surveyField, 'days_before') && surveyField.days_before !== ''){
+            doc.days_before = Number(surveyField.days_before);
+        }
+
         switch(surveyField.type){
             case 'dropdown':
                 if(_.has(surveyField, 'options') ){

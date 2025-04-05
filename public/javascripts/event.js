@@ -15,7 +15,8 @@ $(function(){
         const rangepicker = new DateRangePicker(event_date_elem, {
             inputs: [document.getElementById('event_start_date'), document.getElementById('event_end_date')],
             buttonClass: 'btn',
-            format: 'yyyy-mm-dd'
+            format: 'yyyy-mm-dd',
+            clearButton: true
         });
     }
 
@@ -97,6 +98,9 @@ function removeEventAddon(e){
 function addEventAddon(e){
     const $this = $(this);
     e.preventDefault();
+
+    console.log('called')
+    console.log($this[0])
 
     const $new = $('#event_addon-new').clone();
     const id = nextEventAddonIndex++;

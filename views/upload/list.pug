@@ -18,6 +18,7 @@ block content
                     th Uploaded By
                     th Uploaded
                     th Used for
+                    th Public
                     th
 
 
@@ -38,10 +39,15 @@ block content
                             if upload.status !== 'ready'
                                 .badge.text-bg-danger.ms-2=upload.status
                         td(data-priority=5)
-                            case upload.type
-                                when 'image'
-                                    if upload.image
-                                        | #{upload.image.for_cms?'CMS':'User'} [#{upload.image.id}]
+                            if !upload.usedFor
+                                .badge.text-bg-danger Unknown
+                            else
+                                = upload.usedFor.message
+                        td(data-priority=8)
+                            if upload.is_public
+                                .badge.text-bg-warning Yes
+                            else
+                                .badge.text-bg-success No
 
                         td(data-priority=2).text-end
                             a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(

@@ -180,7 +180,8 @@ app.use(async function(req, res, next){
             site: req.headers.host,
             default_to_player: false,
             default_site:true,
-            description: `This is the root site of ${config.get('app.name')}`
+            description: `This is the root site of ${config.get('app.name')}`,
+            renames: config.get('renames')
         };
     }
     req.campaign = campaign;
@@ -249,6 +250,19 @@ async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb)
     }
 }
 
+// Set active/actual user for use in routes and views
+app.use(async function(req, res, next){
+    res.locals.actualUser = req.user
+    if (req.session.assumed_user){
+        req.session.activeUser = req.session.assumed_user;
+        res.locals.activeUser = req.session.assumed_user;
+    } else {
+        req.session.activeUser = req.user;
+        res.locals.activeUser = req.user
+    }
+    next();
+});
+
 // Set common helpers for the view
 app.use(async function(req, res, next){
     res.locals.config = config;
@@ -258,21 +272,13 @@ app.use(async function(req, res, next){
     res.locals.menuDark = req.campaign.menu_dark;
     res.locals._ = _;
     res.locals.moment = moment;
-    if (req.session.assumed_user){
-        res.locals.activeUser = req.session.assumed_user;
-        res.locals.actualUser = req.user;
-    } else {
-        res.locals.activeUser = req.user;
-        res.locals.actualUser = req.user;
-    }
     res.locals.marked = marked;
     res.locals.capitalize = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
     res.locals.mapCount = await mapHelper.countPCVisible(req.campaign.id);
-    const user: CampaignUser = req.session.assumed_user ? req.session.assumed_user: (req.user as CampaignUser);
-    if (user){
-        res.locals.characterCount = await req.models.character.count({ campaign_id: req.campaign.id, user_id: user.id });
+    if (req.session.activeUser){
+        res.locals.characterCount = await req.models.character.count({ campaign_id: req.campaign.id, user_id: req.session.activeUser.id });
     } else {
         res.locals.characterCount = 0;
     }

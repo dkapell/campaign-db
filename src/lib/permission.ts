@@ -57,7 +57,7 @@ function fail(req, res, reason:string, redirect?:string){
 }
 
 function check(req: Express.Request, permissionList:string, bypass?:boolean){
-    const user = req.session.assumed_user ? req.session.assumed_user: req.user as CampaignUser;
+    const user = req.session.activeUser as CampaignUser;
 
     if (!user){
         return false;

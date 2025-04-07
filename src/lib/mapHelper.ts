@@ -2,6 +2,7 @@
 
 import sharp from 'sharp';
 import async from 'async';
+import config from 'config';
 import unzipper from 'unzip-stream';
 import _ from 'underscore';
 import models from '../lib/models';
@@ -11,7 +12,6 @@ import { pipeline } from 'node:stream/promises';
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 
 async function build(mapId:number): Promise<void> {
     let map = await models.map.get(mapId);
@@ -31,9 +31,12 @@ async function build(mapId:number): Promise<void> {
 async function clean(mapId:number): Promise<void> {
     let map = await models.map.get(mapId);
     console.log(`Cleaning ${getMapPrefix(map.id, map.uuid)}`);
-    const fileList = await uploadHelper.list(getMapPrefix(map.id, map.uuid));
+    const bucket:string = config.get('aws.assetBucket');
+    const fileList = await uploadHelper.list(bucket, getMapPrefix(map.id, map.uuid));
     const files = _.pluck(fileList, 'Key');
-    await async.each(files, uploadHelper.remove);
+    await async.each(files, async (key) => {
+        return uploadHelper.remove(bucket, key);
+    });
     map = await models.map.get(mapId);
     map.status = 'cleaned';
     return models.map.update(mapId, map);
@@ -56,7 +59,8 @@ function buildTiles(map, inStream){
             console.log(filename);
             parseStream.pause();
             //await limiter.removeTokens(1);
-            await uploadHelper.upload(getTileKey(map.id, map.uuid, filename), entry);
+            const bucket: string = config.get('aws.assetBucket');
+            await uploadHelper.upload(bucket, getTileKey(map.id, map.uuid, filename), entry);
             parseStream.resume();
 
         });

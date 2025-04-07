@@ -11,7 +11,7 @@ async function showIndex(req, res){
 
         res.locals.rulebooks =  await rulebookHelper.display(req.campaign.id);
 
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         if (req.session.player_mode){
             user.type = 'player';

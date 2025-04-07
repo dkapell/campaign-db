@@ -9,12 +9,13 @@ declare namespace Express {
 }
 
 interface Session extends SessionData {
-   assumed_user?: CampaignUser,
+   assumed_user?: CampaignUser
    campaignId?:number
-   backto?: string,
-   admin_mode?: boolean,
-   gm_mode?: boolean,
+   backto?: string
+   admin_mode?: boolean
+   gm_mode?: boolean
    player_mode?: boolean
+   activeUser?: CampaignUser
 }
 
 interface CampaignUser {
@@ -71,4 +72,22 @@ interface SurveyField {
     content?: string
     description?: string
     days_before?:number
+}
+
+interface S3Location {
+    key: string
+    bucket: string
+}
+
+interface S3UploadParams{
+    Bucket: string
+    Key: string
+    Expires?: number
+    ContentType: string
+    ACL?: string
+}
+
+interface UploadOptions {
+   thumbnail?: boolean
+   uriEncoded?: boolean
 }

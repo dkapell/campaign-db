@@ -1,6 +1,7 @@
 extends ../layout
 
 include ../partials/event.pug
+include ../partials/survey.pug
 include ../partials/attendee.pug
 
 block content
@@ -101,22 +102,8 @@ block content
                                             each field in event.pre_event_survey.definition
                                                 if field.on_checkin && (!field.visible_to || field.visible_to !== 'staff')
                                                     td
-                                                        if _.has(attendee.pre_event_data, field.id)
-                                                            if field.type === 'boolean'
-                                                                if attendee.pre_event_data[field.id].data
-                                                                    .badge.text-bg-success Yes
-                                                                else
-                                                                    .badge.text-bg-danger No
-                                                            else
-                                                                != marked.parseInline(attendee.pre_event_data[field.id].data, {breaks:false})
-                                                        else if _.has(attendee.pre_event_data, field.name)
-                                                            if field.type === 'boolean'
-                                                                if attendee.pre_event_data[field.name]
-                                                                    .badge.text-bg-success Yes
-                                                                else
-                                                                    .badge.text-bg-danger No
-                                                            else
-                                                                != marked.parseInline(attendee.pre_event_data[field.name], {breaks:false})
+                                                        +checkinCustomField(field, attendee)
+
 
                 .tab-pane.fade#staff-checkin(role="tabpanel" aria-labelledby="staff-checkin-tab")
                     h4 Staff
@@ -185,25 +172,39 @@ block content
                                             each field in event.pre_event_survey.definition
                                                 if field.on_checkin && (!field.visible_to || field.visible_to !== 'player')
                                                     td
-                                                        if _.has(attendee.pre_event_data, field.id)
-                                                            if field.type === 'boolean'
-                                                                if attendee.pre_event_data[field.id].data
-                                                                    .badge.text-bg-success Yes
-                                                                else
-                                                                    .badge.text-bg-danger No
-                                                            else
-                                                                != marked.parseInline(attendee.pre_event_data[field.id].data, {breaks:false})
-                                                        else if _.has(attendee.pre_event_data, field.name)
-                                                            if field.type === 'boolean'
-                                                                if attendee.pre_event_data[field.name]
-                                                                    .badge.text-bg-success Yes
-                                                                else
-                                                                    .badge.text-bg-danger No
-                                                            else
-                                                                != marked.parseInline(attendee.pre_event_data[field.name], {breaks:false})
+                                                        +checkinCustomField(field, attendee)
+    +surveyImageModal()
 
+mixin checkinCustomField(field, attendee)
+    -
+        let data = null;
+        if (_.has(attendee.pre_event_data, field.id)){
+            data = attendee.pre_event_data[field.id].data;
+        } else if (_.has(attendee.pre_event_data, field.name)){
+            data = attendee.pre_event_data[field.name];
+        }
+    if field.type === 'boolean'
+        if data
+            .badge.text-bg-success Yes
+        else
+            .badge.text-bg-danger No
+    else if field.type === 'image'
+        if data
+            - const content = `<img class="img-fluid image-container" src="${data.thumbnailUrl}">`;
+            a.btn.btn-outline-info.btn-xs.me-1.img-display-btn(
+                tabindex="0"
+                role="button"
+                data-bs-toggle="popover"
+                data-bs-content=content
+                data-bs-html="true"
+                title=`${field.name} (expand)`
+                data-imageurl=data.upload.url
+                data-imagename=data.upload.name
+            )
+                i.fas.fa-fw(class=field.icon?field.icon:'fa-image')
 
-
+    else if data
+        != marked.parseInline(data, {breaks:false})
 
 
 

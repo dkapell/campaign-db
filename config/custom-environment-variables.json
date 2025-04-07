@@ -22,7 +22,8 @@
     "aws": {
         "accessKeyId": "AWS_ACCESSKEY",
         "secretKey": "AWS_SECRET",
-        "imageBucket": "IMAGE_BUCKET"
+        "assetBucket": "IMAGE_BUCKET",
+        "privateBucket": "PRIVATE_BUCKET"
     },
     "drive": {
         "credentials": {

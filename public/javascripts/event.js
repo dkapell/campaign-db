@@ -3,7 +3,6 @@ let nextEventAddonIndex = 0;
 
 $(function(){
 
-
     $('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -53,7 +52,6 @@ $(function(){
     });
     $('[data-bs-toggle="tooltip"]').tooltip();
 
-    $('#attendance_user_id').on('change', updateCharacterPicker);
     $('#event-unregister-btn').confirmation({
         title: 'Unregister from this event?'
     }).on('click', deleteAttendance);
@@ -68,8 +66,6 @@ $(function(){
     }).on('click', markNotAttending);
     $('#not-attending-btn-form').on('click', markNotAttending);
 
-    updateCustomFieldVisibility();
-
     prepEventAddons();
 
     $('.event-checkin-btn').on('click', eventCheckin);
@@ -78,6 +74,9 @@ $(function(){
     }).on('click', eventCheckin);
 
     $('#grantEventCPBtn').on('click', assignEventCP);
+
+    //$('.data-table tbody').on('click', '.img-display-btn', showImage);
+    $('.img-display-btn').on('click', showImage);
 });
 
 function prepEventAddons(){
@@ -98,9 +97,6 @@ function removeEventAddon(e){
 function addEventAddon(e){
     const $this = $(this);
     e.preventDefault();
-
-    console.log('called')
-    console.log($this[0])
 
     const $new = $('#event_addon-new').clone();
     const id = nextEventAddonIndex++;
@@ -140,156 +136,9 @@ function exportAttendeeCsv(e){
     $(this).blur();
 }
 
-
-async function updateCharacterPicker(e){
-    const $this = $(this);
-    const userId = $this.val();
-
-    const result = await fetch(`/user/${userId}/characters`);
-    const data = await result.json();
-
-    const characters = data.characters.map( character => {
-
-        return {
-            id: character.id,
-            text: character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name,
-            selected: character.active,
-            html: character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name
-        };
-    });
-
-    $('#attendance_character_id').empty().select2({
-        data: characters,
-        theme:'bootstrap-5',
-        minimumResultsForSearch: 6,
-        width:'resolve',
-        templateResult: function(data) {
-            return data.html;
-        },
-        templateSelection: function(data) {
-            return data.text;
-        },
-        escapeMarkup: function(markup) {
-            return markup;
-        },
-
-    }).trigger('change');
-
-    if (data.user.type === 'player'){
-        $('#characterPicker').show();
-    } else {
-        $('#characterPicker').hide();
-    }
-    updateCustomFieldVisibility();
-}
-
-function updateCustomFieldVisibility(){
-    if (! $('#attendance_user_id').length ){
-        return;
-    }
-    let userType = $('#attendance_user_id option:selected').data('type');
-    if (!userType){
-        userType = $('#attendance_user_id').val();
-    }
-    $('.custom-event-field').each( function(){
-        const $this = $(this);
-        const visibleTo = $this.data('visible_to');
-        switch (visibleTo){
-            case 'all':
-                $this.show();
-                setRequired($this, true);
-
-                break;
-            case 'player':
-                if (userType === 'player'){
-                    $this.show();
-                    setRequired($this, true);
-                } else {
-                    $this.hide();
-                    setRequired($this, false);
-                }
-                break;
-            case 'staff':
-                if (userType === 'player'){
-                    $this.hide();
-                    setRequired($this, false);
-
-                } else {
-                    $this.show();
-                    setRequired($this, true);
-                }
-                break;
-        }
-    });
-    $('.addon-row').each( function(){
-        const $this = $(this);
-        if (userType === 'player'){
-            if ($this.data('available_to_player')){
-                $this.show();
-                if ($this.data('charge_player')){
-                    $this.find('.paid-cost').show();
-                    $this.find('.paid-badge').show();
-                } else {
-                    $this.find('.paid-cost').hide();
-                    $this.find('.paid-badge').hide();
-                }
-            } else {
-                $this.hide();
-            }
-        } else {
-            if ($this.data('available_to_staff')){
-                $this.show();
-                if ($this.data('charge_staff')){
-                    $this.find('.paid-cost').show();
-                    $this.find('.paid-badge').show();
-                } else {
-                    $this.find('.paid-cost').hide();
-                    $this.find('.paid-badge').hide();
-                }
-            } else {
-                $this.hide();
-            }
-        }
-
-    });
-
-    $('.addon-row:visible').each(function(index) {
-        if(index == 0){
-            $(this).css('border-top-left-radius', 'inherit');
-            $(this).css('border-top-right-radius', 'inherit');
-            $(this).css('border-top-width', '1px');
-        }
-        if(index == $('.addon-row:visible').length - 1){
-            $(this).css('border-bottom-left-radius', 'inherit');
-            $(this).css('border-bottom-right-radius', 'inherit');
-            $(this).css('border-bottom-width', '1px');
-        }
-    });
-}
-
-function setRequired($div, required){
-    if (!required){
-        for (const type of ['input', 'textarea', 'select']){
-            const $input = $div.find(type);
-            if ($input && $input.attr('required')){
-                $input.attr('required', false);
-            }
-        }
-    } else {
-        for (const type of ['input', 'textarea', 'select']){
-            const $input = $div.find(type);
-            if ($input && $input.data('isrequired')){
-                $input.attr('required', true);
-            }
-        }
-    }
-
-}
-
 async function deleteAttendance(e){
     e.preventDefault();
     e.stopPropagation();
-
 
     const $this = $(this);
     $this.tooltip('hide');
@@ -391,4 +240,22 @@ async function assignEventCP(e){
     } else {
         $this.find('.recalc-icon').removeClass('fa-spin').removeClass('fa-sync').addClass('fa-exclamation-triangle');
     }
+}
+
+function showImage(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+    const imageUrl = $this.data('imageurl');
+    const imageName = $this.data('imagename');
+
+    const $modal = $('#surveyImageModal');
+
+    $modal.find('.modal-title').text(imageName);
+    $modal.find('.modal-body').find('.image-container').attr('src', imageUrl);
+    $modal.modal('show');
+
+    $modal.on('hidden.bs.modal', function(e){
+        $modal.modal('dispose');
+    });
 }

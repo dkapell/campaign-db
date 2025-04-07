@@ -21,7 +21,7 @@ async function list(req, res, next){
         res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Character Points';
 
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         if (res.locals.checkPermission('contrib, cp grant')){
             const grants = await req.models.cp_grant.find({campaign_id:req.campaign.id});
             res.locals.grants = await async.map(grants, async (grant) => {
@@ -76,7 +76,7 @@ async function showNew(req, res, next){
         return res.redirect('/');
     }
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         res.locals.grant = {
             content: null,
             user_id: user.type ==='player'?user.id:null,
@@ -157,7 +157,7 @@ async function create(req, res){
     grant.campaign_id = req.campaign.id;
     grant.created = new Date();
     grant.updated = new Date();
-    const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+    const user = req.session.activeUser;
 
     if (res.locals.checkPermission('contrib, cp grant')){
         grant.status = 'approved';

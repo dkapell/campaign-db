@@ -10,9 +10,9 @@ block content
             .card
                 .card-header New Registration
                 .card-body
-                    form.form.needs-validation#eventForm(method="POST" action=`/event/${event.id}/register` novalidate)
+                    form.form.needs-validation#attendanceForm(method="POST" action=`/event/${event.id}/register` novalidate)
                         input(type="hidden", name='_csrf',value=csrfToken)
                         include ./_form.pug
 append scripts
     script(src='/javascripts/validator.js')
-    script(src='/javascripts/event.js')
+    script(src='/javascripts/attendance.js')

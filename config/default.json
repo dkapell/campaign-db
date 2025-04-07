@@ -25,7 +25,8 @@
     "aws": {
         "accessKeyId": "accessKeyId",
         "secretKey": "secretKey",
-        "imageBucket": "imageBucket"
+        "assetBucket": "assetBucket",
+        "privateBucket": "privateBucket"
     },
     "drive": {
         "credentials": {},
@@ -56,5 +57,9 @@
         "registration edit",
         "registration view",
         "cp grant"
-    ]
+    ],
+    "renames": {
+        "post_event_survey": "Post Event Survey",
+        "pes": "PES"
+    }
 }

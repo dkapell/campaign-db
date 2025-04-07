@@ -168,7 +168,7 @@ async function update(req, res){
     try {
         const current = await req.models.user.get(req.campaign.id, id);
 
-        const currentUser = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const currentUser = req.session.activeUser;
         if (! (currentUser.type === 'admin' || current.site_admin)){
             delete user.name;
             delete user.email;

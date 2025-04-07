@@ -8,7 +8,7 @@ async function showNewAttendance(req, res, next){
     const id = req.params.id;
     res.locals.csrfToken = req.csrfToken();
      try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(id);
 
@@ -93,21 +93,22 @@ async function showEditAttendance(req, res, next){
 
         res.locals.event = event;
 
-        if (!_.has(attendance, 'data') || ! attendance.data){
-            attendance.data = {};
+        if (!_.has(attendance, 'pre_event_data') || ! attendance.pre_event_data){
+            attendance.pre_event_data = {};
         }
 
         res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
 
         if (_.has(req.session, 'attendanceData')){
             res.locals.attendance = req.session.attendanceData;
+            res.locals.attendance.user_id = attendance.user_id;
             delete req.session.attendanceData;
         }
 
         res.locals.attendance.user = await req.models.user.get(req.campaign.id, res.locals.attendance.user_id )
 
 
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         if (!attendance.character_id){
             const characters = await req.models.character.find({campaign_id:req.campaign.id, user_id:user.id});
@@ -152,7 +153,7 @@ async function createAttendance(req, res){
     req.session.attendanceData = attendance;
     try {
 
-        let user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        let user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -225,7 +226,7 @@ async function createNotAttendance(req, res){
     req.session.attendanceData = attendance;
     try {
 
-        let user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        let user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -252,7 +253,7 @@ async function createNotAttendance(req, res){
         const currentAttendance = await req.models.attendance.findOne({event_id:event.id, user_id:attendance.user_id});
         if (currentAttendance){
             if (currentAttendance.attending){
-                req.flash('danger', 'Currently marked attending, unregister first');
+                req.flash('error', 'Currently marked attending, unregister first');
                 return res.redirect(`/event/${event.id}`)
             } else {
                 req.flash('success', 'Already marked as not attending');
@@ -284,7 +285,7 @@ async function updateAttendance(req, res){
     req.session.attendanceData = attendance;
 
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -292,7 +293,7 @@ async function updateAttendance(req, res){
             throw new Error('Invalid Event');
         }
 
-        const current = await req.models.attendance.get(attendanceId);
+        let current = await req.models.attendance.get(attendanceId);
 
         if (!current || current.event_id !== event.id){
             throw new Error('Invalid Registration');
@@ -316,6 +317,8 @@ async function updateAttendance(req, res){
             }
         }
 
+        current = await surveyHelper.fillAttendance(current, event);
+
         if (attendance.character_id === ''){
             attendance.character_id = null;
         }
@@ -328,6 +331,7 @@ async function updateAttendance(req, res){
                 user.type
             );
         }
+        console.log(attendance.pre_event_data);
 
         attendance.attending = true;
         attendance.event_id = event.id;
@@ -351,7 +355,7 @@ async function removeAttendance(req, res, next){
     const eventId = req.params.id;
     const attendanceId = req.params.attendanceId;
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         const event = await req.models.event.get(eventId);
 
         if (!event || event.campaign_id !== req.campaign.id){
@@ -528,13 +532,14 @@ async function exportEventAttendees(req, res, next){
                 if (event.pre_event_survey){
                     for (const field of event.pre_event_survey.definition){
                         if (_.has(attendee.pre_event_data, field.id)){
-                            if (field.type === 'boolean'){
+                            if (field.type === 'boolean' || field.type === 'image'){
                                 row.push(attendee.pre_event_data[field.id].data?'Yes':'No');
                             } else {
                                 row.push(attendee.pre_event_data[field.id].data);
                             }
+
                         } else if (_.has(attendee.pre_event_data, field.name)){
-                            if (field.type === 'boolean'){
+                            if (field.type === 'boolean' || field.type === 'image'){
                                 row.push(attendee.pre_event_data[field.name]?'Yes':'No');
                             } else {
                                 row.push(attendee.pre_event_data[field.name]);

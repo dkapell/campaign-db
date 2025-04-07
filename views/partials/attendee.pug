@@ -224,18 +224,35 @@ mixin attendeeTable(attendees, type)
 
 mixin attendeeCustomField(customField, data)
     -
-        const icon = customField.icon?customField.icon:'fa-sticky-note'
+        let icon = 'fa-sticky-note'
+        if (customField.type === 'image'){
+            icon = 'fa-image'
+        }
+        if (customField.icon){
+            icon = customField.icon;
+        }
+
+        let content = null
         if (customField.type === 'boolean'){
             data = !!data?'Yes':'No'
         }
+        if (customField.type === 'image' && data){
+            content = `<img class="img-fluid image-container" src="${data.thumbnailUrl}">`;
+        } else {
+            content = marked.parseInline(data, {breaks: true})
+        }
 
-    a.btn.btn-outline-info.btn-xs.me-1.action-btn(
+
+    a.btn.btn-outline-info.btn-xs.me-1(
         tabindex="0"
         role="button"
         data-bs-toggle="popover"
-        data-bs-content=marked.parseInline(data, {breaks: true})
+        data-bs-content=content
         data-bs-html="true"
-        title=customField.name
+        title=`${customField.name}${customField.type==='image'&&data?' (expand)':''}`
+        class=customField.type==='image'&&data?'img-display-btn':'action-btn'
+        data-imageurl=customField.type==='image'&&data?data.upload.url:''
+        data-imagename=customField.type==='image'&&data?data.upload.name:''
     )
         i.fas.fa-fw(class=icon)
 
@@ -250,8 +267,21 @@ mixin attendeeCustomFieldDisplay(customField, data)
             i.fas.me-1.fa-fw(class=icon)
             strong= customField.name
         .col-md
-                if data
+            if data
+                if customField.type === 'image'
+                    a.img-display-btn.btn.btn-outline-primary.btn-sm(
+                        href='#'
+                        role="button"
+                        data-imageurl=customField.type==='image'&&data?data.upload.url:''
+                        data-imagename=customField.type==='image'&&data?data.upload.name:''
+                    )
+                        i.fa.fa-eye.me-1
+                        | View Uploaded Image
+
+
+                else
                     !=marked.parseInline(data, {breaks:true})
+
 
 mixin showAddons(attendee, type)
     if attendee.addons && attendee.addons.length

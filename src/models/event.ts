@@ -49,13 +49,7 @@ function validate(data){
 }
 
 async function fill(record){
-    record.attendees = await models.attendance.find({event_id:record.id});
-    record.attendees = await async.map(record.attendees, async (attendee) => {
-        return surveyHelper.fillAttendance(attendee, record);
-    })
-    record.attendees = record.attendees.sort(attendeeSorter);
 
-    record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
     if (record.pre_event_survey_id){
         record.pre_event_survey = await models.survey.get(record.pre_event_survey_id);
     }
@@ -65,6 +59,14 @@ async function fill(record){
     }
 
     record.addons = await models.event_addon.find({campaign_id: record.campaign_id, event_id:record.id});
+
+    record.attendees = await models.attendance.find({event_id:record.id});
+    record.attendees = await async.map(record.attendees, async (attendee) => {
+        return surveyHelper.fillAttendance(attendee, record);
+    })
+    record.attendees = record.attendees.sort(attendeeSorter);
+    record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
+
 
     return record;
 }

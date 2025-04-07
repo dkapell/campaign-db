@@ -23,7 +23,7 @@ append scripts
         var viewer = OpenSeadragon({
             id: "worldmap",
             prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/2.4.2/images/",
-            tileSources: "https://#{config.get('aws.imageBucket')}.s3.amazonaws.com/tiles/#{map.id}/#{map.uuid}/tile.dzi",
+            tileSources: "https://#{config.get('aws.assetBucket')}.s3.amazonaws.com/tiles/#{map.id}/#{map.uuid}/tile.dzi",
             visibilityRatio: 1,
             toolbar:       "toolbarDiv",
             constrainDuringPan: true,

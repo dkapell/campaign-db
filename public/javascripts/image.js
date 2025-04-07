@@ -17,7 +17,7 @@ async function deleteImage(e){
     e.stopPropagation();
     const $this = $(this);
     const url = $this.attr('url');
-    const result = await fetch(url, {method:'DELETE'});
+    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     }
@@ -60,13 +60,21 @@ function updateImage(e){
 
 async function submitImageForm(e){
     e.preventDefault();
-    var $this = $(this);
+    const $this = $(this);
     const file = ($('#imagePicker').prop('files'))[0];
     if (!file){
         return false;
     }
-    const uploaded = await getSignedRequest(file);
+    const request = await getSignedRequest(file);
+    $('#image-id').val(request.objectId);
+    $('#new-image-form').attr('action', `/image/${request.objectId}`);
+    const uploaded = await uploadFile(file, request.signedRequest);
+
     if (uploaded){
+        $('#image-status').val('ready');
+        if (request.postUpload){
+            await markFileUploaded(request.postUpload);
+        }
         $this.unbind('submit').submit();
         return true;
     } else {
@@ -82,10 +90,7 @@ async function getSignedRequest(file){
             $('#upload-feedback').text(response.error);
             return false;
         }
-        const objectId = response.data.objectId;
-        $('#image-id').val(objectId);
-        $('#new-image-form').attr('action', '/image/' + objectId);
-        return await uploadFile(file, response.data.signedRequest, response.data.url);
+        return response.data;
 
     } catch (err){
         $('#upload-feedback').text('Error getting signed request');
@@ -94,13 +99,25 @@ async function getSignedRequest(file){
     }
 }
 
-async function uploadFile(file, signedRequest, url){
+async function uploadFile(file, signedRequest){
     try {
         await fetch(signedRequest, {method:'PUT', body: file});
-        $('#image-status').val('ready');
         return true;
     } catch (err){
         $('#upload-feedback').text('Error uploading file');
+        console.trace(err);
+        return false;
+    }
+}
+
+async function markFileUploaded(url){
+    try {
+        await fetch(url, {
+            method:'PUT',
+        });
+        return true;
+    } catch (err){
+        $('#upload-feedback').text('Error marking file uploaded');
         console.trace(err);
         return false;
     }

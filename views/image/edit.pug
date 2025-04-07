@@ -13,7 +13,7 @@ block content
                         .col
                             form.form.needs-validation(method="POST" action="/image/" + image.id novalidate)
                                 input(type="hidden", name="_method",  value="PUT")
-                                input(type="hidden", name='_csrf',value=csrfToken)
+                                input#csrfToken(type="hidden", name='_csrf',value=csrfToken)
                                 input(type="hidden", name='image[id]',value=image.id)
 
                                 .row.my-2

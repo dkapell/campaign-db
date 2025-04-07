@@ -692,7 +692,7 @@ const router = express.Router();
 
 router.use(permission('player'));
 router.use(function(req, res, next){
-    const user = req.session.assumed_user ? req.session.assumed_user: (req.user as CampaignUser);
+    const user = req.session.activeUser as CampaignUser;
     if (user.type === 'player'){
         res.locals.siteSection='character';
     } else {

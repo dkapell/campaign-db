@@ -2,6 +2,7 @@ extends ../layout
 
 include ../partials/event.pug
 include ../partials/attendee.pug
+include ../partials/survey.pug
 include ../partials/post_event_survey.pug
 
 block content
@@ -66,7 +67,7 @@ block content
 
 
                         .row.my-2
-                            .col-md
+                            .col-lg
                                 -
                                     const futureEvent = new Date(event.end_time) > new Date();
                                     const regOpen = event.registration_open && futureEvent;
@@ -136,7 +137,7 @@ block content
                                                 | Clear Not Attending
 
                             if activeUser.type.match(/^(player|admin|core staff)$/)
-                                .col-md-4.text-md-center
+                                .col-md-3.text-lg-center
                                     span.fs-5
                                         span.me-1 Cost:
                                         if event.cost
@@ -161,7 +162,7 @@ block content
                                         if owed
                                             span.ms-2 Owed: $#{owed}
 
-                            .col-lg-4.text-lg-end
+                            .col-lg-3.text-lg-end
 
                                 .fs-5.d-inline.my-0
                                     if attendee
@@ -313,11 +314,12 @@ block content
                                 backto:'event',
                                 exportUrl:`/event/${event.id}/export_survey`
                             })
-
+    +surveyImageModal()
 
 append scripts
-    script(src='/javascripts/data-table.js')
     script(src='/javascripts/event.js')
+    script(src='/javascripts/data-table.js')
+
     script.
         $(function(){
             const eventTabStorageId = `cdb-event-tab-${$('#eventId').val()}`;

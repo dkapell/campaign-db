@@ -13,7 +13,8 @@ const tableFields = [
     'name', 
     'display_name', 
     'description', 
-    'status', 
+    'status',
+    'is_public',
     'type', 
     'size',
     'created'

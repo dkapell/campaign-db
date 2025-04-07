@@ -2,7 +2,6 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
-import imageHelper from '../lib/imageHelper';
 import uploadHelper from '../lib/uploadHelper';
 
 /* GET images listing. */
@@ -102,25 +101,11 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        if (current.upload.status === 'new' && image.upload.status === 'ready'){
-            console.log('getting metadata for ' + uploadHelper.getKey(current.upload));
-            try {
-                const details = await imageHelper.getImageDetails(current);
-                if (details){
-                    image.upload.size = details.size;
-                    image.width = details.width;
-                    image.height = details.height;
-                }
-            } catch (err){
-                console.error(err);
-                console.log(`unsupported image format for ${image.id}:${image.upload.name}`);
-            }
-        }
         image.upload_id = current.upload_id;
         await req.models.image.update(id, image);
         delete req.session.imageData;
-        await imageHelper.buildThumbnail(await req.models.image.get(id));
-        req.flash('success', 'Updated Image ' + image.upload.name);
+        const upload = await req.models.upload.get(current.upload_id);
+        req.flash('success', 'Updated Image ' + upload.name);
         res.redirect('/image');
     } catch(err) {
         req.flash('error', err.toString());
@@ -142,8 +127,9 @@ async function remove(req, res, next){
             throw new Error('Can not delete record from different campaign');
         }
         await req.models.upload.delete(current.upload_id);
-        await uploadHelper.remove(uploadHelper.getKey(current.upload));
-        await uploadHelper.remove(imageHelper.getThumbnailKey(current));
+        const bucket = uploadHelper.getBucket(current.upload);
+        await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload));
+        await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload, {thumbnail:true}));
         req.flash('success', 'Removed Image');
         res.redirect('/image');
     } catch(err) {
@@ -159,7 +145,7 @@ async function signS3(req, res, next){
     if (!fileType.match(/^image/)){
         return res.json({success:false, error: 'invalid file type'});
     }
-    const upload = await req.upload.makeEmptyUpload(fileName, 'image');
+    const upload = await req.upload.makeEmptyUpload(fileName, 'image', true);
 
     const image = {
         id: null,
@@ -172,14 +158,15 @@ async function signS3(req, res, next){
     image.id = await req.models.image.create(image);
     const key = uploadHelper.getKey(image.upload);
     try{
-        const signedRequest = await uploadHelper.signS3(key, fileType);
+        const signedRequest = await uploadHelper.signS3(key, fileType, upload.is_public);
         res.json({
             success:true,
             data: {
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
-                objectId: image.id
-            }
+                objectId: image.id,
+                postUpload: `/upload/${image.upload.id}/uploaded`
+            },
         });
     }
     catch (err) {

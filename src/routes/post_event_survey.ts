@@ -19,7 +19,7 @@ async function list(req, res, next){
         const events:EventData[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         const pastEvents = events.filter( (event) => { return event.end_time <= new Date(); })
         res.locals.events = pastEvents;
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         if ((user.type === 'player'  || user.type === 'event staff' ) && ! req.session.admin_mode){
             res.locals.my_post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
         } else {
@@ -118,7 +118,7 @@ const router = express.Router();
 
 router.use(permission('player'));
 router.use(function(req, res, next){
-    const user = req.session.assumed_user ? req.session.assumed_user: (req.user as CampaignUser);
+    const user = req.session.activeUser as CampaignUser;
     if (user.type === 'player'){
         res.locals.siteSection='character';
     } else {

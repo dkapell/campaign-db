@@ -105,12 +105,16 @@ if event.pre_event_survey
 
 .row.my-2
     .col
-        button.btn.btn-primary(type="submit")= attendance.id?'Update':'Register'
+        button.btn.btn-primary(type="submit")
+            i.fa.fa-save.me-1.submit-icon
+            = attendance.id?'Update':'Register'
         if checkPermission('gm')
             a.btn.btn-secondary.ms-1#not-attending-btn-form(
                 role='button'
                 url=`/event/${event.id}/not_attending`
                 data-csrf=csrfToken
                 data-back=`/event/${event.id}`
-            ) Mark Not Attending
+            )
+                i.fa.fa-calendar-times.me-1
+                | Mark Not Attending
         a.btn.btn-link(href=`/event/${event.id}`) Cancel

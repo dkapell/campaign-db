@@ -10,7 +10,7 @@ block content
             .card
                 .card-header= `Edit Registration for ${attendance.user.name} for ${event.name}`
                 .card-body
-                    form.form.needs-validation#eventForm(method="POST" action=`/event/${event.id}/register/${attendance.id}` novalidate)
+                    form.form.needs-validation#attendanceForm(method="POST" action=`/event/${event.id}/register/${attendance.id}` novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
                         input(type="hidden", name='event[id]',value=event.id)
@@ -20,4 +20,4 @@ block content
 
 append scripts
     script(src='/javascripts/validator.js')
-    script(src='/javascripts/event.js')
+    script(src='/javascripts/attendance.js')

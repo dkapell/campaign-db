@@ -7,7 +7,7 @@ function parseSurveyData(data, survey, current, userType){
     const post_event_data = {};
     if (survey){
         for (const field of survey){
-            if (userType.match(/^(core staff|admin)$/) || field.editable_by === 'submitter'){
+            if (userType.match(/^(core staff|admin)$/) || !field.editable_by || field.editable_by === 'submitter'){
                 const doc = {
                     name: field.name,
                     data: data[field.id]
@@ -171,7 +171,19 @@ async function fillAttendance(attendance, event){
                 attendance.pre_event_data = preEventResult.data;
             }
         }
+
+        for (const field of event.pre_event_survey.definition){
+            if (field.type === 'image' && _.has(attendance.pre_event_data, field.id)){
+                const image = await models.image.get(attendance.pre_event_data[field.id].data);
+                if (image) {
+                    attendance.pre_event_data[field.id].data = image;
+                } else {
+                    delete attendance.pre_event_data[field.id];
+                }
+            }
+        }
     }
+
     if (event.post_event_survey_id && attendance.post_event_survey_response_id){
         const postEventResult = await models.survey_response.get(attendance.post_event_survey_response_id);
         if (postEventResult){
@@ -181,24 +193,39 @@ async function fillAttendance(attendance, event){
                 attendance.post_event_data.submitted_at = postEventResult.submitted_at;
             }
         }
-        const addendums = await models.post_event_addendum.find({attendance_id: attendance.id});
-        attendance.post_event_addendums = [];
-        for (const addendum of addendums){
-            attendance.post_event_addendums.push({
-                submitted: addendum.submitted,
-                submitted_at: addendum.submitted_at,
-                current: !addendum.submitted,
-                content: addendum.content
-            });
+
+        for (const field of event.post_event_survey.definition){
+            if (field.type === 'image' && _.has(attendance.post_event_data, field.id)){
+                const image = await models.image.get(attendance.post_event_data[field.id].data);
+                if (image){
+                    attendance.post_event_data[field.id.data] = image;
+                } else {
+                     delete attendance.post_event_data[field.id];
+                }
+            }
         }
+    }
+
+    const addendums = await models.post_event_addendum.find({attendance_id: attendance.id});
+    attendance.post_event_addendums = [];
+    for (const addendum of addendums){
+        attendance.post_event_addendums.push({
+            submitted: addendum.submitted,
+            submitted_at: addendum.submitted_at,
+            current: !addendum.submitted,
+            content: addendum.content
+        });
     }
     return attendance;
 }
+
+
 
 async function savePreEventSurveyData(responseId, attendance){
     if (!_.has(attendance, 'pre_event_data')){
         return null;
     }
+
     const event = await models.event.get(attendance.event_id);
     // Check for existing record
     if (responseId){
@@ -225,7 +252,6 @@ async function savePreEventSurveyData(responseId, attendance){
             await models.survey_response.update(surveyResponse.id, surveyResponse);
             return surveyResponse.id;
         }
-
         // Create new record
         const doc = {
             campaign_id: event.campaign_id,

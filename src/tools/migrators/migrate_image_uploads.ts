@@ -7,7 +7,6 @@
 import path from 'path';
 
 import uploadHelper from '../../lib/uploadHelper';
-import imageHelper from '../../lib/imageHelper';
 import imageModel from '../../models/image';
 import uploadModel from '../../models/upload';
 const models = {
@@ -19,16 +18,17 @@ const models = {
     //await new Promise(r => setTimeout(r, 1000));
     const images = await models.image.find();
     for (const image of images as ImageModel[]){
+        const bucket = uploadHelper.getBucket(image.upload);
 
         const oldKey = getKey(image);
         const newKey = uploadHelper.getKey(image.upload);
         console.log(`${oldKey} -> ${newKey}`);
-        await uploadHelper.rename(oldKey, newKey);
+        await uploadHelper.rename({bucket:bucket, key:oldKey}, {bucket:bucket, key:newKey});
 
         const oldThumbKey = getThumbnailKey(image);
-        const newThumbKey = imageHelper.getThumbnailKey(image);
+        const newThumbKey = uploadHelper.getKey(image, {thumbnail:true});
         console.log(`${oldThumbKey} -> ${newThumbKey}`);
-        await uploadHelper.rename(oldThumbKey, newThumbKey);
+        await uploadHelper.rename({bucket:bucket, key:oldThumbKey}, {bucket:bucket, key:newThumbKey});
 
     }
 

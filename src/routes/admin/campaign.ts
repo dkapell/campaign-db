@@ -62,10 +62,7 @@ function showNew(req, res){
             'event staff':  { name: 'event staff', order: 3 },
             'player':  { name: 'player', order: 2 },
         },
-        rename_map: {
-            post_event_survey: 'Post Event Survey',
-            pes: 'PES'
-        }
+        rename_map: config.get('renames')
 
     };
     res.locals.breadcrumbs = {
@@ -209,7 +206,7 @@ async function remove(req, res, next){
 
 async function checkPermission(req, res, next){
     const id = req.params.id;
-    const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+    const user = req.session.activeUser;
     if (!req.session.assumed_user && user.site_admin){
         return next();
     }

@@ -8,7 +8,7 @@ block content
                 .card-body
                     form#new-image-form.form.needs-validation(method="POST" action="/image" novalidate)
                         input(type="hidden", name="_method",  value="PUT")
-                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input#csrfToken(type="hidden", name='_csrf',value=csrfToken)
                         input#image-id(type="hidden", name='image[id]',value='')
                         input#image-status(type="hidden", name='image[upload][status]',value='new')
                         .row.my-2

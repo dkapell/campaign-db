@@ -20,7 +20,7 @@ async function list(req, res, next){
         res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Characters';
 
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         if ((user.type === 'player'  || user.type === 'event staff' ) && ! req.session.admin_mode){
             res.locals.characters = await req.models.character.find({user_id:user.id, campaign_id:req.campaign.id});
             res.render('character/list', { pageTitle: 'Characters' });
@@ -66,7 +66,7 @@ async function list(req, res, next){
 
 async function showCurrent(req, res, next){
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         if (user.type === 'player'){
             const character = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (character){
@@ -158,7 +158,7 @@ async function showAudits(req, res, next){
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');
         }
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         res.json({success:true, audits: await character.audits(user.type === 'player')});
     } catch(err){
         next(err);
@@ -192,7 +192,7 @@ async function showPdf(req, res, next){
 
 async function showNew(req, res, next){
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         res.locals.character = {
             name: null,
             pronouns: null,
@@ -275,7 +275,7 @@ async function clone(req, res){
     const id = req.params.id;
 
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         const character = new Character({cloneId: id, user_id: user.id, campaign_id:req.campaign.id});
         await character.init();
 
@@ -295,7 +295,7 @@ async function create(req, res){
     req.session.characterData = characterData;
 
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         if (user.type === 'player' || !characterData.user_id){
             characterData.user_id = user.id;
         }
@@ -361,7 +361,7 @@ async function update(req, res){
         }
         oldCharacter.custom_field = (await req.models.character_custom_field.find({character_id:id})).map(e => { delete e.custom_field; return e;});
 
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
         const custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
         if (user.type === 'player' && _.has(characterData, 'custom_fields')){
             for (const field of custom_fields){
@@ -892,7 +892,7 @@ async function checkAllowed(req, res, next){
     if (character.campaign_id !== req.campaign.id){
         throw new Error('Invalid Character');
     }
-    const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+    const user = req.session.activeUser;
     if (!character){
         // No character found
         return next(createError(404));
@@ -920,7 +920,7 @@ async function checkAllowedView(req, res, next){
     if (character.campaign_id !== req.campaign.id){
         throw new Error('Invalid Character');
     }
-    const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+    const user = req.session.activeUser;
 
     if (!character){
         // No character found
@@ -951,7 +951,7 @@ const router = express.Router();
 
 router.use(permission('player'));
 router.use(function(req, res, next){
-    const user: CampaignUser = req.session.assumed_user ? req.session.assumed_user: (req.user as CampaignUser);
+    const user: CampaignUser = req.session.activeUser as CampaignUser;
     if (user.type === 'player'){
         res.locals.siteSection='character';
     } else {

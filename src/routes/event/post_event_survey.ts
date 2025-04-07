@@ -11,7 +11,7 @@ async function showPostEventSurvey(req, res, next){
 
     res.locals.csrfToken = req.csrfToken();
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(id);
 
@@ -76,7 +76,7 @@ async function submitPostEventSurvey(req, res){
     const action = req.body.action ||= 'save';
 
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -208,7 +208,7 @@ async function savePostEventSurveyApi(req, res){
     const attendance = req.body.attendance;
 
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -320,7 +320,7 @@ async function exportPostEventSurveys(req, res, next){
             if (event.post_event_survey){
                 for (const field of event.post_event_survey.definition){
                     if (_.has(survey.data, field.id)){
-                        if (field.type==='boolean'){
+                        if (field.type==='boolean' || field.type === 'image'){
                             row.push(survey.data[field.id].data?'Yes':'No');
                         } else {
                             row.push(removeMd(survey.data[field.id].data));
@@ -345,7 +345,7 @@ async function showAddendum(req, res, next){
 
     res.locals.csrfToken = req.csrfToken();
     try{
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(id);
 
@@ -425,7 +425,7 @@ async function submitAddendum(req, res){
     const action = req.body.action ||= 'save';
 
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 
@@ -517,7 +517,7 @@ async function saveAddendumApi(req, res){
     const addendum = req.body.addendum;
 
     try {
-        const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+        const user = req.session.activeUser;
 
         const event = await req.models.event.get(eventId);
 

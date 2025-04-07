@@ -431,6 +431,7 @@ create table uploads (
     status          varchar(20) default 'new' not null,
     size            int,
     type            upload_type,
+    is_public       boolean default false,
     primary key (id),
     CONSTRAINT uploads_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

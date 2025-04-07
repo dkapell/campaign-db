@@ -71,8 +71,8 @@ append content
                                 i.fab.fa-fw.fa-google-drive.me-1
                                 | Google Drive
                                 i.fa.fa-external-link.ms-1
-                        - user = session.assumed_user ?  session.assumed_user : activeUser
-                        if user.drive_folder
+                        - user = activeUser
+                        if activeUser.drive_folder
                             a.list-group-item.list-group-item-action(href=user.drive_folder  target="_blank")
                                 i.fab.fa-fw.fa-google-drive.me-1
                                 | Personal Drive Folder

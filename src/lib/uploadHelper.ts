@@ -3,26 +3,47 @@ import _ from 'underscore';
 import config from 'config';
 import aws from 'aws-sdk';
 import {Readable} from 'stream';
+import path from 'path';
+import surveyHelper from './surveyHelper';
+import models from './models';
 
-function getKey(upload: UploadModel, uriEncoded?:boolean): string{
-    let folder = null;
+
+function getKey(upload: UploadModel, options:UploadOptions = {}): string{
+
+    let folder = '';
     switch (upload.type){
-        case 'image': folder = 'images'; break;
-        case 'document': folder = 'documents'; break;
-        case 'font': folder = 'fonts'; break;
-        default: folder = 'uploads';
+        case 'image': folder += 'images'; break;
+        case 'document': folder += 'documents'; break;
+        case 'font': folder += 'fonts'; break;
+        default: folder += 'uploads';
+    }
+    let filename = upload.name;
+    if (options.thumbnail){
+        const parts = path.parse(upload.name);
+        filename = [parts.name, '_thumbnail', parts.ext].join('');
     }
 
-    if (uriEncoded){
-        return [folder, upload.id, encodeURIComponent(upload.name)].join('/');
+    if (options.uriEncoded){
+        return [folder, upload.id, encodeURIComponent(filename)].join('/');
     } else {
-        return [folder, upload.id, upload.name].join('/');
+        return [folder, upload.id, filename].join('/');
     }
 };
 
-function getUrl(upload: UploadModel): string{
-    const key = getKey(upload, true);
-    return`https://${config.get('aws.imageBucket')}.s3.amazonaws.com/${key}`;
+function getBucket(upload:UploadModel): string{
+    return upload.is_public?config.get('aws.assetBucket'):config.get('aws.privateBucket');
+}
+
+function getUrl(upload: UploadModel, options:UploadOptions={}): string{
+    if (upload.is_public){
+        options.uriEncoded = true
+        const key = getKey(upload, options);
+        return`https://${config.get('aws.assetBucket')}.s3.amazonaws.com/${key}`;
+    } else if (options.thumbnail){
+        return `/upload/${upload.id}?thumbnail=1`;
+    } else {
+        return `/upload/${upload.id}`;
+    }
 };
 
 function sorter(a:UploadModel, b:UploadModel){
@@ -60,22 +81,22 @@ function sorter(a:UploadModel, b:UploadModel){
     return idxA.localeCompare(idxB);
 };
 
-function getStream(upload: UploadModel):Readable{
-    const key = getKey(upload);
+function getStream(upload: UploadModel, options:UploadOptions={}):Readable{
+    const key = getKey(upload, options);
     const s3 = new aws.S3({
         accessKeyId: config.get('aws.accessKeyId'),
         secretAccessKey: config.get('aws.secretKey'),
         signatureVersion: 'v4',
 
     });
-    const options:aws.S3.GetObjectRequest = {
-        Bucket: config.get('aws.imageBucket'),
+    const requestOptions:aws.S3.GetObjectRequest = {
+        Bucket: upload.is_public?config.get('aws.assetBucket'):config.get('aws.privateBucket'),
         Key: key
     };
-    return s3.getObject(options).createReadStream();
+    return s3.getObject(requestOptions).createReadStream();
 };
 
-async function signS3(key:string, fileType:string): Promise<string> {
+async function signS3(key:string, fileType:string, isPublic:boolean): Promise<string> {
     return new Promise((resolve,reject) => {
         const s3 = new aws.S3({
             accessKeyId: config.get('aws.accessKeyId'),
@@ -83,13 +104,16 @@ async function signS3(key:string, fileType:string): Promise<string> {
             signatureVersion: 'v4',
         });
 
-        const s3Params = {
-            Bucket: config.get('aws.imageBucket'),
+        const s3Params: S3UploadParams  = {
+            Bucket: isPublic?config.get('aws.assetBucket'):config.get('aws.privateBucket'),
             Key: key,
             Expires: 60,
-            ContentType: fileType,
-            ACL: 'public-read'
+            ContentType: fileType
         };
+
+        if (isPublic){
+            s3Params.ACL = 'public-read'
+        }
 
         s3.getSignedUrl('putObject', s3Params, (err, url) => {
             if (err) reject(err);
@@ -100,7 +124,7 @@ async function signS3(key:string, fileType:string): Promise<string> {
 
 let uploadCount = 0;
 
-async function upload(key:string, dataStream:Readable){
+async function upload(bucket: string, key:string, dataStream:Readable){
     uploadCount++;
     const s3 = new aws.S3({
         accessKeyId: config.get('aws.accessKeyId'),
@@ -108,7 +132,7 @@ async function upload(key:string, dataStream:Readable){
         signatureVersion: 'v4',
     });
     const params:aws.S3.PutObjectRequest = {
-        Bucket: config.get('aws.imageBucket'),
+        Bucket: bucket,
         Key: key,
         Body: dataStream
     };
@@ -119,7 +143,7 @@ async function upload(key:string, dataStream:Readable){
 };
 
 
-async function copy(oldKey:string, newKey:string){
+async function copy(oldFile:S3Location, newFile: S3Location){
     return new Promise((resolve,reject) => {
         const s3 = new aws.S3({
             accessKeyId: config.get('aws.accessKeyId'),
@@ -128,9 +152,9 @@ async function copy(oldKey:string, newKey:string){
         });
 
         s3.copyObject({
-            Bucket: config.get('aws.imageBucket'),
-            CopySource: encodeURI(`${config.get('aws.imageBucket')}/${oldKey}`),
-            Key: newKey
+            Bucket: newFile.bucket,
+            CopySource: encodeURI(`${oldFile.bucket}/${oldFile.key}`),
+            Key: newFile.key
         }, function(err, data){
             if (err) return reject(err);
             resolve(data);
@@ -138,8 +162,8 @@ async function copy(oldKey:string, newKey:string){
     });
 };
 
-async function remove(key:string){
-    console.log(`Removing ${config.get('aws.imageBucket')}/${key}`);
+async function remove(bucket: string, key:string){
+    console.log(`Removing ${bucket}/${key}`);
     return new Promise((resolve,reject) => {
         const s3 = new aws.S3({
             accessKeyId: config.get('aws.accessKeyId'),
@@ -147,7 +171,7 @@ async function remove(key:string){
             signatureVersion: 'v4',
         });
         s3.deleteObject({
-            Bucket: config.get('aws.imageBucket'),
+            Bucket: bucket,
             Key: key
         }, function(err, data){
             if (err) return reject(err);
@@ -156,12 +180,12 @@ async function remove(key:string){
     });
 };
 
-async function rename(oldKey:string, newKey:string){
-    await copy(oldKey, newKey);
-    return remove(oldKey);
+async function rename(oldFile:S3Location, newFile: S3Location){
+    await copy(oldFile, newFile);
+    return remove(oldFile.bucket, oldFile.key);
 };
 
-async function list(prefix:string) {
+async function list(bucket:string, prefix:string) {
     if (!prefix){
         prefix = 'images';
     }
@@ -172,7 +196,7 @@ async function list(prefix:string) {
             signatureVersion: 'v4',
         });
         s3.listObjects({
-            Bucket: config.get('aws.imageBucket'),
+            Bucket: config.get('aws.assetBucket'),
             Prefix: prefix
         }, function(err, data){
             if (err) reject(err);
@@ -189,8 +213,9 @@ async function getSize(upload: UploadModel){
         signatureVersion: 'v4',
 
     });
+
     const options:aws.S3.HeadObjectRequest = {
-        Bucket: config.get('aws.imageBucket'),
+        Bucket: upload.is_public?config.get('aws.assetBucket'):config.get('aws.privateBucket'),
         Key: key
     };
     return new Promise((resolve,reject) => {
@@ -201,17 +226,43 @@ async function getSize(upload: UploadModel){
     });
 }
 
+async function getContentType(upload: UploadModel){
+    const key = getKey(upload);
+    const s3 = new aws.S3({
+        accessKeyId: config.get('aws.accessKeyId'),
+        secretAccessKey: config.get('aws.secretKey'),
+        signatureVersion: 'v4',
+
+    });
+
+    const options:aws.S3.HeadObjectRequest = {
+        Bucket: upload.is_public?config.get('aws.assetBucket'):config.get('aws.privateBucket'),
+        Key: key
+    };
+    return new Promise((resolve,reject) => {
+        s3.headObject(options, function(err, data){
+            if (err) { return reject(err); }
+            resolve(data.ContentType);
+        });
+    });
+}
+
 function uploadMiddleware(){
     return function(req, res, next){
         req.upload = {
-            makeEmptyUpload: async function makeEmptyUpload(fileName, type){
-                const user = req.session.assumed_user ? req.session.assumed_user: req.user;
+            makeEmptyUpload: async function makeEmptyUpload(fileName, type, is_public){
+                const user = req.session.activeUser;
                 const uploadData = {
                     name: fileName,
                     campaign_id: req.campaign.id,
                     user_id: user.id,
-                    type: type
+                    type: type,
+                    is_public: false
                 };
+                if (is_public && res.locals.checkPermission('gm')){
+                    console.log('setting upload public')
+                    uploadData.is_public = true;
+                }
                 const uploadId = await req.models.upload.create(uploadData);
                 return req.models.upload.get(uploadId);
             },
@@ -228,12 +279,98 @@ function uploadMiddleware(){
     }
 }
 
+const uploadCache = {
+    updated:new Date(0),
+    data: {
+        events: {},
+        attendances: {},
+        campaigns: {}
+    }
+};
+
+async function refreshCache(){
+    if ((new Date()).getTime() - uploadCache.updated.getTime() > 1000*10){
+        uploadCache.data.events = _.indexBy(await models.event.find({deleted:false}), 'id');
+        uploadCache.data.attendances = _.groupBy(await models.attendance.find(), 'user_id');
+        uploadCache.data.campaigns = _.indexBy(await models.campaign.find(), 'id');
+        uploadCache.updated = new Date();
+    }
+}
+
+async function fillUsage(upload){
+    await refreshCache()
+    switch(upload.type){
+        case 'image': {
+            const image = await models.image.findOne({upload_id:upload.id});
+            if (image){
+                upload.image = image;
+                if (image.for_cms){
+                    upload.usedFor = {
+                        type:'cms',
+                        id: image.id,
+                        message:`CMS Image ${image.id}`
+                    };
+                } else {
+                    if (!_.has(uploadCache.data.attendances, upload.user_id)){ break; }
+                    for (let attendance of uploadCache.data.attendances[upload.user_id]){
+                        if (!_.has(uploadCache.data.events, attendance.event_id)){ continue; }
+                        const event = uploadCache.data.events[attendance.event_id];
+                        attendance =  await surveyHelper.fillAttendance(attendance, event);
+
+                        if (event.pre_event_survey_id && attendance.pre_event_survey_response_id ){
+                            for (const field of event.pre_event_survey.definition){
+                                if (field.type !== 'image') { continue; }
+                                if (_.has(attendance.pre_event_data, field.id)){
+                                    if (attendance.pre_event_data[field.id].data.id === image.id){
+                                        upload.usedFor = {
+                                            type:'registration',
+                                            id: image.id,
+                                            event_id: event.id,
+                                            attendance_id: attendance.id,
+                                            message:`Registration for ${event.name}`
+                                        };
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (event.post_event_survey_id && attendance.post_event_survey_response_id ){
+                            for (const field of event.post_event_survey.definition){
+                                if (field.type !== 'image') { continue; }
+                                if (_.has(attendance.post_event_data, field.id)){
+                                    if (attendance.post_event_data[field.id].data.id === image.id){
+                                        const campaign = uploadCache.data.campaigns[upload.campaign_id];
+                                        upload.usedFor = {
+                                            type:'post event',
+                                            id: image.id,
+                                            event_id: event.id,
+                                            attendance_id: attendance.id,
+                                            message:`${campaign.renames.post_event_survey.singular} for ${event.name}`
+                                        };
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return upload;
+}
+
 export default {
     getKey,
+    getBucket,
     getUrl,
     sorter,
     getStream,
     getSize,
+    getContentType,
     signS3,
     uploadCount,
     upload,
@@ -241,5 +378,6 @@ export default {
     remove,
     rename,
     list,
-    middleware: uploadMiddleware
+    middleware: uploadMiddleware,
+    fillUsage
 }

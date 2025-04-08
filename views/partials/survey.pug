@@ -121,7 +121,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
 
             when 'text content'
                 if field.content
-                    != marked.parseInline(field.content, {breaks:true})
+                    div.mb-3.border-bottom.pb-2!= marked.parseInline(field.content, {breaks:true})
 
 mixin customSurveyFieldDisplay(field, value)
     h5= field.name

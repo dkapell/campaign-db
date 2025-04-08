@@ -131,7 +131,6 @@ class Model implements IModel{
 
         try {
             const result = await database.query(query, queryData);
-
             if (_.has(options, 'count')){
                 return result.rows;
             }
@@ -141,10 +140,10 @@ class Model implements IModel{
             }
 
             if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
-                return async.map(rows, options.postSelect);
+                return async.mapLimit(rows, 10, options.postSelect);
 
             } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
-                return async.map(rows, this.options.postSelect);
+                return async.mapLimit(rows, 10, this.options.postSelect);
 
             } else {
                 return rows;

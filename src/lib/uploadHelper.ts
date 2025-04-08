@@ -6,7 +6,7 @@ import {Readable} from 'stream';
 import path from 'path';
 import surveyHelper from './surveyHelper';
 import models from './models';
-
+import cache from './cache';
 
 function getKey(upload: UploadModel, options:UploadOptions = {}): string{
 
@@ -279,26 +279,7 @@ function uploadMiddleware(){
     }
 }
 
-const uploadCache = {
-    updated:new Date(0),
-    data: {
-        events: {},
-        attendances: {},
-        campaigns: {}
-    }
-};
-
-async function refreshCache(){
-    if ((new Date()).getTime() - uploadCache.updated.getTime() > 1000*10){
-        uploadCache.data.events = _.indexBy(await models.event.find({deleted:false}), 'id');
-        uploadCache.data.attendances = _.groupBy(await models.attendance.find(), 'user_id');
-        uploadCache.data.campaigns = _.indexBy(await models.campaign.find(), 'id');
-        uploadCache.updated = new Date();
-    }
-}
-
 async function fillUsage(upload: UploadModel): Promise<UploadModel>{
-    await refreshCache()
     switch(upload.type){
         case 'image': {
             const image = await models.image.findOne({upload_id:upload.id});
@@ -311,10 +292,10 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
                         message:`CMS Image ${image.id}`
                     } as UploadUsedFor;
                 } else {
-                    if (!_.has(uploadCache.data.attendances, ''+upload.user_id)){ break; }
-                    for (let attendance of uploadCache.data.attendances[upload.user_id]){
-                        if (!_.has(uploadCache.data.events, attendance.event_id)){ continue; }
-                        const event = uploadCache.data.events[attendance.event_id];
+                    const attendances = await models.attendance.find({campaign_id: upload.campaign_id, user_id:upload.user_id});
+                    for (let attendance of attendances){
+                        const event = await models.event.get(attendance.event_id);
+
                         attendance =  await surveyHelper.fillAttendance(attendance, event);
 
                         if (event.pre_event_survey_id && attendance.pre_event_survey_response_id ){
@@ -340,7 +321,7 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
                                 if (field.type !== 'image') { continue; }
                                 if (_.has(attendance.post_event_data, field.id)){
                                     if (attendance.post_event_data[field.id].data.id === image.id){
-                                        const campaign = uploadCache.data.campaigns[upload.campaign_id];
+                                        const campaign = await models.campaign.get(upload.campaign_id);
                                         upload.usedFor = {
                                             type:'post event',
                                             id: image.id,

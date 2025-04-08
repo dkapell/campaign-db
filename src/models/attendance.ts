@@ -46,10 +46,7 @@ async function fill(record){
     if (record.character_id){
         record.character = await models.character.get(record.character_id);
     }
-
-    record.post_event_data = record.post_event_data ||= {};
-
-    record.addons = await models.attendance_addon.find({campaign_id: record.campaign_id, attendance_id:record.id});
+    record.addons = await models.attendance_addon.find({attendance_id:record.id});
     return record;
 }
 

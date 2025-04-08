@@ -61,5 +61,8 @@
     "renames": {
         "post_event_survey": "Post Event Survey",
         "pes": "PES"
+    },
+    "upload": {
+        "cleanupDays": 1
     }
 }

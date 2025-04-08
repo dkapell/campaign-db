@@ -6,14 +6,12 @@ import Model from  '../lib/Model';
 import userModel from './user';
 import characterModel from './character';
 import attendanceAddonModel from './attendance_addon';
-import eventModel from './event';
 import surveyResponseModel from './survey_response';
 
 const models = {
     user: userModel,
     character: characterModel,
     attendance_addon: attendanceAddonModel,
-    event: eventModel,
     survey_response: surveyResponseModel
 };
 
@@ -32,8 +30,7 @@ const tableFields = [
     'checked_in',
     'attendance_cp_granted',
     'post_event_cp_granted',
-    'post_event_hidden',
-    'post_event_addendums' // todo remove
+    'post_event_hidden'
 ];
 
 const Attendance = new Model('attendance', tableFields, {

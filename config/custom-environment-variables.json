@@ -32,5 +32,8 @@
         },
         "root": "DRIVE_ROOT"
 
+    },
+    "upload":{
+        "cleanupDays": "UPLOAD_CLEANUP_DAYS"
     }
 }

@@ -20,3 +20,11 @@ interface UploadSuccessData {
    url?: string
    thumbnailUrl?: string
 }
+
+interface UploadUsedFor{
+   type: string
+   id: number
+   message: string
+   event_id?: number
+   attendance_id?:number
+}

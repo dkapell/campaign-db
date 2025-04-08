@@ -47,10 +47,14 @@ interface IModel {
 }
 
 interface UploadModel extends ModelData{
-    id:number,
-    name:string,
+    id:number
+    name:string
+    user_id?:number
+    campaign_id?: number
     display_name?:string
     upload?: UploadModel
+    usedFor?: UploadUsedFor
+
 }
 
 interface ImageModel extends ModelData{

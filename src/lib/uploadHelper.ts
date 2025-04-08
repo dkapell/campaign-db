@@ -297,7 +297,7 @@ async function refreshCache(){
     }
 }
 
-async function fillUsage(upload){
+async function fillUsage(upload: UploadModel): Promise<UploadModel>{
     await refreshCache()
     switch(upload.type){
         case 'image': {
@@ -309,9 +309,9 @@ async function fillUsage(upload){
                         type:'cms',
                         id: image.id,
                         message:`CMS Image ${image.id}`
-                    };
+                    } as UploadUsedFor;
                 } else {
-                    if (!_.has(uploadCache.data.attendances, upload.user_id)){ break; }
+                    if (!_.has(uploadCache.data.attendances, ''+upload.user_id)){ break; }
                     for (let attendance of uploadCache.data.attendances[upload.user_id]){
                         if (!_.has(uploadCache.data.events, attendance.event_id)){ continue; }
                         const event = uploadCache.data.events[attendance.event_id];

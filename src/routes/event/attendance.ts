@@ -345,7 +345,6 @@ async function updateAttendance(req, res){
         req.flash('success', `Updated registration of ${current.user.name} for ${event.name}`);
         res.redirect(`/event/${event.id}`);
     } catch(err) {
-        console.trace(err);
         req.flash('error', err.toString());
         return (res.redirect(`/event/${eventId}/register/${attendanceId}`));
 

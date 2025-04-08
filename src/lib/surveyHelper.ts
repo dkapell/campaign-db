@@ -4,6 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import models from './models';
 
 function parseSurveyData(data, survey, current, userType){
+    console.log(data);
+    console.log(current);
+    console.log(userType);
     const post_event_data = {};
     if (survey){
         for (const field of survey){
@@ -21,7 +24,7 @@ function parseSurveyData(data, survey, current, userType){
 
                 const doc = {
                     name: field.name,
-                    data: data[field.id]
+                    data: _.has(data, field.id)?data[field.id]:null
                 };
 
                 if (field.type === 'boolean'){

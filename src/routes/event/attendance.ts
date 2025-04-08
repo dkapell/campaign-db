@@ -531,6 +531,7 @@ async function exportEventAttendees(req, res, next){
                 row.push(attendee.checked_in?'Yes':'No');
                 if (event.pre_event_survey){
                     for (const field of event.pre_event_survey.definition){
+                        if (field.type === 'text content') { continue; }
                         if (_.has(attendee.pre_event_data, field.id)){
                             if (field.type === 'boolean' || field.type === 'image'){
                                 row.push(attendee.pre_event_data[field.id].data?'Yes':'No');

@@ -47,6 +47,9 @@ async function fill(record){
         record.character = await models.character.get(record.character_id);
     }
     record.addons = await models.attendance_addon.find({attendance_id:record.id});
+
+    record.post_event_data = {};
+    record.pre_event_data = {};
     return record;
 }
 

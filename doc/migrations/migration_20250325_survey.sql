@@ -54,8 +54,8 @@ create table survey_response (
 
 
 alter table campaigns
-    add COLUMN post_event_survey_cp float not null, default 0,
-    add COLUMN post_event_survey_hide_days int not null default 0;
+    add COLUMN post_event_survey_cp float not null default 0,
+    add COLUMN post_event_survey_hide_days int not null default 0,
     add COLUMN event_attendance_cp float not null default 0,
     add COLUMN rename_map jsonb;
 
@@ -71,7 +71,6 @@ alter table events
         ON UPDATE NO ACTION ON DELETE SET NULL;
 
 alter table attendance
-    rename column data to pre_event_data,
     add column pre_event_survey_response_id int,
     add column post_event_survey_response_id int,
 
@@ -85,7 +84,6 @@ alter table attendance
     add CONSTRAINT attendance_post_event_survey_response_fk FOREIGN KEY (post_event_survey_response_id)
         REFERENCES "survey_response" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE SET NULL;
-    --add column post_event_addendums jsonb default '[]';
 
 
 create table event_addons (
@@ -114,7 +112,7 @@ create table attendance_addons (
     primary key (id),
     CONSTRAINT attendance_addons_attendance_fk FOREIGN KEY (attendance_id)
         REFERENCES "attendance" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE.
+        ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT attendance_addons_event_addon_fk FOREIGN KEY (event_addon_id)
         REFERENCES "event_addons" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE

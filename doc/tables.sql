@@ -714,10 +714,14 @@ create table attendance_addons (
     id serial,
     campaign_id int not null,
     attendance_id int not null,
+    event_addon_id int not null,
     paid boolean default false,
     primary key (id),
     CONSTRAINT attendance_addons_attendance_fk FOREIGN KEY (attendance_id)
         REFERENCES "attendance" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT attendance_addons_event_addon_fk FOREIGN KEY (event_addon_id)
+        REFERENCES "event_addons" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 

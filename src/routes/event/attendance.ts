@@ -331,7 +331,6 @@ async function updateAttendance(req, res){
                 user.type
             );
         }
-        console.log(attendance.pre_event_data);
 
         attendance.attending = true;
         attendance.event_id = event.id;

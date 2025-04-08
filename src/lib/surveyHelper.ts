@@ -7,14 +7,23 @@ function parseSurveyData(data, survey, current, userType){
     const post_event_data = {};
     if (survey){
         for (const field of survey){
+            if (field.visible_to === 'player' && !userType.match('player')){
+                continue;
+            }
+            if (field.visible_to === 'staff' && userType.match('player')){
+                continue;
+            }
             if (userType.match(/^(core staff|admin)$/) || !field.editable_by || field.editable_by === 'submitter'){
+
+                if (field.type === 'text content'){
+                    continue;
+                }
+
                 const doc = {
                     name: field.name,
                     data: data[field.id]
                 };
-                if (field.type === 'text content'){
-                    continue;
-                }
+
                 if (field.type === 'boolean'){
                     if(!_.has(data, field.id)){
                         doc.data = false;

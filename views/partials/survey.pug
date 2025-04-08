@@ -120,7 +120,8 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         .visually-hidden Saving Image
 
             when 'text content'
-                != marked.parseInline(field.content, {breaks:true})
+                if field.content
+                    != marked.parseInline(field.content, {breaks:true})
 
 mixin customSurveyFieldDisplay(field, value)
     h5= field.name

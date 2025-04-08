@@ -29,7 +29,7 @@ async function showIndex(req, res){
         if (res.locals.post_event_surveys.length){
             res.locals.showTasks = true;
         }
-        res.locals.pending_cp_grants = await req.models.cp_grant.count({campaign_id:req.campaign.id, status:'pending'});
+        res.locals.pending_cp_grants = Number(await req.models.cp_grant.count({campaign_id:req.campaign.id, status:'pending'}));
 
         // User is a Player - show my cp grants, events, current character
         if (user && user.type === 'player' && !req.session.admin_mode){

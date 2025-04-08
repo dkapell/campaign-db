@@ -174,6 +174,9 @@ async function fillAttendance(attendance, event){
 
         for (const field of event.pre_event_survey.definition){
             if (field.type === 'image' && _.has(attendance.pre_event_data, field.id)){
+                if (!attendance.pre_event_data[field.id].data){
+                    continue;
+                }
                 const image = await models.image.get(attendance.pre_event_data[field.id].data);
                 if (image) {
                     attendance.pre_event_data[field.id].data = image;

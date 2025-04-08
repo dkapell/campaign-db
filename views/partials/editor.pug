@@ -15,19 +15,33 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                         | of #{options.maxlength}
         if options.description
             .form-text!=marked.parseInline(options.description, {breaks:true})
-        textarea.form-control.markdown-editor(
-            id= id
-            rows= rows
-            name= name
-            data-size= size
-            data-preview=showPreview
-            required=options.required
-            data-isrequired=options.required
-            disabled=options.disabled
-            maxlength=options.maxlength
-            class=options.class
-        )
-            = contents
+        div.position-relative
+            textarea.form-control.markdown-editor(
+                id= id
+                rows= rows
+                name= name
+                data-size= size
+                data-preview=showPreview
+                required=options.required
+                data-isrequired=options.required
+                disabled=options.disabled
+                maxlength=options.maxlength
+                class=options.class
+            )
+                = contents
+            if options.saveIndicator
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-warning.save-pending-indicator(
+                    style='display:none'
+                ) Changed
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-info.saving-indicator(
+                    style='display:none'
+                ) Saving
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-success.saved-indicator(
+                    style='display:none'
+                ) Saved
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-danger.error-indicator(
+                    style='display:none'
+                ) Error
         if options.description
             small.form-text.text-muted.d-inline Supports
                 a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown

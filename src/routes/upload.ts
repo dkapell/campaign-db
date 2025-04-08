@@ -106,6 +106,9 @@ async function markUploadedApi(req, res){
         }
         upload.status = 'ready';
         upload.size = await uploadHelper.getSize(upload);
+
+        const uploadData: UploadSuccessData= {};
+
         await req.models.upload.update(upload.id, upload);
         if (upload.type === 'image'){
             const image = await req.models.image.findOne({upload_id: id});
@@ -121,6 +124,8 @@ async function markUploadedApi(req, res){
                     await req.models.image.update(image.id, image);
                     await imageHelper.buildThumbnail(image);
 
+                    uploadData.url = uploadHelper.getUrl(upload);
+                    uploadData.thumbnailUrl = uploadHelper.getUrl(upload, {thumbnail:true});
                 } catch (err){
                     console.error(err);
                     console.log(`unsupported image format for ${image.id}:${image.upload.name}`);
@@ -128,7 +133,7 @@ async function markUploadedApi(req, res){
             }
 
         }
-        return res.json({success:true});
+        return res.json({success:true, data:uploadData});
     } catch (err){
         console.trace(err);
         res.json({success:false, error:err.message});

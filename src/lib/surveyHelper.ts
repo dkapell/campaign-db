@@ -198,7 +198,7 @@ async function fillAttendance(attendance, event){
             if (field.type === 'image' && _.has(attendance.post_event_data, field.id)){
                 const image = await models.image.get(attendance.post_event_data[field.id].data);
                 if (image){
-                    attendance.post_event_data[field.id.data] = image;
+                    attendance.post_event_data[field.id].data = image;
                 } else {
                      delete attendance.post_event_data[field.id];
                 }
@@ -209,6 +209,7 @@ async function fillAttendance(attendance, event){
     const addendums = await models.post_event_addendum.find({attendance_id: attendance.id});
     attendance.post_event_addendums = [];
     for (const addendum of addendums){
+        if (addendum.content === ''){ continue }
         attendance.post_event_addendums.push({
             submitted: addendum.submitted,
             submitted_at: addendum.submitted_at,

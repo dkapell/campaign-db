@@ -103,8 +103,6 @@
                             a.dropdown-item(href='/user') Users
                             a.dropdown-item(href='/audit') Audits
                             a.dropdown-item(href='/image') Images
-                            if checkPermission('admin')
-                                a.dropdown-item(href='/upload') Uploads
                             a.dropdown-item(href='/page') Pages
                             a.dropdown-item(href='/survey') Surveys
 
@@ -117,6 +115,8 @@
                                 .dropdown-divider
                                 a.dropdown-item(href=`/admin/campaign/${currentCampaign.id}`) Campaign Configuration
                                 a.dropdown-item(href='/rulebook') Rulebooks
+                                a.dropdown-item(href='/upload') Uploads
+
 
             else
                 if checkPermission('admin')

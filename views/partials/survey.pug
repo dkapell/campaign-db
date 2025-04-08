@@ -36,7 +36,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         if (options.showDaysBefore && field.days_before) {
                             label += ` ( ${field.days_before} Days Before )`}
 
-                    +markdownEditor(label, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description})
+                    +markdownEditor(label, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description, saveIndicator:true})
 
             when 'boolean'
                 .form-check.form-switch
@@ -93,17 +93,31 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                 .new-image(
                     style=currentValue?'display:none':''
                 )
-                    .image-file-name
                     input.form-control.image-file-picker(
                         id=`${idPrefix}_${field.id}`
                         type="file"
                         required=field.required
                         data-isrequired=field.required
                         disabled=disabled
+                        data-immediate=options.immediate
                     )
                     .row.my-2.image-details-row(style='display:none')
                         .col.upload-type
                         .col.upload-size
+
+                .image-upload-progress.progress(
+                        role="progressbar"
+                        aria-label="Basic example"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        style="display:none"
+                    )
+                        .progress-bar(style="width: 0%")
+                            .progress-bar-label
+                .col-sm-6.offset-sm-3.text-center.image-saving(style="display:none")
+                    .spinner-border.m-3(role="status" style="width: 2rem; height: 2rem;")
+                        .visually-hidden Saving Image
 
             when 'text content'
                 != marked.parseInline(field.content, {breaks:true})

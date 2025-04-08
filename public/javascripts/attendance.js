@@ -38,28 +38,8 @@ $(function(){
 
     $('#attendanceForm').on('submit', submitAttendanceForm);
 
-    $('.clear-image-btn').on('click', clearImage);
-
-    $('.image-file-picker').on('change', updateImage);
-
     updateCustomFieldVisibility();
 });
-
-function updateImage(e){
-    const file = ($(this).prop('files'))[0];
-    const $row = $(this).closest('.custom-event-field');
-    if (file){
-        $row.find('.upload-type').html('<strong>Type</strong>: ' + file.type);
-        $row.find('.upload-size').html('<strong>Size</strong>: ' + prettyPrintSize(file.size));
-        $row.find('.image-details-row').show();
-
-    } else {
-        $row.find('.image-details-row').hide();
-        $row.find('.upload-type').text('');
-        $row.find('.upload-size').text('');
-    }
-}
-
 
 async function updateCharacterPicker(e){
     const $this = $(this);
@@ -255,18 +235,8 @@ async function submitAttendanceForm(e){
             continue;
         }
         images++;
-        const request = await getSignedRequest(file);
-        const uploaded = await uploadFile(file, request.signedRequest);
-        if (uploaded){
-            $(row.querySelector('.image-file-picker')).hide();
-            row.querySelector('.image_id-field').value = request.objectId;
-            row.querySelector('.image-file-picker').value = null;
-
-            $(row.querySelector('.image-file-name')).text(file.name);
-            $(row.querySelector('.image-file-name')).show();
-            if (request.postUpload){
-                await markFileUploaded(request.postUpload);
-            }
+        const uploaded = await uploadImage(file, $(row));
+        if (uploaded) {
             images--;
         }
     }
@@ -277,78 +247,3 @@ async function submitAttendanceForm(e){
     return false;
 }
 
-async function getSignedRequest(file){
-    try{
-        const result = await fetch(`/upload/sign-image?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
-        const response = await result.json();
-        if (!response.success){
-            $('#upload-feedback').text(response.error);
-            return false;
-        }
-        return response.data;
-
-    } catch (err){
-        $('#upload-feedback').text('Error getting signed request');
-        console.trace(err);
-        return false;
-    }
-}
-
-async function uploadFile(file, signedRequest){
-    try {
-        await fetch(signedRequest, {method:'PUT', body: file});
-        return true;
-    } catch (err){
-        $('#upload-feedback').text('Error uploading file');
-        console.trace(err);
-        return false;
-    }
-}
-
-async function markFileUploaded(url){
-    try {
-        await fetch(url, {
-            method:'PUT'
-        });
-        return true;
-    } catch (err){
-        $('#upload-feedback').text('Error marking file uploaded');
-        console.trace(err);
-        return false;
-    }
-}
-
-function clearImage(e){
-    e.preventDefault();
-    const $row = $(this).closest('.custom-event-field');
-    $row.find('.existing-image').hide();
-    $row.find('.new-image').show();
-    $row.find('.image_id-field').val(null);
-}
-
-function prettyPrintSize(value, type) {
-    if (!value) {
-        return '0';
-    }
-    if (!type){
-        type = 'B';
-    }
-    var prefixes = [ '', 'K', 'M', 'G', 'T', 'P', 'E' ];
-    var index;
-    for (index = 0; value >= 1024 && index < prefixes.length - 1; index++)
-        value /= 1024;
-
-    if (value > 1024 || Math.round(value) === value)
-        value = Math.round(value).toString();
-    else if (value < 10)
-        value = value.toFixed(2);
-    else
-        value = value.toPrecision(4);
-
-    value += ' ' + prefixes[index];
-
-    if (index !== 0)
-        value += type;
-
-    return value;
-}

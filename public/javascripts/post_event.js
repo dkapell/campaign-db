@@ -12,6 +12,8 @@ $(function(){
         minimumResultsForSearch: 6,
         width:'resolve'
     });
+
+    $('#postEventSurveyForm').on('submit', submitPostEventSurveyForm);
 });
 
 function watchField(){
@@ -22,7 +24,7 @@ function watchField(){
     });
 
     $field.find('textarea').on('input', function() {
-        startSaveForm($form);
+        startSaveForm($form, $field);
     });
 
     $field.find('select').on('change', function() {
@@ -30,8 +32,15 @@ function watchField(){
     });
 }
 
-function startSaveForm($form){
+function startSaveForm($form, $element){
     if (!dataPending){
+        if ($element){
+            $element.find('.saved-indicator').hide();
+            $element.find('.saving-indicator').hide();
+            $element.find('.error-indicator').hide();
+            $element.find('.save-pending-indicator').show();
+        }
+
         $('#saved-indicator').hide();
         $('#saving-indicator').hide();
         $('#error-indicator').hide();
@@ -39,12 +48,17 @@ function startSaveForm($form){
     }
     clearTimeout(saveTimeoutId);
     saveTimeoutId = setTimeout(function(){
-        saveForm($form);
+        saveForm($form, $element);
     }, 1000);
 }
 
-async function saveForm($form){
+async function saveForm($form, $element){
     dataSaving = true;
+    if ($element){
+        $element.find('.saved-indicator').hide();
+        $element.find('.saving-indicator').show();
+        $element.find('.save-pending-indicator').hide();
+    }
     $('#saving-indicator').show();
     $('#saved-indicator').hide();
     $('#save-pending-indicator').hide();
@@ -59,10 +73,19 @@ async function saveForm($form){
     const request = await fetch(url,{method:$form[0].method, body: data});
     const result = await request.json();
     if (result.success){
+        if ($element){
+            $element.find('.saved-indicator').show();
+            $element.find('.saving-indicator').hide();
+        }
 
         $('#saved-indicator').show();
         $('#saving-indicator').hide();
     } else {
+        if ($element){
+            $element.find('.error-indicator').hide();
+            $element.find('.saving-indicator').hide();
+        }
+
         $('#error-indicator').show();
         $('#saving-indicator').hide();
     }
@@ -70,4 +93,32 @@ async function saveForm($form){
     dataPending = false;
     dataSaving = false;
 
+}
+
+async function submitPostEventSurveyForm(e){
+    e.preventDefault();
+    const $form = $(this);
+    $form.find('.submit-icon-save').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
+    $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
+    let images = 0;
+    const rows = document.querySelectorAll('.custom-event-field');
+    for (const row of rows){
+        const imageFilePicker = row.querySelector('.image-file-picker');
+        if (!imageFilePicker) { continue; }
+
+        const file = imageFilePicker.files[0];
+        if (!file){
+            continue;
+        }
+        images++;
+        const uploaded = await uploadImage(file, $(row));
+        if (uploaded) {
+            images--;
+        }
+    }
+    if (!images){
+        $form.unbind('submit').submit();
+        return true;
+    }
+    return false;
 }

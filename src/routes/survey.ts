@@ -218,7 +218,7 @@ async function remove(req, res, next){
 
 const router = express.Router();
 
-router.use(permission('admin'));
+router.use(permission('gm'));
 router.use(function(req, res, next){
     res.locals.siteSection='admin';
     next();

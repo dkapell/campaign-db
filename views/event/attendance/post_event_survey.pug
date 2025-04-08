@@ -47,7 +47,7 @@ block content
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted}
+                                                    {disabled:attendance.post_event_submitted, immediate:true}
                                                 )
 
                                 when 'player'
@@ -60,7 +60,7 @@ block content
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted}
+                                                    {disabled:attendance.post_event_submitted, immediate:true}
                                                 )
                                 default
                                     .row.my-2
@@ -71,19 +71,20 @@ block content
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted}
+                                                    {disabled:attendance.post_event_submitted, immediate:true}
                                                 )
                         if attendance.post_event_addendums
                             each addendum in attendance.post_event_addendums
-                                .row.my-2
-                                    .col
-                                        strong Addendum
-                                        .float-end
-                                            span.me-1 Submitted:
-                                            = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
+                                if addendum.submitted
+                                    .row.my-2
+                                        .col
+                                            strong Addendum
+                                            .float-end
+                                                span.me-1 Submitted:
+                                                = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
 
-                                        .text-bg-light.border.rounded.p-2
-                                            != marked.parseInline(addendum.content, {breaks:true})
+                                            .text-bg-light.border.rounded.p-2
+                                                != marked.parseInline(addendum.content, {breaks:true})
 
                         .row.my-2
                             .col
@@ -95,7 +96,7 @@ block content
                                         data-bs-toggle='tooltip'
                                         title='Save for Later'
                                     )
-                                        i.fas.fa-save.me-1
+                                        i.fas.fa-save.me-1.submit-icon
                                         | Save
                                     button.btn.btn-primary.me-2#postEventSubmitBtn(
                                         type="submit"
@@ -106,7 +107,7 @@ block content
                                         message=`You will not be able to make additional changes to this ${currentCampaign.renames.post_event_survey.singular} after you submit, although you can create addendums.`
                                         showMessage="true"
                                     )
-                                        i.fas.fa-share-square.me-1
+                                        i.fas.fa-share-square.me-1.submit-icon-submit
                                         | Submit
 
                                     if attendance.post_event_hidden
@@ -133,11 +134,12 @@ block content
                                             | Hide
 
                                 if backto === 'list'
-                                    a.btn.btn-link(href=`/post_event_survey`) Cancel
+                                    a.btn.btn-link(href=`/post_event_survey`) Back to Surveys
                                 else if backto === 'event'
-                                    a.btn.btn-link(href=`/event/${event.id}`) Cancel
+                                    a.btn.btn-link(href=`/event/${event.id}`) Back to Event
                                 else
-                                    a.btn.btn-link(href='/') Cancel
+                                    a.btn.btn-link(href='/') Back
 
 append scripts
+    script(src='/javascripts/image-upload.js')
     script(src='/javascripts/post_event.js')

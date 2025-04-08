@@ -338,12 +338,14 @@ async function updateAttendance(req, res){
         attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
         attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(current.pre_event_survey_response_id, attendance);
         attendance.campaign_id = current.campaign_id;
+        req.session.attendanceData = attendance;
         await req.models.attendance.update(attendanceId, attendance);
         await req.audit('attendance', attendanceId, 'update', {old: current, new:attendance});
         delete req.session.attendanceData;
         req.flash('success', `Updated registration of ${current.user.name} for ${event.name}`);
         res.redirect(`/event/${event.id}`);
     } catch(err) {
+        console.trace(err);
         req.flash('error', err.toString());
         return (res.redirect(`/event/${eventId}/register/${attendanceId}`));
 

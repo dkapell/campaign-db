@@ -6,7 +6,6 @@ import {Readable} from 'stream';
 import path from 'path';
 import surveyHelper from './surveyHelper';
 import models from './models';
-import cache from './cache';
 
 function getKey(upload: UploadModel, options:UploadOptions = {}): string{
 

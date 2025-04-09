@@ -4,12 +4,12 @@ interface ModelData{
 
 interface ModelOptions {
     skipAuditFields?: string[]
-    postSelect?: (data:ModelData) => Promise<ModelData>,
-    postSave?: (id:number, ModelData) => Promise<void>,
-    postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>,
-    validator?: (data: ModelData) => boolean,
-    order?: string[],
-    sorter?: (a:ModelData, b:ModelData)=>number,
+    postSelect?: (data:ModelData) => Promise<ModelData>
+    postSave?: (id:number, ModelData) => Promise<void>
+    postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
+    validator?: (data: ModelData) => boolean
+    order?: string[]
+    sorter?: (a:ModelData, b:ModelData)=>number
     keyFields?: string[]
 }
 
@@ -33,9 +33,9 @@ interface Conditions {
 type ComplexId = number|Conditions
 
 interface IModel {
-   table: string;
-   fields: string[];
-   options: ModelOptions;
+   table: string
+   fields: string[]
+   options: ModelOptions
    get: (id:number, options?: RequestOptions) => Promise<ModelData>
    find: (condition?:Conditions, options?: RequestOptions) => Promise<ModelData[]>
    findOne: (condition?:Conditions, options?: RequestOptions) => Promise<ModelData>

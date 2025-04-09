@@ -5,19 +5,6 @@ import _ from 'underscore';
 import database from './database';
 import cache from './cache';
 
-
-interface ModelOptions {
-    skipAuditFields?: string[]
-    postSelect?: (data:ModelData) => Promise<ModelData>,
-    postSave?: (id:number, data:ModelData) => Promise<void>,
-    postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>,
-    validator?: (data: ModelData) => boolean,
-    order?: string[],
-    sorter?: (a:ModelData, b:ModelData)=>number,
-    keyFields?: string[]
-}
-
-
 class Model implements IModel{
     table: string;
     fields: string[];
@@ -157,12 +144,43 @@ class Model implements IModel{
 
     async findOne(conditions:Conditions, options:RequestOptions = {}){
         options.limit = 1;
+        const indexStr = this.getIndex(conditions);
+        if (indexStr){
+            const result = await cache.check(this.table, indexStr);
+            if (result) { return result;}
+        }
+        options.limit = 1;
         const results = await this.find(conditions, options);
         if (results.length){
+            if (indexStr){
+                await cache.store(this.table, indexStr, results[0]);
+            }
             return results[0];
         }
         return;
     }
+
+    getIndex(conditions){
+        if (this.options.keyFields){
+            const conditionKeys = (_.keys(conditions)).sort();
+            const indexFields = this.options.keyFields.sort();
+            if (indexFields.length == conditionKeys.length
+                && indexFields.every(function(u, i) {
+                    return u === conditionKeys[i];
+                })
+            ){
+                const indexer = [];
+                for (const field of indexFields){
+                    indexer.push(`${field}-${conditions[field]}`);
+                }
+                return indexer.join('-');
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
 
     async count(conditions:Conditions, options:RequestOptions={}):Promise<number>{
         options.count = true;
@@ -285,6 +303,11 @@ class Model implements IModel{
             }
             if (typeof id === 'number'){
                 await cache.invalidate(this.table, id);
+            } else if (this.options.keyFields){
+                const indexStr = this.getIndex(id);
+                if (indexStr){
+                    await cache.invalidate(this.table, indexStr);
+                }
             }
         } catch (e){
             console.error(`Update Error: ${this.table}: ${id}: ${JSON.stringify(data)}`);
@@ -325,6 +348,11 @@ class Model implements IModel{
             await database.query(query, queryData);
             if (_.has(data, 'id')){
                 await cache.invalidate(this.table, data.id);
+            } else if (this.options.keyFields){
+                const indexStr = this.getIndex(conditions);
+                if (indexStr){
+                    await cache.invalidate(this.table, indexStr);
+                }
             }
 
             if (_.has(this.options, 'postDelete') && _.isFunction(this.options.postDelete)){

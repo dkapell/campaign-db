@@ -6,7 +6,10 @@ block content
     if checkPermission('contrib')
         ul.nav.nav-tabs.w-100.my-2#postEventSurveyTabs(role="tablist")
             li.nav-item(role="presentation")
-                a.nav-link.active#all-surveys-tab(href="#all-surveys" data-bs-toggle="tab" role="tab" aria-controls="all-surveys" aria-selected="true") All #{currentCampaign.renames.post_event_survey.plural}
+                a.nav-link.active#player-surveys-tab(href="#player-surveys" data-bs-toggle="tab" role="tab" aria-controls="player-surveys" aria-selected="true") Player #{currentCampaign.renames.pes.singular}s
+
+            li.nav-item(role="presentation")
+                a.nav-link#staff-surveys-tab(href="#staff-surveys" data-bs-toggle="tab" role="tab" aria-controls="staff-surveys" aria-selected="true") Staff #{currentCampaign.renames.pes.singular}s
 
             li.nav-item(role="presentation")
                 a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My #{currentCampaign.renames.post_event_survey.plural}
@@ -15,9 +18,23 @@ block content
                 a.nav-link#updates-tab(href="#updates" data-bs-toggle="tab" role="tab" aria-controls="updates" aria-selected="false") Changelog
 
         .tab-content#postEventSurveyContent
-            .tab-pane.fade.show.active#all-surveys(role="tabpanel" aria-labelledby="all-surveys-tab")
+            .tab-pane.fade.show.active#player-surveys(role="tabpanel" aria-labelledby="player-surveys-tab")
                 h4 All #{currentCampaign.renames.post_event_survey.plural}
-                +postEventSurveyGmTable(post_event_surveys)
+                -
+                    const playerSurveys = post_event_surveys.filter( survey => {
+                        return survey.user.type === 'player'
+                    });
+
+                +postEventSurveyGmTable(playerSurveys)
+
+            .tab-pane.fade#staff-surveys(role="tabpanel" aria-labelledby="staff-surveys-tab")
+                h4 All #{currentCampaign.renames.post_event_survey.plural}
+                -
+                    const staffSurveys = post_event_surveys.filter( survey => {
+                        return survey.user.type !== 'player'
+                    });
+                +postEventSurveyGmTable(staffSurveys)
+
             .tab-pane.fade#my-surveys(role="tabpanel" aria-labelledby="my-surveys-tab")
 
                 h4 My #{currentCampaign.renames.post_event_survey.plural}

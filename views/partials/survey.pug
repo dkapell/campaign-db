@@ -125,23 +125,32 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
 
 mixin customSurveyFieldDisplay(field, value)
     if field.type !== 'text content'
-        if !((field.type !== 'boolean' && !value) || (''+value).match(/^\s*$/))
-            h5= field.name
-            .card.text-bg-light.ms-md-4
-                .card-body.p-2
-                    case field.type
-                        when 'text'
-                            != marked.parseInline(value, {breaks:false})
-                        when 'longtext'
-                            != marked.parseInline(value, {breaks:true})
-                        when 'dropdown'
-                            = value
-                        when 'boolean'
-                            =value?'Yes':'No'
-                        when 'image'
-                            image.d-block.img-fluid.image-container(
-                                src=value.thumbnailUrl
-                            )
+        -
+            const noResponse = ((field.type !== 'boolean' && !value) || (''+value).match(/^\s*$/))
+        .row.my-2.surveyResponse(
+            class=noResponse?'noResponse':''
+            style=noResponse?'display:none':''
+        )
+            .col
+                h5= field.name
+                .card.text-bg-light.ms-md-4
+                    .card-body.p-2
+                        if noResponse
+                            i No Answer Provided
+                        else
+                            case field.type
+                                when 'text'
+                                    != marked.parseInline(value, {breaks:false})
+                                when 'longtext'
+                                    != marked.parseInline(value, {breaks:true})
+                                when 'dropdown'
+                                    = value
+                                when 'boolean'
+                                    =value?'Yes':'No'
+                                when 'image'
+                                    image.d-block.img-fluid.image-container(
+                                        src=value.thumbnailUrl
+                                    )
 
 
 

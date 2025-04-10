@@ -313,7 +313,7 @@ async function getPostEventSurveys(campaignId:number, userId?:number){
 
         }
     }
-    return responses;
+    return (_.sortBy(responses, 'submittedAt')).reverse();
 }
 
 export default {

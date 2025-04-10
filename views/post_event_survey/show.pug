@@ -19,11 +19,16 @@ block content
                     span.me-1 Submitted:
                     = moment.utc(attendance.post_event_data.submitted_at).tz(currentCampaign.timezone).format('lll')
         .card-body
+            .row-my-2
+                .col.text-center
+                    .form-check.form-switch.pt-0.me-2.form-check-inline
+                        input.form-check-input#showUnanswered(type="checkbox")
+                        label.form-check-label(for="showUnanswered") Show Unanswered Questions
             each field in event.post_event_survey.definition
                 if _.has(attendance.post_event_data, field.id)
-                    .row.my-2
-                        .col
-                            +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
+                    +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
+                else
+                    +customSurveyFieldDisplay(field, null)
 
     if attendance.post_event_addendums
         each addendum in attendance.post_event_addendums
@@ -45,3 +50,30 @@ block content
                 i.fa.fa-arrow-left.me-1
                 | Back
 
+append scripts
+    script.
+        $(function(){
+            if (localStorage.getItem('cdb-skill-show-unanswered-pes-fields') === 'true'){
+                $('#showUnanswered').prop('checked', true);
+            } else {
+                $('#showUnanswered').prop('checked', false);
+            }
+            $('#showUnanswered').on('change', unansweredSwitch).trigger('change');
+        });
+
+        function unansweredSwitch(e){
+            if ($(this).prop('checked')){
+                localStorage.setItem('cdb-skill-show-unanswered-pes-fields', 'true');
+            } else {
+                localStorage.removeItem('cdb-skill-show-unanswered-pes-fields');
+            }
+            toggleUnansweredFields();
+        }
+
+        function toggleUnansweredFields(){
+            if (localStorage.getItem('cdb-skill-show-unanswered-pes-fields') === 'true'){
+                $('.noResponse').show();
+            } else {
+                $('.noResponse').hide();
+            }
+        }

@@ -1,17 +1,17 @@
 mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options={})
-    // Options:
-    //   disabled - disable the field
-    //   maxlength - sets a max length, display the active count
-    //   description - provide a field description
-    //   hideMarkdown - hide the 'supports markdown' link
-    //   required - field is required
-    //   class - add a css class to the textarea
-    //   saveIndicator - show a changed/saving/saved/error indicator for live updates
+    //- Options:
+         disabled - disable the field
+         maxlength - sets a max length, display the active count
+         description - provide a field description
+         hideMarkdown - hide the 'supports markdown' link
+         required - field is required
+         class - add a css class to the textarea
+         saveIndicator - show a changed/saving/saved/error indicator for live updates
 
     - if (!options) { options = {}; }
 
     if !showPreview
-        // Standalone Editor
+        //- Standalone Editor
         label.control-label.mb-0.d-inline(for=id)= label
             if options.required
                 span.ms-1.text-danger *
@@ -38,19 +38,20 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                 disabled=options.disabled
                 maxlength=options.maxlength
                 class=options.class
+                class=options.saveIndicator?'pt-2':''
             )
                 = contents
             if options.saveIndicator
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.save-pending-indicator(
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.save-pending-indicator(
                     style='display:none'
                 ) Changed
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.saving-indicator(
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.saving-indicator(
                     style='display:none'
                 ) Saving
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.saved-indicator(
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.saved-indicator(
                     style='display:none'
                 ) Saved
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-danger.error-indicator(
+                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-danger.opacity-50.error-indicator(
                     style='display:none'
                 ) Error
         if options.description && !options.hideMarkdown
@@ -63,7 +64,7 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
                         span.me-1(id=`${id}-length`)= contents?contents.length:0
                         | of #{options.maxlength}
     else
-        // Editor with Preview Panel
+        //- Editor with Preview Panel
         ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")
             li.nav-item(role="presentation")
                 a.nav-link.active(

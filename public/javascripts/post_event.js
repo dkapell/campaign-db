@@ -14,7 +14,9 @@ $(function(){
         minimumResultsForSearch: 6,
         width:'resolve'
     });
-
+    $('#postEventSubmitBtn').on('click', submitPostEventSurvey);
+    $('#postEventHideBtn').on('click', hidePostEventSurvey);
+    $('#postEventUnhideBtn').on('click', unhidePostEventSurvey);
     $('#postEventSurveyForm').on('submit', submitPostEventSurveyForm);
 });
 
@@ -53,6 +55,7 @@ function startSaveForm($form, $element){
         saveForm($form, $element);
     }, 1000);
 }
+
 
 async function saveForm($form, $element){
     dataSaving = true;
@@ -94,16 +97,34 @@ async function saveForm($form, $element){
 
     dataPending = false;
     dataSaving = false;
+}
 
+function hidePostEventSurvey(e){
+    e.preventDefault();
+    const $form = $('#postEventSurveyForm');
+    $form.find('#submit-action').val('hide');
+    $form.submit();
+}
+
+function unhidePostEventSurvey(e){
+    e.preventDefault();
+    const $form = $('#postEventSurveyForm');
+    $form.find('#submit-action').val('unhide');
+    $form.submit();
+}
+
+function submitPostEventSurvey(e){
+    e.preventDefault();
+    const $form = $('#postEventSurveyForm');
+    $form.find('#submit-action').val('submit');
+    $form.submit();
 }
 
 async function submitPostEventSurveyForm(e){
     e.preventDefault();
-
     const $form = $(this);
     $form.find('.submit-icon-save').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
     $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
-    $form.find('#submit-action').val(e.originalEvent.submitter.value);
     let images = 0;
     const rows = document.querySelectorAll('.custom-event-field');
     for (const row of rows){

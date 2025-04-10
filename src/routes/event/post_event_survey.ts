@@ -131,7 +131,6 @@ async function submitPostEventSurvey(req, res){
         );
 
         let cpGranted = false;
-
         switch (action){
             case 'hide':
                 current.post_event_hidden = true;

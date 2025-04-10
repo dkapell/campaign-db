@@ -97,9 +97,11 @@ async function saveForm($form, $element){
 
 async function submitPostEventSurveyForm(e){
     e.preventDefault();
+
     const $form = $(this);
     $form.find('.submit-icon-save').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
     $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
+    $form.find('#submit-action').val(e.originalEvent.submitter.value);
     let images = 0;
     const rows = document.querySelectorAll('.custom-event-field');
     for (const row of rows){

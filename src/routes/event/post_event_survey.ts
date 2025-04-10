@@ -135,9 +135,11 @@ async function submitPostEventSurvey(req, res){
         switch (action){
             case 'hide':
                 current.post_event_hidden = true;
+                await req.models.attendance.update(current.id, current);
                 break;
             case 'unhide':
                 current.post_event_hidden = false;
+                await req.models.attendance.update(current.id, current);
                 break;
             case 'submit':
                 surveyResult.submitted = true;

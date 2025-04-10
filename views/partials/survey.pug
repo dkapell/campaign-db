@@ -26,7 +26,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     if field.description
                         .form-text!=marked.parseInline(field.description, {breaks:true})
                     .text-bg-light.border.rounded.p-2
-                        if currentValue
+                        if currentValue && !currentValue.match(/^\s*$/)
                             != marked.parseInline(currentValue, {breaks:true})
                         else
                             i No Answer Provided

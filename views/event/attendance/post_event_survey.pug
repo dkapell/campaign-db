@@ -29,11 +29,18 @@ block content
                             input(type="hidden" name="backto" value=backto)
 
                         -
-                            const textareaCount = (_.where(event.post_event_survey.definition, {type:'longtext'})).length;
-                            const textCount = (_.where(event.post_event_survey.definition, {type:'text'})).length;
-                            const textFieldsCount = textCount + textareaCount;
-                            const hideMarkdown = !!(textFieldsCount>=3)
-                            let shownFirstField = false;
+                            const textFieldCount = event.post_event_survey.definition.filter(field => {
+                                if (field.type !== 'longtext' && field.type !== 'text'){ return false;}
+                                if (field.visible_to === 'player' && attendance.user.type !== 'player'){
+                                    return false;
+                                } else if (field.visible_to === 'staff' && attendance.user.type === 'player'){
+                                    return false;
+                                }
+                                return true;
+                            }).length
+                            const hideMarkdown = !!(textFieldCount>=3)
+
+                            let shownMarkdownText = false;
 
                         each field in event.post_event_survey.definition
                             -
@@ -41,9 +48,15 @@ block content
                                 if (_.has(attendance.post_event_data, field.id)){
                                     fieldData = attendance.post_event_data[field.id].data;
                                 }
-                                let fieldShown = false;
-                                let shownMarkdownText = false
-                            if hideMarkdown && !shownFirstField && !shownMarkdownText
+                                let fieldWillBeShown = true;
+                                if (field.visible_to === 'player' && attendance.user.type !== 'player'){
+                                    fieldWillBeShown = false;
+                                } else if (field.visible_to === 'staff' && attendance.user.type === 'player'){
+                                    fieldWillBeShown = false;
+                                }
+
+
+                            if hideMarkdown && fieldWillBeShown && field.type !== 'text content' && !shownMarkdownText
                                 .row.my-2
                                     .col
                                         .text-muted All text fields support
@@ -102,11 +115,6 @@ block content
                                                         hideMarkdown:hideMarkdown
                                                     }
                                                 )
-
-                            -
-                                if (hideMarkdown && !shownFirstField && fieldShown && field.type !== 'text content'){
-                                    shownFirstField = true;
-                                }
 
                         if attendance.post_event_addendums
                             each addendum in attendance.post_event_addendums

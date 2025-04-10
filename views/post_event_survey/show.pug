@@ -32,18 +32,22 @@ block content
 
     if attendance.post_event_addendums
         each addendum in attendance.post_event_addendums
-            .card.my-2
-                .card-header
-                    .row
-                        .col-lg
-                            strong Addendum
-                        .col-lg.text-lg-end
-                            span.me-1 Submitted:
-                            = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
-                .card-body.text-bg-light
-                    .row
-                        .col.p-2
-                            != marked.parseInline(addendum.content, {breaks:true})
+            if addendum.submitted
+                .card.my-2
+                    .card-header
+                        .row
+                            .col-lg
+                                strong Addendum
+                            .col-lg.text-lg-end
+                                span.me-1 Submitted:
+                                = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
+                    .card-body.text-bg-light
+                        .row
+                            .col.p-2
+                                if addendum.content
+                                    != marked.parseInline(addendum.content, {breaks:true})
+                                else
+                                    i No Answer Provided
     .row.my-2
         .col
             a.btn.btn-primary(href=backto)

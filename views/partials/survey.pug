@@ -26,7 +26,10 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     if field.description
                         .form-text!=marked.parseInline(field.description, {breaks:true})
                     .text-bg-light.border.rounded.p-2
-                        != marked.parseInline(currentValue, {breaks:true})
+                        if currentValue
+                            != marked.parseInline(currentValue, {breaks:true})
+                        else
+                            i No Answer Provided
                 else
                     -
                         const rows = field.rows?Number(field.rows):3;

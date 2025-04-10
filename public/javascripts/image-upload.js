@@ -79,7 +79,7 @@ async function uploadImage(file, $row){
             $row.find('.image-saving').hide();
             if (postData.success){
                 $row.find('.image-container').attr('src', postData.data.thumbnailUrl);
-                $row.find('.existing-image').show()
+                $row.find('.existing-image').show();
             } else {
                 $row.find('.new-image').show();
             }
@@ -95,18 +95,18 @@ async function uploadImage(file, $row){
 async function uploadFile(file, url, $row){
     const xhr = new XMLHttpRequest();
     return new Promise((resolve) => {
-        xhr.upload.addEventListener("progress", (event) => {
+        xhr.upload.addEventListener('progress', (event) => {
             if (event.lengthComputable) {
                 const percent = Math.round(event.loaded/event.total * 100);
                 setProgressBar($row, percent);
             }
         });
-        xhr.addEventListener("loadend", () => {
+        xhr.addEventListener('loadend', () => {
             hideProgressBar($row);
             resolve(xhr.readyState === 4 && xhr.status === 200);
         });
-        xhr.open("PUT", url, true);
-        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.open('PUT', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
         xhr.send(file);
     });
 

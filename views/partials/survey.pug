@@ -36,7 +36,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         if (options.showDaysBefore && field.days_before) {
                             label += ` ( ${field.days_before} Days Before )`}
 
-                    +markdownEditor(label, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description, saveIndicator:true})
+                    +markdownEditor(label, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, rows, height, currentValue, false, {required:field.required, disabled:disabled, maxlength:field.maxlength, description:field.description, saveIndicator:true, hideMarkdown:options.hideMarkdown})
 
             when 'boolean'
                 .form-check.form-switch
@@ -124,22 +124,27 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     div.my-3.border-bottom.pb-2!= marked.parseInline(field.content, {breaks:true})
 
 mixin customSurveyFieldDisplay(field, value)
-    h5= field.name
-    .card.text-bg-light.ms-md-4
-        .card-body.p-2
-            case field.type
-                when 'text'
-                    != marked.parseInline(value, {breaks:false})
-                when 'longtext'
-                    != marked.parseInline(value, {breaks:true})
-                when 'dropdown'
-                    = value
-                when 'boolean'
-                    =value?'Yes':'No'
-                when 'image'
-                    image.d-block.img-fluid.image-container(
-                        src=data.thumbnailUrl
-                    )
+    if field.type !== 'text content'
+        h5= field.name
+        .card.text-bg-light.ms-md-4
+            .card-body.p-2
+                if value === ''
+                    i No Answer Provided
+                else
+                    case field.type
+                        when 'text'
+                            != marked.parseInline(value, {breaks:false})
+                        when 'longtext'
+                            != marked.parseInline(value, {breaks:true})
+                        when 'dropdown'
+                            = value
+                        when 'boolean'
+                            =value?'Yes':'No'
+                        when 'image'
+                            image.d-block.img-fluid.image-container(
+                                src=value.thumbnailUrl
+                            )
+
 
 
 

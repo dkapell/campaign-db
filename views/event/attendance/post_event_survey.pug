@@ -28,6 +28,12 @@ block content
                         if (backto)
                             input(type="hidden" name="backto" value=backto)
 
+                        -
+                            const textareaCount = (_.where(event.post_event_survey.definition, {type:'longtext'})).length;
+                            const textCount = (_.where(event.post_event_survey.definition, {type:'text'})).length;
+                            const textFieldsCount = textCount + textareaCount;
+                            const hideMarkdown = !!(textFieldsCount>=3)
+                            let shownFirstField = false;
 
                         each field in event.post_event_survey.definition
                             -
@@ -35,44 +41,73 @@ block content
                                 if (_.has(attendance.post_event_data, field.id)){
                                     fieldData = attendance.post_event_data[field.id].data;
                                 }
-
+                                let fieldShown = false;
+                                let shownMarkdownText = false
+                            if hideMarkdown && !shownFirstField && !shownMarkdownText
+                                .row.my-2
+                                    .col
+                                        .text-muted All text fields support
+                                            a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
+                                                i.fas.fa-external-link-alt.ms-1
+                                - shownMarkdownText = true;
                             case field.visible_to
                                 when 'staff'
                                     if attendance.user.type !== 'player'
                                         .row.my-2
                                             .col
+                                                - fieldShown = true
                                                 +customSurveyFieldInput(
                                                     'attendance[post_event_data]',
                                                     'attendance_post_event_data',
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted, immediate:true}
+                                                    {
+                                                        disabled:attendance.post_event_submitted,
+                                                        immediate:true,
+                                                        hideMarkdown:hideMarkdown
+                                                    }
                                                 )
 
                                 when 'player'
                                     if attendance.user.type === 'player'
                                         .row.my-2
                                             .col
+                                                - fieldShown = true
                                                 +customSurveyFieldInput(
                                                     'attendance[post_event_data]',
                                                     'attendance_post_event_data',
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted, immediate:true}
+                                                    {
+                                                        disabled:attendance.post_event_submitted,
+                                                        immediate:true,
+                                                        hideMarkdown:hideMarkdown
+                                                    }
                                                 )
                                 default
                                     .row.my-2
                                             .col
+                                                - fieldShown = true
                                                 +customSurveyFieldInput(
                                                     'attendance[post_event_data]',
                                                     'attendance_post_event_data',
                                                     field,
                                                     fieldData,
                                                     canEditStaffFields,
-                                                    {disabled:attendance.post_event_submitted, immediate:true}
+                                                    {
+                                                        disabled:attendance.post_event_submitted,
+                                                        immediate:true,
+                                                        hideMarkdown:hideMarkdown
+                                                    }
                                                 )
+
+                            -
+                                if (hideMarkdown && !shownFirstField && fieldShown && field.type !== 'text content'){
+                                    shownFirstField = true;
+                                }
+
                         if attendance.post_event_addendums
                             each addendum in attendance.post_event_addendums
                                 if addendum.submitted
@@ -86,7 +121,7 @@ block content
                                             .text-bg-light.border.rounded.p-2
                                                 != marked.parseInline(addendum.content, {breaks:true})
 
-                        .row.my-2
+                        .row.my-3
                             .col
 
                                 if (!attendance.post_event_submitted)

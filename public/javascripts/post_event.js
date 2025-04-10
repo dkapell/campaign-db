@@ -1,3 +1,5 @@
+/* global uploadImage */
+
 let dataPending = false;
 let dataSaving = false;
 let saveTimeoutId = null;

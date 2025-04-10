@@ -20,10 +20,13 @@ block content
                     = moment.utc(attendance.post_event_data.submitted_at).tz(currentCampaign.timezone).format('lll')
         .card-body
             each field in event.post_event_survey.definition
-                if _.has(attendance.post_event_data, field.id)
-                    .row.my-2
-                        .col
+                .row.my-2
+                    .col
+                        if _.has(attendance.post_event_data, field.id)
                             +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
+                        else
+                            +customSurveyFieldDisplay(field, '')
+
     if attendance.post_event_addendums
         each addendum in attendance.post_event_addendums
             .card.my-2

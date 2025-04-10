@@ -1,3 +1,4 @@
+/* global uploadImage */
 $(function(){
 
     $('.select2').select2({

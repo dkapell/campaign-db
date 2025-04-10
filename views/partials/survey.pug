@@ -125,12 +125,10 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
 
 mixin customSurveyFieldDisplay(field, value)
     if field.type !== 'text content'
-        h5= field.name
-        .card.text-bg-light.ms-md-4
-            .card-body.p-2
-                if value === ''
-                    i No Answer Provided
-                else
+        if !((field.type !== 'boolean' && !value) || (''+value).match(/^\s*$/))
+            h5= field.name
+            .card.text-bg-light.ms-md-4
+                .card-body.p-2
                     case field.type
                         when 'text'
                             != marked.parseInline(value, {breaks:false})

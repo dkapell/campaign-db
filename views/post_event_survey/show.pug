@@ -24,8 +24,6 @@ block content
                     .col
                         if _.has(attendance.post_event_data, field.id)
                             +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
-                        else
-                            +customSurveyFieldDisplay(field, '')
 
     if attendance.post_event_addendums
         each addendum in attendance.post_event_addendums

@@ -14,8 +14,13 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
                     if !options.noEvent
                         th(data-priority="1") Event
                         th Event Date
-                    th Attendee
-                    th Type
+                    th
+                        if options.playerTable
+                            | Player
+                        else
+                            | Attendee
+                    if !options.playerTable
+                        th Type
                     th Submitted At
                     th Addendums
                     th
@@ -39,8 +44,8 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
                                     = survey.user.name
                             else
                                 = survey.user.name
-
-                        td= capitalize(survey.user.typeForDisplay)
+                        if !options.playerTable
+                            td= capitalize(survey.user.typeForDisplay)
                         td(data-sort=survey.submittedAt.getTime())= moment.utc(survey.submittedAt).tz(currentCampaign.timezone).format('lll')
                         td= survey.addendums
 

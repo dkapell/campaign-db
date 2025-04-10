@@ -25,7 +25,7 @@ block content
                         return survey.user.type === 'player'
                     });
 
-                +postEventSurveyGmTable(playerSurveys)
+                +postEventSurveyGmTable(playerSurveys, {playerTable:true})
 
             .tab-pane.fade#staff-surveys(role="tabpanel" aria-labelledby="staff-surveys-tab")
                 h4 All #{currentCampaign.renames.post_event_survey.plural}

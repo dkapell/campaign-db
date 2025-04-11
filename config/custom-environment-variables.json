@@ -35,5 +35,8 @@
     },
     "upload":{
         "cleanupDays": "UPLOAD_CLEANUP_DAYS"
+    },
+    "googleFonts":{
+        "apiKey": "GOOGLE_FONT_API_KEY"
     }
 }

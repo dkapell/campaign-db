@@ -78,6 +78,10 @@ fieldset.mb-2.border.p-2.rounded
                 .form-check.form-switch
                     input.form-check-input#campaign_display_glossary(type="checkbox", name="campaign[display_glossary]", checked=campaign.display_glossary)
                     label.form-check-label(for="campaign_display_glossary") Display Glossary
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_translations(type="checkbox", name="campaign[display_translations]", checked=campaign.display_translations)
+                    label.form-check-label(for="campaign_display_translations") Display Translations
 
         .row.my-2
             .col-md-3
@@ -111,21 +115,20 @@ fieldset.mb-2.border.p-2.rounded
                             option(value=image.id, selected=campaign.favicon_id===image.id)= image.upload.name
         .row.my-2
             .col-md-3
-                label.control-label(for="campaign_header_font") Header Font
+                label.control-label(for="campaign_header_font") Header Font (from Google Fonts)
             .col
-                input.form-control#campaign_header_font(name="campaign[header_font]",placeholder='Montserrat' value=campaign.header_font)
-                span.form-text A font name from
-                    a.mx-1(href='https://fonts.google.com' target="_blank") Google Fonts
-                        i.fas.fa-external-link.ms-2
+                select.form-select.select2#campaign_header_font(name="campaign[header_font]" data-placeholder='Google Font')
+                    option
+                    for item in googleFonts
+                        option(value=item.family selected=item.family===campaign.header_font)= item.family
         .row.my-2
             .col-md-3
-                label.control-label(for="campaign_body_font") Body Font
+                label.control-label(for="campaign_body_font") Body Font (from Google Fonts)
             .col
-                input.form-control#campaign_body_font(name="campaign[body_font]",placeholder='Lato' value=campaign.body_font)
-                span.form-text A font name from
-                    a.mx-1(href='https://fonts.google.com' target="_blank") Google Fonts
-                        i.fas.fa-external-link.ms-2
-
+                select.form-select.select2#campaign_body_font(name="campaign[body_font]" data-placeholder='Google Font')
+                    option
+                    for item in googleFonts
+                        option(value=item.family selected=item.family===campaign.body_font)= item.family
         .row.my-2
             .col
                 label.control-label.w-100#css-heading(for="campaign_css", data-bs-toggle="collapse" data-bs-target="#css-container" aria-expanded="false" area-controls="css-container") Custom CSS
@@ -225,7 +228,15 @@ fieldset.mb-2.border.p-2.rounded
                 label.control-label(for="campaign_player_drive") Player Drive Folder
             .col
                 input.form-control#campaign_player_drive(placeholder="URL",name="campaign[player_drive_folder]",value=campaign.player_drive_folder)
-
+        .row.my-2
+            .col-md-4
+                label.control-label(for="campain_translation_drive_folder") Translations Drive Folder
+            .col
+                .input-group
+                    .input-group-text https://drive.google.com/drive/u/0/folders/
+                    input.form-control#campain_translation_drive_folder(placeholder="ID",name="campaign[translation_drive_folder]",value=campaign.translation_drive_folder)
+                .form-text
+                    |Make sure this folder is shared with #{config.get('drive.credentials.client_email')} as a Editor
 
 
 
@@ -286,7 +297,32 @@ fieldset.mb-2.border.p-2.rounded
                 .input-group
                     input.form-control#campaign_event_default_location(placeholder="Days",name="campaign[post_event_survey_hide_days]",value=campaign.post_event_survey_hide_days type='number' max=14, min=0)
                     .input-group-text Days
+if campaign.display_translations
+    fieldset.mb-2.border.p-2.rounded
+        label.h5.w-100#translation-heading(data-bs-toggle="collapse" data-bs-target="#translation-container" aria-expanded="false" area-controls="translation-container") Translations Options
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+        #translation-container.collapse(aria-labeledby="translation-heading")
+            .row.my-2
+                .col-md-3
+                    label.control-label(for="campaign_default_translation_header_font_id") Default Translation Header Font
+                .col
+                    select.form-select.select2#campaign_default_translation_header_font_id(name="campaign[default_translation_header_font_id]" data-placeholder='Header Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.default_translation_header_font_id===font.id)
+                                =font.name
 
+            .row.my-2
+                .col-md-3
+                    label.control-label(for="campaign_default_translation_body_font_id") Default Translation Body Font
+                .col
+                    select.form-select.select2#campaign_default_translation_body_font_id(name="campaign[default_translation_body_font_id]" data-placeholder='Body Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.default_translation_body_font_id===font.id)
+                                =font.name
 
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication Options

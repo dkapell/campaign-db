@@ -1,0 +1,60 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+
+.row.my-2
+    .col
+        label.control-label(for="translation_font") Font
+        select.form-select.select2#translation_font(name="translation[font_id]" data-placeholder='Font' required)
+            option
+            for font in fonts
+                option(value=font.id selected=translation.font_id===font.id)
+                    = font.name
+                    if font.language
+                        |  (#{font.language})
+.row.my-2
+    .col
+        label.control-label(for="translation_header_font") Header Font
+        select.form-select.select2#translation_header_font(name="translation[header_font_id]" data-placeholder='Font' required)
+            option
+            for font in textFonts
+                option(value=font.id selected=translation.header_font_id===font.id)
+                    = font.name
+
+.row.my-2
+    .col
+        label.control-label(for="translation_body_font") Body Font
+        select.form-select.select2#translation_body_font(name="translation[body_font_id]" data-placeholder='Font' required)
+            option
+            for font in textFonts
+                option(value=font.id selected=translation.body_font_id===font.id)
+                    = font.name
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#translation_label(type="checkbox" name="translation[border]" checked=translation.border)
+            label.form-check-label(for="translation_border") Show Border
+
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#translation_label(type="checkbox" name="translation[label]" checked=translation.label)
+            label.form-check-label(for="translation_label") Show Label
+
+
+.row.my-2
+    .col
+        label.control-label(for="translation_preview") Preview Paragraph (up to #{translation.allText.length - 1})
+        input.form-control#translation_preview(type="number",name="translation[preview]",value=translation.preview)
+
+        .card.mt-1
+            .card-header Text Preview
+            .card-body
+                p#previewPreview= translation.previewText
+
+.form-group
+    button.btn.btn-primary(type="submit")= translation.id?'Update and Render':'Create'
+    a.btn.btn-link(href="/translation") Cancel
+
+

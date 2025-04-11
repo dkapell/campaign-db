@@ -32,6 +32,9 @@
         "credentials": {},
         "root": null
     },
+    "googleFonts":{
+        "apiKey": null
+    },
     "themes": {
         "Darkly": {
             "dir": "darkly",

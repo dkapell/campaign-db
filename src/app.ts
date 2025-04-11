@@ -63,6 +63,7 @@ import eventRouter from './routes/event';
 import postEventSurveyRouter from './routes/post_event_survey';
 
 import fontRouter from './routes/font';
+import translationRouter from './routes/translation';
 
 const app = express();
 
@@ -314,6 +315,7 @@ app.use('/event', eventRouter);
 app.use('/survey', surveyRouter);
 app.use('/post_event_survey', postEventSurveyRouter);
 app.use('/font', fontRouter);
+app.use('/translation', translationRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
 

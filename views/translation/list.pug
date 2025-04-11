@@ -1,0 +1,75 @@
+extends ../layout
+
+block content
+    .row.my-2
+        .col
+            a.btn.btn-outline-success.mr-2(
+                href=`https://drive.google.com/drive/folders/${currentCampaign.translation_drive_folder}`
+                target="_blank"
+            )
+                span.fab.fa-google-drive.me-1
+                | View Folder
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Font
+                    th Border
+                    th Label
+                    th Status
+                    th
+
+
+            tbody
+                for doc in translations
+                    tr(class='clickable-row', data-click-object='translation' data-click-id=doc.id)
+                        td.dtr-control
+                        td
+                            a.action-btn(href=`https://docs.google.com/document/d/${doc.doc_id}` target="_blank")= doc.name
+                                i.fas.fa-external-link-alt.ms-1
+                        td
+                            if doc.font
+                                = doc.font.name
+                                if doc.font.language
+                                    span.ms-1 (#{doc.font.language})
+                            else
+                                i Unset
+
+                        td= doc.border?'Yes':'No'
+                        td= doc.label?'Yes':'No'
+                        td= doc.status
+                        td
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                role="button",
+                                href=`/translation/${doc.id}/edit`
+                                title="Edit Document Settings"
+                                data-toggle="tooltip"
+                            )
+                                i.fas.fa-edit
+
+                            if doc.status === 'ready' && doc.font_id
+                                a.btn.btn-outline-primary.btn-xs.render-btn.action-btn.mx-1(
+                                    role="button",
+                                    url=`/translation/${doc.id}/render`,
+                                    data-csrf=csrfToken
+                                    data-toggle="tooltip"
+                                    title="Re-Render Document"
+                                )
+                                    i.fas.fa-file-pdf.me-1.action-icon
+                                    span.action-spinner.spinner-border.spinner-border-sm.me-1(role="status" aria-hidden="true" style="display:none")
+                                        span.sr-only Loading...
+                                    | Render
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/translation.js')
+

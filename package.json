@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^3.2.3",
     "aws-sdk": "^2.1524.0",
+    "bent": "^7.3.12",
     "codemirror": "^5.65.0",
     "config": "^3.3.9",
     "connect-redis": "7.1",

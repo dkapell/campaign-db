@@ -74,3 +74,8 @@ interface SurveyField {
     days_before?:number
 }
 
+interface GoogleDocTextRun {
+   content: string
+   textStyle: Schema$TextStyle
+   paragraphStyle?: string
+}

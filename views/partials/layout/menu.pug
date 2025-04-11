@@ -69,7 +69,18 @@
                             a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
 
 
-                if (currentCampaign.display_glossary && checkPermission('player')) || currentCampaign.display_map
+                -
+                    let showSettingMenu = false
+                    if (currentCampaign.display_glossary && checkPermission('player')){
+                        showSettingMenu = true;
+                    }
+                    if (currentCampaign.display_translations && checkPermission('gm')){
+                        showSettingMenu = true;
+                    }
+                    if (currentCampaign.display_map){
+                        showSettingMenu = true;
+                    }
+                if showSettingMenu
                     li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#worldbuildingDropdown(
                             href='#'
@@ -88,6 +99,9 @@
                                         a.dropdown-item(href='/map/list') Maps
                                     else if mapCount
                                         a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
+                                if currentCampaign.display_translations && checkPermission('gm')
+                                    a.dropdown-item(href='/translation') Translations
+
 
                 if checkPermission('gm')
                     li.nav-item.dropdown

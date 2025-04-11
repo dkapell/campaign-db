@@ -184,7 +184,16 @@ class Drive {
             const paragraph = [];
             if (_.has(item.paragraph, 'elements')){
                 for (const line of item.paragraph.elements){
-                    paragraph.push(line.textRun);
+                    if (line.textRun){
+                        const lineDoc: GoogleDocTextRun = {
+                            content: line.textRun.content,
+                            textStyle: line.textRun.textStyle,
+                            paragraphStyle: item.paragraph.paragraphStyle.namedStyleType
+                        }
+                        paragraph.push(lineDoc);
+                    } else {
+                        paragraph.push(line.textRun);
+                    }
                 }
             }
             text.push(paragraph);

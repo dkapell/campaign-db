@@ -32,6 +32,7 @@ const tableFields = [
     'default_to_player',
     'display_map',
     'display_cp',
+    'display_translations',
     'staff_drive_folder',
     'npc_drive_folder',
     'player_drive_folder',
@@ -52,7 +53,10 @@ const tableFields = [
     'post_event_survey_cp',
     'post_event_survey_hide_days',
     'event_attendance_cp',
-    'rename_map'
+    'rename_map',
+    'translation_drive_folder',
+    'default_translation_body_font_id',
+    'default_translation_header_font_id',
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

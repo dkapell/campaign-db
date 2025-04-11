@@ -3,6 +3,7 @@ import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import uploadHelper from '../lib/uploadHelper';
+import fontHelper from '../lib/fontHelper';
 
 /* GET fonts listing. */
 async function list(req, res, next){
@@ -15,7 +16,6 @@ async function list(req, res, next){
     try {
         res.locals.fonts = await req.models.font.find({campaign_id: req.campaign.id});
         res.locals.csrfToken = req.csrfToken();
-        res.locals.test = 'hi'
         res.render('font/list', { pageTitle: 'Fonts' });
     } catch (err){
         next(err);
@@ -31,30 +31,38 @@ async function listApi (req, res, next){
     }
 }
 
-function showNew(req, res){
-    res.locals.font = {
-        name: null,
-        type: null,
-        size: 24,
-        vertical: false,
-        upload: {
-            display_name: null,
-            description:null,
+async function showNew(req, res, next){
+    try {
+        res.locals.font = {
+            name: null,
+            type: 'google',
+            size: 24,
+            vertical: false,
+            lettersonly: false,
+            transformation: 'none',
+            language: null,
+            upload: {
+                display_name: null,
+                description:null,
+            }
+        };
+        res.locals.googleFonts = await fontHelper.list()
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/font', name: 'Fonts'},
+            ],
+            current: 'New'
+        };
+        res.locals.csrfToken = req.csrfToken();
+        if (_.has(req.session, 'fontData')){
+            res.locals.font = req.session.fontData;
+            delete req.session.fontData;
         }
-    };
-    res.locals.breadcrumbs = {
-        path: [
-            { url: '/', name: 'Home'},
-            { url: '/font', name: 'Fonts'},
-        ],
-        current: 'New'
-    };
-    res.locals.csrfToken = req.csrfToken();
-    if (_.has(req.session, 'fontData')){
-        res.locals.font = req.session.fontData;
-        delete req.session.fontData;
+        res.render('font/new');
+    } catch(err){
+        next(err);
     }
-    res.render('font/new');
 }
 
 async function showEdit(req, res, next){
@@ -78,7 +86,7 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + font.name
         };
-
+        res.locals.googleFonts = await fontHelper.list()
         res.render('font/edit');
     } catch(err){
         next(err);
@@ -89,13 +97,16 @@ async function create(req, res){
     const font = req.body.font;
 
     req.session.fontData = font;
-    for (const field of ['vertical']){
+    for (const field of ['vertical', 'lettersonly']){
         if (!_.has(font, field)){
             font[field] = false;
         }
     }
     font.campaign_id = req.campaign.id;
     try{
+        if (font.type === 'google'){
+            font.name = font.googleName;
+        }
         const id = await req.models.font.create(font);
         await req.audit('font', id, 'create', {new:font});
         delete req.session.pageData;

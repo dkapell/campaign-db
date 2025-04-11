@@ -13,10 +13,15 @@ $(function(){
 function updateFontFields(e){
     const type = $(this).val();
     if (type === 'user'){
+        $('.upload-name').show();
         $('.upload-picker').show();
+        $('.google-picker').hide();
+        $('.user-font-options').show();
     } else {
         $('.upload-input').hide();
         $('#fontPicker').val(null);
+        $('.google-picker').show();
+        $('.user-font-options').hide();
     }
 }
 

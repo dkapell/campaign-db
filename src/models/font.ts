@@ -16,13 +16,16 @@ const tableFields = [
     'type',
     'name',
     'size',
-    'vertical'
+    'vertical',
+    'transformation',
+    'language',
+    'lettersonly'
 ];
 
 const Font = new Model('fonts', tableFields, {
     postSelect: postProcess,
     postSave: postSave,
-    order: ['name']
+    order: ['type', 'name']
 });
 
 async function postProcess(record:ModelData){

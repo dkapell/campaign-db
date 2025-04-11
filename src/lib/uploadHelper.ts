@@ -339,6 +339,17 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
             }
             break;
         }
+        case 'font':{
+            const font = await models.font.findOne({upload_id:upload.id});
+            if (font){
+                upload.font = font;
+                upload.usedFor = {
+                    id: font.id,
+                    message:`Font ${font.name}`
+                } as UploadUsedFor;
+            }
+            break;
+        }
     }
     return upload;
 }

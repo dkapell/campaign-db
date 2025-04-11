@@ -1,0 +1,45 @@
+.row.my-2
+    .col
+        label.control-label(for="font_name") Name
+        input.form-control#font_name(type="text",placeholder="Name",name="font[name]",value=font.name, required)
+        div.invalid-feedback Please choose a valid name
+.row.my-2
+    .col
+        label.control-label(for="font_type") Font Type
+        select.form-select.select2#font_type(name="font[type]" data-placeholder='Font Type' required)
+            option
+            for type in ['google', 'user']
+                option(value=type selected=font.type === type)= capitalize(type)
+
+
+.row.my-2.upload-input.upload-picker
+    .col
+        if font.id
+            label.form-label(for="fontPicker") Font File
+            input.form-control#fontPicker(type="text" disabled=true value=font.upload.name)
+        else
+            label.form-label(for="fontPicker") Font File
+            input.form-control#fontPicker(type="file", name="font[upload][file]")
+.row.my-2.upload-input.upload-details
+    .col#upload-type
+    .col#upload-size
+.row.my-2.upload-input.upload-feedback
+    .col#upload-feedback.text-danger
+
+.row.my-2
+    .col
+        label.control-label(for="font_size") Default Size
+        input.form-control(type="number",placeholder="Size",name="font[size]",value=font.size,required)
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#font_vertical(type="checkbox" name="font[vertical]" checked=font.vertical)
+            label.form-check-label(for="font_vertical") Display Verticaly
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= font.id?'Update':'Create'
+        a.btn.btn-link(href="/font") Cancel
+
+

@@ -15,6 +15,9 @@ import custom_fieldModel from './custom_field';
 import cp_grantModel from './cp_grant';
 import eventModel from './event';
 import attendanceModel from './attendance';
+import surveyModel from './survey';
+import fontModel from './font';
+import uploadModel from './upload'
 
 
 const models = {
@@ -30,7 +33,10 @@ const models = {
     custom_field: custom_fieldModel,
     cp_grant: cp_grantModel,
     event: eventModel,
-    attendance: attendanceModel
+    attendance: attendanceModel,
+    survey: surveyModel,
+    font: fontModel,
+    upload: uploadModel
 };
 
 const tableFields =  ['id',

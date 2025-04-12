@@ -50,7 +50,7 @@ create table translations(
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT translation_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE,
+        ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE INDEX translations_idx
@@ -63,7 +63,7 @@ alter table campaigns
     add column default_translation_body_font_id int,
     add column default_translation_header_font_id int,
     add column character_sheet_header_font_id int,
-    add column character_sheet_body_font_id int;
+    add column character_sheet_body_font_id int,
     add column character_sheet_body_font_scale float default 1,
     add column character_sheet_header_font_scale float default 1,
     add column translation_scale float default 1;

@@ -805,7 +805,7 @@ create table translations(
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT translation_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE,
+        ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 CREATE INDEX translations_idx

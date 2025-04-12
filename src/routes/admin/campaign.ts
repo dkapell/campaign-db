@@ -67,8 +67,12 @@ async function showNew(req, res){
         rename_map: config.get('renames'),
         translation_drive_folder: null,
         default_translation_body_font_id: null,
-        default_translation_header_font_id: null
-
+        default_translation_header_font_id: null,
+        character_sheet_body_font_id: null,
+        character_sheet_header_font_id: null,
+        character_sheet_body_font_scale: 1,
+        character_sheet_header_font_scale: 1,
+        translation_scale: 1
     };
     res.locals.googleFonts = await fontHelper.list()
     res.locals.breadcrumbs = {
@@ -142,7 +146,7 @@ async function create(req, res){
 
     req.session.campaignData = campaign;
 
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'menu_dark', 'cp_approval']){
+    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'menu_dark', 'cp_approval', 'display_translations']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
@@ -166,7 +170,7 @@ async function update(req, res){
     const id = req.params.id;
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'default_site', 'menu_dark', 'cp_approval']){
+    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'default_site', 'menu_dark', 'cp_approval', 'display_translations']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }

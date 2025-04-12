@@ -16,7 +16,9 @@ const tableFields = [
     'label', 
     'font_id',
     'header_font_id',
+    'header_font_scale',
     'body_font_id',
+    'body_font_scale',
     'status', 
     'updated', 
     'preview'

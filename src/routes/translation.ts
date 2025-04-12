@@ -35,7 +35,9 @@ async function list(req, res, next){
                     name: file.name,
                     status: 'new',
                     body_font_id: req.campaign.default_translation_body_font_id,
-                    header_font_id: req.campaign.default_translation_header_font_id
+                    header_font_id: req.campaign.default_translation_header_font_id,
+                    body_font_scale: 1,
+                    header_font_scale: 1
                 });
                 return req.models.translation.get(id);
             }
@@ -85,21 +87,21 @@ async function showEdit(req, res, next){
 
 async function update(req, res){
     const id = req.params.id;
-    const doc = req.body.translation;
-    req.session.translationData = doc;
+    const translation = req.body.translation;
+    req.session.translationData = translation;
 
-    if (!_.has(doc, 'border')){
-        doc.border = false;
+    for (const field of ['border', 'label']){
+        if (!_.has(translation, field)){
+            translation[field] = false;
+        }
     }
-    if (!_.has(doc, 'label')){
-        doc.label = false;
-    }
-    doc.status = 'ready';
+
+    translation.status = 'ready';
     
     try {
         const current = await req.models.translation.get(id);
 
-        await req.models.translation.update(id, doc);
+        await req.models.translation.update(id, translation);
         delete req.session.translationData;
         req.flash('success', `Updated ${current.name}`);
         res.redirect('/translation');

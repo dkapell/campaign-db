@@ -18,6 +18,9 @@ const fontCache = {};
 async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
     style ||= 'regular';
     const font = await models.font.get(fontId);
+    if (!font){
+        throw new Error ('Invalid Font')
+    }
     let buffer = checkCache(font.name, style);
     if (buffer){ return buffer; }
 

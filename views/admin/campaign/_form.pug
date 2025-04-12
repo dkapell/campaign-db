@@ -1,12 +1,10 @@
 .row.my-2
-    .col-md-3
-        label.control-label(for="campaign_name") Name
+    label.col-form-label.col-md-3(for="campaign_name") Name
     .col
         input.form-control(type="text",placeholder="Campaign Name",name="campaign[name]",value=campaign.name,id='campaign_name')
 
 .row.my-2
-    .col-md-3
-        label.control-label(for="campaign_site") Campaign Site URL
+    label.col-form-label.col-md-3(for="campaign_site") Campaign Site URL
     .col
         input.form-control#campaign_site(type="text",placeholder="URL",name="campaign[site]",value=campaign.site)
         div.invalid-feedback Must be a valid, unique URL
@@ -18,6 +16,7 @@ if currentCampaign.default_site
                 input.form-check-input#campaign_default_site(type="checkbox", name="campaign[default_site]", checked=campaign.default_site)
                 label.form-check-label(for="campaign_default_site") Default Site
 
+//- Description / Front Page
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#description-heading(data-bs-toggle="collapse" data-bs-target="#description-container" aria-expanded="false" area-controls="description-container") Description / Front Page
         span.float-end.ps-2
@@ -30,40 +29,10 @@ fieldset.mb-2.border.p-2.rounded
                 +htmlEditor('campaign_description', 'campaign[description]', 10, 500, campaign.description, true)
 
 
-fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#cp-heading(data-bs-toggle="collapse" data-bs-target="#cp-container" aria-expanded="false" area-controls="cp-container") Character Point Options
-        span.float-end.ps-2
-            i.fa.fa-chevron-up
-            i.fa.fa-chevron-down
-    #cp-container.collapse(aria-labeledby="cp-heading")
-        .row.my-2
-            .col
-                .form-check.form-switch
-                    input.form-check-input#campaign_display_cp(type="checkbox", name="campaign[display_cp]", checked=campaign.display_cp)
-                    label.form-check-label(for="campaign_display_cp") Enable Character Point Tracker and CP limits
-            .col
-                .form-check.form-switch
-                    input.form-check-input#campaign_cp_approval(type="checkbox", name="campaign[cp_approval]", checked=campaign.cp_approval)
-                    label.form-check-label(for="campaign_cp_approval") Require Staff approval for CP Grants
-        .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_cp_base") Base/Starting Character Points
-            .col
-                input.form-control#campaign_cp_base(placeholder="CP",name="campaign[cp_base]",value=campaign.cp_base type='number')
-        .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_cp_cap") Current Character Point Cap
-            .col
-                input.form-control#campaign_cp_cap(placeholder="CP",name="campaign[cp_cap]",value=campaign.cp_cap type='number')
-        .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_cp_factor") Over-Cap CP Value
-            .col
-                input.form-control#campaign_cp_cap(placeholder="Factor",name="campaign[cp_factor]",value=campaign.cp_factor type='number' max=1, min=0 step=0.125)
 
-
+//- Website Display
 fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#design-heading(data-bs-toggle="collapse" data-bs-target="#design-container" aria-expanded="false" area-controls="design-container") Display Options
+    label.h5.w-100#design-heading(data-bs-toggle="collapse" data-bs-target="#design-container" aria-expanded="false" area-controls="design-container") Website Display Options
         span.float-end.ps-2
             i.fa.fa-chevron-up
             i.fa.fa-chevron-down
@@ -84,8 +53,7 @@ fieldset.mb-2.border.p-2.rounded
                     label.form-check-label(for="campaign_display_translations") Display Translations
 
         .row.my-2
-            .col-md-3
-                label.control-label(for="campaign_theme") Theme
+            label.col-form-label.col-md-3(for="campaign_theme") Theme
             .col
                 select.form-select.select2#campaign_theme(name="campaign[theme]" data-placeholder="Theme", required)
                     option
@@ -96,8 +64,7 @@ fieldset.mb-2.border.p-2.rounded
                     label.form-check-label(for="campaign_menu_dark") Use Light Menu Text
         if websiteImages
             .row.my-2
-                .col-md-3
-                    label.control-label(for="campaign_image") Campaign Image (front page)
+                .label.col-form-label.col-md-3(for="campaign_image") Campaign Image (front page)
                 .col
                     select.form-select.select2#campaign_image(name="campaign[image_id]" data-placeholder="Image")
                         option
@@ -106,24 +73,21 @@ fieldset.mb-2.border.p-2.rounded
 
         if faviconImages
             .row.my-2
-                .col-md-3
-                    label.control-label(for="campaign_favicon") Favicon(Browser Tab)
+                label.col-form-label.col-md-3(for="campaign_favicon") Favicon(Browser Tab)
                 .col
                     select.form-select.select2#campaign_favicon(name="campaign[favicon_id]" data-placeholder="Favicon")
                         option
                         for image in faviconImages
                             option(value=image.id, selected=campaign.favicon_id===image.id)= image.upload.name
         .row.my-2
-            .col-md-3
-                label.control-label(for="campaign_header_font") Header Font (from Google Fonts)
+            label.col-form-label.col-md-3(for="campaign_header_font") Header Font (from Google Fonts)
             .col
                 select.form-select.select2#campaign_header_font(name="campaign[header_font]" data-placeholder='Google Font')
                     option
                     for item in googleFonts
                         option(value=item.family selected=item.family===campaign.header_font)= item.family
         .row.my-2
-            .col-md-3
-                label.control-label(for="campaign_body_font") Body Font (from Google Fonts)
+            label.col-form-label.col-md-3(for="campaign_body_font") Body Font (from Google Fonts)
             .col
                 select.form-select.select2#campaign_body_font(name="campaign[body_font]" data-placeholder='Google Font')
                     option
@@ -140,6 +104,8 @@ fieldset.mb-2.border.p-2.rounded
 
                 #css-container.collapse(aria-labeledby="css-heading")
                     +cssEditor('campaign_css', 'campaign[css]', 5, 200, campaign.css)
+
+//- Renaming
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#naming-heading(data-bs-toggle="collapse" data-bs-target="#naming-container" aria-expanded="false" area-controls="naming-container") Campaign-specific Names
         span.float-end.ps-2
@@ -200,9 +166,86 @@ fieldset.mb-2.border.p-2.rounded
                         value=value
                     )
 
+//- Character Points
+fieldset.mb-2.border.p-2.rounded
+    label.h5.w-100#cp-heading(data-bs-toggle="collapse" data-bs-target="#cp-container" aria-expanded="false" area-controls="cp-container") Character Point Options
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+    #cp-container.collapse(aria-labeledby="cp-heading")
+        .row.my-2
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_cp(type="checkbox", name="campaign[display_cp]", checked=campaign.display_cp)
+                    label.form-check-label(for="campaign_display_cp") Enable Character Point Tracker and CP limits
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_cp_approval(type="checkbox", name="campaign[cp_approval]", checked=campaign.cp_approval)
+                    label.form-check-label(for="campaign_cp_approval") Require Staff approval for CP Grants
+        .row.my-2
+            label.col-form-label.col-md-4(for="campaign_cp_base") Base/Starting Character Points
+            .col
+                input.form-control#campaign_cp_base(placeholder="CP",name="campaign[cp_base]",value=campaign.cp_base type='number')
+        .row.my-2
+            label.col-form-label.col-md-4(for="campaign_cp_cap") Current Character Point Cap
+            .col
+                input.form-control#campaign_cp_cap(placeholder="CP",name="campaign[cp_cap]",value=campaign.cp_cap type='number')
+        .row.my-2
+            label.col-form-label.col-md-4(for="campaign_cp_factor") Over-Cap CP Value
+            .col
+                input.form-control#campaign_cp_cap(placeholder="Factor",name="campaign[cp_factor]",value=campaign.cp_factor type='number' max=1, min=0 step=0.125)
+
+//- Character Sheet
+if fonts.length
+    fieldset.mb-2.border.p-2.rounded
+        label.h5.w-100#character-sheet-heading(data-bs-toggle="collapse" data-bs-target="#character-sheet-container" aria-expanded="false" area-controls="character-sheet-container") Character Sheet Options
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+
+        #character-sheet-container.collapse(aria-labeledby='character-sheet-heading')
+            .row.my-2
+                label.col-form-label.col-md-3(for="campaign_default_character_sheet_header_font_id") Character Sheet Header Font
+                .col
+                    select.form-select.select2#campaign_character_sheet_header_font_id(name="campaign[character_sheet_header_font_id]" data-placeholder='Header Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.character_sheet_header_font_id===font.id)
+                                =font.name
+                label.col-form-label.col-md-2.text-end(for="campaign_character_sheet_header_font_scale") Scale:
+                .col-md-2
+                    input.form-control#campaign_character_sheet_header_font_scale(
+                        placeholder="Scale"
+                        name="campaign[character_sheet_header_font_scale]"
+                        value=campaign.character_sheet_header_font_scale
+                        type='number'
+                        max=3
+                        min=0.1
+                        step=0.1
+                    )
 
 
+            .row.my-2
+                label.control-label.col-form-label.col-md-3(for="campaign_character_sheet_body_font_id") Character Sheet Body Font
+                .col
+                    select.form-select.select2#campaign_character_sheet_body_font_id(name="campaign[character_sheet_body_font_id]" data-placeholder='Body Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.character_sheet_body_font_id===font.id)
+                                =font.name
+                label.col-form-label.col-md-2.text-end(for="campaign_character_sheet_body_font_scale") Scale:
+                .col-md-2
+                    input.form-control#campaign_character_sheet_body_font_scale(
+                        placeholder="Scale"
+                        name="campaign[character_sheet_body_font_scale]"
+                        value=campaign.character_sheet_body_font_scale
+                        type='number'
+                        max=3
+                        min=0.1
+                        step=0.1
+                    )
 
+//- Google Drive
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#drive-heading(data-bs-toggle="collapse" data-bs-target="#drive-container" aria-expanded="false" area-controls="drive-container") Google Drive Options
         span.float-end.ps-2
@@ -214,32 +257,28 @@ fieldset.mb-2.border.p-2.rounded
                 .alert.alert-info These fields allow you to provide handy links to Google Drive folders to your Staff, NPCs and Players.  This will not grant access to these folders, all sharing must be done within Google Drive itself.  Links to individual player folers can be added to the player user directly.
 
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_staff_drive") Staff Drive Folder
+            label.col-form-label.col-md-3(for="campaign_staff_drive") Staff Drive Folder
             .col
                 input.form-control#campaign_staff_drive(placeholder="URL",name="campaign[staff_drive_folder]",value=campaign.staff_drive_folder)
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_npc_drive") NPC Drive Folder
+            label.col-form-label.col-md-3(for="campaign_npc_drive") NPC Drive Folder
             .col
                 input.form-control#campaign_npc_drive(placeholder="URL",name="campaign[npc_drive_folder]",value=campaign.npc_drive_folder)
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_player_drive") Player Drive Folder
+            label.col-form-label.col-md-3(for="campaign_player_drive") Player Drive Folder
             .col
                 input.form-control#campaign_player_drive(placeholder="URL",name="campaign[player_drive_folder]",value=campaign.player_drive_folder)
-        .row.my-2
-            .col-md-4
-                label.control-label(for="campain_translation_drive_folder") Translations Drive Folder
-            .col
-                .input-group
-                    .input-group-text https://drive.google.com/drive/u/0/folders/
-                    input.form-control#campain_translation_drive_folder(placeholder="ID",name="campaign[translation_drive_folder]",value=campaign.translation_drive_folder)
-                .form-text
-                    |Make sure this folder is shared with #{config.get('drive.credentials.client_email')} as a Editor
+        if campaign.display_translations
+            .row.my-2
+                label.col-form-label.col-md-3(for="campain_translation_drive_folder") Translations Drive Folder
+                .col
+                    .input-group
+                        .input-group-text https://drive.google.com/drive/u/0/folders/
+                        input.form-control#campain_translation_drive_folder(placeholder="ID",name="campaign[translation_drive_folder]",value=campaign.translation_drive_folder)
+                    .form-text
+                        |Make sure this folder is shared with #{config.get('drive.credentials.client_email')} as a Editor
 
-
-
+//- Events
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#event-heading(data-bs-toggle="collapse" data-bs-target="#event-container" aria-expanded="false" area-controls="event-container") Event Options
         span.float-end.ps-2
@@ -251,8 +290,7 @@ fieldset.mb-2.border.p-2.rounded
                 .alert.alert-info These fields allow you to provide default values for events for this campaign, and to set custom fields for attendees to fill out.
 
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_event_default_cost") Default Event Cost in Dollars
+            label.col-form-label.col-md-4(for="campaign_event_default_cost") Default Event Cost in Dollars
             .col
                 .input-group
                     .input-group-text $
@@ -264,40 +302,37 @@ fieldset.mb-2.border.p-2.rounded
                     )
                     .input-group-text .00
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_event_default_location") Default Event Location
+            label.col-form-label.col-md-4(for="campaign_event_default_location") Default Event Location
             .col
                 input.form-control#campaign_event_default_location(type="text" placeholder="Location" name="campaign[event_default_location]" value=campaign.event_default_location)
 
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_timezone") Campaign Timezone
+            label.col-form-label.col-md-4(for="campaign_timezone") Campaign Timezone
             .col
                 select.form-select.select2#campaign_timezone(name="campaign[timezone]" data-placeholder="Timezone", required)
                     option
                     for timezone in moment.tz.names()
                         option(value=timezone, selected=campaign.timezone===timezone)= timezone
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_event_attendance_cp") Event Attendance CP
+            label.col-form-label.col-md-4(for="campaign_event_attendance_cp") Event Attendance CP
             .col
                 input.form-control#campaign_event_attendance_cp(placeholder="CP",name="campaign[event_attendance_cp]",value=campaign.event_attendance_cp type='number' min=0 step=0.125)
 
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_post_event_survey_cp") #{currentCampaign.renames.post_event_survey.singular} CP
+            label.col-form-label.col-md-4(for="campaign_post_event_survey_cp") #{currentCampaign.renames.post_event_survey.singular} CP
             .col
                 input.form-control#campaign_post_event_survey_cp(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
 
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_post_event_survey_hide_days")
+            label.col-form-label.col-md-4(for="campaign_post_event_survey_hide_days")
                     | Hide #{currentCampaign.renames.post_event_survey.singular} Results from Staff
             .col
                 .input-group
                     input.form-control#campaign_event_default_location(placeholder="Days",name="campaign[post_event_survey_hide_days]",value=campaign.post_event_survey_hide_days type='number' max=14, min=0)
                     .input-group-text Days
-if campaign.display_translations
+
+//- Translations
+if campaign.display_translations && fonts.length
     fieldset.mb-2.border.p-2.rounded
         label.h5.w-100#translation-heading(data-bs-toggle="collapse" data-bs-target="#translation-container" aria-expanded="false" area-controls="translation-container") Translations Options
             span.float-end.ps-2
@@ -305,8 +340,7 @@ if campaign.display_translations
                 i.fa.fa-chevron-down
         #translation-container.collapse(aria-labeledby="translation-heading")
             .row.my-2
-                .col-md-3
-                    label.control-label(for="campaign_default_translation_header_font_id") Default Translation Header Font
+                label.col-form-label.col-md-3(for="campaign_default_translation_header_font_id") Default Translation Header Font
                 .col
                     select.form-select.select2#campaign_default_translation_header_font_id(name="campaign[default_translation_header_font_id]" data-placeholder='Header Font')
                         option
@@ -315,15 +349,27 @@ if campaign.display_translations
                                 =font.name
 
             .row.my-2
-                .col-md-3
-                    label.control-label(for="campaign_default_translation_body_font_id") Default Translation Body Font
+                label.col-form-label.col-md-3(for="campaign_default_translation_body_font_id") Default Translation Body Font
                 .col
                     select.form-select.select2#campaign_default_translation_body_font_id(name="campaign[default_translation_body_font_id]" data-placeholder='Body Font')
                         option
                         for font in fonts
                             option(value=font.id selected=campaign.default_translation_body_font_id===font.id)
                                 =font.name
+            .row.my-2
+                label.col-form-label.col-md-3(for="campaign_translation_scale") Text Document Scale
+                .col
+                    input.form-control#campaign_translation_scale(
+                        placeholder="Scale"
+                        name="campaign[translation_scale]"
+                        value=campaign.translation_scale
+                        type='number'
+                        max=5
+                        min=0.5
+                        step=0.1
+                    )
 
+//- Authentication
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication Options
         span.float-end.ps-2
@@ -332,13 +378,11 @@ fieldset.mb-2.border.p-2.rounded
     #authentication-container.collapse(aria-labeledby="authentication-heading")
         .row.my-2
 
-            .col-md-4
-                label.control-label(for="campaign_google_client_id") Google OAuth Client ID
+            .label.col-form-label.col-md-3(for="campaign_google_client_id") Google OAuth Client ID
             .col
                 input.form-control#campaign_google_client_id(placeholder="OAuth Client ID",name="campaign[google_client_id]",value=campaign.google_client_id)
         .row.my-2
-            .col-md-4
-                label.control-label(for="campaign_google_client_secret") Google OAuth Client Secret
+            label.col-form-label.col-md-3(for="campaign_google_client_secret") Google OAuth Client Secret
             .col
                 input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
         .row.my-2

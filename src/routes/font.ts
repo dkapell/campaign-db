@@ -215,6 +215,7 @@ router.get('/list', listApi);
 router.get('/new', csrf(), showNew);
 router.get('/sign-s3', csrf(), signS3);
 router.get('/:id', csrf(), showEdit);
+router.get('/:id/edit', csrf(), showEdit);
 router.post('/', csrf(), create);
 router.put('/:id', csrf(), update);
 router.delete('/:id', permission('admin'), remove);

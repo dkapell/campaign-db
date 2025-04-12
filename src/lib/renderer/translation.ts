@@ -7,17 +7,7 @@ import {Readable} from 'stream';
 import models from '../models';
 import Drive from '../Drive';
 import fontHelper from '../fontHelper';
-
-
-interface PDFFeatures {
-    columns?:number
-    lineGap?:number
-    paragraphGap?:number
-    columnGap?:number
-    continued?:boolean
-    underline?:boolean
-    strike?:boolean
-}
+import pdfHelper from '../pdfHelper';
 
 async function renderFile(id){
     try{
@@ -31,7 +21,9 @@ async function renderFile(id){
             border: file.border,
             label: file.label,
             headerFontId: file.header_font_id?file.header_font_id:campaign.default_translation_header_font_id,
-            bodyFontId: file.body_font_id?file.body_font_id:campaign.default_translation_body_font_id
+            bodyFontId: file.body_font_id?file.body_font_id:campaign.default_translation_body_font_id,
+            bodyScale: (file.body_font_scale ||= 1) * (campaign.translation_scale ||= 1),
+            headerScale: (file.header_font_scale ||= 1) * (campaign.translation_scale ||= 1)
         });
 
         const outputFolder = await Drive.createFolder(campaign.translation_drive_folder, 'Output');
@@ -64,9 +56,8 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
     }
     const fontBuffer = await fontHelper.buffer(font.id);
 
-
     doc.registerFont(font.name, fontBuffer);
-    await registerFonts(doc, options);
+    await pdfHelper.registerFonts(doc, options);
 
     if (options.border){
 
@@ -129,7 +120,6 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
         maxHeight = maxHeight * 14;
     }
 
-
     while (doc.heightOfString(preview, features) > maxHeight){
         actualSize -= 0.1;
         doc.fontSize(actualSize);
@@ -155,107 +145,15 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
 
     doc
         .addPage()
-        .fontSize(12)
+        .fontSize(12*options.bodyScale)
         .moveTo(options.margin*1.5, options.margin*1.5)
         .text('');
 
-    if (_.isString(text)){
-        doc.text(text);
-    } else {
-        for (const paragraph of text){
-            for (let i = 0; i < paragraph.length; i++){
-                const chunk = paragraph[i];
-                const features: PDFFeatures = {};
-                if ( i < paragraph.length - 1){
-                    features.continued = true;
-                }
+    pdfHelper.renderGoogleDocument(doc, text, options);
 
-                doc.font('Body Font');
-                if (!chunk) { continue; }
-                let isHeader = false;
-                 switch (chunk.paragraphStyle){
-                    case 'HEADING_1':
-                        doc.moveDown();
-                        doc.font('Header Font').fontSize(20);
-                        isHeader = true;
-                        break;
-                    case 'HEADING_2':
-                        doc.moveDown();
-                        doc.font('Header Font').fontSize(18);
-                        isHeader = true;
-                        break;
-                    case 'HEADING_3':
-                        doc.moveDown();
-                        doc.font('Header Font').fontSize(16);
-                        isHeader = true;
-                        break;
-                    case 'HEADING_4':
-                        doc.font('Header Font').fontSize(14);
-                        isHeader = true;
-                        break;
-                    case 'HEADING_5':
-                        doc.font('Header Font').fontSize(12);
-                        isHeader = true;
-                        break;
-                    default:
-                        doc.font('Body Font').fontSize(12);
-                        break;
-                }
-
-
-                if (chunk.textStyle.bold && chunk.textStyle.italic){
-                    if (isHeader){
-                        doc.font('Header Font BoldItalic');
-                    } else {
-                        doc.font('Body Font BoldItalic');
-                    }
-                } else if (chunk.textStyle.bold){
-                    if (isHeader){
-                        doc.font('Header Font Bold');
-                    } else {
-                        doc.font('Body Font Bold');
-                    }
-                } else if (chunk.textStyle.italic){
-                    if (isHeader){
-                        doc.font('Header Font Italic');
-                    } else {
-                        doc.font('Body Font Italic');
-                    }
-                }
-
-                if (chunk.textStyle.underline){
-                    features.underline = true;
-                } else {
-                    features.underline = false;
-                }
-
-                if (chunk.textStyle.strikethrough){
-                    features.strike = true;
-                } else {
-                    features.strike = false;
-                }
-
-                doc.text(chunk.content, features);
-
-            }
-        }
-    }
 
     doc.end();
     return doc;
 
 }
-
-async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
-    doc.registerFont('Header Font', await fontHelper.buffer(options.headerFontId));
-    doc.registerFont('Header Font Bold', await fontHelper.buffer(options.headerFontId, 'bold'));
-    doc.registerFont('Header Font Italic', await fontHelper.buffer(options.headerFontId, 'italic'));
-    doc.registerFont('Header Font BoldItalic', await fontHelper.buffer(options.headerFontId, 'bolditalic'));
-
-    doc.registerFont('Body Font', await fontHelper.buffer(options.bodyFontId));
-    doc.registerFont('Body Font Bold', await fontHelper.buffer(options.bodyFontId, 'bold'));
-    doc.registerFont('Body Font Italic', await fontHelper.buffer(options.bodyFontId, 'italic'));
-    doc.registerFont('Body Font BoldItalic', await fontHelper.buffer(options.bodyFontId, 'bolditalic'));
-}
-
 export default renderFile;

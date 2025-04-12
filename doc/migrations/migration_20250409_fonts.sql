@@ -39,6 +39,8 @@ create table translations(
     font_id int,
     body_font_id int,
     header_font_id int,
+    body_font_scale float default 1,
+    header_font_scale float default 1,
     status varchar(80),
     preview int default 0,
     updated timestamp with time zone default now(),
@@ -59,5 +61,9 @@ alter table campaigns
     add column translation_drive_folder varchar(255),
     add column display_translations boolean default false,
     add column default_translation_body_font_id int,
-    add column default_translation_header_font_id int;
-
+    add column default_translation_header_font_id int,
+    add column character_sheet_header_font_id int,
+    add column character_sheet_body_font_id int;
+    add column character_sheet_body_font_scale float default 1,
+    add column character_sheet_header_font_scale float default 1,
+    add column translation_scale float default 1;

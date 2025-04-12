@@ -19,6 +19,18 @@ if (backto)
             for font in textFonts
                 option(value=font.id selected=translation.header_font_id===font.id)
                     = font.name
+    .col-md-3
+        label.control-label(for="translation_header_font_scale") Scale:
+        input.form-control#translation_header_font_scale(
+            placeholder="Scale"
+            name="translation[header_font_scale]"
+            value=translation.header_font_scale
+            type='number'
+            max=5
+            min=0.1
+            step=0.1
+        )
+
 
 .row.my-2
     .col
@@ -28,6 +40,17 @@ if (backto)
             for font in textFonts
                 option(value=font.id selected=translation.body_font_id===font.id)
                     = font.name
+    .col-md-3
+        label.control-label(for="translation_body_font_scale") Scale:
+        input.form-control#translation_body_font_scale(
+            placeholder="Scale"
+            name="translation[body_font_scale]"
+            value=translation.body_font_scale
+            type='number'
+            max=5
+            min=0.1
+            step=0.1
+        )
 
 .row.my-2
     .col

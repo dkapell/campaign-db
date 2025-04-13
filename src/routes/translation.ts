@@ -34,6 +34,7 @@ async function list(req, res, next){
                     campaign_id: req.campaign.id,
                     name: file.name,
                     status: 'new',
+                    title_font_id: req.campaign.default_translation_title_font_id,
                     body_font_id: req.campaign.default_translation_body_font_id,
                     header_font_id: req.campaign.default_translation_header_font_id,
                     body_font_scale: 1,

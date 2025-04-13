@@ -55,6 +55,7 @@ interface CharacterSheetOptions {
     showLanguages?:boolean
     showRules?:boolean
     showInlineRules?:boolean
+    titleScale?:number
     headerScale?:number
     bodyScale?:number
 }

@@ -8,9 +8,31 @@ if (backto)
             option
             for font in fonts
                 option(value=font.id selected=translation.font_id===font.id)
-                    = font.name
                     if font.language
-                        |  (#{font.language})
+                        |  #{font.language} (#{font.name})
+                    else
+                        = font.name
+
+.row.my-2
+    .col
+        label.control-label(for="translation_title_font") Title Font
+        select.form-select.select2#translation_title_font(name="translation[title_font_id]" data-placeholder='Font' required)
+            option
+            for font in textFonts
+                option(value=font.id selected=translation.title_font_id===font.id)
+                    = font.name
+    .col-md-3
+        label.control-label(for="translation_title_font_scale") Scale:
+        input.form-control#translation_title_font_scale(
+            placeholder="Scale"
+            name="translation[title_font_scale]"
+            value=translation.title_font_scale
+            type='number'
+            max=5
+            min=0.1
+            step=0.1
+        )
+
 .row.my-2
     .col
         label.control-label(for="translation_header_font") Header Font
@@ -64,6 +86,12 @@ if (backto)
         .form-check.form-switch
             input.form-check-input#translation_label(type="checkbox" name="translation[label]" checked=translation.label)
             label.form-check-label(for="translation_label") Show Label
+
+.row.my-2
+    .col
+        .form-check.form-switch
+            input.form-check-input#translation_runes_only(type="checkbox" name="translation[runes_only]" checked=translation.runes_only)
+            label.form-check-label(for="translation_runes_only") Rune Page Only
 
 
 .row.my-2

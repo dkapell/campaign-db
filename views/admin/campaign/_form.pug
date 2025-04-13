@@ -205,6 +205,26 @@ if fonts.length
 
         #character-sheet-container.collapse(aria-labeledby='character-sheet-heading')
             .row.my-2
+                label.col-form-label.col-md-3(for="campaign_default_character_sheet_title_font_id") Character Sheet Title Font
+                .col
+                    select.form-select.select2#campaign_character_sheet_title_font_id(name="campaign[character_sheet_title_font_id]" data-placeholder='Title Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.character_sheet_title_font_id===font.id)
+                                =font.name
+                label.col-form-label.col-md-2.text-end(for="campaign_character_sheet_title_font_scale") Scale:
+                .col-md-2
+                    input.form-control#campaign_character_sheet_title_font_scale(
+                        placeholder="Scale"
+                        name="campaign[character_sheet_title_font_scale]"
+                        value=campaign.character_sheet_title_font_scale
+                        type='number'
+                        max=3
+                        min=0.1
+                        step=0.1
+                    )
+
+            .row.my-2
                 label.col-form-label.col-md-3(for="campaign_default_character_sheet_header_font_id") Character Sheet Header Font
                 .col
                     select.form-select.select2#campaign_character_sheet_header_font_id(name="campaign[character_sheet_header_font_id]" data-placeholder='Header Font')
@@ -339,6 +359,15 @@ if campaign.display_translations && fonts.length
                 i.fa.fa-chevron-up
                 i.fa.fa-chevron-down
         #translation-container.collapse(aria-labeledby="translation-heading")
+            .row.my-2
+                label.col-form-label.col-md-3(for="campaign_default_translation_title_font_id") Default Translation Title Font
+                .col
+                    select.form-select.select2#campaign_default_translation_title_font_id(name="campaign[default_translation_title_font_id]" data-placeholder='Title Font')
+                        option
+                        for font in fonts
+                            option(value=font.id selected=campaign.default_translation_title_font_id===font.id)
+                                =font.name
+
             .row.my-2
                 label.col-form-label.col-md-3(for="campaign_default_translation_header_font_id") Default Translation Header Font
                 .col

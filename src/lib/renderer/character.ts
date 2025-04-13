@@ -35,13 +35,15 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
 
     const campaign = await models.campaign.get(characters[0].campaign_id);
+
     const fontOptions = {
         useDefaults: false,
+        titleFontId: campaign.character_sheet_title_font_id,
         headerFontId: campaign.character_sheet_header_font_id,
         bodyFontId: campaign.character_sheet_body_font_id
     };
 
-
+    options.titleScale = campaign.character_sheet_title_font_scale;
     options.headerScale = campaign.character_sheet_header_font_scale;
     options.bodyScale = campaign.character_sheet_body_font_scale;
 
@@ -136,7 +138,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             .fillColor('#000000');
         const maxNameWidth = doc.page.width - (options.margin*2 + 220);
         const maxTraitWidth = doc.page.width - (options.margin*2 + 220);
-        addText(character.name, {font: 'Header Font', nowrap:true}, 26*options.headerScale, options.margin + 10, options.margin + 5, maxNameWidth, 100);
+        addText(character.name, {font: 'Title Font', nowrap:true}, 24*options.titleScale, options.margin + 10, options.margin + 5, maxNameWidth, 100);
         addText(character.user.name, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + 10, options.margin + 35, maxNameWidth/2, 100);
         addText(`${character.cp} CP`, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + maxNameWidth/2, options.margin + 35, maxNameWidth/2, 100);
 

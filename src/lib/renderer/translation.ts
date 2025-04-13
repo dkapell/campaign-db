@@ -20,10 +20,13 @@ async function renderFile(id){
             fontId: file.font_id,
             border: file.border,
             label: file.label,
+            runesOnly: file.runes_only,
             headerFontId: file.header_font_id?file.header_font_id:campaign.default_translation_header_font_id,
             bodyFontId: file.body_font_id?file.body_font_id:campaign.default_translation_body_font_id,
             bodyScale: (file.body_font_scale ||= 1) * (campaign.translation_scale ||= 1),
-            headerScale: (file.header_font_scale ||= 1) * (campaign.translation_scale ||= 1)
+            headerScale: (file.header_font_scale ||= 1) * (campaign.translation_scale ||= 1),
+            titleFontId:  file.title_font_id?file.title_font_id:campaign.default_translation_title_font_id,
+            titleScale: (file.title_font_scale ||= 1) * (campaign.translation_scale ||= 1)
         });
 
         const outputFolder = await Drive.createFolder(campaign.translation_drive_folder, 'Output');
@@ -59,13 +62,31 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
     doc.registerFont(font.name, fontBuffer);
     await pdfHelper.registerFonts(doc, options);
 
+
+    if (options.label){
+
+        doc.rect(doc.page.width/4, options.margin-20, doc.page.width/2, 40).stroke();
+
+        const headerArray = [
+            {
+                text: `Language: ${options.language}`,
+                font: 'Header Font Bold'
+            },
+            {
+                text: ' Only',
+                font: 'Header Font'
+            }
+        ];
+
+        addTextbox(headerArray, doc, doc.page.width/4, options.margin-5, doc.page.width/2, {
+            fontSize: 14,
+            align: 'center',
+        });
+    }
+
     if (options.border){
-
         if (options.label){
-
-            doc.rect(doc.page.width/4, options.margin-20, doc.page.width/2, 40).stroke();
-
-            doc
+             doc
                 .moveTo(doc.page.width/4, options.margin)
                 .lineTo(options.margin, options.margin)
                 .lineTo(options.margin, doc.page.height - options.margin)
@@ -73,23 +94,6 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
                 .lineTo(doc.page.width - options.margin, options.margin)
                 .lineTo(3*doc.page.width/4, options.margin)
                 .stroke();
-
-            const headerArray = [
-                {
-                    text: `Language: ${options.language}`,
-                    font: 'Header Font Bold'
-                },
-                {
-                    text: ' Only',
-                    font: 'Header Font'
-                }
-            ];
-
-            addTextbox(headerArray, doc, doc.page.width/4, options.margin-5, doc.page.width/2, {
-                fontSize: 14,
-                align: 'center',
-            });
-
         } else {
             doc.rect(options.margin, options.margin, doc.page.width - options.margin*2, doc.page.height - options.margin*2).stroke();
         }
@@ -142,15 +146,16 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
     } else {
         doc.text(preview, options.margin*1.5, options.margin*2,features);
     }
+    if (!options.runesOnly){
 
-    doc
-        .addPage()
-        .fontSize(12*options.bodyScale)
-        .moveTo(options.margin*1.5, options.margin*1.5)
-        .text('');
+        doc
+            .addPage()
+            .fontSize(12*options.bodyScale)
+            .moveTo(options.margin*1.5, options.margin*1.5)
+            .text('');
 
-    pdfHelper.renderGoogleDocument(doc, text, options);
-
+        pdfHelper.renderGoogleDocument(doc, text, options);
+    }
 
     doc.end();
     return doc;

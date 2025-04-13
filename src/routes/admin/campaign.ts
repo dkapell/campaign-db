@@ -68,10 +68,13 @@ async function showNew(req, res){
         translation_drive_folder: null,
         default_translation_body_font_id: null,
         default_translation_header_font_id: null,
+        default_translation_title_font_id: null,
         character_sheet_body_font_id: null,
         character_sheet_header_font_id: null,
+        character_sheet_title_font_id: null,
         character_sheet_body_font_scale: 1,
         character_sheet_header_font_scale: 1,
+        character_sheet_title_font_scale: 1,
         translation_scale: 1
     };
     res.locals.googleFonts = await fontHelper.list()

@@ -31,7 +31,7 @@ async function list(req, res, next){
             } else {
                 const id = await req.models.translation.create({
                     doc_id: file.id,
-                    campaign_id: req.campaign_id,
+                    campaign_id: req.campaign.id,
                     name: file.name,
                     status: 'new',
                     body_font_id: req.campaign.default_translation_body_font_id,
@@ -72,7 +72,7 @@ async function showEdit(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/translation', name: 'Documents'},
+                { url: '/translation', name: 'Translations'},
             ],
             current: 'Edit Translation: ' + translation.name
         };

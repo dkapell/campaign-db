@@ -4,7 +4,23 @@ import fontHelper from './fontHelper';
 import _ from 'underscore';
 
 async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
-    const fontsDir = __dirname + '/../../../fonts/'
+    const fontsDir = __dirname + '/../../fonts/'
+
+    try {
+        if (!options.titleFontId){
+            throw new Error('No Title Font Provided')
+        }
+        doc.registerFont('Title Font', await fontHelper.buffer(options.titleFontId));
+        doc.registerFont('Title Font Bold', await fontHelper.buffer(options.titleFontId, 'bold'));
+        doc.registerFont('Title Font Italic', await fontHelper.buffer(options.titleFontId, 'italic'));
+        doc.registerFont('Title Font BoldItalic', await fontHelper.buffer(options.titleFontId, 'bolditalic'));
+    } catch (err){
+        console.log(`Something went wrong loading remote font for headers, using defaults. ${err.message}`);
+        doc.registerFont('Title Font', fontsDir + 'Montserrat-Regular.ttf');
+        doc.registerFont('Title Font Bold', fontsDir + 'Montserrat-Bold.ttf');
+        doc.registerFont('Title Font Italic', fontsDir + 'Montserrat-Italic.ttf');
+        doc.registerFont('Title Font BoldItalic', fontsDir + 'Montserrat-BoldItalic.ttf');
+    }
 
     try {
         if (!options.headerFontId){
@@ -58,56 +74,60 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
                 }
 
                 doc.font('Body Font');
+                doc.fillColor('black');
+                doc.lineGap(0);
                 if (!chunk) { continue; }
-                let isHeader = false;
+                let fontStyle = 'Body';
                  switch (chunk.paragraphStyle){
+                     case 'TITLE':
+                        doc.lineGap(6);
+                        doc.font('Title Font').fontSize(22*options.titleScale);
+                        fontStyle = 'Title';
+
+                        break;
+                    case 'SUBTITLE':
+                        doc.lineGap(4);
+                        doc.font('Title Font').fontSize(15*options.titleScale);
+                        doc.fillColor('gray')
+                        fontStyle = 'Title';
+                        break;
                     case 'HEADING_1':
-                        doc.moveDown();
+                        doc.lineGap(3);
                         doc.font('Header Font').fontSize(20*options.headerScale);
-                        isHeader = true;
+                        fontStyle = 'Header';
                         break;
                     case 'HEADING_2':
-                        doc.moveDown();
+                        doc.lineGap(3);
                         doc.font('Header Font').fontSize(18*options.headerScale);
-                        isHeader = true;
+                        fontStyle = 'Title';
                         break;
                     case 'HEADING_3':
-                        doc.moveDown();
+                        doc.lineGap(3);
                         doc.font('Header Font').fontSize(16*options.headerScale);
-                        isHeader = true;
+                        fontStyle = 'Title';
                         break;
                     case 'HEADING_4':
                         doc.font('Header Font').fontSize(14*options.headerScale);
-                        isHeader = true;
+                        fontStyle = 'Title';
                         break;
                     case 'HEADING_5':
                         doc.font('Header Font').fontSize(12*options.headerScale);
-                        isHeader = true;
+                        fontStyle = 'Title';
                         break;
                     default:
                         doc.font('Body Font').fontSize(12*options.bodyScale);
+                        fontStyle = 'Body';
                         break;
                 }
 
 
                 if (chunk.textStyle.bold && chunk.textStyle.italic){
-                    if (isHeader){
-                        doc.font('Header Font BoldItalic');
-                    } else {
-                        doc.font('Body Font BoldItalic');
-                    }
+                    doc.font(`${fontStyle} Font BoldItalic`);
                 } else if (chunk.textStyle.bold){
-                    if (isHeader){
-                        doc.font('Header Font Bold');
-                    } else {
-                        doc.font('Body Font Bold');
-                    }
+                    doc.font(`${fontStyle} Font Bold`);
+
                 } else if (chunk.textStyle.italic){
-                    if (isHeader){
-                        doc.font('Header Font Italic');
-                    } else {
-                        doc.font('Body Font Italic');
-                    }
+                    doc.font(`${fontStyle} Font Italic`);
                 }
 
                 if (chunk.textStyle.underline){

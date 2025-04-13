@@ -60,8 +60,13 @@ create table campaigns (
     display_translations boolean default false,
     default_translation_body_font_id int,
     default_translation_header_font_id int,
+    default_translation_title_font_id int,
     character_sheet_body_font_id int,
     character_sheet_header_font_id int,
+    character_sheet_title_font_id int,
+    character_sheet_body_font_scale float default 1,
+    character_sheet_header_font_scale float default 1,
+    character_sheet_title_font_scale float default 1,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -791,11 +796,14 @@ create table translations(
     name varchar(255),
     border boolean default true,
     label boolean default true,
+    runes_only boolean default false,
     font_id int,
     body_font_id int,
     header_font_id int,
+    title_font_id int,
     body_font_scale float default 1,
     header_font_scale float default 1,
+    title_font_scale float default 1,
     status varchar(80),
     preview int default 0,
     updated timestamp with time zone default now(),
@@ -807,7 +815,6 @@ create table translations(
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
-
 CREATE INDEX translations_idx
     ON translations USING btree
     (doc_id ASC NULLS LAST);

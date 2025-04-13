@@ -10,15 +10,19 @@ const models = {
 
 const tableFields = [
     'id',
+    'campaign_id',
     'doc_id', 
     'name', 
     'border', 
-    'label', 
+    'label',
+    'runes_only',
     'font_id',
     'header_font_id',
     'header_font_scale',
     'body_font_id',
     'body_font_scale',
+    'title_font_id',
+    'title_font_scale',
     'status', 
     'updated', 
     'preview'

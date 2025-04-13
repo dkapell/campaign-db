@@ -57,12 +57,14 @@ const tableFields = [
     'translation_drive_folder',
     'default_translation_header_font_id',
     'default_translation_body_font_id',
+    'default_translation_title_font_id',
+    'character_sheet_title_font_id',
     'character_sheet_header_font_id',
     'character_sheet_body_font_id',
-    'character_sheet_body_font_scale',
+    'character_sheet_title_font_scale',
     'character_sheet_header_font_scale',
+    'character_sheet_body_font_scale',
     'translation_scale'
-
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

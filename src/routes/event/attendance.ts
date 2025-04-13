@@ -538,21 +538,23 @@ async function exportEventAttendees(req, res, next){
                         if (field.visible_to === 'player' && exportType === 'staff') { continue; }
                         if (field.visible_to === 'staff' && exportType === 'player') { continue; }
 
-                        if (_.has(attendee.pre_event_data, field.id)){
-                            if (field.type === 'boolean' || field.type === 'image'){
-                                row.push(attendee.pre_event_data[field.id].data?'Yes':'No');
-                            } else {
-                                row.push(attendee.pre_event_data[field.id].data);
-                            }
 
-                        } else if (_.has(attendee.pre_event_data, field.name)){
-                            if (field.type === 'boolean' || field.type === 'image'){
-                                row.push(attendee.pre_event_data[field.name]?'Yes':'No');
+                        if (field.type==='boolean' || field.type === 'image'){
+                            if (_.has(survey.data, field.id)){
+                                row.push(survey.data[field.id].data?'Yes':'No');
+                            } else if (_.has(attendee.pre_event_data, field.name)){
+                                row.push(survey.data[field.name]?'Yes':'No');
                             } else {
-                                row.push(attendee.pre_event_data[field.name]);
+                                row.push('No');
                             }
                         } else {
-                            row.push(null);
+                            if (_.has(survey.data, field.id)){
+                                row.push(removeMd(survey.data[field.id].data));
+                            } else if (_.has(attendee.pre_event_data, field.name)){
+                                row.push(attendee.pre_event_data[field.name]);
+                            } else {
+                                row.push(null);
+                            }
                         }
 
                     }

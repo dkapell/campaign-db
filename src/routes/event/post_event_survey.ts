@@ -331,6 +331,8 @@ async function exportPostEventSurveys(req, res, next){
                     } else {
                         if (_.has(survey.data, field.id)){
                             row.push(removeMd(survey.data[field.id].data));
+                        } else {
+                            row.push(null);
                         }
                     }
                 }

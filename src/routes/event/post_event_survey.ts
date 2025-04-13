@@ -322,10 +322,14 @@ async function exportPostEventSurveys(req, res, next){
             if (event.post_event_survey){
                 for (const field of event.post_event_survey.definition){
                     if (field.type === 'text content') { continue; }
-                    if (_.has(survey.data, field.id)){
-                        if (field.type==='boolean' || field.type === 'image'){
+                    if (field.type==='boolean' || field.type === 'image'){
+                        if (_.has(survey.data, field.id)){
                             row.push(survey.data[field.id].data?'Yes':'No');
                         } else {
+                            row.push('No');
+                        }
+                    } else {
+                        if (_.has(survey.data, field.id)){
                             row.push(removeMd(survey.data[field.id].data));
                         }
                     }

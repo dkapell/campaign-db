@@ -91,7 +91,7 @@ async function update(req, res){
     const translation = req.body.translation;
     req.session.translationData = translation;
 
-    for (const field of ['border', 'label']){
+    for (const field of ['border', 'label', 'runes_only']){
         if (!_.has(translation, field)){
             translation[field] = false;
         }

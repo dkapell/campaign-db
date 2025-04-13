@@ -23,6 +23,7 @@ block content
                     th Font
                     th Border
                     th Label
+                    th Rune Page Only
                     th Status
                     th
 
@@ -44,6 +45,7 @@ block content
 
                         td= doc.border?'Yes':'No'
                         td= doc.label?'Yes':'No'
+                        td= doc.runes_only?'Yes':'No'
                         td= doc.status
                         td
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(

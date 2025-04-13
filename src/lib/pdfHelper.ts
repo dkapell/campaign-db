@@ -76,7 +76,10 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
                 doc.font('Body Font');
                 doc.fillColor('black');
                 doc.lineGap(0);
-                if (!chunk) { continue; }
+                if (!chunk) {
+                    doc.moveDown();
+                    continue;
+                }
                 let fontStyle = 'Body';
                  switch (chunk.paragraphStyle){
                      case 'TITLE':
@@ -86,23 +89,23 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
 
                         break;
                     case 'SUBTITLE':
-                        doc.lineGap(4);
+                        doc.lineGap(5);
                         doc.font('Title Font').fontSize(15*options.titleScale);
                         doc.fillColor('gray')
                         fontStyle = 'Title';
                         break;
                     case 'HEADING_1':
-                        doc.lineGap(3);
+                        doc.lineGap(4);
                         doc.font('Header Font').fontSize(20*options.headerScale);
                         fontStyle = 'Header';
                         break;
                     case 'HEADING_2':
-                        doc.lineGap(3);
+                        doc.lineGap(4);
                         doc.font('Header Font').fontSize(18*options.headerScale);
                         fontStyle = 'Title';
                         break;
                     case 'HEADING_3':
-                        doc.lineGap(3);
+                        doc.lineGap(4);
                         doc.font('Header Font').fontSize(16*options.headerScale);
                         fontStyle = 'Title';
                         break;

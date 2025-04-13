@@ -117,7 +117,7 @@ async function showEditAttendance(req, res, next){
             res.locals.attendance.character_id = activeCharacter?activeCharacter.id:null;
         }
 
-        if (user.type.match(/^(core staff|admin)$/)) {
+        if (res.locals.checkPermission('gm')) {
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             let users = await async.map(campaign_users, async (campaign_user) => {
                 const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
@@ -163,7 +163,7 @@ async function createAttendance(req, res){
         }
         attendance.event_id = eventId;
 
-        if (user.type.match(/^(core staff|admin)$/)) {
+        if (res.locals.checkPermission('gm')) {
             if (attendance.user_id) {
                 user = await req.models.user.get(req.campaign.id, attendance.user_id);
             } else {

@@ -59,12 +59,15 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         span.ms-1 ( #{field.days_before} Days Before )
                 if field.description
                     .form-text!=marked.parseInline(field.description, {breaks:true})
-
-                select.form-select.select2(id=`${idPrefix}_${field.id}` name=`${namePrefix}[${field.id}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required disabled=disabled)
-                    if field.placeholder
-                        option
-                    for item of field.options
-                        option(value=item selected=item===currentValue)= item
+                .input-group
+                    select.form-select.select2(id=`${idPrefix}_${field.id}` name=`${namePrefix}[${field.id}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required disabled=disabled)
+                        if field.placeholder
+                            option
+                        for item of field.options
+                            option(value=item selected=item===currentValue)= item
+                    button.btn.btn-outline-secondary.survey-dropdown-clear-btn
+                        i.fa.fa-times-circle.me-1
+                        | Clear
 
             when 'image'
                 label.control-label(for=`${idPrefix}_${field.id}`)= field.name

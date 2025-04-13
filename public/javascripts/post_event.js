@@ -18,7 +18,14 @@ $(function(){
     $('#postEventHideBtn').on('click', hidePostEventSurvey);
     $('#postEventUnhideBtn').on('click', unhidePostEventSurvey);
     $('#postEventSurveyForm').on('submit', submitPostEventSurveyForm);
+
+    $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
 });
+
+async function clearSurveyDropdown(e){
+    e.preventDefault();
+    $(this).closest('.input-group').find('select').val(null).trigger('change');
+}
 
 function watchField(){
     const $field = $(this);

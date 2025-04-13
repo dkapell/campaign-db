@@ -38,9 +38,14 @@ $(function(){
     $('#not-attending-btn-form').on('click', markNotAttending);
 
     $('#attendanceForm').on('submit', submitAttendanceForm);
-
+    $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     updateCustomFieldVisibility();
 });
+
+async function clearSurveyDropdown(e){
+    e.preventDefault();
+    $(this).closest('.input-group').find('select').val(null).trigger('change');
+}
 
 async function updateCharacterPicker(e){
     const $this = $(this);

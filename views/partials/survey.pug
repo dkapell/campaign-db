@@ -65,7 +65,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                             option
                         for item of field.options
                             option(value=item selected=item===currentValue)= item
-                    button.btn.btn-outline-secondary.survey-dropdown-clear-btn
+                    button.btn.btn-outline-dark.survey-dropdown-clear-btn
                         i.fa.fa-times-circle.me-1
                         | Clear
 

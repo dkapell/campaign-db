@@ -308,6 +308,7 @@ async function exportPostEventSurveys(req, res, next){
         ];
         if (event.post_event_survey){
             for (const field of event.post_event_survey.definition){
+                if (field.type === 'text content') { continue; }
                 header.push(removeMd(field.name));
             }
         }

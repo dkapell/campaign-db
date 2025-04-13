@@ -427,6 +427,9 @@ async function exportEventAttendees(req, res, next){
             header.push('Checked In');
             if (event.pre_event_survey){
                 for (const field of event.pre_event_survey.definition){
+                    if (field.type === 'text content') { continue; }
+                    if (field.visible_to === 'player' && exportType === 'staff') { continue; }
+                    if (field.visible_to === 'staff' && exportType === 'player') { continue; }
                     header.push(field.name);
                 }
             }
@@ -532,6 +535,9 @@ async function exportEventAttendees(req, res, next){
                 if (event.pre_event_survey){
                     for (const field of event.pre_event_survey.definition){
                         if (field.type === 'text content') { continue; }
+                        if (field.visible_to === 'player' && exportType === 'staff') { continue; }
+                        if (field.visible_to === 'staff' && exportType === 'player') { continue; }
+
                         if (_.has(attendee.pre_event_data, field.id)){
                             if (field.type === 'boolean' || field.type === 'image'){
                                 row.push(attendee.pre_event_data[field.id].data?'Yes':'No');

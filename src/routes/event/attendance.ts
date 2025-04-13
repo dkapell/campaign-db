@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import async from 'async';
 import stringify from 'csv-stringify-as-promised';
+import removeMd from 'remove-markdown';
 
 import surveyHelper from '../../lib/surveyHelper';
 
@@ -540,23 +541,22 @@ async function exportEventAttendees(req, res, next){
 
 
                         if (field.type==='boolean' || field.type === 'image'){
-                            if (_.has(survey.data, field.id)){
-                                row.push(survey.data[field.id].data?'Yes':'No');
+                            if (_.has(attendee.pre_event_data, field.id)){
+                                row.push(attendee.pre_event_data[field.id].data?'Yes':'No');
                             } else if (_.has(attendee.pre_event_data, field.name)){
-                                row.push(survey.data[field.name]?'Yes':'No');
+                                row.push(attendee.pre_event_data[field.name]?'Yes':'No');
                             } else {
                                 row.push('No');
                             }
                         } else {
-                            if (_.has(survey.data, field.id)){
-                                row.push(removeMd(survey.data[field.id].data));
+                            if (_.has(attendee.pre_event_data, field.id)){
+                                row.push(removeMd(attendee.pre_event_data[field.id].data));
                             } else if (_.has(attendee.pre_event_data, field.name)){
-                                row.push(attendee.pre_event_data[field.name]);
+                                row.push(removeMd(attendee.pre_event_data[field.name]));
                             } else {
                                 row.push(null);
                             }
                         }
-
                     }
                 }
                 row.push(attendee.notes);

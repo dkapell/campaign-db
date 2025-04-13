@@ -12,8 +12,35 @@ $(function(){
         minimumResultsForSearch: 6,
         width:'resolve'
     });
+    $('#preview_back').on('click', decrementTranslationIdx);
+    $('#preview_forward').on('click', incrementTranslationIdx);
 });
 
+
+function decrementTranslationIdx(e){
+    e.preventDefault();
+    const idx = Number($('#translation_preview').val());
+    if (idx > 0){
+        $('#translation_preview').val(idx-1).trigger('change');
+        if (idx-1 === 0){
+            $(this).addClass('disabled');
+        }
+        $('#preview_forward').removeClass('disabled');
+    }
+}
+function incrementTranslationIdx(e){
+    e.preventDefault();
+    const idx = Number($('#translation_preview').val());
+    const maxIdx = Number($('#translationParagraphCount').val());
+    if (idx < maxIdx){
+        $('#translation_preview').val(idx+1).trigger('change');
+        if (idx+1 === maxIdx){
+            $(this).addClass('disabled');
+        }
+        $('#preview_back').removeClass('disabled');
+    }
+
+}
 async function renderDocument(e){
     e.preventDefault();
     e.stopPropagation();

@@ -96,11 +96,17 @@ if (backto)
 
 .row.my-2
     .col
-        label.control-label(for="translation_preview") Preview Paragraph (up to #{translation.allText.length - 1})
-        input.form-control#translation_preview(type="number",name="translation[preview]",value=translation.preview)
-
+        input#translationParagraphCount(type="hidden" value=(translation.allText.length - 1))
         .card.mt-1
             .card-header Text Preview
+                .float-end.col-lg-3
+                    .input-group.input-group-sm
+                        a.btn.btn-outline-dark#preview_back(class=!translation_preview?'disabled':'')
+                            i.fa.fa-caret-left.fa-fw
+                        input.form-control.text-center#translation_preview(type="text" name="translation[preview]" value=translation.preview)
+                        a.btn.btn-outline-dark#preview_forward
+                            i.fa.fa-caret-right.fa-fw
+
             .card-body
                 p#previewPreview= translation.previewText
 

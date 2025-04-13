@@ -150,6 +150,14 @@ async function objectDiff(type, oldObject, newObject){
         if (newObject[field] != oldObject[field]){
             const oldVal = oldObject[field];
             const newVal = newObject[field];
+            if (typeof oldVal === 'object' || typeof newVal === 'object'){
+                changes.push({
+                    field: capitalize(field),
+                    type: 'status',
+                    status: 'Changed'
+                });
+                continue;
+            }
             if (oldVal === true && newVal === 'on'){
                 continue;
             }

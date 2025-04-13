@@ -1,0 +1,87 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/font/new')
+        span(class="fa fa-plus")
+        |  New Font
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Language
+                    th Type
+                    th Size
+                    th Vertical
+                    th Transform
+                    th File
+                    th
+
+
+            tbody
+                for font in fonts
+                    tr(class='clickable-row', data-click-object='font' data-click-id=font.id)
+                        td.dtr-control
+                        td= font.name
+                        td= font.language
+
+                        td
+                            if font.type==='user'
+                                .badge.text-bg-info
+                                    i.fas.fa-user.me-1
+                                    | User
+                            else if font.type === 'google'
+                                .badge.text-bg-info
+                                    i.fab.fa-google.me-1
+                                    | Google
+                            else
+                                .badge.text-bg-info
+                                    i.fab.fa-question-circle.me-1
+                                    | Unknown
+                        td
+                            if font.type==='user'
+                                =font.size
+                        td
+                            if font.type==='user'
+                                =font.vertical?'Yes':'No'
+                        td
+                            if font.type==='user'
+                                =capitalize(font.transformation)
+                        td
+                            if font.upload
+                                =font.upload.name
+
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/font/${font.id}/edit`
+                                title='Edit Font'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-edit.fa-fw
+
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
+                                role="button",
+                                url=`/font/${font.id}`,
+                                data-back='/font'
+                                title='Delete Font'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+        });
+
+

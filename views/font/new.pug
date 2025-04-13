@@ -1,0 +1,18 @@
+extends ../layout
+
+include ../partials/editor
+
+block content
+    .row
+        .col-lg-10.offset-lg-1
+            .card
+                .card-header New Font
+                .card-body
+                    form.form.needs-validation#fontForm(method="POST" action="/font" novalidate)
+                        input#formMethod(type="hidden", name="_method",  value="POST")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input#font-id(type="hidden", name='font[id]',value=null)
+                        include ./_form.pug
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/font.js')

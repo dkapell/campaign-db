@@ -5,6 +5,7 @@ import config from 'config';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 import campaignHelper from '../../lib/campaignHelper';
+import fontHelper from '../../lib/fontHelper';
 
 /* GET campaigns listing. */
 async function list(req, res, next){
@@ -26,7 +27,7 @@ async function list(req, res, next){
     }
 }
 
-function showNew(req, res){
+async function showNew(req, res){
     if (!req.campaign.default_site){
         req.flash('error', 'Must be on admin site to create new campaign');
         return res.redirect('/');
@@ -41,9 +42,10 @@ function showNew(req, res){
         display_map: false,
         display_glossary: true,
         display_cp: false,
+        display_translations: false,
         default_site:false,
-        body_font: null,
-        header_font: null,
+        body_font: 'Lato',
+        header_font: 'Montserrat',
         menu_dark: true,
         cp_base: 25,
         cp_cap: 50,
@@ -62,9 +64,17 @@ function showNew(req, res){
             'event staff':  { name: 'event staff', order: 3 },
             'player':  { name: 'player', order: 2 },
         },
-        rename_map: config.get('renames')
-
+        rename_map: config.get('renames'),
+        translation_drive_folder: null,
+        default_translation_body_font_id: null,
+        default_translation_header_font_id: null,
+        character_sheet_body_font_id: null,
+        character_sheet_header_font_id: null,
+        character_sheet_body_font_scale: 1,
+        character_sheet_header_font_scale: 1,
+        translation_scale: 1
     };
+    res.locals.googleFonts = await fontHelper.list()
     res.locals.breadcrumbs = {
         path: [
             { url: '/', name: 'Home'},
@@ -116,9 +126,10 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + campaign.name
         };
-
+        res.locals.googleFonts = await fontHelper.list();
         res.locals.websiteImages = await req.models.image.find({campaign_id:id, type:'website'});
         res.locals.faviconImages = await req.models.image.find({campaign_id:id, type:'favicon'});
+        res.locals.fonts = await req.models.font.find({campaign_id:req.campaign.id, type:'google'});
         res.locals.themes = _.keys(config.get('themes'));
         res.render('admin/campaign/edit');
     } catch(err){
@@ -135,7 +146,7 @@ async function create(req, res){
 
     req.session.campaignData = campaign;
 
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'menu_dark', 'cp_approval']){
+    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'menu_dark', 'cp_approval', 'display_translations']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
@@ -159,7 +170,7 @@ async function update(req, res){
     const id = req.params.id;
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'default_site', 'menu_dark', 'cp_approval']){
+    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'default_site', 'menu_dark', 'cp_approval', 'display_translations']){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }

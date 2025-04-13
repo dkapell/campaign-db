@@ -55,6 +55,8 @@ interface CharacterSheetOptions {
     showLanguages?:boolean
     showRules?:boolean
     showInlineRules?:boolean
+    headerScale?:number
+    bodyScale?:number
 }
 
 interface SurveyField {
@@ -74,3 +76,18 @@ interface SurveyField {
     days_before?:number
 }
 
+interface GoogleDocTextRun {
+   content: string
+   textStyle: Schema$TextStyle
+   paragraphStyle?: string
+}
+
+interface PDFFeatures {
+    columns?:number
+    lineGap?:number
+    paragraphGap?:number
+    columnGap?:number
+    continued?:boolean
+    underline?:boolean
+    strike?:boolean
+}

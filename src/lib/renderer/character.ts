@@ -4,6 +4,7 @@ import _ from 'underscore';
 import moment from 'moment';
 import models from '../models';
 import markdown from './markdown';
+import pdfHelper from '../pdfHelper';
 
 const colors = {
     success: '#18bc9c',
@@ -21,9 +22,6 @@ interface CharacterSheetTextOptions{
     align?:string
 }
 
-const sizeDoc = new PDFDocument({size: 'LETTER'});
-registerFonts(sizeDoc);
-
 async function renderCharacter(characters: CharacterData[], options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {
         options = {};
@@ -35,7 +33,22 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     let skill_usages = null
 
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
-    registerFonts(doc);
+
+    const campaign = await models.campaign.get(characters[0].campaign_id);
+    const fontOptions = {
+        useDefaults: false,
+        headerFontId: campaign.character_sheet_header_font_id,
+        bodyFontId: campaign.character_sheet_body_font_id
+    };
+
+
+    options.headerScale = campaign.character_sheet_header_font_scale;
+    options.bodyScale = campaign.character_sheet_body_font_scale;
+
+    const sizeDoc = new PDFDocument({size: 'LETTER'});
+
+    await pdfHelper.registerFonts(doc, fontOptions);
+    await pdfHelper.registerFonts(sizeDoc, fontOptions);
 
     let firstPage = true;
     let currentCharacter = null;
@@ -87,7 +100,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (!options.showRules){
                 renderRules(character.provides.rules)
             }
-            doc.font('Header Font').fontSize(14).text('All My Skills');
+            doc.font('Header Font').fontSize(14 * options.headerScale).text('All My Skills');
             const allSkills = character.skills.filter(skill => {
                 return !_.findWhere(character.provides.rules, {id:skill.id});
             })
@@ -123,21 +136,21 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             .fillColor('#000000');
         const maxNameWidth = doc.page.width - (options.margin*2 + 220);
         const maxTraitWidth = doc.page.width - (options.margin*2 + 220);
-        addText(character.name, {font: 'Header Font', nowrap:true}, 26, options.margin + 10, options.margin + 5, maxNameWidth, 100);
-        addText(character.user.name, {font: 'Header Font', nowrap:true}, 8, options.margin + 10, options.margin + 35, maxNameWidth/2, 100);
-        addText(`${character.cp} CP`, {font: 'Header Font', nowrap:true}, 8, options.margin + maxNameWidth/2, options.margin + 35, maxNameWidth/2, 100);
+        addText(character.name, {font: 'Header Font', nowrap:true}, 26*options.headerScale, options.margin + 10, options.margin + 5, maxNameWidth, 100);
+        addText(character.user.name, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + 10, options.margin + 35, maxNameWidth/2, 100);
+        addText(`${character.cp} CP`, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + maxNameWidth/2, options.margin + 35, maxNameWidth/2, 100);
 
         // List Traits by category
         let traitRow = options.margin + 45;
         for (const traitType in character.provides.traits){
             const traits = character.provides.traits[traitType];
-            addText(`${capitalize(traitType)} Traits`, {font: 'Body Font Bold', nowrap:true}, 12, options.margin + 10, traitRow, 90, 12);
-            addText(traits.join(', '), {nowrap:true}, 12, options.margin + 110, traitRow, maxTraitWidth - 90, 12);
+            addText(`${pdfHelper.capitalize(traitType)} Traits`, {font: 'Body Font Bold', nowrap:true}, 12*options.bodyScale, options.margin + 10, traitRow, 90, 12);
+            addText(traits.join(', '), {nowrap:true}, 12*options.bodyScale, options.margin + 110, traitRow, maxTraitWidth - 90, 12);
             traitRow += 15;
         }
 
         // List Weapon Styles
-        addText('Weapon Styles', {font: 'Body Font Bold', nowrap:true}, 12, options.margin+10, traitRow, 90, 12);
+        addText('Weapon Styles', {font: 'Body Font Bold', nowrap:true}, 12*options.bodyScale, options.margin+10, traitRow, 90, 12);
         const styles = [];
         for (const style in character.provides.styles){
             let styleStr = style;
@@ -147,7 +160,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             }
             styles.push(styleStr);
         }
-        addText(styles.join(', '), {nowrap:true}, 12, options.margin + 110, traitRow, maxTraitWidth - 90, 12);
+        addText(styles.join(', '), {nowrap:true}, 12*options.bodyScale, options.margin + 110, traitRow, maxTraitWidth - 90, 12);
         traitRow += 15;
 
         // List Sources
@@ -163,9 +176,9 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (sourceType === 'skip'){
                 continue;
             }
-            addText(capitalize(sourceType), {font: 'Body Font Bold'}, 10, doc.page.width - (options.margin + 200), headerRow, 70, 15 );
+            addText(pdfHelper.capitalize(sourceType), {font: 'Body Font Bold'}, 10*options.bodyScale, doc.page.width - (options.margin + 200), headerRow, 70, 15 );
             for (const source of sources[sourceType]){
-                addText(source.name, {nowrap: true}, 10, doc.page.width - (options.margin + 125), headerRow, 70, 15 );
+                addText(source.name, {nowrap: true}, 10*options.bodyScale, doc.page.width - (options.margin + 125), headerRow, 70, 15 );
                 headerRow += 15;
             }
         }
@@ -186,8 +199,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const offsetY = row + 5;
 
         for (const attribute of character.provides.attributes as AttributeRecord[]){
-            addText(attribute.name, {font: 'Header Font', nowrap:true, align:'center'}, 14, offsetX, offsetY, attributeWidth - 10, 15);
-            addText('' + attribute.value, {font: 'Body Font Bold', nowrap:true, align:'center'}, 14, offsetX, offsetY + 15, attributeWidth - 10, 15);
+            addText(attribute.name, {font: 'Header Font', nowrap:true, align:'center'}, 14*options.headerScale, offsetX, offsetY, attributeWidth - 10, 15);
+            addText('' + attribute.value, {font: 'Body Font Bold', nowrap:true, align:'center'}, 14*options.bodyScale, offsetX, offsetY + 15, attributeWidth - 10, 15);
             offsetX += attributeWidth;
         }
 
@@ -206,10 +219,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const sectionBody = character.provides.tagskills.join(', ');
 
         doc.text('', sectionX, sectionY);
-        doc.font('Header Font').fontSize(12).text(sectionHeader, {width: sectionWidth});
+        doc.font('Header Font').fontSize(12 * options.headerScale).text(sectionHeader, {width: sectionWidth});
         const sectionHeight = doc.heightOfString(sectionHeader, {width: sectionWidth});
         doc.x += 5;
-        doc.font('Body Font Bold').fontSize(11).text(sectionBody, {width: sectionWidth});
+        doc.font('Body Font Bold').fontSize(11 * options.bodyScale).text(sectionBody, {width: sectionWidth});
         doc.x -= 5;
         return row + sectionHeight + doc.heightOfString(sectionBody, {width: sectionWidth});
     }
@@ -228,10 +241,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
 
         doc.text('', sectionX, sectionY);
-        doc.font('Header Font').fontSize(12).text(sectionHeader, {width: sectionWidth});
+        doc.font('Header Font').fontSize(12*options.headerScale).text(sectionHeader, {width: sectionWidth});
         const sectionHeight = doc.heightOfString(sectionHeader, {width: sectionWidth});
         doc.x += 5;
-        doc.font('Body Font Bold').fontSize(11).text(sectionBody, {width: sectionWidth});
+        doc.font('Body Font Bold').fontSize(11*options.bodyScale).text(sectionBody, {width: sectionWidth});
         doc.x -= 5;
         return row + sectionHeight + doc.heightOfString(sectionBody, {width: sectionWidth});
     }
@@ -241,9 +254,9 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         if (!character.provides.diagnose.length){
             return;
         }
-        doc.font('Header Font').fontSize(12).text('Diagnose Traits and Effects');
+        doc.font('Header Font').fontSize(12*options.headerScale).text('Diagnose Traits and Effects');
         doc.x += 5;
-        doc.font('Body Font').fontSize(10).text(character.provides.diagnose.join(', '));
+        doc.font('Body Font').fontSize(10*options.bodyScale).text(character.provides.diagnose.join(', '));
         doc.moveDown(0.5);
         doc.x -= 5;
     }
@@ -262,7 +275,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
         const skillsSorted = _.sortBy(skillsReduced, 'name');
 
-        doc.font('Header Font').fontSize(12).text(`${skills[0].usage?skills[0].usage.name:'Unset Usage'} Skills`);
+        doc.font('Header Font').fontSize(12*options.headerScale).text(`${skills[0].usage?skills[0].usage.name:'Unset Usage'} Skills`);
 
         addSkills(skillsSorted);
         doc.moveDown(0.5);
@@ -276,7 +289,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             doc.moveDown(0.5);
         }
 
-        doc.font('Header Font').fontSize(14).text('Game Rules');
+        doc.font('Header Font').fontSize(14*options.headerScale).text('Game Rules');
 
         renderAllSkills(skills, true);
         doc.moveDown(0.5);
@@ -291,31 +304,31 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     function addSkills(skillsSorted:SkillModel[]){
         doc.x += 5;
         for (const [idx, skill] of skillsSorted.entries()){
-            doc.font('Body Font').fontSize(10).text('●  ', {continued:true});
-            doc.font('Body Font Italic').fontSize(10).text(`${skill.name} `, {
+            doc.font('Body Font').fontSize(10*options.bodyScale).text('•  ', {continued:true});
+            doc.font('Body Font Italic').fontSize(10*options.bodyScale).text(`${skill.name} `, {
                 continued:true,
                 paragraphGap:3
             });
             if (skill.count > 1){
-                doc.font('Body Font Bold').fontSize(10).text(`X${skill.count} `, {continued:true});
+                doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`X${skill.count} `, {continued:true});
             }
 
             for (const tag of skill.tags as TagModel[]){
                 if (tag.display_to_pc && tag.on_sheet){
                     doc.fillColor(colors[tag.color?tag.color:'info']);
-                    doc.font('Body Font').fontSize(10).text('[', {continued:true});
-                    doc.font('Body Font Bold').fontSize(10).text(tag.name, {continued:true});
-                    doc.font('Body Font').fontSize(10).text('] ', {continued:true});
+                    doc.font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
+                    doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
+                    doc.font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});
                     doc.fillColor('#000000');
                 }
             }
 
-            doc.font('Body Font').fontSize(10).text('- ', {continued:true});
+            doc.font('Body Font').fontSize(10*options.bodyScale).text('- ', {continued:true});
 
-            doc.font('Body Font').fontSize(10);
+            doc.font('Body Font').fontSize(10*options.bodyScale);
             if (skill.details && skill.details.sheet_note){
                 markdown(doc, skill.summary, {continued:true});
-                doc.font('Body Font').text('  ●  ', {continued:true});
+                doc.font('Body Font').text('  •  ', {continued:true});
                 doc.font('Header Font Italic').text(skill.details.sheet_note);
             } else {
                 markdown(doc, skill.summary);
@@ -344,10 +357,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (doc.page.height - doc.y < 72*1){
                 doc.addPage({margin: options.margin*2});
             }
-            let height = doc.font('Header Font Italic').fontSize(12).heightOfString(skill.name);
+            let height = doc.font('Header Font Italic').fontSize(12*options.headerScale).heightOfString(skill.name);
 
             if (!rulesMode){
-                height += doc.font('Header Font').fontSize(10).heightOfString(skill.summary);
+                height += doc.font('Header Font').fontSize(10*options.headerScale).heightOfString(skill.summary);
             }
 
             height += Number(markdown(doc, skill.description, {getHeight:true}));
@@ -356,25 +369,25 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 doc.addPage({margin: options.margin*2});
             }
 
-            doc.font('Header Font Italic').fontSize(12).text(`${skill.name} `, {continued:true});
+            doc.font('Header Font Italic').fontSize(12*options.headerScale).text(`${skill.name} `, {continued:true});
 
             for (const tag of skill.tags as TagModel[]){
                 if (tag.display_to_pc){
                     const color = colors[tag.color?tag.color:'info'];
-                    doc.fillColor(color).font('Body Font').fontSize(10).text('[', {continued:true});
-                    doc.fillColor(color).font('Body Font Bold').fontSize(10).text(tag.name, {continued:true});
-                    doc.fillColor(color).font('Body Font').fontSize(10).text('] ', {continued:true});
+                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
+                    doc.fillColor(color).font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
+                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});
                     doc.fillColor('#000000');
                 }
             }
             if (!rulesMode){
-                doc.font('Header Font').fontSize(12).text((skill.source.name as string), {align:'right'});
+                doc.font('Header Font').fontSize(12*options.headerScale).text((skill.source.name as string), {align:'right'});
             } else {
                 doc.text(' ', {align:'right'});
             }
 
             doc.x += 5;
-            doc.fontSize(10);
+            doc.fontSize(10*options.bodyScale);
 
             if (!rulesMode){
 
@@ -427,10 +440,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
         const dateStr = moment().format('lll');
         const xPos = options.margin + 2
-        const yPos = firstPage?doc.page.height - (options.margin + 10):options.margin +2;
+        const yPos = firstPage?doc.page.height - (options.margin + 10*options.bodyScale):options.margin +2;
         const width = doc.page.width - (options.margin*2 + 4);
 
-        doc.font('Body Font').fontSize(8).text( dateStr, xPos, yPos, {
+        doc.font('Body Font').fontSize(8*options.bodyScale).text( dateStr, xPos, yPos, {
             width: width,
             height: options.margin,
             align:'right',
@@ -438,7 +451,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         });
 
         if (!firstPage){
-            doc.font('Body Font').fontSize(8).text(
+            doc.font('Body Font').fontSize(8*options.bodyScale).text(
                 character.name,
                 options.margin + 2,
                 options.margin + 2,
@@ -449,7 +462,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 }
             );
 
-            doc.font('Body Font').fontSize(8).text(
+            doc.font('Body Font').fontSize(8*options.bodyScale).text(
                 character.user.name,
                 options.margin + 2,
                 options.margin + 2,
@@ -464,35 +477,18 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         doc.x = oldX;
         doc.y = options.margin*2;
     }
-};
 
+    function sizeText(text:string, options: CharacterSheetTextOptions, maxWidth:number, maxHeight:number, maxFontSize:number): number{
+        sizeDoc.font(options.font);
+        sizeDoc.fontSize(maxFontSize);
+        let actualSize = maxFontSize;
 
-function sizeText(text:string, options: CharacterSheetTextOptions, maxWidth:number, maxHeight:number, maxFontSize:number): number{
-    sizeDoc.font(options.font);
-    sizeDoc.fontSize(maxFontSize);
-    let actualSize = maxFontSize;
-
-    while (sizeDoc.widthOfString(text) > maxWidth || sizeDoc.heightOfString(text, {lineBreak: !options.nowrap}) > maxHeight){
-        actualSize -= 0.25;
-        sizeDoc.fontSize(actualSize)
+        while (sizeDoc.widthOfString(text) > maxWidth || sizeDoc.heightOfString(text, {lineBreak: !options.nowrap}) > maxHeight){
+            actualSize -= 0.25;
+            sizeDoc.fontSize(actualSize)
+        }
+        return actualSize;
     }
-    return actualSize;
-}
-
-function registerFonts(doc:PDFKit.PDFDocument): void{
-    const fontsDir = __dirname + '/../../../fonts/'
-    doc.registerFont('Header Font', fontsDir + 'Montserrat-Regular.ttf');
-    doc.registerFont('Header Font Bold', fontsDir + 'Montserrat-Bold.ttf');
-    doc.registerFont('Header Font Italic', fontsDir + 'Montserrat-Italic.ttf');
-    doc.registerFont('Header Font BoldItalic', fontsDir + 'Montserrat-BoldItalic.ttf');
-    doc.registerFont('Body Font', fontsDir + 'Lato-Regular.ttf');
-    doc.registerFont('Body Font Bold', fontsDir + 'Lato-Bold.ttf');
-    doc.registerFont('Body Font Italic', fontsDir + 'Lato-Italic.ttf');
-    doc.registerFont('Body Font BoldItalic', fontsDir + 'Lato-BoldItalic.ttf');
-}
-
-function capitalize(string:string): string {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
 export default renderCharacter;

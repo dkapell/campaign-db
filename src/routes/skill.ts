@@ -693,11 +693,7 @@ const router = express.Router();
 router.use(permission('player'));
 router.use(function(req, res, next){
     const user = req.session.activeUser as CampaignUser;
-    if (user.type === 'player'){
-        res.locals.siteSection='character';
-    } else {
-        res.locals.siteSection='gm';
-    }
+    res.locals.siteSection=['character', 'gm'];
     next();
 });
 

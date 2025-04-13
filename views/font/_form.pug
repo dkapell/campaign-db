@@ -1,0 +1,73 @@
+.row.my-2
+    .col
+        label.control-label(for="font_type") Font Type
+        select.form-select.select2#font_type(name="font[type]" data-placeholder='Font Type' required disabled=font.id?'true':null)
+            option
+            for type in ['google', 'user']
+                option(value=type selected=font.type===type)= capitalize(type)
+
+.row.my-2.google-picker
+    .col
+        label.control-label(for="google_font") Google Font Family
+        select.form-select.select2#google_font(name="font[googleName]" data-placeholder='Google Font' disabled=font.id?'true':null)
+            option
+            for item in googleFonts
+                option(value=item.family selected=item.family===font.name)= item.family
+
+.row.my-2.upload-input.upload-name
+    .col
+        label.control-label(for="font_name") Name
+        input.form-control#font_name(type="text",placeholder="Name",name="font[name]",value=font.name, required)
+        div.invalid-feedback Please choose a valid name
+
+.row.my-2.upload-input.upload-picker
+    .col
+        if font.id
+            label.form-label(for="fontPicker") Font File
+            input.form-control#fontPicker(type="text" disabled=true value=font.upload?font.upload.name:null)
+        else
+            label.form-label(for="fontPicker") Font File
+            input.form-control#fontPicker(type="file", name="font[upload][file]")
+.row.my-2.upload-input.upload-details
+    .col#upload-type
+    .col#upload-size
+.row.my-2.upload-input.upload-feedback
+    .col#upload-feedback.text-danger
+
+.user-font-options
+    .row.my-2
+        .col
+            label.control-label(for="font_size") Default size for Translations
+            input.form-control#font_size(type="number",placeholder="Size",name="font[size]",value=font.size,required)
+
+    .row.my-2
+        .col
+            label.control-label(for="font_language") Language
+            .form-text For Translations
+            input.form-control#font_language(type="text",placeholder="Language (optional)",name="font[language]",value=font.language)
+
+
+    .row.my-2
+        .col
+            label.control-label(for="font_transformation") Transformation
+            select.form-select.select2#font_transformation(name="font[transformation]" data-placeholder='Transformation' required)
+                option
+                for transformation in ['none', 'uppercase', 'lowercase']
+                    option(value=transformation selected=font.transformation === transformation)= capitalize(transformation)
+    .row.my-2
+        .col
+            .form-check.form-switch
+                input.form-check-input#font_vertical(type="checkbox" name="font[vertical]" checked=font.vertical)
+                label.form-check-label(for="font_vertical") Display Verticaly
+        .col
+            .form-check.form-switch
+                input.form-check-input#font_lettersonly(type="checkbox" name="font[lettersonly]" checked=font.lettersonly)
+                label.form-check-label(for="font_lettersonly") Font is Letters only
+
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= font.id?'Update':'Create'
+        a.btn.btn-link(href="/font") Cancel
+
+

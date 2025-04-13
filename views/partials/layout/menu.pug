@@ -9,7 +9,25 @@
             li.nav-item
                 a.nav-link(href="/" class= siteSection==='home'?"active":null) Home
                     span.visually-hidden (current)
-            if !currentCampaign.default_site
+
+            //- Default Site
+            if currentCampaign.default_site
+                if checkPermission('admin')
+                    li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
+                        a.nav-link.dropdown-toggle#adminDropdown(
+                            href='#'
+                            role='button'
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false") Site Admin
+                        .dropdown-menu(aria-labelledby="adminDropdown")
+                            a.dropdown-item(href='/user') Users
+                            a.dropdown-item(href='/admin/campaign') Campaigns
+                            a.dropdown-item(href='/image') Images
+
+            //- Campaign Site
+            else
+                //- Event+ Character
                 if checkPermission('event')
                     li.nav-item.dropdown(class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
@@ -19,7 +37,7 @@
                             aria-haspopup="true"
                             aria-expanded="false"
                             class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null
-                            ) GM Stuff
+                            ) Characters
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             if checkPermission('event')
                                 if activeUser.type === 'event staff'
@@ -27,8 +45,6 @@
                                 else
                                     a.dropdown-item(href='/skill') Skills
                                 a.dropdown-item(href='/character') Characters
-                                a.dropdown-item(href='/event') Events
-                                a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
 
                             if checkPermission('contrib')
                                 if currentCampaign.display_cp
@@ -40,11 +56,9 @@
                                 a.dropdown-item(href='/report/source') Character Source Report
                                 a.dropdown-item(href='/report/skill') Character Skill Report
                                 a.dropdown-item(href='/report/custom_field') Custom Field Report
+
+                //- Player Character Menu
                 if checkPermission('player') && !checkPermission('event')
-                    if (currentCampaign.player_folder)
-                        li.nav-item
-                            a.nav-link(href=currentCampaign.player_folder) target="_blank") Google Drive
-                                    i.fa.fa-external-link.ms-1
                     li.nav-item.dropdown(class= siteSection==='character'||_.indexOf(siteSection, 'character') !== -1 ?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
@@ -65,11 +79,34 @@
                                 a.dropdown-item(href='/cp_grant') Character Points
 
                             a.dropdown-item(href='/skill/doc') Skills
-                            a.dropdown-item(href='/event') Events
-                            a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
 
+                //- Events menu
+                li.nav-item.dropdown(class= siteSection==='event'||_.indexOf(siteSection, 'event') !== -1 ?"active":null)
+                    a.nav-link.dropdown-toggle#eventDropdown(
+                        href='#'
+                        role='button'
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        class= siteSection==='event'||_.indexOf(siteSection, 'event') !== -1 ?"active":null
+                        ) Events
+                    .dropdown-menu(aria-labelledby="eventDropdown")
+                        a.dropdown-item(href='/event') Events
+                        a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
 
-                if (currentCampaign.display_glossary && checkPermission('player')) || currentCampaign.display_map
+                //- Setting Menu
+                -
+                    let showSettingMenu = false
+                    if (currentCampaign.display_glossary && checkPermission('player')){
+                        showSettingMenu = true;
+                    }
+                    if (currentCampaign.display_translations && checkPermission('gm')){
+                        showSettingMenu = true;
+                    }
+                    if (currentCampaign.display_map){
+                        showSettingMenu = true;
+                    }
+                if showSettingMenu
                     li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#worldbuildingDropdown(
                             href='#'
@@ -88,7 +125,10 @@
                                         a.dropdown-item(href='/map/list') Maps
                                     else if mapCount
                                         a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
+                                if currentCampaign.display_translations && checkPermission('gm')
+                                    a.dropdown-item(href='/translation') Translations
 
+                //- Admin Menu
                 if checkPermission('gm')
                     li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#adminDropdown(
@@ -116,23 +156,10 @@
                                 a.dropdown-item(href=`/admin/campaign/${currentCampaign.id}`) Campaign Configuration
                                 a.dropdown-item(href='/rulebook') Rulebooks
                                 a.dropdown-item(href='/upload') Uploads
+                                a.dropdown-item(href='/font') Fonts
 
 
-            else
-                if checkPermission('admin')
-                    li.nav-item.dropdown(class= siteSection==='admin'?"active":null)
-                        a.nav-link.dropdown-toggle#adminDropdown(
-                            href='#'
-                            role='button'
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false") Site Admin
-                        .dropdown-menu(aria-labelledby="adminDropdown")
-                            a.dropdown-item(href='/user') Users
-                            a.dropdown-item(href='/admin/campaign') Campaigns
-                            a.dropdown-item(href='/image') Images
-
-
+        //- User Menu
         ul.navbar-nav.float-end
             if activeUser
                 li.nav-item.dropdown

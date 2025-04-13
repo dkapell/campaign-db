@@ -1,0 +1,19 @@
+extends ../layout
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header= 'Edit Translation: ' + translation.name
+                .card-body
+                    form.form.needs-validation(method="POST" action="/translation/" + translation.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='translation[id]',value=translation.id)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/translation.js')
+    script.
+        const allText = !{JSON.stringify(translation.allText)}

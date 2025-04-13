@@ -274,7 +274,7 @@ fieldset.mb-2.border.p-2.rounded
     #drive-container.collapse(aria-labeledby="drive-heading")
         .row.my-2
             .col
-                .alert.alert-info These fields allow you to provide handy links to Google Drive folders to your Staff, NPCs and Players.  This will not grant access to these folders, all sharing must be done within Google Drive itself.  Links to individual player folers can be added to the player user directly.
+                .alert.alert-info These fields allow you to provide handy links to Google Drive folders to your Staff, NPCs and Players.  This will not grant access to these folders, all sharing must be done within Google Drive itself.  Links to individual player folders can be added to the player user directly.
 
         .row.my-2
             label.col-form-label.col-md-3(for="campaign_staff_drive") Staff Drive Folder
@@ -360,7 +360,7 @@ if campaign.display_translations && fonts.length
                 i.fa.fa-chevron-down
         #translation-container.collapse(aria-labeledby="translation-heading")
             .row.my-2
-                label.col-form-label.col-md-3(for="campaign_default_translation_title_font_id") Default Translation Title Font
+                label.col-form-label.col-md-4(for="campaign_default_translation_title_font_id") Default Translation Title Font
                 .col
                     select.form-select.select2#campaign_default_translation_title_font_id(name="campaign[default_translation_title_font_id]" data-placeholder='Title Font')
                         option
@@ -369,7 +369,7 @@ if campaign.display_translations && fonts.length
                                 =font.name
 
             .row.my-2
-                label.col-form-label.col-md-3(for="campaign_default_translation_header_font_id") Default Translation Header Font
+                label.col-form-label.col-md-4(for="campaign_default_translation_header_font_id") Default Translation Header Font
                 .col
                     select.form-select.select2#campaign_default_translation_header_font_id(name="campaign[default_translation_header_font_id]" data-placeholder='Header Font')
                         option
@@ -378,7 +378,7 @@ if campaign.display_translations && fonts.length
                                 =font.name
 
             .row.my-2
-                label.col-form-label.col-md-3(for="campaign_default_translation_body_font_id") Default Translation Body Font
+                label.col-form-label.col-md-4(for="campaign_default_translation_body_font_id") Default Translation Body Font
                 .col
                     select.form-select.select2#campaign_default_translation_body_font_id(name="campaign[default_translation_body_font_id]" data-placeholder='Body Font')
                         option
@@ -386,7 +386,7 @@ if campaign.display_translations && fonts.length
                             option(value=font.id selected=campaign.default_translation_body_font_id===font.id)
                                 =font.name
             .row.my-2
-                label.col-form-label.col-md-3(for="campaign_translation_scale") Text Document Scale
+                label.col-form-label.col-md-4(for="campaign_translation_scale") Text Document Scale
                 .col
                     input.form-control#campaign_translation_scale(
                         placeholder="Scale"

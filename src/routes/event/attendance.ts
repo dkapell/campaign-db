@@ -304,14 +304,15 @@ async function updateAttendance(req, res){
             throw new Error('Can not edit record from different campaign');
         }
 
+        let typeForSurvey = user.type;
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
                 attendance.paid = false
             }
         } else if (res.locals.checkPermission('registration edit')){
             delete attendance.paid;
-            delete attendance.user_id;
             attendance.user_id = current.user_id;
+            typeForSurvey = 'core staff';
 
         } else {
             if (current.user_id !== user.id){
@@ -330,7 +331,7 @@ async function updateAttendance(req, res){
                 attendance.pre_event_data,
                 event.pre_event_survey.definition,
                 current.pre_event_data,
-                user.type
+                typeForSurvey
             );
         }
 

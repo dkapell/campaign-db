@@ -311,6 +311,7 @@ async function updateAttendance(req, res){
         } else if (res.locals.checkPermission('registration edit')){
             delete attendance.paid;
             delete attendance.user_id;
+            attendance.user_id = current.user_id;
 
         } else {
             if (current.user_id !== user.id){

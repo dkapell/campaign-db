@@ -2,8 +2,8 @@ import express from 'express';
 import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
-import permission from '../lib/permission';
-import skillHelper from '../lib/skillHelper';
+import permission from '../../lib/permission';
+import skillHelper from '../../lib/skillHelper';
 
 /* GET skill_sources listing. */
 async function list(req, res, next){

@@ -25,30 +25,30 @@ import uploadHelper from './lib/uploadHelper';
 
 // Routers
 import indexRouter from './routes/index';
-import userRouter from './routes/user';
+import userRouter from './routes/admin/user';
 import authRouter from './routes/auth';
 import adminCampaignRouter from './routes/admin/campaign';
 
-import skillRouter from './routes/skill';
-import skillSourceRouter from './routes/skill_source';
-import skillSourceTypeRouter from './routes/skill_source_type';
-import skillUsageRouter from './routes/skill_usage';
-import skillTagRouter from './routes/skill_tag';
-import skillStatusRouter from './routes/skill_status';
+import skillRouter from './routes/skill/skill';
+import skillSourceRouter from './routes/skill/source';
+import skillSourceTypeRouter from './routes/skill/source_type';
+import skillUsageRouter from './routes/skill/usage';
+import skillTagRouter from './routes/skill/tag';
+import skillStatusRouter from './routes/skill/status';
 
-import attributeRouter from './routes/attribute';
+import attributeRouter from './routes/skill/attribute';
 
-import auditRouter from './routes/audit';
+import auditRouter from './routes/admin/audit';
 
 import glossaryStatusRouter from './routes/glossary_status';
 import glossaryEntryRouter from './routes/glossary_entry';
 
-import rulebookRouter from './routes/rulebook';
+import rulebookRouter from './routes/admin/rulebook';
 
 import mapRouter from './routes/map';
 
 import imageRouter from './routes/image';
-import uploadRouter from './routes/upload';
+import uploadRouter from './routes/admin/upload';
 
 import characterRouter from './routes/character';
 import characterFieldRouter from './routes/character_field';
@@ -59,10 +59,10 @@ import reportRouter from './routes/report';
 import pageRouter from './routes/page';
 
 import surveyRouter from './routes/survey';
-import eventRouter from './routes/event';
+import eventRouter from './routes/event/event';
 import postEventSurveyRouter from './routes/post_event_survey';
 
-import fontRouter from './routes/font';
+import fontRouter from './routes/admin/font';
 import translationRouter from './routes/translation';
 
 const app = express();

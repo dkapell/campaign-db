@@ -1,9 +1,9 @@
 import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
-import permission from '../lib/permission';
-import uploadHelper from '../lib/uploadHelper';
-import fontHelper from '../lib/fontHelper';
+import permission from '../../lib/permission';
+import uploadHelper from '../../lib/uploadHelper';
+import fontHelper from '../../lib/fontHelper';
 
 /* GET fonts listing. */
 async function list(req, res, next){

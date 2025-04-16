@@ -2,15 +2,15 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
-import permission from '../lib/permission';
-import Character from '../lib/Character';
-import characterRenderer from '../lib/renderer/character';
-import campaignHelper from '../lib/campaignHelper';
-import surveyHelper from '../lib/surveyHelper';
+import permission from '../../lib/permission';
+import Character from '../../lib/Character';
+import characterRenderer from '../../lib/renderer/character';
+import campaignHelper from '../../lib/campaignHelper';
+import surveyHelper from '../../lib/surveyHelper';
 
-import postEventSurveyRoutes from './event/post_event_survey';
-import attendanceRoutes from './event/attendance';
-import checkinRoutes from './event/checkin';
+import postEventSurveyRoutes from './post_event_survey';
+import attendanceRoutes from './attendance';
+import checkinRoutes from './checkin';
 
 /* GET events listing. */
 async function list(req, res, next){

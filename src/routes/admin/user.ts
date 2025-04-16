@@ -2,9 +2,9 @@ import express from 'express';
 import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
-import permission from '../lib/permission';
-import campaignHelper from '../lib/campaignHelper';
-import surveyHelper from '../lib/surveyHelper';
+import permission from '../../lib/permission';
+import campaignHelper from '../../lib/campaignHelper';
+import surveyHelper from '../../lib/surveyHelper';
 
 /* GET users listing. */
 async function list(req, res, next){

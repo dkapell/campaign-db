@@ -3,8 +3,8 @@ import csrf from 'csurf';
 import _ from 'underscore';
 import config from 'config';
 import moment from 'moment';
-import permission from '../lib/permission';
-import rulebookHelper from '../lib/rulebookHelper';
+import permission from '../../lib/permission';
+import rulebookHelper from '../../lib/rulebookHelper';
 
 /* GET rulebooks listing. */
 async function list(req, res, next){

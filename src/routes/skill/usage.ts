@@ -1,7 +1,7 @@
 import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
-import permission from '../lib/permission';
+import permission from '../../lib/permission';
 
 /* GET skill_usages listing. */
 async function list(req, res, next){

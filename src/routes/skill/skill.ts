@@ -2,8 +2,8 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
-import permission from '../lib/permission';
-import skillHelper from '../lib/skillHelper';
+import permission from '../../lib/permission';
+import skillHelper from '../../lib/skillHelper';
 import moment from 'moment';
 
 /* GET skills listing. */

@@ -2,10 +2,10 @@ import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
 import moment from 'moment';
-import permission from '../lib/permission';
+import permission from '../../lib/permission';
 import async from 'async';
-import skillHelper from '../lib/skillHelper';
-import models from '../lib/models';
+import skillHelper from '../../lib/skillHelper';
+import models from '../../lib/models';
 
 /* GET audits listing. */
 async function list(req, res){

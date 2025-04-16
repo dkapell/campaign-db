@@ -1,9 +1,9 @@
 import express from 'express';
 import csrf from 'csurf';
 import async from 'async';
-import permission from '../lib/permission';
-import uploadHelper from '../lib/uploadHelper';
-import imageHelper from '../lib/imageHelper';
+import permission from '../../lib/permission';
+import uploadHelper from '../../lib/uploadHelper';
+import imageHelper from '../../lib/imageHelper';
 
 /* GET uploads listing. */
 async function list(req, res, next){

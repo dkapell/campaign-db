@@ -9,7 +9,7 @@ block content
                     i.fas.fa-plus
                     |  New User
     .row
-        .col
+        .col-auto
             span.me-2.form-text Show Types:
             for type in ['admin', 'core staff', 'contributing staff', 'event staff', 'player', 'none']
                 .form-check.form-check-inline.form-switch
@@ -21,21 +21,38 @@ block content
                         )
                     label.form-check-label(for=`user-type-filter-${type.replace(/\s+/, '_')}`)=type
 
+        .col.text-end
+            .form-check.form-check-inline.form-switch
+                input.form-check-input.documentation-filter(
+                    type="checkbox"
+                    id='documentation-filter'
+                    value=type
+                    )
+                label.form-check-label(for='documentation-filter') Show Documentation
+
     .table-responsive
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm#user-table
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100#user-table(
+            style="display: none"
+        )
             thead
                 tr
                     th
                     th Name
                     th Email
                     th Type
-                    if currentCampaign.display_cp
+                    if currentCampaign.display_cp && checkPermission('gm')
                         th(title='CP Spendable (Total)' data-bs-toggle='tooltip') CP
                             i.far.fa-question-circle.ms-1
-
-                    th Drive
-                    th(title='How many upcoming events is this user registered for' data-bs-toggle='tooltip') Events
-                        i.far.fa-question-circle.ms-1
+                    if checkPermission('gm')
+                        th Drive
+                        th(title='How many upcoming events is this user registered for' data-bs-toggle='tooltip') Events
+                            i.far.fa-question-circle.ms-1
+                    for documentation in currentCampaign.documentations
+                        if !documentation.staff_only || checkPermission('gm')
+                            th.documentation-column=documentation.name
                     th
 
             tbody
@@ -55,34 +72,45 @@ block content
                             if user.permissions.length
                                 i.fas.fa-plus.ms-1
 
-                        if currentCampaign.display_cp
+                        if currentCampaign.display_cp && checkPermission('gm')
                             td
                                 if user.type === 'player'
                                     span #{user.cp.usable}
                                         if user.cp.total > user.cp.usable
                                             span.ms-1 (#{user.cp.total})
-                        td
-                            if user.staff_drive_folder
-                                a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
-                                    href=user.staff_drive_folder
-                                    target="_blank"
-                                    data-bs-toggle="tooltip"
-                                    title="Open Player's Staff Folder"
-                                )
-                                    i.fab.fa-google-drive.me-1
-                                    | Staff
-                                    i.fa.fa-external-link.ms-1
-                            if user.drive_folder
-                                a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
-                                    href=user.drive_folder
-                                    target="_blank"
-                                    data-bs-toggle="tooltip"
-                                    title="Open Player's PC Folder"
-                                )
-                                    i.fab.fa-google-drive.me-1
-                                    | Player
-                                    i.fa.fa-external-link.ms-1
-                        td=user.regCount
+                        if checkPermission('gm')
+                            td
+                                if user.staff_drive_folder
+                                    a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
+                                        href=user.staff_drive_folder
+                                        target="_blank"
+                                        data-bs-toggle="tooltip"
+                                        title="Open Player's Staff Folder"
+                                    )
+                                        i.fab.fa-google-drive.me-1
+                                        | Staff
+                                        i.fa.fa-external-link.ms-1
+                                if user.drive_folder
+                                    a.btn.btn-outline-primary.btn-xs.action-btn.mx-1(
+                                        href=user.drive_folder
+                                        target="_blank"
+                                        data-bs-toggle="tooltip"
+                                        title="Open Player's PC Folder"
+                                    )
+                                        i.fab.fa-google-drive.me-1
+                                        | Player
+                                        i.fa.fa-external-link.ms-1
+                            td=user.regCount
+                        for documentation in currentCampaign.documentations
+                            if !documentation.staff_only || checkPermission('gm')
+                                td.documentation-column
+                                    - userDoc = _.findWhere(user.documentations, {documentation_id:documentation.id})
+                                    if userDoc
+                                        .badge.rounded-pill(
+                                            class=userDoc.status==='valid'?'text-bg-success':'text-bg-danger'
+                                        )=capitalize(userDoc.status)
+                                    else
+                                        .badge.rounded-pill.text-bg-danger Missing
 
 
                         td
@@ -94,7 +122,7 @@ block content
                             )
                                 i.fas.fa-edit.fa-fw
 
-                            if !_.has(session, 'assumed_user')
+                            if checkPermission('gm') && !_.has(session, 'assumed_user')
                                 a.btn.btn-outline-danger.btn-xs.action-btn(
                                     role="button",
                                     href=`/user/${user.id}/assume`

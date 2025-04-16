@@ -23,36 +23,37 @@ block content
     
     .row.my-2
         .col
-            if user.staff_drive_folder
-                a.btn.btn-outline-info.me-2(
-                    href=user.staff_drive_folder
-                    target="_blank"
-                    data-bs-toggle="tooltip"
-                    title="Open Player's Staff Folder"
-                )
-                    i.fab.fa-google-drive.me-1
-                    | Staff Drive
-                    i.fa.fa-external-link.ms-1
+            if checkPermission('gm')
+                if user.staff_drive_folder
+                    a.btn.btn-outline-info.me-2(
+                        href=user.staff_drive_folder
+                        target="_blank"
+                        data-bs-toggle="tooltip"
+                        title="Open Player's Staff Folder"
+                    )
+                        i.fab.fa-google-drive.me-1
+                        | Staff Drive
+                        i.fa.fa-external-link.ms-1
 
-            if user.drive_folder
-                a.btn.btn-outline-info.me-2(
-                    href=user.drive_folder
-                    target="_blank"
-                    data-bs-toggle="tooltip"
-                    title="Open Player's Drive Folder"
-                )
-                    i.fab.fa-google-drive.me-1
-                    | Player Drive
-                    i.fa.fa-external-link.ms-1
+                if user.drive_folder
+                    a.btn.btn-outline-info.me-2(
+                        href=user.drive_folder
+                        target="_blank"
+                        data-bs-toggle="tooltip"
+                        title="Open Player's Drive Folder"
+                    )
+                        i.fab.fa-google-drive.me-1
+                        | Player Drive
+                        i.fa.fa-external-link.ms-1
 
 
-            if !_.has(session, 'assumed_user')
-                a.btn.btn-outline-danger.me-2(
-                    role="button",
-                    href=`/user/${user.id}/assume`
-                )
-                    i.fas.fa-user-secret.me-1
-                    | Become User
+                if !_.has(session, 'assumed_user')
+                    a.btn.btn-outline-danger.me-2(
+                        role="button",
+                        href=`/user/${user.id}/assume`
+                    )
+                        i.fas.fa-user-secret.me-1
+                        | Become User
 
             a.btn.btn-outline-primary.me-2(
                 role="button"
@@ -60,31 +61,32 @@ block content
             )
                 i.fas.fa-edit.me-1
                 |  Edit User
-    if user.notes
-        .row.my-2
-            .col
-                h4 Notes
-                != marked.parse(user.notes)
+    if checkPermission('gm')
+        if user.notes
+            .row.my-2
+                .col
+                    h4 Notes
+                    != marked.parse(user.notes)
 
-    if user.permissions.length
-        .row.my-2
-            .col
-                h4 Permissions
-                ul.list-unstyled
-                    each permission of user.permissions
-                        li= capitalize(permission)
+        if user.permissions.length
+            .row.my-2
+                .col
+                    h4 Permissions
+                    ul.list-unstyled
+                        each permission of user.permissions
+                            li= capitalize(permission)
 
-    if characters.length
-        .row.my-2
-            .col
-                h4 Characters
-                +characterListDisplay(characters, true, true, true, true)
+        if characters.length
+            .row.my-2
+                .col
+                    h4 Characters
+                    +characterListDisplay(characters, true, true, true, true)
 
-    if surveys.length
-        .row.my-2
-            .col
-                h4 #{currentCampaign.renames.post_event_survey.plural}
-                +postEventSurveyGmTable(surveys, {backto:'user'})
+        if surveys.length
+            .row.my-2
+                .col
+                    h4 #{currentCampaign.renames.post_event_survey.plural}
+                    +postEventSurveyGmTable(surveys, {backto:'user'})
 
     if currentCampaign.documentations.length
         .row.my-2
@@ -92,20 +94,21 @@ block content
                 h4 Documentation
                 ul.list-group
                     each documentation of currentCampaign.documentations
-                        li.list-group-item
-                            strong.me-2= documentation.name
-                            - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
-                            - console.log(userDoc)
-                            if !userDoc
-                                .badge.text-bg-danger Missing
-                            else if !documentation.valid_from || userDoc.status === 'valid'
-                                .badge.text-bg-success Yes
-                            else
-                                .badge.text-bg-danger Expired
-                            if userDoc && userDoc.valid_from && userDoc.valid_date
-                                .float-end
-                                    - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
-                                    = validDate.format('ll')
+                        if !documentation.staff_only || checkPermission('gm')
+                            li.list-group-item
+                                strong.me-2= documentation.name
+                                - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
+                                - console.log(userDoc)
+                                if !userDoc
+                                    .badge.text-bg-danger Missing
+                                else if !documentation.valid_from || userDoc.status === 'valid'
+                                    .badge.text-bg-success Yes
+                                else
+                                    .badge.text-bg-danger Expired
+                                if userDoc && userDoc.valid_from && userDoc.valid_date
+                                    .float-end
+                                        - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
+                                        = validDate.format('ll')
 
 append scripts
     script(src='/javascripts/data-table.js')

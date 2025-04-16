@@ -129,7 +129,7 @@
                                     a.dropdown-item(href='/translation') Translations
 
                 //- Admin Menu
-                if checkPermission('gm')
+                if checkPermission('gm, documentation edit')
                     li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#adminDropdown(
                             href='#'
@@ -141,13 +141,14 @@
                             ) Admin
                         .dropdown-menu(aria-labelledby="adminDropdown")
                             a.dropdown-item(href='/user') Users
-                            a.dropdown-item(href='/audit') Audits
-                            a.dropdown-item(href='/image') Images
-                            a.dropdown-item(href='/page') Pages
-                            a.dropdown-item(href='/survey') Surveys
+                            if checkPermission('gm')
+                                a.dropdown-item(href='/audit') Audits
+                                a.dropdown-item(href='/image') Images
+                                a.dropdown-item(href='/page') Pages
+                                a.dropdown-item(href='/survey') Surveys
 
-                            .dropdown-divider
-                            a.dropdown-item(href='/character_field') Character Fields
+                                .dropdown-divider
+                                a.dropdown-item(href='/character_field') Character Fields
                             if checkPermission('admin')
                                 a.dropdown-item(href='/skill_status') Skill Statuses
                                 if currentCampaign.display_glossary

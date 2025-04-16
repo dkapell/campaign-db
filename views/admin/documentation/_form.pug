@@ -15,7 +15,7 @@
         .form-check.form-switch
                 input.form-check-input#documentation_staff_only(type="checkbox" name="documentation[staff_only]" checked=documentation.staff_only)
                 label.form-check-label(for="documentation_staff_only") Visible/Editable by Staff Only
-                .form-text  Restricted to #{capitalize(currentCampaign.user_type_map['core staff'].name)} and above, and not Visible or Editable by users who only have 'Edit Documents'
+                .form-text  Restricted to #{capitalize(currentCampaign.user_type_map['core staff'].name)} and above, and not Visible or Editable by users who only have 'Documentation edit' Permission
 
 .row.my-2
     .col

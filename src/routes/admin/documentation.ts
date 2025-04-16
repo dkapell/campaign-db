@@ -123,6 +123,11 @@ async function create(req, res){
     documentation.campaign_id = req.campaign.id;
 
     try{
+
+        const documentations = await req.models.documentation.find({campaign_id:req.campaign.id});
+        const maxVal = _.max(_.pluck(documentations, 'display_order'));
+        documentation.display_order = _.isFinite(maxVal)?maxVal + 1:1;
+
         for (const field of ['on_checkin', 'staff_only']){
             if (!_.has(documentation, field)){
                 documentation[field] = false;

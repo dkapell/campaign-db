@@ -59,7 +59,8 @@
     "permissions": [
         "registration edit",
         "registration view",
-        "cp grant"
+        "cp grant",
+        "documentation edit"
     ],
     "renames": {
         "post_event_survey": "Post Event Survey",

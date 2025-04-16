@@ -7,6 +7,9 @@ $(function(){
 
     prepUserFilter();
     toggleUserRows();
+
+    prepDocumentationFilter();
+    toggleDocumentationColumns();
 });
 
 function prepUserFilter(){
@@ -36,14 +39,46 @@ function toggleUserFilter(){
 }
 
 function toggleUserRows(){
-    const $table = $('#user-table').DataTable();
+    const table = $('#user-table').DataTable();
     const types = (localStorage.getItem('cdb-user-type-filter')).split(',');
     $.fn.dataTable.ext.search.pop();
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
-            return types.indexOf($($table.row(dataIndex).node()).attr('data-type')) !== -1;
+            return types.indexOf($(table.row(dataIndex).node()).attr('data-type')) !== -1;
         }
     );
-    $table.draw();
+    table.draw();
+}
 
+
+function prepDocumentationFilter(){
+    $('#documentation-filter').on('change', toggleDocumentationFilter);
+
+    if (localStorage.getItem('cdb-user-documentation-filter') === 'true'){
+        $('#documentation-filter').prop('checked', true);
+    } else {
+        $('#documentation-filter').prop('checked', false);
+    }
+}
+
+
+function toggleDocumentationFilter(e){
+    if ($(this).prop('checked')){
+        localStorage.setItem('cdb-user-documentation-filter', 'true');
+    } else {
+        localStorage.removeItem('cdb-user-documentation-filter');
+    }
+    toggleDocumentationColumns();
+    $('#user-table').DataTable().columns.adjust().responsive.recalc();
+}
+
+function toggleDocumentationColumns(){
+    const table = $('#user-table').DataTable();
+    const columns = table.columns('.documentation-column');
+    if (localStorage.getItem('cdb-user-documentation-filter') === 'true'){
+        columns.visible(true);
+    } else {
+        columns.visible(false);
+    }
+    table.columns.adjust().responsive.recalc();
 }

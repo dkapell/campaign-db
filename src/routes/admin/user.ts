@@ -26,6 +26,7 @@ async function list(req, res, next){
                     return (_.where(event.attendees, {user_id: user.id, attending:true})).length;
                 });
                 user.regCount = userEvents.length;
+                user.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
                 return user;
             });
             res.locals.title += ' - Users';
@@ -155,7 +156,7 @@ async function create(req, res){
         }
 
         if (req.campaign.documentations){
-            user.documentations = await parseDocumentations(req, user.documentations);
+            user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
         }
 
         await req.models.user.findOrCreate(req.campaign.id, user, true);
@@ -177,11 +178,6 @@ async function update(req, res){
         const current = await req.models.user.get(req.campaign.id, id);
 
         const currentUser = req.session.activeUser;
-        if (! (currentUser.type === 'admin' || current.site_admin)){
-            delete user.name;
-            delete user.email;
-            delete user.type;
-        }
 
         if (!user.permissions){
             user.permissions = [];
@@ -189,9 +185,15 @@ async function update(req, res){
             user.permissions = [user.permissions];
         }
 
+        if (! (currentUser.type === 'admin' || current.site_admin)){
+            delete user.name;
+            delete user.email;
+            delete user.type;
+            delete user.permissions;
+        }
+
         if (req.campaign.documentations){
-            user.documentations = await parseDocumentations(req, user.documentations);
-            console.log(JSON.stringify(user.documentations, null, 2));
+            user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
         }
 
         await req.models.user.update(req.campaign.id, id, user);
@@ -209,9 +211,12 @@ async function update(req, res){
     }
 }
 
-async function parseDocumentations(req, documentations = []){
+async function parseDocumentations(req, documentations = [], isGm){
     const output = [];
     for (const documentation of req.campaign.documentations){
+        if (documentation.staff_only && !isGm){
+            continue;
+        }
         const userDoc = _.findWhere(documentations, {id: ''+documentation.id});
         const doc = {
             campaign_id: req.campaign.id,
@@ -282,15 +287,15 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', permission('gm'), list);
+router.get('/', permission('gm, documentation edit'), list);
 router.get('/new', permission('admin'), csrf(), showNew);
 router.get('/revert', revert);
-router.get('/:id', permission('gm'), csrf(), show);
-router.get('/:id/edit', permission('gm'), csrf(), showEdit);
+router.get('/:id', permission('gm, documentation edit'), csrf(), show);
+router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
 router.get('/:id/characters', permission('gm'), getCharacterListApi);
 router.post('/', permission('admin'), csrf(), create);
-router.put('/:id', permission('gm'), csrf(), update);
+router.put('/:id', permission('gm, documentation edit'), csrf(), update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

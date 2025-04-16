@@ -1,7 +1,7 @@
-extends ../layout
+extends ../../layout
 
 block content
-    a.btn.btn-outline-success.my-2(href='/font/new')
+    a.btn.btn-outline-success.my-2(href='/admin/font/new')
         span(class="fa fa-plus")
         |  New Font
 
@@ -27,7 +27,7 @@ block content
 
             tbody
                 for font in fonts
-                    tr(class='clickable-row', data-click-object='font' data-click-id=font.id)
+                    tr(class='clickable-row', data-click-object='admin/font' data-click-id=font.id)
                         td.dtr-control
                         td= font.name
                         td= font.language
@@ -60,7 +60,7 @@ block content
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
-                                href=`/font/${font.id}/edit`
+                                href=`/admin/font/${font.id}/edit`
                                 title='Edit Font'
                                 data-bs-toggle='tooltip'
                             )
@@ -68,8 +68,8 @@ block content
 
                             a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
                                 role="button",
-                                url=`/font/${font.id}`,
-                                data-back='/font'
+                                url=`/admin/font/${font.id}`,
+                                data-back='/admin/font'
                                 title='Delete Font'
                                 data-bs-toggle='tooltip'
                             )

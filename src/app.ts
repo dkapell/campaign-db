@@ -38,17 +38,13 @@ import skillStatusRouter from './routes/skill/status';
 
 import attributeRouter from './routes/skill/attribute';
 
-import auditRouter from './routes/admin/audit';
 
 import glossaryStatusRouter from './routes/glossary_status';
 import glossaryEntryRouter from './routes/glossary_entry';
 
-import rulebookRouter from './routes/admin/rulebook';
-
 import mapRouter from './routes/map';
 
 import imageRouter from './routes/image';
-import uploadRouter from './routes/admin/upload';
 
 import characterRouter from './routes/character';
 import characterFieldRouter from './routes/character_field';
@@ -62,8 +58,16 @@ import surveyRouter from './routes/survey';
 import eventRouter from './routes/event/event';
 import postEventSurveyRouter from './routes/post_event_survey';
 
-import fontRouter from './routes/admin/font';
 import translationRouter from './routes/translation';
+import rulebookRouter from './routes/admin/rulebook';
+
+import adminDocumentationRouter from './routes/admin/documentation';
+import adminUploadRouter from './routes/admin/upload';
+import adminFontRouter from './routes/admin/font';
+import adminAuditRouter from './routes/admin/audit';
+
+
+
 
 const app = express();
 
@@ -299,25 +303,27 @@ app.use('/skill_usage', skillUsageRouter);
 app.use('/skill_tag', skillTagRouter);
 app.use('/skill_status', skillStatusRouter);
 app.use('/attribute', attributeRouter);
-app.use('/audit', auditRouter);
 app.use('/glossary_status', glossaryStatusRouter);
 app.use('/glossary', glossaryEntryRouter);
-app.use('/rulebook', rulebookRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/cp_grant', cpGrantRouter);
 app.use('/image', imageRouter);
-app.use('/upload', uploadRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);
 app.use('/event', eventRouter);
 app.use('/survey', surveyRouter);
 app.use('/post_event_survey', postEventSurveyRouter);
-app.use('/font', fontRouter);
 app.use('/translation', translationRouter);
+app.use('/admin/rulebook', rulebookRouter);
 
 app.use('/admin/campaign', adminCampaignRouter);
+app.use('/admin/documentation', adminDocumentationRouter);
+app.use('/admin/font', adminFontRouter);
+app.use('/admin/upload', adminUploadRouter);
+app.use('/admin/audit', adminAuditRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

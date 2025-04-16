@@ -16,7 +16,7 @@ async function list(req, res, next){
     try {
         res.locals.fonts = await req.models.font.find({campaign_id: req.campaign.id});
         res.locals.csrfToken = req.csrfToken();
-        res.render('font/list', { pageTitle: 'Fonts' });
+        res.render('admin/font/list', { pageTitle: 'Fonts' });
     } catch (err){
         next(err);
     }
@@ -50,7 +50,7 @@ async function showNew(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/font', name: 'Fonts'},
+                { url: '/admin/font', name: 'Fonts'},
             ],
             current: 'New'
         };
@@ -59,7 +59,7 @@ async function showNew(req, res, next){
             res.locals.font = req.session.fontData;
             delete req.session.fontData;
         }
-        res.render('font/new');
+        res.render('admin/font/new');
     } catch(err){
         next(err);
     }
@@ -82,12 +82,12 @@ async function showEdit(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/font', name: 'Fonts'},
+                { url: '/admin/font', name: 'Fonts'},
             ],
             current: 'Edit: ' + font.name
         };
         res.locals.googleFonts = await fontHelper.list()
-        res.render('font/edit');
+        res.render('admin/font/edit');
     } catch(err){
         next(err);
     }
@@ -111,10 +111,10 @@ async function create(req, res){
         await req.audit('font', id, 'create', {new:font});
         delete req.session.pageData;
         req.flash('success', 'Created Font ' + font.name);
-        res.redirect('/font');
+        res.redirect('/admin/font');
     } catch (err) {
         req.flash('error', err.toString());
-        return res.redirect('/font/new');
+        return res.redirect('/admin/font/new');
     }
 }
 
@@ -135,10 +135,10 @@ async function update(req, res){
         await req.models.font.update(id, font);
         delete req.session.fontData;
         req.flash('success', 'Updated Font ' + font.name);
-        res.redirect('/font');
+        res.redirect('/admin/font');
     } catch(err) {
         req.flash('error', err.toString());
-        return (res.redirect('/font/'+id));
+        return (res.redirect('/admin/font/'+id));
 
     }
 }
@@ -159,7 +159,7 @@ async function remove(req, res, next){
         const bucket = uploadHelper.getBucket(current.upload);
         await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload));
         req.flash('success', 'Removed Font');
-        res.redirect('/font');
+        res.redirect('/admin/font');
     } catch(err) {
         return next(err);
     }
@@ -193,7 +193,7 @@ async function signS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(font.upload),
                 objectId: font.id,
-                postUpload: `/upload/${font.upload.id}/uploaded`
+                postUpload: `/admin/upload/${font.upload.id}/uploaded`
             },
         });
     }

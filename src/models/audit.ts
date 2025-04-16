@@ -17,7 +17,8 @@ import eventModel from './event';
 import attendanceModel from './attendance';
 import surveyModel from './survey';
 import fontModel from './font';
-import uploadModel from './upload'
+import uploadModel from './upload';
+import documentationModel from './documentation';
 
 
 const models = {
@@ -36,7 +37,8 @@ const models = {
     attendance: attendanceModel,
     survey: surveyModel,
     font: fontModel,
-    upload: uploadModel
+    upload: uploadModel,
+    documentation: documentationModel
 };
 
 const tableFields =  ['id',

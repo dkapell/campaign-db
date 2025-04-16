@@ -1,13 +1,15 @@
-extends ../layout
+extends ../../layout
 
 block content
     .row
         .col-sm-8.offset-sm-2
             .card
-                .card-header New Rulebook
+                .card-header= 'Edit Rulebook: ' + rulebook.name
                 .card-body
-                    form.form.needs-validation(method="POST" action="/rulebook" novalidate)
+                    form.form.needs-validation(method="POST" action="/admin/rulebook/" + rulebook.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='rulebook[id]',value=rulebook.id)
                         include ./_form.pug
 
 append scripts

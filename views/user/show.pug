@@ -86,6 +86,27 @@ block content
                 h4 #{currentCampaign.renames.post_event_survey.plural}
                 +postEventSurveyGmTable(surveys, {backto:'user'})
 
+    if currentCampaign.documentations.length
+        .row.my-2
+            .col
+                h4 Documentation
+                ul.list-group
+                    each documentation of currentCampaign.documentations
+                        li.list-group-item
+                            strong.me-2= documentation.name
+                            - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
+                            - console.log(userDoc)
+                            if !userDoc
+                                .badge.text-bg-danger Missing
+                            else if !documentation.valid_from || userDoc.status === 'valid'
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-danger Expired
+                            if userDoc && userDoc.valid_from && userDoc.valid_date
+                                .float-end
+                                    - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
+                                    = validDate.format('ll')
+
 append scripts
     script(src='/javascripts/data-table.js')
     script(src='/javascripts/character.js')

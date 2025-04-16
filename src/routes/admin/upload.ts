@@ -23,7 +23,7 @@ async function list(req, res, next){
             return uploadHelper.fillUsage(upload);
         });
         res.locals.title += ' - Uploads';
-        res.render('upload/list', { pageTitle: 'Uploads' });
+        res.render('admin/upload/list', { pageTitle: 'Uploads' });
     } catch (err){
         next(err);
     }
@@ -50,7 +50,7 @@ async function remove(req, res, next){
         await uploadHelper.remove(bucket, uploadHelper.getKey(current));
         await req.audit('upload', id, 'delete', {old: current});
         req.flash('success', 'Removed Upload and associated records');
-        res.redirect('/upload');
+        res.redirect('/admin/upload');
     } catch(err) {
         return next(err);
     }

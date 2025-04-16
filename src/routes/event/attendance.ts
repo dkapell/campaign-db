@@ -409,25 +409,30 @@ async function exportEventAttendees(req, res, next){
             if (event.cost){
                 header.push('Paid');
             }
-            if (event.addons.length){
-                for (const addon of event.addons){
-                    if (addon.available_to_player){
-                        header.push(addon.name);
-                    }
-                }
-            }
         } else {
             header.push('Type');
+        }
+
+        if (!(exportType === 'not attending' || exportType === 'no response')){
+            header.push('Checked In');
+
             if (event.addons.length){
                 for (const addon of event.addons){
-                    if (addon.available_to_staff){
+                    if (addon.available_to_player && exportType === 'player'){
+                        header.push(addon.name);
+                    }
+
+                    if (addon.available_to_staff && exportType === 'staff'){
                         header.push(addon.name);
                     }
                 }
             }
-        }
-        if (!(exportType === 'not attending' || exportType === 'no response')){
-            header.push('Checked In');
+
+            for (const documentation of req.campaign.documentations){
+                if (!documentation.on_checkin){ continue; }
+                header.push(documentation.name)
+            }
+
             if (event.pre_event_survey){
                 for (const field of event.pre_event_survey.definition){
                     if (field.type === 'text content') { continue; }
@@ -438,6 +443,7 @@ async function exportEventAttendees(req, res, next){
             }
             header.push('Notes');
         }
+
         output.push(header);
 
         let attendees = [];
@@ -477,7 +483,6 @@ async function exportEventAttendees(req, res, next){
                     });
                 break;
             }
-
         }
 
         for (const attendee of attendees){
@@ -494,47 +499,68 @@ async function exportEventAttendees(req, res, next){
                 if (event.cost){
                     row.push(attendee.paid?'Yes':'No');
                 }
-                if (event.addons.length){
-                    for (const addon of event.addons){
-                        if (addon.available_to_player){
-                            const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
-                            if (attendee_addon){
-                                if (addon.charge_player){
-                                    row.push(attendee_addon.paid?'Paid':'Unpaid')
-                                } else {
-                                    row.push('Yes');
-                                }
-                            } else {
-                                row.push('No');
-                            }
-                        }
-                    }
-                }
+
             } else {
                 if (exportType === 'staff' && attendee.user.type === 'player'){
                     continue;
                 }
                 row.push(attendee.user.typeForDisplay);
-                if (event.addons.length){
-                    for (const addon of event.addons){
-                        if (addon.available_to_staff){
-                            const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
-                            if (attendee_addon){
-                                if (addon.charge_staff){
-                                    row.push(attendee_addon.paid?'Paid':'Unpaid')
+            }
+            if (!(exportType === 'not attending' || exportType === 'no response')){
+                row.push(attendee.checked_in?'Yes':'No');
+
+                if (exportType === 'player'){
+                    if (event.addons.length){
+                        for (const addon of event.addons){
+                            if (addon.available_to_player){
+                                const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
+                                if (attendee_addon){
+                                    if (addon.charge_player){
+                                        row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                    } else {
+                                        row.push('Yes');
+                                    }
                                 } else {
-                                    row.push('Yes');
+                                    row.push('No');
                                 }
-                            } else {
-                                row.push('No');
+                            }
+                        }
+                    }
+                } else {
+
+                    if (event.addons.length){
+                        for (const addon of event.addons){
+                            if (addon.available_to_staff){
+                                const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
+                                if (attendee_addon){
+                                    if (addon.charge_staff){
+                                        row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                    } else {
+                                        row.push('Yes');
+                                    }
+                                } else {
+                                    row.push('No');
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (!(exportType === 'not attending' || exportType === 'no response')){
-                row.push(attendee.checked_in?'Yes':'No');
+                for (const documentation of req.campaign.documentations){
+                    if (!documentation.on_checkin){ continue; }
+
+                    const userDoc = _.findWhere(attendee.documentations, {documentation_id:documentation.id});
+                    if (!userDoc){
+                        row.push('No');
+                    } else if (userDoc.status === 'valid') {
+                        row.push('Yes');
+                    } else if (userDoc.status === 'expired'){
+                        row.push('Expired');
+                    } else {
+                        row.push('No');
+                    }
+                }
+
                 if (event.pre_event_survey){
                     for (const field of event.pre_event_survey.definition){
                         if (field.type === 'text content') { continue; }

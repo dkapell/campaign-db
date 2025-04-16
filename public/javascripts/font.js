@@ -40,7 +40,7 @@ async function submitFontForm(e){
     }
     const request = await getSignedRequest(file);
     $('#font-id').val(request.objectId);
-    $('#fontForm').attr('action', `/font/${request.objectId}`);
+    $('#fontForm').attr('action', `/admin/font/${request.objectId}`);
     $('#formMethod').val('PUT');
 
     const uploaded = await uploadFile(file, request.signedRequest);
@@ -59,7 +59,7 @@ async function submitFontForm(e){
 
 async function getSignedRequest(file){
     try{
-        const result = await fetch(`/font/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
+        const result = await fetch(`/admin/font/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
         const response = await result.json();
         if (!response.success){
             $('#upload-feedback').text(response.error);

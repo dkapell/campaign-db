@@ -73,6 +73,7 @@ async function show(req, res, next){
         for (const character of characters){
             character.user = user;
         }
+        res.locals.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
         res.locals.surveys = await surveyHelper.getPostEventSurveys(req.campaign.id, user.id);
         res.locals.characters = characters;
         res.locals.user = user;
@@ -90,7 +91,8 @@ function showNew(req, res){
         type: 'none',
         drive_folder: null,
         staff_drive_folder: null,
-        permissions: []
+        permissions: [],
+        documentations: [],
     };
     res.locals.breadcrumbs = {
         path: [
@@ -115,9 +117,11 @@ async function showEdit(req, res, next){
 
     try {
         const user = await req.models.user.get(req.campaign.id, id);
+        user.documentations = await campaignHelper.getDocumentations(req.campaign.id, id);
         res.locals.user = user;
         if (_.has(req.session, 'userData')){
-            res.locals.furniture = req.session.userData;
+            res.locals.user = req.session.userData;
+            res.locals.user.name = res.locals.user.campaign_user_name;
             delete req.session.userData;
         }
         res.locals.breadcrumbs = {
@@ -148,6 +152,10 @@ async function create(req, res){
             user.permissions = [];
         } else if(!_.isArray(user.permissions)){
             user.permissions = [user.permissions];
+        }
+
+        if (req.campaign.documentations){
+            user.documentations = await parseDocumentations(req, user.documentations);
         }
 
         await req.models.user.findOrCreate(req.campaign.id, user, true);
@@ -181,6 +189,11 @@ async function update(req, res){
             user.permissions = [user.permissions];
         }
 
+        if (req.campaign.documentations){
+            user.documentations = await parseDocumentations(req, user.documentations);
+            console.log(JSON.stringify(user.documentations, null, 2));
+        }
+
         await req.models.user.update(req.campaign.id, id, user);
         delete req.session.userData;
         req.flash('success', 'Updated User ' + current.name);
@@ -194,6 +207,27 @@ async function update(req, res){
         return (res.redirect(`/user/${id}/edit`));
 
     }
+}
+
+async function parseDocumentations(req, documentations = []){
+    const output = [];
+    for (const documentation of req.campaign.documentations){
+        const userDoc = _.findWhere(documentations, {id: ''+documentation.id});
+        const doc = {
+            campaign_id: req.campaign.id,
+            documentation_id: documentation.id,
+            valid_date:null
+        };
+
+        if (documentation.valid_from){
+            doc.valid_date = userDoc.valid_date_date?await campaignHelper.parseTime(req.campaign.id, userDoc.valid_date_date, 0):false;
+        } else {
+            doc.valid_date = userDoc.valid?new Date():false;
+
+        }
+        output.push(doc);
+    }
+    return output;
 }
 
 async function remove(req, res, next){

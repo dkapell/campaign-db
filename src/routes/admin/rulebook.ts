@@ -24,7 +24,7 @@ async function list(req, res, next){
         });
         res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Rulebooks';
-        res.render('rulebook/list', { pageTitle: 'Rulebooks' });
+        res.render('admin/rulebook/list', { pageTitle: 'Rulebooks' });
     } catch (err){
         next(err);
     }
@@ -71,7 +71,7 @@ async function showNew(req, res, next){
             path: [
                 { url: '/', name: 'Home'},
                 { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
-                { url: '/rulebook', name: 'Rulebooks'},
+                { url: '/admin/rulebook', name: 'Rulebooks'},
             ],
             current: 'New'
         };
@@ -84,7 +84,7 @@ async function showNew(req, res, next){
         }
         res.locals.title += ' - New Rulebook';
         res.locals.drive_user = config.get('drive.credentials.client_email');
-        res.render('rulebook/new');
+        res.render('admin/rulebook/new');
     } catch (err){
         next(err);
     }
@@ -108,13 +108,13 @@ async function showEdit(req, res, next){
             path: [
                 { url: '/', name: 'Home'},
                 { url: `/admin/campaign/${req.campaign.id}`, name: 'Campaign'},
-                { url: '/rulebook', name: 'Rulebooks'},
+                { url: '/admin/rulebook', name: 'Rulebooks'},
             ],
             current: 'Edit: ' + rulebook.name
         };
         res.locals.title += ` - Edit Rulebook - ${rulebook.name}`;
         res.locals.drive_user = config.get('drive.credentials.client_email');
-        res.render('rulebook/edit');
+        res.render('admin/rulebook/edit');
     } catch(err){
         next(err);
     }
@@ -139,10 +139,10 @@ async function create(req, res){
         req.flash('success', 'Created Rulebook ' + rulebook.name);
 
         await rulebookHelper.generate(id);
-        res.redirect('/rulebook');
+        res.redirect('/admin/rulebook');
     } catch (err) {
         req.flash('error', err.toString());
-        return res.redirect('/rulebook/new');
+        return res.redirect('/admin/rulebook/new');
     }
 }
 
@@ -167,10 +167,10 @@ async function update(req, res){
         delete req.session.rulebookData;
         await rulebookHelper.generate(id);
         req.flash('success', 'Updated Rulebook ' + rulebook.name);
-        res.redirect('/rulebook');
+        res.redirect('/admin/rulebook');
     } catch(err) {
         req.flash('error', err.toString());
-        return (res.redirect(`/rulebook/${id}/edit`));
+        return (res.redirect(`/admin/rulebook/${id}/edit`));
 
     }
 }
@@ -185,7 +185,7 @@ async function remove(req, res, next){
         await req.models.rulebook.delete(id);
         await req.audit('rulebook', id, 'delete', {old: current});
         req.flash('success', 'Removed Rulebook');
-        res.redirect('/rulebook');
+        res.redirect('/admin/rulebook');
     } catch(err) {
         return next(err);
     }

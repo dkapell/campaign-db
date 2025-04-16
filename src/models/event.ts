@@ -8,11 +8,13 @@ import attendanceModel from './attendance';
 import surveyModel from './survey';
 import eventAddonModel from './event_addon';
 import surveyHelper from '../lib/surveyHelper';
+import documentation_userModel from './documentation_user';
 
 const models = {
     attendance: attendanceModel,
     survey: surveyModel,
-    event_addon: eventAddonModel
+    event_addon: eventAddonModel,
+    documentation_user: documentation_userModel
 };
 
 const tableFields = [
@@ -64,9 +66,13 @@ async function fill(record){
     record.attendees = await async.map(record.attendees, async (attendee) => {
         return surveyHelper.fillAttendance(attendee, record);
     })
+    record.attendees = await async.map(record.attendees, async (attendee) => {
+        attendee.documentations = await models.documentation_user.find({campaign_id:record.campaign_id, user_id:attendee.user_id});
+        return attendee;
+    });
+
     record.attendees = record.attendees.sort(attendeeSorter);
     record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
-
 
     return record;
 }

@@ -15,7 +15,7 @@ async function list(req, res){
         ],
         current: 'Audits'
     };
-    res.render('audit/list', { pageTitle: 'Audits' });
+    res.render('admin/audit/list', { pageTitle: 'Audits' });
 }
 
 async function listSkillAudits(req, res){
@@ -27,7 +27,7 @@ async function listSkillAudits(req, res){
         ],
         current: 'Audits'
     };
-    res.render('audit/listSkills', { pageTitle: 'Skill Changes' });
+    res.render('admin/audit/listSkills', { pageTitle: 'Skill Changes' });
 }
 
 async function query(req, res){
@@ -110,7 +110,7 @@ async function show(req, res, next){
             ],
             current: 'Audit'
         };
-        res.render('audit/show');
+        res.render('admin/audit/show');
     } catch(err){
         next(err);
     }

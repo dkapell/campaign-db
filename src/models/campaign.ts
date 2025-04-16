@@ -7,9 +7,11 @@ import pluralize from 'pluralize';
 
 
 import imageModel from './image';
+import documentationModel from './documentation';
 
 const models = {
-    image: imageModel
+    image: imageModel,
+    documentation: documentationModel
 };
 
 interface CampaignModel extends IModel {
@@ -103,6 +105,7 @@ async function postSelect(data:ModelData){
             };
         }
     }
+    data.documentations = await models.documentation.find({campaign_id:Number(data.id)});
     return data;
 }
 

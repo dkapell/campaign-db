@@ -1,4 +1,4 @@
-extends ../layout
+extends ../../layout
 
 block content
     .table-responsive
@@ -52,8 +52,8 @@ block content
                         td(data-priority=2).text-end
                             a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
                                 role="button",
-                                url=`/upload/${upload.id}`,
-                                data-back='/upload'
+                                url=`/admin/upload/${upload.id}`,
+                                data-back='/admin/upload'
                             )
                                 i.fas.fa-trash.fa-fw
 

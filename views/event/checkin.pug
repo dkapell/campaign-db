@@ -77,6 +77,19 @@ block content
                                                 i.fas.fa-clipboard.fa-fw.me-1
                                                 | Check In
                                         td(data-priority=2)= attendee.user.name
+                                            for documentation of currentCampaign.documentations
+                                                if documentation.on_checkin
+                                                    - userDoc = _.findWhere(attendee.documentations, {documentation_id: documentation.id})
+                                                    if !userDoc || userDoc.status !== 'valid'
+                                                        .badge.text-bg-danger.ms-2.rounded-pill(
+                                                            title=userDoc?capitalize(userDoc.status):'Missing'
+                                                            data-bs-toggle="tooltip"
+                                                        )
+                                                            if userDoc && userDoc.status === 'expired'
+                                                                i.far.fa-clock.me-1
+                                                            else
+                                                                i.fa.fa-times-circle.me-1
+                                                            = documentation.name
                                         td(data-priority=3)= attendee.character.name
                                         td(data-priority=4)
                                             if attendee.paid
@@ -153,6 +166,19 @@ block content
                                                 i.fas.fa-clipboard.fa-fw.me-1
                                                 | Check In
                                         td(data-priority=2)= attendee.user.name
+                                            for documentation of currentCampaign.documentations
+                                                if documentation.on_checkin
+                                                    - userDoc = _.findWhere(attendee.documentations, {documentation_id: documentation.id})
+                                                    if !userDoc || userDoc.status !== 'valid'
+                                                        .badge.text-bg-danger.ms-2.rounded-pill(
+                                                            title=userDoc?capitalize(userDoc.status):'Missing'
+                                                            data-bs-toggle="tooltip"
+                                                        )
+                                                            if userDoc && userDoc.status === 'expired'
+                                                                i.far.fa-clock.me-1
+                                                            else
+                                                                i.fa.fa-times-circle.me-1
+                                                            = documentation.name
                                         if event.addons
                                             each addon in event.addons
                                                 if addon.available_to_staff && addon.on_checkin

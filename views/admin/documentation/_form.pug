@@ -1,0 +1,41 @@
+.row.my-2
+    .col
+
+        label.control-label(for="documentation_name") Name
+        input.form-control(type="text",placeholder="Name",name="documentation[name]",value=documentation.name,id='documentation_name',required)
+        .invalid-feedback Please choose a valid name
+
+.row.my-2
+    .col
+        .form-check.form-switch
+                input.form-check-input#documentation_on_checkin(type="checkbox" name="documentation[on_checkin]" checked=documentation.on_checkin)
+                label.form-check-label(for="documentation_on_checkin") On Check-In Form
+                .form-text This will only be shown if it's missing or expired
+    .col
+        .form-check.form-switch
+                input.form-check-input#documentation_staff_only(type="checkbox" name="documentation[staff_only]" checked=documentation.staff_only)
+                label.form-check-label(for="documentation_staff_only") Visible/Editable by Staff Only
+                .form-text  Restricted to #{capitalize(currentCampaign.user_type_map['core staff'].name)} and above, and not Visible or Editable by users who only have 'Edit Documents'
+
+.row.my-2
+    .col
+        label.control-label(for="documentation_valid_from_date") Valid After
+        .form-text Leave blank if no date
+        input.form-control#documentation_valid_from_date(
+            type="text"
+            placeholder="Date"
+            name="documentation[valid_from_date]"
+            value=documentation.valid_from_date
+        )
+
+.row.my-2
+    .col
+        label.control-label(for="documentation_description") Description
+        textarea.form-control(name="documentation[description]",id="documentation_description",rows=3)
+            = documentation.description
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= documentation.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/documentation") Cancel
+

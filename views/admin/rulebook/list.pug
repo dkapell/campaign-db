@@ -1,7 +1,7 @@
-extends ../layout
+extends ../../layout
 
 block content
-    a.btn.btn-outline-success.my-2(href='/rulebook/new')
+    a.btn.btn-outline-success.my-2(href='/admin/rulebook/new')
         span(class="fa fa-plus")
         |  New Rulebook
 
@@ -11,7 +11,7 @@ block content
                 .visually-hidden Table is Loading
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-orderable(
             style="display: none"
-            data-orderable-object='rulebook'
+            data-orderable-object='admin/rulebook'
             data-csrf=csrfToken
             )
             thead
@@ -28,7 +28,7 @@ block content
 
             tbody
                 for rulebook in rulebooks
-                    tr(class='clickable-row', data-click-object='rulebook' data-click-id=rulebook.id)
+                    tr(class='clickable-row', data-click-object='admin/rulebook' data-click-id=rulebook.id)
                         td.dtr-control
                         td= rulebook.id
                         td= rulebook.display_order
@@ -40,10 +40,10 @@ block content
                             td.text-end
                                 a.btn.btn-outline-info.btn-xs.action-btn.rebuild-btn.mx-2(
                                     role="button",
-                                    url=`/rulebook/${rulebook.id}/rebuild`,
+                                    url=`/admin/rulebook/${rulebook.id}/rebuild`,
                                     data-bs-toggle="tooltip"
                                     title="Rebuild Rulebook"
-                                    data-back='/rulebook'
+                                    data-back='/admin/rulebook'
                                     data-csrf=csrfToken
                                     data-rulebookid=rulebook.id
                                 )
@@ -80,7 +80,7 @@ append scripts
                 $this.blur();
                 const rulebookId = $this.data('rulebookid');
                 const csrfToken = $this.data('csrf');
-                const result = await fetch(`/rulebook/${rulebookId}/rebuild`, {
+                const result = await fetch(`/admin/rulebook/${rulebookId}/rebuild`, {
                     method:'PUT',
                         headers: {
                         'CSRF-Token': csrfToken

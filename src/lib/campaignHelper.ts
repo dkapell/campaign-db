@@ -266,6 +266,17 @@ async function getPostEventSurveys(userId: number, events:ModelData[]){
         return b.eventStartTime - a.eventStartTime;
     });
 }
+async function getDocumentations(campaignId: number, userId: number){
+    const documentations = await models.documentation_user.find({campaign_id:campaignId, user_id:userId});
+    for (const documentation of documentations){
+        if (documentation.valid_from){
+            const split = await splitTime(campaignId, documentation.valid_date);
+            documentation.valid_date_date = split.date;
+        }
+    }
+    return documentations;
+}
+
 
 export default {
     init,
@@ -275,5 +286,6 @@ export default {
     characterSorter,
     parseTime,
     splitTime,
-    getPostEventSurveys:getPostEventSurveys
+    getPostEventSurveys,
+    getDocumentations
 }

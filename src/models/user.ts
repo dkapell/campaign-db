@@ -7,10 +7,11 @@ import validator from 'validator';
 
 import campaign_userModel from './campaign_user';
 import campaignModel from './campaign';
-
+import documentationUserModel from './documentation_user';
 const models = {
     campaign_user: campaign_userModel,
-    campaign: campaignModel
+    campaign: campaignModel,
+    documentation_user: documentationUserModel
 };
 
 const tableFields = ['name', 'email', 'google_id', 'site_admin'];
@@ -265,6 +266,9 @@ async function postSave(id, data, campaignId){
         if (changed){
             await models.campaign_user.update({user_id: (campaign_user.user_id as number), campaign_id:campaignId}, campaign_user);
         }
+        if (_.has(data, 'documentations')){
+            await updateDocumentation(data.documentations);
+        }
     } else {
         const campaign = await models.campaign.get(campaignId);
         campaign_user = {
@@ -288,7 +292,38 @@ async function postSave(id, data, campaignId){
             campaign_user.permissions = JSON.stringify(data.permissions);
         }
 
+
+
         await models.campaign_user.create(campaign_user);
+
+        if (_.has(data, 'documentations')){
+            await updateDocumentation(data.documentations);
+        }
+    }
+
+    async function updateDocumentation(documentations){
+        for (const documentation of documentations){
+            const existing = await models.documentation_user.findOne({user_id:id, documentation_id:documentation.documentation_id});
+            if (existing){
+                console.log('found existing '+ existing.id)
+                if (documentation.valid_date){
+                    existing.valid_date = documentation.valid_date;
+                    await models.documentation_user.update(existing.id, existing);
+                } else {
+                    await models.documentation_user.delete(existing.id);
+                }
+            } else if (documentation.valid_date) {
+                console.log('new')
+                const documentationUser = {
+                    campaign_id: campaignId,
+                    user_id: id,
+                    documentation_id: documentation.documentation_id,
+                    valid_date: documentation.valid_date
+                };
+                console.log(documentationUser)
+                await models.documentation_user.create(documentationUser);
+            }
+        }
     }
 }
 

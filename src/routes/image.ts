@@ -165,7 +165,7 @@ async function signS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/upload/${image.upload.id}/uploaded`
+                postUpload: `/admin/upload/${image.upload.id}/uploaded`
             },
         });
     }

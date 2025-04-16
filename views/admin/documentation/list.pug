@@ -1,0 +1,65 @@
+extends ../../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/admin/documentation/new')
+        span(class="fa fa-plus")
+        |  New Documentation
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-orderable(
+            style="display: none"
+            data-orderable-object='admin/documentation'
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th.sort-handle
+                    th Order
+                    th(data-priority="1") Name
+                    th On Checkin?
+                    th Staff Only?
+                    th Valid From
+                    th
+
+
+            tbody
+                for documentation in documentations
+                    tr(class='clickable-row', data-click-object='admin/documentation' data-click-id=documentation.id)
+                        td.dtr-control
+                        td= documentation.id
+                        td= documentation.display_order
+                        td= documentation.name
+                        td
+                            if documentation.on_checkin
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-warning No
+                        td
+                            if documentation.staff_only
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-warning No
+                        td
+                            if documentation.valid_from
+                                -
+                                    const validFrom = moment.utc(documentation.valid_from).tz(currentCampaign.timezone);
+                                = validFrom.format('ll')
+                            else
+                                i N/A
+
+                        td.text-end
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                role="button",
+                                url=`/documentation/${documentation.id}`,
+                                data-back='/documentation'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

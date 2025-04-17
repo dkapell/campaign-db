@@ -40,14 +40,17 @@ function toggleUserFilter(){
 
 function toggleUserRows(){
     const table = $('#user-table').DataTable();
-    const types = (localStorage.getItem('cdb-user-type-filter')).split(',');
-    $.fn.dataTable.ext.search.pop();
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            return types.indexOf($(table.row(dataIndex).node()).attr('data-type')) !== -1;
-        }
-    );
-    table.draw();
+    const typeList = localStorage.getItem('cdb-user-type-filter');
+    if (typeList){
+        const types = typeList.split(',');
+        $.fn.dataTable.ext.search.pop();
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                return types.indexOf($(table.row(dataIndex).node()).attr('data-type')) !== -1;
+            }
+        );
+        table.draw();
+    }
 }
 
 
@@ -74,11 +77,14 @@ function toggleDocumentationFilter(e){
 
 function toggleDocumentationColumns(){
     const table = $('#user-table').DataTable();
-    const columns = table.columns('.documentation-column');
+    const docColumns = table.columns('.documentation-column');
+    const nonDocColumns = table.columns('.non-documentation-column');
     if (localStorage.getItem('cdb-user-documentation-filter') === 'true'){
-        columns.visible(true);
+        docColumns.visible(true);
+        nonDocColumns.visible(false);
     } else {
-        columns.visible(false);
+        docColumns.visible(false);
+        nonDocColumns.visible(true);
     }
     table.columns.adjust().responsive.recalc();
 }

@@ -4,3 +4,7 @@
 .gm-note-body {
     color: #666;
 }
+
+.datepicker-controls .btn{
+    color: rgb(136,136,136);
+}

@@ -94,7 +94,7 @@ async function showEdit(req, res, next){
         }
         if (documentation.valid_from){
             const valid_dates = await campaignHelper.splitTime(req.campaign.id, documentation.valid_from);
-            documentation.valid_date = valid_dates.date;
+            documentation.valid_from_date = valid_dates.date;
         }
         res.locals.documentation = documentation;
         if (_.has(req.session, 'documentationData')){

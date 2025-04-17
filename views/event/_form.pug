@@ -13,14 +13,26 @@ if (backto)
     .col-md
         label.control-label(for="event_date") Date(s)
         .input-group#event_dates
-            input.form-control#event_start_date(type="text" placeholder="Start" name="event[start_date]" value=event.start_date)
+            input.form-control#event_start_date(
+                type="text"
+                placeholder="Start"
+                name="event[start_date]"
+                value=event.start_date
+                autocomplete="off"
+            )
             select.select2#event_start_hour(name="event[start_hour]" data-placeholder="Start Hour" required )
                 option
                 for hour in _.range(0, 24)
                     option(value=hour selected=Number(event.start_hour)===hour)
                         +hourDisplay(hour)
             .input-group-text to
-            input.form-control#event_end_date(type="text" placeholder="End" name="event[end_date]" value=event.end_date)
+            input.form-control#event_end_date(
+                type="text"
+                placeholder="End"
+                name="event[end_date]"
+                value=event.end_date
+                autocomplete="off"
+            )
             select.select2#event_end_hour(name="event[end_hour]" data-placeholder="End Hour" required)
                 option
                 for hour in _.range(0, 24)
@@ -102,8 +114,14 @@ if (backto)
     .col-md-4
         label.control-label(for="event_post_event_survey_deadline") Post-event Survey Deadline
         .input-group#event_post_event_survey_deadline
-            input.form-control#event_post_event_survey_deadline_date(type="text" placeholder="Date" name="event[post_event_survey_deadline_date]" value=event.post_event_survey_deadline_date)
-            select.select2#event_post_event_survey_deadline_hour(name="event[post_event_survey_deadline_hour]" data-placeholder="Hour")
+            input.form-control#event_post_event_survey_deadline_date(
+                type="text"
+                placeholder="Date"
+                name="event[post_event_survey_deadline_date]"
+                value=event.post_event_survey_deadline_date
+                autocomplete="off"
+            )
+            select.select2#event_post_event_survey_deadline_hour(name="event[post_event_survey_deadline_hour]" data-placeholder="Hour" )
                 option
                 for hour in _.range(0, 24)
                     option(value=hour selected=Number(event.post_event_survey_deadline_hour)===hour)

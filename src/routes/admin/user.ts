@@ -164,6 +164,11 @@ async function create(req, res){
             user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
         }
 
+
+        if ( user.image_id ===''){
+            user.image_id = null;
+        }
+
         await req.models.user.findOrCreate(req.campaign.id, user, true);
         delete req.session.userData;
         req.flash('success', 'Created User ' + user.name);
@@ -198,6 +203,10 @@ async function update(req, res){
 
         if (req.campaign.documentations){
             user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
+        }
+
+        if ( user.image_id ===''){
+            user.image_id = null;
         }
 
         await req.models.user.update(req.campaign.id, id, user);

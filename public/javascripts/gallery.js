@@ -38,6 +38,7 @@ function updateGalleryFilter(){
     if (_.keys(types).length){
         localStorage.setItem('cdb-gallery-type-filter', JSON.stringify(types));
     }
+    gallerySearch();
 }
 
 function gallerySearch(){

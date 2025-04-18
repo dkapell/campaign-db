@@ -432,13 +432,13 @@ router.get('/gallery', permission('player'), gallery);
 router.get('/new', permission('admin'), csrf(), showNew);
 router.get('/revert', revert);
 router.get('/sign-s3', csrf(), signS3UserImage);
-router.get('/profile', permission('login'), csrf(), showEditProfile);
+router.get('/profile', permission('player'), csrf(), showEditProfile);
 router.get('/:id', permission('gm, documentation edit'), csrf(), show);
 router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
 router.get('/:id/characters', permission('gm'), getCharacterListApi);
 router.post('/', permission('admin'), csrf(), create);
-router.put('/profile', permission('login'), csrf(), updateProfile);
+router.put('/profile', permission('player'), csrf(), updateProfile);
 router.put('/:id', permission('gm, documentation edit'), csrf(), update);
 router.delete('/:id', permission('admin'), remove);
 

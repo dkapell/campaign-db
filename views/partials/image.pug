@@ -10,7 +10,7 @@ mixin imageModal()
                 .modal-footer
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
 
-mixin imageUploadField(label, fieldId, name, current, options={})
+mixin imageUploadField(label, fieldId, name, image, options={})
     .image-field-container
         label.control-label(for=id)=label
             if options.required
@@ -23,27 +23,28 @@ mixin imageUploadField(label, fieldId, name, current, options={})
         input.image_id-field(
             id=fieldId
             type='hidden'
-            value=current?current.id:null
+            value=image?image.id:null
             name=name
         )
         .existing-image(
-            style=current?'':'display:none'
+            style=image?'':'display:none'
         )
             .row.my-1
                 .col-md-4
                     a.btn.clear-image-btn.btn-outline-danger
                         i.fa.fa-trash.me-2
                         | Remove Image
-                    div.p-2
-                        | Size: #{current.width}x#{current.height}px
+                    if image
+                        div.p-2
+                            | Size: #{image.width}x#{image.height}px
 
                 .col-md
                     image.img-fluid.image-container.d-block.rounded(
                         style=`max-height:${options.size?options.size:100}px`
-                        src=current?current.thumbnailUrl:null
+                        src=image?image.thumbnailUrl:null
                     )
         .new-image(
-            style=current?'display:none':''
+            style=image?'display:none':''
         )
             input.form-control.image-file-picker(
                 id=`${fieldId}_picker`

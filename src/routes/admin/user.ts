@@ -148,6 +148,33 @@ async function showEdit(req, res, next){
     }
 }
 
+async function showEditProfile(req, res, next){
+    res.locals.csrfToken = req.csrfToken();
+
+    try {
+        const user = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
+        user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
+        res.locals.user = user;
+        if (_.has(req.session, 'userProfileData')){
+            res.locals.user = req.session.userProfileData;
+            res.locals.user.name = res.locals.user.campaign_user_name;
+            delete req.session.userProfileData;
+        }
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/user/profile', name: 'Profile'},
+            ],
+            current: `Edit My ${req.campaign.name} Profile`
+        };
+        res.locals.title += ` - Edit Profile`;
+        res.render('user/profileEdit');
+
+    } catch (err){
+        next(err);
+    }
+}
+
 async function create(req, res){
     const user = req.body.user;
 
@@ -221,6 +248,33 @@ async function update(req, res){
         req.flash('error', err.toString());
         return (res.redirect(`/user/${id}/edit`));
 
+    }
+}
+
+async function updateProfile(req, res){
+    const user = req.body.user;
+    req.session.userProfileData = user;
+    try {
+        const current = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
+
+        if ( user.image_id ===''){
+            user.image_id = null;
+        }
+
+        current.user_id = user.image_id
+
+        const updateDoc = {
+            image_id:user.image_id
+        };
+
+        await req.models.user.update(req.campaign.id, current.id, updateDoc);
+        delete req.session.userProfileData;
+        req.flash('success', 'Updated Profile for ' + current.name);
+        res.redirect('/');
+
+    } catch(err) {
+        req.flash('error', err.toString());
+        return (res.redirect(`/user/profile`));
     }
 }
 
@@ -378,11 +432,13 @@ router.get('/gallery', permission('player'), gallery);
 router.get('/new', permission('admin'), csrf(), showNew);
 router.get('/revert', revert);
 router.get('/sign-s3', csrf(), signS3UserImage);
+router.get('/profile', permission('login'), csrf(), showEditProfile);
 router.get('/:id', permission('gm, documentation edit'), csrf(), show);
 router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
 router.get('/:id/characters', permission('gm'), getCharacterListApi);
 router.post('/', permission('admin'), csrf(), create);
+router.put('/profile', permission('login'), csrf(), updateProfile);
 router.put('/:id', permission('gm, documentation edit'), csrf(), update);
 router.delete('/:id', permission('admin'), remove);
 

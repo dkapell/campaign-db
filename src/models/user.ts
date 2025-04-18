@@ -258,10 +258,14 @@ async function postSave(id, data, campaignId){
         }
         if (_.has(data, 'permissions')){
             const newPermissions = JSON.stringify(data.permissions);
-            if (campaign_user.permissions !== newPermissions){
+            if (JSON.stringify(campaign_user.permissions) !== newPermissions){
                 campaign_user.permissions = newPermissions;
                 changed = true;
             }
+        }
+
+        if (typeof campaign_user.permissions === 'object'){
+            campaign_user.permissions = JSON.stringify(campaign_user.permissions);
         }
 
         if (changed){

@@ -1,0 +1,38 @@
+extends ../layout
+
+include ../partials/image
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header Edit #{currentCampaign.name} Profile for #{user.name}
+                .card-body
+                    form.form.needs-validation#userForm(method="POST" action="/user/profile" novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        .row.my-2.mb-3
+                            .col-md
+                                +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image, {
+                                    description: `This will be used for an image gallery to help NPCs ${currentCampaign.player_gallery?'and Players':''} identify you.`,
+                                    size:200
+                                })
+                        .row.my-2
+                            .col-md
+                                button.btn.btn-primary(type="submit")
+                                    i.fa.fa-save.me-1.submit-icon
+                                    | Save
+                                a.btn.btn-link(href="/") Cancel
+append scripts
+    script(src='/javascripts/image-upload.js')
+    script(src='/javascripts/user.js')
+    script(src='/javascripts/validator.js')
+    script.
+        $(function(){
+            $('.select2').select2({
+                theme:'bootstrap-5',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+        });
+

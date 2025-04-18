@@ -179,6 +179,9 @@
                         i.fas.me-1(class=session.assumed_user?'fa-user-secret':'fa-user')
                         = activeUser.name
                     .dropdown-menu(aria-labelledby="userDropdown")
+                        a.dropdown-item(href="/user/profile")
+                            i.fas.fa-user-cog.fa-fw.me-1
+                            | My Profile
                         a.dropdown-item(href="/auth/logout")
                             i.fas.fa-sign-out-alt.fa-fw.me-1
                             | Logout

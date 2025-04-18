@@ -22,6 +22,9 @@ async function showIndex(req, res){
         const pastEvents = events.filter( event => { return event.end_time <= new Date(); })
 
         res.locals.showTasks = false;
+        if (!user.image_id){
+            res.locals.showTasks = true;
+        }
 
         const post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
         res.locals.post_event_surveys = post_event_surveys.filter( survey => {return !survey.post_event_submitted && !survey.hidden});

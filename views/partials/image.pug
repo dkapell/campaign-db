@@ -11,7 +11,6 @@ mixin imageModal()
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
 
 mixin imageUploadField(label, fieldId, name, current, options={})
-    -console.log(options)
     .image-field-container
         label.control-label(for=id)=label
             if options.required
@@ -30,12 +29,17 @@ mixin imageUploadField(label, fieldId, name, current, options={})
         .existing-image(
             style=current?'':'display:none'
         )
-            .row
+            .row.my-1
                 .col-md-4
-                    a.btn.clear-image-btn.btn-outline-danger Remove Image
+                    a.btn.clear-image-btn.btn-outline-danger
+                        i.fa.fa-trash.me-2
+                        | Remove Image
+                    div.p-2
+                        | Size: #{current.width}x#{current.height}px
+
                 .col-md
-                    image.mx-auto.img-fluid.image-container.d-block(
-                        style='max-height:100px'
+                    image.img-fluid.image-container.d-block.rounded(
+                        style=`max-height:${options.size?options.size:100}px`
                         src=current?current.thumbnailUrl:null
                     )
         .new-image(

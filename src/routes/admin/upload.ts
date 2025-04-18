@@ -146,7 +146,9 @@ async function getUpload(req, res, next){
     try{
         const user = req.session.activeUser;
         let upload = await req.models.upload.get(id);
-
+        if (!upload){
+            throw new Error('Invalid Record');
+        }
         if (upload.campaign_id !== req.campaign.id){
             throw new Error('Can not access record from different campaign');
         }
@@ -154,6 +156,10 @@ async function getUpload(req, res, next){
             upload = await uploadHelper.fillUsage(upload);
             if (upload.usedFor.type === 'registration'){
                 if (!res.locals.checkPermission('registration view')){
+                    throw new Error('Can not access this record');
+                }
+            } else if (upload.usedFor.type === 'user'){
+                if (upload.usedFor.user_id !== user.id){
                     throw new Error('Can not access this record');
                 }
             } else {

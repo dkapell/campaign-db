@@ -302,6 +302,9 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
                             for (const field of event.pre_event_survey.definition){
                                 if (field.type !== 'image') { continue; }
                                 if (_.has(attendance.pre_event_data, field.id)){
+                                    if (!attendance.pre_event_data[field.id].data){
+                                        continue;
+                                    }
                                     if (attendance.pre_event_data[field.id].data.id === image.id){
                                         upload.usedFor = {
                                             type:'registration',
@@ -320,6 +323,9 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
                             for (const field of event.post_event_survey.definition){
                                 if (field.type !== 'image') { continue; }
                                 if (_.has(attendance.post_event_data, field.id)){
+                                    if (!attendance.post_event_data[field.id].data){
+                                        continue;
+                                    }
                                     if (attendance.post_event_data[field.id].data.id === image.id){
                                         const campaign = await models.campaign.get(upload.campaign_id);
                                         upload.usedFor = {

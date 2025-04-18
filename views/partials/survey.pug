@@ -1,4 +1,4 @@
-include ./imageViewer
+include ./image
 
 mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff, options={})
     - const disabled = (!isStaff && field.editable_by ==='gm') || options.disabled

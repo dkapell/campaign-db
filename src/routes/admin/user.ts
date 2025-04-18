@@ -400,7 +400,11 @@ async function gallery(req, res, next){
     };
     try {
         const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
-        const users = await async.map(campaign_users, async (campaign_user) => {
+        const image_users = campaign_users.filter(user => {
+            return user.image_id;
+        });
+
+        const users = await async.map(image_users, async (campaign_user) => {
             const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
             user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
             if (user.type === 'player'){

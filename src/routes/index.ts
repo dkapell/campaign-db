@@ -22,7 +22,7 @@ async function showIndex(req, res){
         const pastEvents = events.filter( event => { return event.end_time <= new Date(); })
 
         res.locals.showTasks = false;
-        if (!user.image_id){
+        if (req.campaign.display_gallery && !user.image_id){
             res.locals.showTasks = true;
         }
 

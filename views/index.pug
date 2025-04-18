@@ -51,7 +51,7 @@ append content
                                         span.badge.text-bg-info.float-end Started
                                     else
                                         span.badge.text-bg-info.float-end New
-                        if !activeUser.image_id
+                        if currentCampaign.display_gallery && !activeUser.image_id
                             a.list-group-item.list-group-item-action(
                                 href='user/profile'
                             )

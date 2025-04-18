@@ -43,14 +43,13 @@ block content
                                         = user.name
                                 if user.type === 'player'
                                     h6= user.name
-
                         .card-body.p-0.text-center.bg-light
                             a.img-display-btn(
                                 href=user.image.upload.url
                                 target='_blank'
                                 role="button"
                                 data-imageurl=user.image.upload.url
-                                data-imagename=user.name
+                                data-imagename=user.character?`${user.character.name} (${user.name})`:user.name
                             )
                                 img.img-fluid(src=user.image.thumbnailUrl alt=user.name)
 

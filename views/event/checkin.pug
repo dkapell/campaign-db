@@ -3,6 +3,7 @@ extends ../layout
 include ../partials/event.pug
 include ../partials/survey.pug
 include ../partials/attendee.pug
+include ../partials/imageViewer.pug
 
 block content
     input#eventId(type='hidden' value=event.id)
@@ -199,7 +200,7 @@ block content
                                                 if field.on_checkin && (!field.visible_to || field.visible_to !== 'player')
                                                     td
                                                         +checkinCustomField(field, attendee)
-    +surveyImageModal()
+    +imageModal()
 
 mixin checkinCustomField(field, attendee)
     -

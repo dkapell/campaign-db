@@ -74,9 +74,6 @@ $(function(){
     }).on('click', eventCheckin);
 
     $('#grantEventCPBtn').on('click', assignEventCP);
-
-    //$('.data-table tbody').on('click', '.img-display-btn', showImage);
-    $('.img-display-btn').on('click', showImage);
 });
 
 function prepEventAddons(){
@@ -240,22 +237,4 @@ async function assignEventCP(e){
     } else {
         $this.find('.recalc-icon').removeClass('fa-spin').removeClass('fa-sync').addClass('fa-exclamation-triangle');
     }
-}
-
-function showImage(e){
-    e.preventDefault();
-    e.stopPropagation();
-    const $this = $(this);
-    const imageUrl = $this.data('imageurl');
-    const imageName = $this.data('imagename');
-
-    const $modal = $('#surveyImageModal');
-
-    $modal.find('.modal-title').text(imageName);
-    $modal.find('.modal-body').find('.image-container').attr('src', imageUrl);
-    $modal.modal('show');
-
-    $modal.on('hidden.bs.modal', function(e){
-        $modal.modal('dispose');
-    });
 }

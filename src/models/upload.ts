@@ -15,6 +15,7 @@ const tableFields = [
     'description', 
     'status',
     'is_public',
+    'permission',
     'type', 
     'size',
     'created'

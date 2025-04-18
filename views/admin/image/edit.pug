@@ -11,7 +11,7 @@ block content
                             image.mx-auto.d-block.img-fluid(src=image.upload.url)
                     .row
                         .col
-                            form.form.needs-validation(method="POST" action="/image/" + image.id novalidate)
+                            form.form.needs-validation(method="POST" action="/admin/image/" + image.id novalidate)
                                 input(type="hidden", name="_method",  value="PUT")
                                 input#csrfToken(type="hidden", name='_csrf',value=csrfToken)
                                 input(type="hidden", name='image[id]',value=image.id)

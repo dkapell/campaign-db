@@ -1,8 +1,8 @@
 import express from 'express';
 import csrf from 'csurf';
 import _ from 'underscore';
-import permission from '../lib/permission';
-import uploadHelper from '../lib/uploadHelper';
+import permission from '../../lib/permission';
+import uploadHelper from '../../lib/uploadHelper';
 
 /* GET images listing. */
 async function list(req, res, next){
@@ -16,7 +16,7 @@ async function list(req, res, next){
         const images = await req.models.image.find({campaign_id: req.campaign.id, for_cms:true});
         res.locals.imageCounts = _.countBy(images, 'type');
         res.locals.images = images.sort(uploadHelper.sorter);
-        res.render('image/list', { pageTitle: 'Images' });
+        res.render('admin/image/list', { pageTitle: 'Images' });
     } catch (err){
         next(err);
     }
@@ -48,7 +48,7 @@ function showNew(req, res){
     res.locals.breadcrumbs = {
         path: [
             { url: '/', name: 'Home'},
-            { url: '/image', name: 'Images'},
+            { url: '/admin/image', name: 'Images'},
         ],
         current: 'New'
     };
@@ -57,7 +57,7 @@ function showNew(req, res){
         res.locals.image = req.session.imageData;
         delete req.session.imageData;
     }
-    res.render('image/new');
+    res.render('admin/image/new');
 }
 
 async function showEdit(req, res, next){
@@ -77,12 +77,12 @@ async function showEdit(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/image', name: 'Images'},
+                { url: '/admin/image', name: 'Images'},
             ],
             current: 'Edit: ' + image.upload.name
         };
 
-        res.render('image/edit');
+        res.render('admin/image/edit');
     } catch(err){
         next(err);
     }
@@ -106,10 +106,10 @@ async function update(req, res){
         delete req.session.imageData;
         const upload = await req.models.upload.get(current.upload_id);
         req.flash('success', 'Updated Image ' + upload.name);
-        res.redirect('/image');
+        res.redirect('/admin/image');
     } catch(err) {
         req.flash('error', err.toString());
-        return (res.redirect('/image/'+id));
+        return (res.redirect('/admin/image/'+id));
 
     }
 }
@@ -131,7 +131,7 @@ async function remove(req, res, next){
         await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload));
         await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload, {thumbnail:true}));
         req.flash('success', 'Removed Image');
-        res.redirect('/image');
+        res.redirect('/admin/image');
     } catch(err) {
         return next(err);
     }

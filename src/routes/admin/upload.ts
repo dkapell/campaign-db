@@ -85,7 +85,7 @@ async function signImageS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/upload/${image.upload.id}/uploaded`
+                postUpload: `/admin/upload/${image.upload.id}/uploaded`
             },
         });
     }
@@ -150,21 +150,15 @@ async function getUpload(req, res, next){
         if (upload.campaign_id !== req.campaign.id){
             throw new Error('Can not access record from different campaign');
         }
-
-        // Only allow Contrib+, reg viewer and self to access uploads.
-        if (!res.locals.checkPermission('contrib, registration view') && user.id !== upload.user_id){
-            throw new Error('Can not access this record');
-        }
-
-
-        if (!res.locals.checkPermission('contrib') && user.id !== upload.user_id){
-            // Registration View only
+        if (!res.locals.checkPermission(upload.permission) && user.id !== upload.user_id){
             upload = await uploadHelper.fillUsage(upload);
-
-            if (upload.usedFor.type !== 'registration'){
+            if (upload.usedFor.type === 'registration'){
+                if (!res.locals.checkPermission('registration view')){
+                    throw new Error('Can not access this record');
+                }
+            } else {
                 throw new Error('Can not access this record');
             }
-            // Insert new permissions to check here
         }
 
         const options = {

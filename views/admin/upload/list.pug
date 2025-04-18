@@ -35,7 +35,7 @@ block content
                                 =upload.user.name
 
                                 .badge.text-bg-info.ms-2=upload.user.typeForDisplay
-                        td(data-priority=7)=moment.utc(upload.created).tz(currentCampaign.timezone).format('lll')
+                        td(data-priority=7, data-sort=upload.created.getTime())=moment.utc(upload.created).tz(currentCampaign.timezone).format('lll')
                             if upload.status !== 'ready'
                                 .badge.text-bg-danger.ms-2=upload.status
                         td(data-priority=5)
@@ -47,7 +47,7 @@ block content
                             if upload.is_public
                                 .badge.text-bg-warning Yes
                             else
-                                .badge.text-bg-success No
+                                .badge.text-bg-success=capitalize(upload.permission)
 
                         td(data-priority=2).text-end
                             a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(

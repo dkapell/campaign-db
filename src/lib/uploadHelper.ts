@@ -39,9 +39,9 @@ function getUrl(upload: UploadModel, options:UploadOptions={}): string{
         const key = getKey(upload, options);
         return`https://${config.get('aws.assetBucket')}.s3.amazonaws.com/${key}`;
     } else if (options.thumbnail){
-        return `/upload/${upload.id}?thumbnail=1`;
+        return `/admin/upload/${upload.id}?thumbnail=1`;
     } else {
-        return `/upload/${upload.id}`;
+        return `/admin/upload/${upload.id}`;
     }
 };
 
@@ -249,14 +249,15 @@ async function getContentType(upload: UploadModel){
 function uploadMiddleware(){
     return function(req, res, next){
         req.upload = {
-            makeEmptyUpload: async function makeEmptyUpload(fileName, type, is_public){
+            makeEmptyUpload: async function makeEmptyUpload(fileName, type, is_public, permission='contrib'){
                 const user = req.session.activeUser;
                 const uploadData = {
                     name: fileName,
                     campaign_id: req.campaign.id,
                     user_id: user.id,
                     type: type,
-                    is_public: false
+                    is_public: false,
+                    permission: permission
                 };
                 if (is_public && res.locals.checkPermission('gm')){
                     console.log('setting upload public')
@@ -334,6 +335,19 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
                             }
                         }
 
+                        const users = await models.user.find(upload.campaign_id);
+                        for (const user of users){
+                            if (user.image_id === image.id){
+                                upload.usedFor = {
+                                    type:'user',
+                                    id: image.id,
+                                    user_id: user.id,
+                                    message:`User Image for ${user.name}`
+                                };
+                                break;
+                            }
+                        }
+
                     }
                 }
             }
@@ -354,6 +368,19 @@ async function fillUsage(upload: UploadModel): Promise<UploadModel>{
     return upload;
 }
 
+async function updateGalleryImages(campaignId:number, permission:string): Promise<void>{
+    const campaign_users = await models.campaign_user.find({campaign_id:campaignId});
+    for (const user of campaign_users){
+        if (!user.image_id){
+            continue;
+        }
+        const image = await models.image.get(user.image_id);
+        if (image.upload.permission !== permission){
+            await models.upload.update(image.upload.id, {permission:permission});
+        }
+    }
+}
+
 export default {
     getKey,
     getBucket,
@@ -370,5 +397,6 @@ export default {
     rename,
     list,
     middleware: uploadMiddleware,
-    fillUsage
+    fillUsage,
+    updateGalleryImages
 }

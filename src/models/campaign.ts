@@ -41,6 +41,7 @@ const tableFields = [
     'google_client_id',
     'google_client_secret',
     'display_glossary',
+    'display_gallery',
     'body_font',
     'header_font',
     'menu_dark',
@@ -66,7 +67,8 @@ const tableFields = [
     'character_sheet_title_font_scale',
     'character_sheet_header_font_scale',
     'character_sheet_body_font_scale',
-    'translation_scale'
+    'translation_scale',
+    'player_gallery'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

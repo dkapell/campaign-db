@@ -210,6 +210,7 @@ async function postSelect(user, campaignId){
         user.drive_folder = campaign_user.drive_folder;
         user.staff_drive_folder = campaign_user.staff_drive_folder;
         user.permissions = campaign_user.permissions;
+        user.image_id = campaign_user.image_id;
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
@@ -239,7 +240,7 @@ async function postSave(id, data, campaignId){
     let campaign_user = await models.campaign_user.findOne({user_id: id, campaign_id: campaignId});
     if (campaign_user){
         let changed = false;
-        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes']){
+        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'image_id']){
             if (_.has(data, field) && campaign_user[field] !== data[field]){
                 campaign_user[field] = data[field];
                 changed = true;
@@ -305,7 +306,6 @@ async function postSave(id, data, campaignId){
         for (const documentation of documentations){
             const existing = await models.documentation_user.findOne({user_id:id, documentation_id:documentation.documentation_id});
             if (existing){
-                console.log('found existing '+ existing.id)
                 if (documentation.valid_date){
                     existing.valid_date = documentation.valid_date;
                     await models.documentation_user.update(existing.id, existing);
@@ -313,14 +313,12 @@ async function postSave(id, data, campaignId){
                     await models.documentation_user.delete(existing.id);
                 }
             } else if (documentation.valid_date) {
-                console.log('new')
                 const documentationUser = {
                     campaign_id: campaignId,
                     user_id: id,
                     documentation_id: documentation.documentation_id,
                     valid_date: documentation.valid_date
                 };
-                console.log(documentationUser)
                 await models.documentation_user.create(documentationUser);
             }
         }

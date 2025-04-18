@@ -6,7 +6,7 @@ $(function(){
 
 async function updateImage(e){
     const file = ($(this).prop('files'))[0];
-    const $row = $(this).closest('.custom-event-field');
+    const $row = $(this).closest('.row');
     if (file){
         if ($(this).data('immediate')){
             await uploadImage(file, $row);
@@ -53,7 +53,7 @@ function prettyPrintSize(value, type) {
 
 async function getSignedRequest(file){
     try{
-        const result = await fetch(`/upload/sign-image?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
+        const result = await fetch(`/admin/upload/sign-image?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
         const response = await result.json();
         if (!response.success){
             $('#upload-feedback').text(response.error);
@@ -139,7 +139,7 @@ async function markFileUploaded(url){
 
 function clearImage(e){
     e.preventDefault();
-    const $row = $(this).closest('.custom-event-field');
+    const $row = $(this).closest('.row');
     $row.find('.existing-image').hide();
     $row.find('.new-image').show();
     $row.find('.image_id-field').val(null);

@@ -67,7 +67,7 @@ async function submitImageForm(e){
     }
     const request = await getSignedRequest(file);
     $('#image-id').val(request.objectId);
-    $('#new-image-form').attr('action', `/image/${request.objectId}`);
+    $('#new-image-form').attr('action', `/admin/image/${request.objectId}`);
     const uploaded = await uploadFile(file, request.signedRequest);
 
     if (uploaded){
@@ -84,7 +84,7 @@ async function submitImageForm(e){
 
 async function getSignedRequest(file){
     try{
-        const result = await fetch(`/image/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
+        const result = await fetch(`/admin/image/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
         const response = await result.json();
         if (!response.success){
             $('#upload-feedback').text(response.error);

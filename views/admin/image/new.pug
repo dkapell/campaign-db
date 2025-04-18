@@ -6,7 +6,7 @@ block content
             .card
                 .card-header New Image
                 .card-body
-                    form#new-image-form.form.needs-validation(method="POST" action="/image" novalidate)
+                    form#new-image-form.form.needs-validation(method="POST" action="/admin/image" novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input#csrfToken(type="hidden", name='_csrf',value=csrfToken)
                         input#image-id(type="hidden", name='image[id]',value='')

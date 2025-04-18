@@ -45,6 +45,8 @@
                                 else
                                     a.dropdown-item(href='/skill') Skills
                                 a.dropdown-item(href='/character') Characters
+                                if currentCampaign.display_gallery
+                                    a.dropdown-item(href='/user/gallery') Gallery
 
                             if checkPermission('contrib')
                                 if currentCampaign.display_cp
@@ -79,6 +81,8 @@
                                 a.dropdown-item(href='/cp_grant') Character Points
 
                             a.dropdown-item(href='/skill/doc') Skills
+                            if currentCampaign.display_gallery && currentCampaign.player_gallery
+                                 a.dropdown-item(href='/user/gallery') Gallery
 
                 //- Events menu
                 li.nav-item.dropdown(class= siteSection==='event'||_.indexOf(siteSection, 'event') !== -1 ?"active":null)
@@ -142,8 +146,8 @@
                         .dropdown-menu(aria-labelledby="adminDropdown")
                             a.dropdown-item(href='/user') Users
                             if checkPermission('gm')
-                                a.dropdown-item(href='/audit') Audits
-                                a.dropdown-item(href='/image') Images
+                                a.dropdown-item(href='/admin/audit') Audits
+                                a.dropdown-item(href='/admin/image') Images
                                 a.dropdown-item(href='/page') Pages
                                 a.dropdown-item(href='/survey') Surveys
 

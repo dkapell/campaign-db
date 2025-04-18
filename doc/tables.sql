@@ -33,6 +33,7 @@ create table campaigns (
     default_to_player boolean default false,
     display_map boolean default false,
     display_glossary boolean default true,
+    display_gallery boolean default false,
     staff_drive_folder varchar(255),
     npc_drive_folder varchar(255),
     player_drive_folder varchar(255),
@@ -67,6 +68,7 @@ create table campaigns (
     character_sheet_body_font_scale float default 1,
     character_sheet_header_font_scale float default 1,
     character_sheet_title_font_scale float default 1,
+    player_gallery boolean default false
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -85,6 +87,7 @@ create table campaigns_users(
     notes              text,
     type                user_type not null default 'none',
     permissions         jsonb default [],
+    image_id            int,
     created             timestamp with time zone DEFAULT now(),
     primary key(user_id, campaign_id),
     CONSTRAINT campaigns_users_user_fk FOREIGN KEY (user_id)
@@ -153,7 +156,6 @@ create type skill_tag_type as enum(
     'campaign',
     'meta'
 );
-
 
 create table skill_tags(
     id              serial,
@@ -432,6 +434,15 @@ create type upload_type as ENUM(
     'document'
 );
 
+create type permission_level as ENUM(
+    'admin',
+    'gm',
+    'contrib',
+    'event',
+    'player',
+    'private'
+);
+
 create table uploads (
     id              serial,
     campaign_id     int not null,
@@ -443,6 +454,7 @@ create table uploads (
     size            int,
     type            upload_type,
     is_public       boolean default false,
+    permission      permission_level not null default 'contrib'
     primary key (id),
     CONSTRAINT uploads_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

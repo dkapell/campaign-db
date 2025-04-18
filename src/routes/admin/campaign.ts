@@ -6,6 +6,7 @@ import _ from 'underscore';
 import permission from '../../lib/permission';
 import campaignHelper from '../../lib/campaignHelper';
 import fontHelper from '../../lib/fontHelper';
+import uploadHelper from '../../lib/uploadHelper';
 
 /* GET campaigns listing. */
 async function list(req, res, next){
@@ -43,6 +44,7 @@ async function showNew(req, res){
         display_glossary: true,
         display_cp: false,
         display_translations: false,
+        display_gallery: false,
         default_site:false,
         body_font: 'Lato',
         header_font: 'Montserrat',
@@ -75,7 +77,8 @@ async function showNew(req, res){
         character_sheet_body_font_scale: 1,
         character_sheet_header_font_scale: 1,
         character_sheet_title_font_scale: 1,
-        translation_scale: 1
+        translation_scale: 1,
+        player_gallery: false,
     };
     res.locals.googleFonts = await fontHelper.list()
     res.locals.breadcrumbs = {
@@ -149,7 +152,17 @@ async function create(req, res){
 
     req.session.campaignData = campaign;
 
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'menu_dark', 'cp_approval', 'display_translations']){
+    for(const field of [
+        'display_map',
+        'display_glossary',
+        'display_cp',
+        'default_to_player',
+        'menu_dark',
+        'cp_approval',
+        'display_translations',
+        'display_gallery',
+        'player_gallery'
+    ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
@@ -173,7 +186,17 @@ async function update(req, res){
     const id = req.params.id;
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
-    for(const field of ['display_map', 'display_glossary', 'display_cp', 'default_to_player', 'default_site', 'menu_dark', 'cp_approval', 'display_translations']){
+    for(const field of [
+        'display_map',
+        'display_glossary',
+        'display_cp',
+        'default_to_player',
+        'menu_dark',
+        'cp_approval',
+        'display_translations',
+        'display_gallery',
+        'player_gallery'
+    ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
         }
@@ -188,6 +211,10 @@ async function update(req, res){
     }
 
     try {
+        const current = await req.models.campaign.get(id);
+        if (current.player_gallery !== campaign.player_gallery){
+            await uploadHelper.updateGalleryImages(req.campaign.id, campaign.player_gallery?'player':'event');
+        }
         await req.models.campaign.update(id, campaign);
         delete req.session.campaignData;
         req.flash('success', `Updated Campaign ${campaign.name}`);

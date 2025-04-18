@@ -44,8 +44,6 @@ import glossaryEntryRouter from './routes/glossary_entry';
 
 import mapRouter from './routes/map';
 
-import imageRouter from './routes/image';
-
 import characterRouter from './routes/character';
 import characterFieldRouter from './routes/character_field';
 import cpGrantRouter from './routes/cp_grant';
@@ -65,6 +63,7 @@ import adminDocumentationRouter from './routes/admin/documentation';
 import adminUploadRouter from './routes/admin/upload';
 import adminFontRouter from './routes/admin/font';
 import adminAuditRouter from './routes/admin/audit';
+import adminImageRouter from './routes/admin/image';
 
 
 
@@ -308,7 +307,6 @@ app.use('/glossary', glossaryEntryRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/cp_grant', cpGrantRouter);
-app.use('/image', imageRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);
@@ -323,6 +321,7 @@ app.use('/admin/documentation', adminDocumentationRouter);
 app.use('/admin/font', adminFontRouter);
 app.use('/admin/upload', adminUploadRouter);
 app.use('/admin/audit', adminAuditRouter);
+app.use('/admin/image', adminImageRouter);
 
 
 // catch 404 and forward to error handler

@@ -5,6 +5,8 @@ import _ from 'underscore';
 import permission from '../../lib/permission';
 import campaignHelper from '../../lib/campaignHelper';
 import surveyHelper from '../../lib/surveyHelper';
+import uploadHelper from '../../lib/uploadHelper';
+import Character from '../../lib/Character';
 
 /* GET users listing. */
 async function list(req, res, next){
@@ -27,6 +29,7 @@ async function list(req, res, next){
                 });
                 user.regCount = userEvents.length;
                 user.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
+                user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
                 return user;
             });
             res.locals.title += ' - Users';
@@ -74,6 +77,7 @@ async function show(req, res, next){
         for (const character of characters){
             character.user = user;
         }
+        user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
         res.locals.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
         res.locals.surveys = await surveyHelper.getPostEventSurveys(req.campaign.id, user.id);
         res.locals.characters = characters;
@@ -119,6 +123,7 @@ async function showEdit(req, res, next){
     try {
         const user = await req.models.user.get(req.campaign.id, id);
         user.documentations = await campaignHelper.getDocumentations(req.campaign.id, id);
+        user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
         res.locals.user = user;
         if (_.has(req.session, 'userData')){
             res.locals.user = req.session.userData;
@@ -173,7 +178,6 @@ async function update(req, res){
     const id = req.params.id;
     const user = req.body.user;
     req.session.userData = user;
-
     try {
         const current = await req.models.user.get(req.campaign.id, id);
 
@@ -280,6 +284,79 @@ async function getCharacterListApi(req, res, next){
     }
 }
 
+
+async function signS3UserImage(req, res, next){
+
+    const fileName = decodeURIComponent(req.query.filename);
+    const fileType = decodeURIComponent(req.query.filetype);
+
+    if (!fileType.match(/^image/)){
+        return res.json({success:false, error: 'invalid file type'});
+    }
+    const permissionLevel = req.campaign.player_gallery?'player':'event';
+    const upload = await req.upload.makeEmptyUpload(fileName, 'image', false, permissionLevel);
+
+    const image = {
+        id: null,
+        upload_id: upload.id,
+        campaign_id: req.campaign.id,
+        upload: upload,
+        for_cms: false
+
+    };
+
+    image.id = await req.models.image.create(image);
+    const key = uploadHelper.getKey(image.upload);
+    try{
+        const signedRequest = await uploadHelper.signS3(key, fileType, upload.is_public);
+        res.json({
+            success:true,
+            data: {
+                signedRequest: signedRequest,
+                url: uploadHelper.getUrl(image.upload),
+                objectId: image.id,
+                postUpload: `/admin/upload/${image.upload.id}/uploaded`
+            },
+        });
+    }
+    catch (err) {
+        return next(err);
+    }
+}
+
+async function gallery(req, res, next){
+    if (!req.campaign.player_gallery && !res.locals.checkPermission('event')){
+        req.flash('warning', `Gallery is not available to ${req.campaign.user_type_map['player'].name}s` );
+        return res.redirect('/');
+    }
+    res.locals.breadcrumbs = {
+        path: [
+            { url: '/', name: 'Home'},
+        ],
+        current: 'Gallery'
+    };
+    try {
+        const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
+        const users = await async.map(campaign_users, async (campaign_user) => {
+            const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
+            user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
+            if (user.type === 'player'){
+                const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
+                if (characterData){
+                    const character = new Character({id:characterData.id});
+                    await character.init();
+                    user.character = await character.data();
+                }
+            }
+            return user;
+        });
+        res.locals.users = users.sort(campaignHelper.userSorter);
+        res.render('user/gallery', { pageTitle: 'Gallery' });
+    } catch (err){
+        next(err);
+    }
+}
+
 const router = express.Router();
 
 router.use(function(req, res, next){
@@ -288,8 +365,10 @@ router.use(function(req, res, next){
 });
 
 router.get('/', permission('gm, documentation edit'), list);
+router.get('/gallery', permission('player'), gallery);
 router.get('/new', permission('admin'), csrf(), showNew);
 router.get('/revert', revert);
+router.get('/sign-s3', csrf(), signS3UserImage);
 router.get('/:id', permission('gm, documentation edit'), csrf(), show);
 router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
 router.get('/:id/assume', permission('gm'), assume);

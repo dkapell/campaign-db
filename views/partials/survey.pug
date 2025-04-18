@@ -431,16 +431,3 @@ mixin surveyField(field,  idx)
                 small.form-text.text-muted.d-inline.ms-2 Supports
                     a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                         i.fas.fa-external-link-alt.ms-1
-
-mixin surveyImageModal()
-    .modal.fade#surveyImageModal(role="dialog" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true")
-        .modal-dialog.modal-xl.modal-dialog-centered(role="document")
-            .modal-content
-                .modal-header
-                    h5.modal-title
-                    button.btn-close#dismissPopupModal(type="button", data-bs-dismiss="modal" area-label="Close")
-                .modal-body
-                    image.img-fluid.mx-auto.d-block.image-container(style='max-height:75vh')
-                .modal-footer
-                    button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Close
-

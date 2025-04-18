@@ -10,6 +10,8 @@ $(function(){
 
     prepDocumentationFilter();
     toggleDocumentationColumns();
+    $('#userForm').on('submit', submitUserForm);
+
 });
 
 function prepUserFilter(){
@@ -87,4 +89,53 @@ function toggleDocumentationColumns(){
         nonDocColumns.visible(true);
     }
     table.columns.adjust().responsive.recalc();
+}
+
+async function submitUserForm(e){
+    e.preventDefault();
+    const $form = $(this);
+    $form.find('.submit-icon').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
+
+    if (!$('#user_image_picker').length){
+        $form.unbind('submit').submit();
+        return true;
+    }
+
+    const file = ($('#user_image_picker').prop('files'))[0];
+    if (!file){
+        $form.unbind('submit').submit();
+        return true;
+    }
+
+    const request = await getSignedUserImageRequest(file);
+    $('#user_image_id').val(request.objectId);
+
+    const uploaded = await uploadFile(file, request.signedRequest, $('#user_image_picker').closest('.row'));
+
+    if (uploaded){
+        if (request.postUpload){
+            await markFileUploaded(request.postUpload);
+        }
+        $form.unbind('submit').submit();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+async function getSignedUserImageRequest(file){
+    try{
+        const result = await fetch(`/user/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
+        const response = await result.json();
+        if (!response.success){
+            $('#upload-feedback').text(response.error);
+            return false;
+        }
+        return response.data;
+
+    } catch (err){
+        $('#upload-feedback').text('Error getting signed request');
+        console.trace(err);
+        return false;
+    }
 }

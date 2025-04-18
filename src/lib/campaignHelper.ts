@@ -277,6 +277,20 @@ async function getDocumentations(campaignId: number, userId: number){
     return documentations;
 }
 
+async function getUserImage(campaignId:number, userId:number): Promise<ImageModel> {
+    const user = await models.user.get(campaignId, userId);
+    if (!user.image_id){
+        return null;
+    }
+    return models.image.get(user.image_id);
+}
+
+function userSorter(a, b){
+    if (a.typeForDisplay !== b.typeForDisplay){
+        return a.typeOrder - b.typeOrder;
+    }
+    return a.name.localeCompare(b.name);
+}
 
 export default {
     init,
@@ -287,5 +301,7 @@ export default {
     parseTime,
     splitTime,
     getPostEventSurveys,
-    getDocumentations
+    getDocumentations,
+    getUserImage,
+    userSorter
 }

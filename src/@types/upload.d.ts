@@ -27,4 +27,5 @@ interface UploadUsedFor{
    message: string
    event_id?: number
    attendance_id?:number
+   user_id?:number
 }

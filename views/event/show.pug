@@ -4,6 +4,7 @@ include ../partials/event.pug
 include ../partials/attendee.pug
 include ../partials/survey.pug
 include ../partials/post_event_survey.pug
+include ../partials/imageViewer.pug
 
 block content
     - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id});
@@ -314,7 +315,7 @@ block content
                                 backto:'event',
                                 exportUrl:`/event/${event.id}/export_survey`
                             })
-    +surveyImageModal()
+    +imageModal()
 
 append scripts
     script(src='/javascripts/event.js')

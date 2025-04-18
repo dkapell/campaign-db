@@ -3,9 +3,22 @@ extends ../layout
 include ../partials/character.pug
 include ../partials/event
 include ../partials/post_event_survey
+include ../partials/imageViewer
 
 block content
-    h2.d-inline= user.name
+    h2.d-inline
+        if user.image && checkPermission('event')
+            a.img-display-btn.d-inline.me-2(
+                href='#'
+                role="button"
+                data-imageurl=user.image.upload.url
+                data-imagename=user.name
+            )
+                image.img-fluid.image-container.img-thumbnail(
+                    style='max-height:64px'
+                    src=user.image.thumbnailUrl
+                )
+        = user.name
 
     h4.d-inline.ms-4
         a(href=`mailto:${user.email}`)=user.email
@@ -19,10 +32,9 @@ block content
         span.badge.text-bg-info=user.type
             if user.permissions.length
                 i.fas.fa-plus.ms-1
-
     
     .row.my-2
-        .col
+        .col-lg-auto
             if checkPermission('gm')
                 if user.staff_drive_folder
                     a.btn.btn-outline-info.me-2(
@@ -61,6 +73,7 @@ block content
             )
                 i.fas.fa-edit.me-1
                 |  Edit User
+
     if checkPermission('gm')
         if user.notes
             .row.my-2
@@ -98,7 +111,6 @@ block content
                             li.list-group-item
                                 strong.me-2= documentation.name
                                 - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
-                                - console.log(userDoc)
                                 if !userDoc
                                     .badge.text-bg-danger Missing
                                 else if !documentation.valid_from || userDoc.status === 'valid'
@@ -109,6 +121,7 @@ block content
                                     .float-end
                                         - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
                                         = validDate.format('ll')
+    +imageModal()
 
 append scripts
     script(src='/javascripts/data-table.js')

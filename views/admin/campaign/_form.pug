@@ -51,6 +51,17 @@ fieldset.mb-2.border.p-2.rounded
                 .form-check.form-switch
                     input.form-check-input#campaign_display_translations(type="checkbox", name="campaign[display_translations]", checked=campaign.display_translations)
                     label.form-check-label(for="campaign_display_translations") Display Translations
+        .row.my-2
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_gallery(type="checkbox", name="campaign[display_gallery]", checked=campaign.display_gallery)
+                    label.form-check-label(for="campaign_display_gallery") Display Gallery
+                    .form-text Gallery is available to #{currentCampaign.user_type_map['event staff'].name} and higher by default.
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_player_gallery(type="checkbox", name="campaign[player_gallery]", checked=campaign.player_gallery)
+                    label.form-check-label(for="campaign_player_gallery") Gallery available to #{capitalize(currentCampaign.user_type_map['player'].name)}s
+                    .form-text Requires Display Gallery.  This will expose PC names to #{capitalize(currentCampaign.user_type_map['player'].name)}s
 
         .row.my-2
             label.col-form-label.col-md-3(for="campaign_theme") Theme

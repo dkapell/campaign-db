@@ -46,6 +46,7 @@ async function makeThumbnail(inStream, thumbnailSize):Promise<Buffer>{
             width: thumbnailSize,
             height:thumbnailSize,
             fit: 'inside' })
+            .rotate()
             .on('error', err => { reject(err); });
         inStream
             .pipe(resizer)

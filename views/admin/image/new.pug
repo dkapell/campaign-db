@@ -1,5 +1,5 @@
-extends ../layout
-
+extends ../../layout
+include ../../partials/image
 block content
     .row
         .col-sm-8.offset-sm-2
@@ -13,13 +13,10 @@ block content
                         input#image-status(type="hidden", name='image[upload][status]',value='new')
                         .row.my-2
                             .col
+                                +imageUploadField('Image File', 'imagePicker', 'image[upload][file]', null, {
+                                    required:true
+                                })
 
-                                label.form-label(for="imagePicker") Image File
-                                input.form-control#imagePicker(type="file", name="image[upload][file]")
-                        .row.my-2
-
-                            .col#upload-type
-                            .col#upload-size
                         .row.my-2
                             .col#upload-feedback.text-danger
 
@@ -48,6 +45,7 @@ block content
                                 a.btn.btn-link(href="/image") Cancel
 
 append scripts
+    script(src='/javascripts/image-upload.js')
     script(src='/javascripts/validator.js')
     script(src='/javascripts/image.js')
     script.

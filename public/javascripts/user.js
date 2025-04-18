@@ -1,4 +1,5 @@
-/* globals marked */
+/* globals marked uploadFile markFileUploaded*/
+
 $(function(){
     $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 500, 'hide': 100 },
@@ -96,7 +97,7 @@ async function submitUserForm(e){
     const $form = $(this);
     $form.find('.submit-icon').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
 
-    $user_image_picker = $form.find('#user_image_id').closest('.image-field-container').find('.image-file-picker');
+    const $user_image_picker = $form.find('#user_image_id').closest('.image-field-container').find('.image-file-picker');
     if (!$user_image_picker.length){
         $form.unbind('submit').submit();
         return true;
@@ -112,6 +113,7 @@ async function submitUserForm(e){
     $('#user_image_id').val(request.objectId);
 
     const $container = $user_image_picker.closest('.image-field-container');
+    $container.find('.new-image').hide();
     const uploaded = await uploadFile(file, request.signedRequest, $container);
 
     if (uploaded){

@@ -1,7 +1,6 @@
-/* global _ */
-$(document).ready(function () {
-    $('#imagePicker').on('change', updateImage);
+/* global _ uploadFile markFileUploaded*/
 
+$(document).ready(function () {
     $('#new-image-form').on('submit', submitImageForm);
     $('.copy-img-btn').on('click', copyImageMarkdown);
     $('.image-filter').on('change', updateImageFilter);
@@ -46,36 +45,33 @@ async function copyImageMarkdown(e){
 
 }
 
-function updateImage(e){
-    const file = ($(this).prop('files'))[0];
-    $('#upload-feedback').text('');
-    if (file){
-        $('#upload-type').html('<strong>Type</strong>: ' + file.type);
-        $('#upload-size').html('<strong>Size</strong>: ' + prettyPrintSize(file.size));
-    } else {
-        $('#upload-type').text('');
-        $('#upload-size').text('');
-    }
-}
-
 async function submitImageForm(e){
     e.preventDefault();
-    const $this = $(this);
-    const file = ($('#imagePicker').prop('files'))[0];
+    const $form = $(this);
+    $form.find('.submit-icon').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
+
+    const $imagePicker = $form.find('#imagePicker').closest('.image-field-container').find('.image-file-picker');
+
+    const file = ($imagePicker.prop('files'))[0];
     if (!file){
         return false;
     }
     const request = await getSignedRequest(file);
     $('#image-id').val(request.objectId);
     $('#new-image-form').attr('action', `/admin/image/${request.objectId}`);
-    const uploaded = await uploadFile(file, request.signedRequest);
+
+    const $container = $imagePicker.closest('.image-field-container');
+    $container.find('.new-image').hide();
+    const uploaded = await uploadFile(file, request.signedRequest, $container);
 
     if (uploaded){
         $('#image-status').val('ready');
         if (request.postUpload){
+            $container.find('.image-saving').show();
             await markFileUploaded(request.postUpload);
+            $container.find('.image-saving').hide();
         }
-        $this.unbind('submit').submit();
+        $form.unbind('submit').submit();
         return true;
     } else {
         return false;
@@ -97,57 +93,6 @@ async function getSignedRequest(file){
         console.trace(err);
         return false;
     }
-}
-
-async function uploadFile(file, signedRequest){
-    try {
-        await fetch(signedRequest, {method:'PUT', body: file});
-        return true;
-    } catch (err){
-        $('#upload-feedback').text('Error uploading file');
-        console.trace(err);
-        return false;
-    }
-}
-
-async function markFileUploaded(url){
-    try {
-        await fetch(url, {
-            method:'PUT',
-        });
-        return true;
-    } catch (err){
-        $('#upload-feedback').text('Error marking file uploaded');
-        console.trace(err);
-        return false;
-    }
-}
-
-function prettyPrintSize(value, type) {
-    if (!value) {
-        return '0';
-    }
-    if (!type){
-        type = 'B';
-    }
-    var prefixes = [ '', 'K', 'M', 'G', 'T', 'P', 'E' ];
-    var index;
-    for (index = 0; value >= 1024 && index < prefixes.length - 1; index++)
-        value /= 1024;
-
-    if (value > 1024 || Math.round(value) === value)
-        value = Math.round(value).toString();
-    else if (value < 10)
-        value = value.toFixed(2);
-    else
-        value = value.toPrecision(4);
-
-    value += ' ' + prefixes[index];
-
-    if (index !== 0)
-        value += type;
-
-    return value;
 }
 
 function loadImageFilter(){

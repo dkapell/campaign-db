@@ -1,8 +1,8 @@
-extends ../layout
-
+extends ../../layout
+include ../../partials/image
 block content
     if checkPermission('gm')
-        a.btn.btn-outline-success(href='/image/new')
+        a.btn.btn-outline-success(href='/admin/image/new')
             span(class="fa fa-plus")
             |  New Image
 
@@ -22,7 +22,7 @@ block content
         for image in images
             .col.mb-4(class=`image-type-${image.type}`)
                 .card.h-100
-                    .card-header
+                    .card-header.p-1
                         .badge.text-bg-info.float-end=capitalize(image.type)
                         .card-title
                             h5= image.upload.display_name?image.upload.display_name:image.upload.name
@@ -37,7 +37,12 @@ block content
                                         .small= image.upload.sizePrint
 
                     div.position-relative.border-bottom.border-light
-                        a(href=image.upload.url target='_blank')
+                        a.img-display-btn(
+                            href=image.upload.url
+                            target='_blank'
+                            data-imageurl=image.upload.url
+                            data-imagename=image.upload.display_name?`${image.upload.display_name} (${image.upload.name})`:image.upload.name
+                        )
                             img.card-img-top(src=image.thumbnailUrl alt=image.upload.display_name?image.upload.display_name:image.upload.name)
                         .badge.position-absolute.top-0.end-0.mt-1.me-1(class=image.upload.status==='ready'?'text-bg-success':'text-bg-danger')=image.upload.status
                     .card-body
@@ -63,7 +68,7 @@ block content
                             span.float-end
                                 a.btn.btn-outline-info.btn-xs.me-2(
                                     role="button",
-                                    href=`/image/${image.id}`
+                                    href=`/admin/image/${image.id}`
                                     data-bs-toggle="tooltip"
                                     title="Edit image"
                                 )
@@ -71,14 +76,15 @@ block content
                                 if checkPermission('admin')
                                     a.btn.btn-outline-danger.btn-xs.delete-img-btn(
                                         role="button",
-                                        url=`/image/${image.id}`,
-                                        data-back='/image'
+                                        url=`/admin/image/${image.id}`,
+                                        data-back='/admin/image'
                                         data-bs-toggle="tooltip"
                                         title="Delete image"
                                         href='#'
                                         data-csrf=csrfToken
                                     )
                                         i.fas.fa-trash.fa-fw
+    +imageModal()
 
 append scripts
     script(src='/javascripts/image.js')

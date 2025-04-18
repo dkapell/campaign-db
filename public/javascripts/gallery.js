@@ -64,7 +64,7 @@ function gallerySearch(){
         $('#noResults').show();
         $('#resultsContainer').hide();
     } else {
-        console.log('hiding')
+        console.log('hiding');
         $('#noResults').hide();
         $('#resultsContainer').show();
     }

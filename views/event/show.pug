@@ -1,10 +1,10 @@
 extends ../layout
 
-include ../partials/event.pug
-include ../partials/attendee.pug
-include ../partials/survey.pug
-include ../partials/post_event_survey.pug
-include ../partials/imageViewer.pug
+include ../partials/event
+include ../partials/attendee
+include ../partials/survey
+include ../partials/post_event_survey
+include ../partials/image
 
 block content
     - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id});

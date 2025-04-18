@@ -39,47 +39,7 @@ if checkPermission('gm')
             div.invalid-feedback Please enter a valid drive folder link
     .row.my-2.mb-3
         .col-md
-            label.control-label(for='user_image') User Image
-            input#user_image_id(
-                type='hidden'
-                value=user.image_id
-                name="user[image_id]"
-            )
-            .existing-image(
-                style=user.image?'':'display:none'
-            )
-                .row
-                    .col-md-4
-                        a.btn.clear-image-btn.btn-outline-danger Remove Image
-                    .col-md
-                        image.mx-auto.img-fluid.image-container.d-block(
-                            style='max-height:100px'
-                            src=user.image?user.image.thumbnailUrl:null
-                        )
-            .new-image(
-                style=user.image?'display:none':''
-            )
-                input.form-control.image-file-picker#user_image_picker(
-                    type="file"
-                )
-                .row.my-2.image-details-row(style='display:none')
-                    .col.upload-type
-                    .col.upload-size
-
-            .image-upload-progress.progress(
-                    role="progressbar"
-                    aria-label="Basic example"
-                    aria-valuenow="0"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    style="display:none"
-                )
-                    .progress-bar(style="width: 0%")
-                        .progress-bar-label
-            .col-sm-6.offset-sm-3.text-center.image-saving(style="display:none")
-                .spinner-border.m-3(role="status" style="width: 2rem; height: 2rem;")
-                    .visually-hidden Saving Image
-
+            +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image)
 
 if currentCampaign.documentations
     for documentation in currentCampaign.documentations

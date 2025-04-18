@@ -241,7 +241,7 @@ async function submitAttendanceForm(e){
             continue;
         }
         images++;
-        const uploaded = await uploadImage(file, $(row));
+        const uploaded = await uploadImage(file, $(row.querySelector('.image-field-container')));
         if (uploaded) {
             images--;
         }

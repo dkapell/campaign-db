@@ -96,12 +96,13 @@ async function submitUserForm(e){
     const $form = $(this);
     $form.find('.submit-icon').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
 
-    if (!$('#user_image_picker').length){
+    $user_image_picker = $form.find('#user_image_id').closest('.image-field-container').find('.image-file-picker');
+    if (!$user_image_picker.length){
         $form.unbind('submit').submit();
         return true;
     }
 
-    const file = ($('#user_image_picker').prop('files'))[0];
+    const file = ($user_image_picker.prop('files'))[0];
     if (!file){
         $form.unbind('submit').submit();
         return true;
@@ -110,11 +111,14 @@ async function submitUserForm(e){
     const request = await getSignedUserImageRequest(file);
     $('#user_image_id').val(request.objectId);
 
-    const uploaded = await uploadFile(file, request.signedRequest, $('#user_image_picker').closest('.row'));
+    const $container = $user_image_picker.closest('.image-field-container');
+    const uploaded = await uploadFile(file, request.signedRequest, $container);
 
     if (uploaded){
         if (request.postUpload){
+            $container.find('.image-saving').show();
             await markFileUploaded(request.postUpload);
+            $container.find('.image-saving').hide();
         }
         $form.unbind('submit').submit();
         return true;

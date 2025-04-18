@@ -1,3 +1,4 @@
+include ./imageViewer
 
 mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff, options={})
     - const disabled = (!isStaff && field.editable_by ==='gm') || options.disabled
@@ -70,60 +71,14 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                         | Clear
 
             when 'image'
-                label.control-label(for=`${idPrefix}_${field.id}`)= field.name
-                    if field.required
-                        span.ms-1.text-danger *
-                    if options.showDaysBefore && field.days_before
-                        span.ms-1 ( #{field.days_before} Days Before )
-
-                if field.description
-                    .form-text!=marked.parseInline(field.description, {breaks:true})
-
-                input.image_id-field(
-                    type='hidden'
-                    id=`${idPrefix}_${field.id}`
-                    value=currentValue?currentValue.id:''
-                    name=`${namePrefix}[${field.id}]`
-                )
-                .existing-image(
-                    style=currentValue?'':'display:none'
-                )
-                    .row
-                        .col-md-4
-                            a.btn.clear-image-btn.btn-outline-danger Remove Image
-                        .col-md
-                            image.mx-auto.img-fluid.image-container.d-block(
-                                style='max-height:100px'
-                                src=currentValue?currentValue.thumbnailUrl:null
-                            )
-                .new-image(
-                    style=currentValue?'display:none':''
-                )
-                    input.form-control.image-file-picker(
-                        id=`${idPrefix}_${field.id}`
-                        type="file"
-                        required=field.required
-                        data-isrequired=field.required
-                        disabled=disabled
-                        data-immediate=options.immediate
-                    )
-                    .row.my-2.image-details-row(style='display:none')
-                        .col.upload-type
-                        .col.upload-size
-
-                .image-upload-progress.progress(
-                        role="progressbar"
-                        aria-label="Basic example"
-                        aria-valuenow="0"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        style="display:none"
-                    )
-                        .progress-bar(style="width: 0%")
-                            .progress-bar-label
-                .col-sm-6.offset-sm-3.text-center.image-saving(style="display:none")
-                    .spinner-border.m-3(role="status" style="width: 2rem; height: 2rem;")
-                        .visually-hidden Saving Image
+                +imageUploadField(field.name, `${idPrefix}_${field.id}`, `${namePrefix}[${field.id}]`, currentValue, {
+                    required:field.required,
+                    showDaysBefore: options.showDaysBefore,
+                    daysBefore: field.days_before,
+                    immediate: options.immediate,
+                    disabled: disabled,
+                    description: field.description
+                })
 
             when 'text content'
                 if field.content

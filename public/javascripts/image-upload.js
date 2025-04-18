@@ -6,20 +6,20 @@ $(function(){
 
 async function updateImage(e){
     const file = ($(this).prop('files'))[0];
-    const $row = $(this).closest('.row');
+    const $container = $(this).closest('.image-field-container');
     if (file){
         if ($(this).data('immediate')){
-            await uploadImage(file, $row);
+            await uploadImage(file, $container);
         } else {
-            $row.find('.upload-type').html('<strong>Type</strong>: ' + file.type);
-            $row.find('.upload-size').html('<strong>Size</strong>: ' + prettyPrintSize(file.size));
-            $row.find('.image-details-row').show();
+            $container.find('.upload-type').html('<strong>Type</strong>: ' + file.type);
+            $container.find('.upload-size').html('<strong>Size</strong>: ' + prettyPrintSize(file.size));
+            $container.find('.image-details-row').show();
         }
 
     } else {
-        $row.find('.image-details-row').hide();
-        $row.find('.upload-type').text('');
-        $row.find('.upload-size').text('');
+        $container.find('.image-details-row').hide();
+        $container.find('.upload-type').text('');
+        $container.find('.upload-size').text('');
     }
 }
 
@@ -68,41 +68,41 @@ async function getSignedRequest(file){
     }
 }
 
-async function uploadImage(file, $row){
-    $row.find('.new-image').hide();
+async function uploadImage(file, $container){
+    $container.find('.new-image').hide();
     const request = await getSignedRequest(file);
-    const uploaded = await uploadFile(file, request.signedRequest, $row);
+    const uploaded = await uploadFile(file, request.signedRequest, $container);
     if (uploaded){
         if (request.postUpload){
-            $row.find('.image-saving').show();
+            $container.find('.image-saving').show();
             const postData = await markFileUploaded(request.postUpload);
-            $row.find('.image-saving').hide();
+            $container.find('.image-saving').hide();
             if (postData.success){
-                $row.find('.image-container').attr('src', postData.data.thumbnailUrl);
-                $row.find('.existing-image').show();
+                $container.find('.image-container').attr('src', postData.data.thumbnailUrl);
+                $container.find('.existing-image').show();
             } else {
-                $row.find('.new-image').show();
+                $container.find('.new-image').show();
             }
         }
 
-        $row.find('.image_id-field').val(request.objectId).trigger('change');
-        $row.find('.image-file-picker').val(null);
+        $container.find('.image_id-field').val(request.objectId).trigger('change');
+        $container.find('.image-file-picker').val(null);
         return true;
     }
     return false;
 }
 
-async function uploadFile(file, url, $row){
+async function uploadFile(file, url, $container){
     const xhr = new XMLHttpRequest();
     return new Promise((resolve) => {
         xhr.upload.addEventListener('progress', (event) => {
             if (event.lengthComputable) {
                 const percent = Math.round(event.loaded/event.total * 100);
-                setProgressBar($row, percent);
+                setProgressBar($container, percent);
             }
         });
         xhr.addEventListener('loadend', () => {
-            hideProgressBar($row);
+            hideProgressBar($container);
             resolve(xhr.readyState === 4 && xhr.status === 200);
         });
         xhr.open('PUT', url, true);
@@ -112,16 +112,16 @@ async function uploadFile(file, url, $row){
 
 }
 
-function setProgressBar($row, percent){
-    $row.find('.image-upload-progress').show();
-    $row.find('.progress-bar').css('width', `${percent}%`);
-    $row.find('.progress-bar-label').text(`${percent}%`);
+function setProgressBar($container, percent){
+    $container.find('.image-upload-progress').show();
+    $container.find('.progress-bar').css('width', `${percent}%`);
+    $container.find('.progress-bar-label').text(`${percent}%`);
 }
 
-function hideProgressBar($row){
-    $row.find('.image-upload-progress').hide();
-    $row.find('.progress-bar').css('width', '0%');
-    $row.find('.progress-bar-label').text('');
+function hideProgressBar($container){
+    $container.find('.image-upload-progress').hide();
+    $container.find('.progress-bar').css('width', '0%');
+    $container.find('.progress-bar-label').text('');
 }
 
 async function markFileUploaded(url){
@@ -139,8 +139,9 @@ async function markFileUploaded(url){
 
 function clearImage(e){
     e.preventDefault();
-    const $row = $(this).closest('.row');
-    $row.find('.existing-image').hide();
-    $row.find('.new-image').show();
-    $row.find('.image_id-field').val(null);
+    const $container = $(this).closest('.image-field-container');
+    $container.find('.existing-image').hide();
+    $container.find('.new-image').show();
+    $container.find('.image_id-field').val(null);
+    $container.find('.image-container').attr('src', null);
 }

@@ -1,0 +1,43 @@
+extends ../layout
+include ../partials/order
+
+block content
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th Order Id
+                    th(data-priority="1") Date
+                    th Status
+                    th Amount
+                    th
+
+            tbody
+                for order in orders
+                    tr(class='clickable-row', data-click-object='order' data-click-id=order.id)
+                        td.dtr-control
+                        td ##{order.id}
+                        td(data-priority=1, data-sort=order.updated.getTime())=moment.utc(order.updated).tz(currentCampaign.timezone).format('lll')
+                        td(data-priority=2)
+                            +orderStatusBadge(order.status)
+
+                        td(data-priority=3) $#{order.payment_amount_cents/100}
+                        td.text-end
+                            a.btn.btn-xs.btn-outline-info.action-btn(
+                                href=`/order/${order.id}`
+                            )
+                                i.fa.fa-eye.me-1
+                                | View Order
+
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

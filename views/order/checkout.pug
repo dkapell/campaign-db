@@ -1,0 +1,13 @@
+extends ../layout
+
+block content
+    #checkout
+    input#stripe-pub-key(type="hidden" value=config.get('stripe.publishableKey'))
+    input#stripe-account-id(type="hidden" value=currentCampaign.stripe_account_id)
+    if back
+        input#back-url(type="hidden" value=back)
+
+
+append scripts
+    script(src='https://js.stripe.com/v3/')
+    script(src='/javascripts/checkout.js')

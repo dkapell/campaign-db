@@ -68,7 +68,9 @@ const tableFields = [
     'character_sheet_header_font_scale',
     'character_sheet_body_font_scale',
     'translation_scale',
-    'player_gallery'
+    'player_gallery',
+    'stripe_account_id',
+    'stripe_account_ready'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {
@@ -95,9 +97,6 @@ async function postSelect(data:ModelData){
     if (data.favicon_id){
         data.favicon = await models.image.get(data.favicon_id);
     }
-    if (data.site){
-        await cache.store('campaign-site', (data.site as string), data);
-    }
     data.renames = {};
     if (data.rename_map){
         for (const name in data.rename_map as Record<string, unknown>){
@@ -108,6 +107,9 @@ async function postSelect(data:ModelData){
         }
     }
     data.documentations = await models.documentation.find({campaign_id:Number(data.id)});
+    if (data.site){
+        await cache.store('campaign-site', (data.site as string), data);
+    }
     return data;
 }
 

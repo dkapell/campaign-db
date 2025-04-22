@@ -4,6 +4,7 @@ import stringify from 'csv-stringify-as-promised';
 import removeMd from 'remove-markdown';
 
 import surveyHelper from '../../lib/surveyHelper';
+import orderHelper from '../../lib/orderHelper';
 
 async function showNewAttendance(req, res, next){
     const id = req.params.id;
@@ -48,7 +49,8 @@ async function showNewAttendance(req, res, next){
             paid: false,
             notes: null,
             pre_event_data: {},
-            user_id: user.id
+            user_id: user.id,
+            paid_by_order:false
 
         };
 
@@ -87,7 +89,7 @@ async function showEditAttendance(req, res, next){
             throw new Error('Invalid Event');
         }
 
-        const attendance = await req.models.attendance.get(req.params.attendanceId);
+        let attendance = await req.models.attendance.get(req.params.attendanceId);
         if (!attendance || attendance.event_id !== event.id){
             throw new Error('Invalid Registration');
         }
@@ -98,7 +100,13 @@ async function showEditAttendance(req, res, next){
             attendance.pre_event_data = {};
         }
 
-        res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
+        attendance = await surveyHelper.fillAttendance(attendance, event);
+        attendance.paid_by_order = await orderHelper.isPaid('attendance', attendance.id);
+        attendance.addons = await async.map(attendance.addons, async(addon) => {
+            addon.paid_by_order = await orderHelper.isPaid('attendance_addon', addon.id);
+            return addon;
+        });
+        res.locals.attendance = attendance;
 
         if (_.has(req.session, 'attendanceData')){
             res.locals.attendance = req.session.attendanceData;

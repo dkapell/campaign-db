@@ -130,11 +130,11 @@ const router = express.Router();
 router.use(permission('gm'));
 router.use(function(req, res, next){
     if (!req.campaign.display_translations){
-        req.flash('danger', 'Translations are not active on this campaign')
+        req.flash('error', 'Translations are not active on this campaign')
         return res.redirect('/');
     }
     if (!req.campaign.translation_drive_folder){
-        req.flash('danger', 'The Translation Drive Folder is not configured for this campaign')
+        req.flash('error', 'The Translation Drive Folder is not configured for this campaign')
         return res.redirect('/');
     }
     res.locals.siteSection='worldbuilding';

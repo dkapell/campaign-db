@@ -2,6 +2,7 @@ if (backto)
     input(type="hidden" name="backto" value=backto)
 
 if checkPermission('gm')
+    - console.log(attendance)
     .row.my-2
         .col
             label.control-label(for="attendance_user_id") Attendee
@@ -40,8 +41,13 @@ if checkPermission('gm') && attendance.user.type === 'player'
     .row.my-2
         .col
             .form-check.form-switch
-                input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid)
+                input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid disabled=attendance.paid_by_order)
                 label.form-check-label(for="attendance_paid") Paid
+                if attendance.paid_by_order
+                    if checkPermission('admin')
+                        a.ms-2(href=`/order/${attendance.paid_by_order}`) Order ##{attendance.paid_by_order}
+                    else
+                        .ms-2 Order ##{attendance.paid_by_order}
 
 if event.addons
     .row.my-2
@@ -51,11 +57,11 @@ if event.addons
                 each addon in event.addons
                     - const attendance_addon = _.findWhere(attendance.addons, {event_addon_id: addon.id}) || {}
                     if checkPermission('gm')
-                        +addonField(addon, attendance_addon, {})
+                        +addonField(addon, attendance_addon, {}, attendance)
                     else if addon.available_to_player && checkPermission('player') && !checkPermission('event')
-                        +addonField(addon, attendance_addon, attendance.user)
+                        +addonField(addon, attendance_addon, attendance.user, attendance)
                     else if addon.available_to_staff && checkPermission('event')
-                        +addonField(addon, attendance_addon, attendance.user)
+                        +addonField(addon, attendance_addon, attendance.user, attendance)
 
 
 if event.pre_event_survey

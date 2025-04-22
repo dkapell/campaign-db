@@ -411,7 +411,7 @@ if campaign.display_translations && fonts.length
 
 //- Authentication
 fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication Options
+    label.h5.w-100#authentication-heading(data-bs-toggle="collapse" data-bs-target="#authentication-container" aria-expanded="false" aria-controls="authentication-container") Authentication and Payment Options
         span.float-end.ps-2
             i.fa.fa-chevron-up
             i.fa.fa-chevron-down
@@ -426,10 +426,36 @@ fieldset.mb-2.border.p-2.rounded
             .col
                 input.form-control#campaign_google_client_secret(placeholder="OAuth Client Secret",name="campaign[google_client_secret]",value=campaign.google_client_secret)
         .row.my-2
-            .col
+            .col.offset-md-3
                 .form-check.form-switch
                     input.form-check-input#campaign_default_to_player(type="checkbox", name="campaign[default_to_player]", checked=campaign.default_to_player)
                     label.form-check-label(for="campaign_default_to_player") Default new users to Players
+        .row.my-2
+            .label.col-form-label.col-md-3(for="campaign_stripe") Stripe Account
+            .col
+                input#stripe-account-id(type='hidden' value=campaign.stripe_account_id)
+                if campaign.stripe_account_id && campaign.stripe_account_ready
+                    p
+                        i.fa.fa-credit-card.me-1
+                        | Stripe account connected
+                else
+
+                    button.btn.btn-outline-primary#stripe-signup-btn(
+                        data-url='/admin/stripe/account'
+                        style=campaign.stripe_account_id?'display:none':''
+                    ) Create Stripe Account
+
+                    button.btn.btn-outline-primary#stripe-add-info-btn(
+                        data-url='/admin/stripe/account_link'
+                        style=campaign.stripe_account_id && !campaign.stripe_account_ready?'':"display:none"
+                    ) Enter Stripe Info
+
+
+                    p#stripe-error(style='display:none') Something went wrong!
+                    #stripe-dev-callout(style='display:none')
+                        p#stripe-connected-account-id(style='display:none')
+                        p#stripe-creating-account(style='display:none') Creating Connected Account
+                        p#stripe-adding-info(style='display:none') Adding onboarding info
 
 
 .row.my-2

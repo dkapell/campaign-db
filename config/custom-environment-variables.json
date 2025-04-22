@@ -38,5 +38,10 @@
     },
     "googleFonts":{
         "apiKey": "GOOGLE_FONT_API_KEY"
+    },
+    "stripe":{
+        "secretKey": "STRIPE_SECRET_KEY",
+        "publishableKey": "STRIPE_PUB_KEY",
+        "endpointSecret": "STRIPE_ENDPOINT_SECRET"
     }
 }

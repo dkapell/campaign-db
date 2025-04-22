@@ -7,6 +7,7 @@ import Character from '../../lib/Character';
 import characterRenderer from '../../lib/renderer/character';
 import campaignHelper from '../../lib/campaignHelper';
 import surveyHelper from '../../lib/surveyHelper';
+import orderHelper from '../../lib/orderHelper';
 
 import postEventSurveyRoutes from './post_event_survey';
 import attendanceRoutes from './attendance';
@@ -380,6 +381,57 @@ async function grantAttendanceCp(req, res){
     }
 }
 
+async function checkoutEvent(req, res){
+    const id = req.params.id;
+    try{
+        const event = await req.models.event.get(id);
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const attendance = await req.models.attendance.findOne({event_id:id, user_id:req.session.activeUser.id});
+        if (!attendance){
+            req.flash('error', 'Not Registered for this Event');
+            return res.redirect(`/event/${id}`);
+        }
+        const items = [];
+
+        if (event.cost && !attendance.paid && attendance.user.type === 'player'){
+            items.push({
+                type: 'attendance',
+                id: attendance.id,
+                name: `Event Registration: ${event.name}`,
+                cost: event.cost * 100
+            });
+        }
+
+        for ( const addon of attendance.addons ){
+            const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+            if (!addon.paid){
+                if (event_addon.charge_player && attendance.user.type === 'player' || event_addon.charge_staff && attendance.user.type !== 'player'){
+                    items.push({
+                        type:'attendance_addon',
+                        id: addon.id,
+                        name: `Event Addon: ${event_addon.name}`,
+                        cost: event_addon.cost * 100
+                    });
+
+                }
+            }
+        }
+        if (!items.length){
+            req.flash('success', 'No outstanding balance');
+            return res.redirect(`/event/${id}`);
+        }
+        await orderHelper.addItemsToOrder(req.campaign.id, req.session.activeUser.id, items);
+        res.redirect(`/order/checkout?back=/event/${id}`);
+        //res.redirect(await orderHelper.checkout(order.id, `/event/${id}`));
+    } catch (err){
+        console.trace(err)
+        req.flash('error', 'Payment Error: ' + err.message);
+        res.redirect(`/event/${id}`);
+    }
+}
+
 function parseEventAddons(input){
     const output = [];
 
@@ -428,6 +480,7 @@ router.get('/:id/edit', csrf(), permission('gm'), showEdit);
 router.get('/:id/export', csrf(), permission('contrib, registration view'), attendanceRoutes.export);
 router.get('/:id/export_survey', csrf(), permission('contrib'), postEventSurveyRoutes.export);
 router.get('/:id/pdf', csrf(), permission('contrib'), exportPlayerPdfs);
+router.get('/:id/checkout', checkoutEvent);
 router.post('/', csrf(), permission('gm'), create);
 router.put('/:id', csrf(), permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);

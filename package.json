@@ -47,6 +47,7 @@
     "remove-markdown": "^0.5.0",
     "rmfr": "^2.0.0",
     "sharp": "^0.33.1",
+    "stripe": "^18.0.0",
     "svg-to-pdfkit": "^0.1.8",
     "textbox-for-pdfkit": "^0.1.1",
     "underscore": "^1.13.6",

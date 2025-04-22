@@ -1,0 +1,46 @@
+extends ../layout
+include ../partials/order
+
+block content
+    .row
+        .col-md-8.offset-md-2
+            .card
+                .card-header
+                    h5 Order ##{order.id}
+                        .float-end
+                            +orderStatusBadge(order.status)
+                    div #{moment.utc(order.updated).tz(currentCampaign.timezone).format('lll')}
+                        if checkPermission('admin')
+                            .float-end #{order.user.name} (#{order.user.email})
+                .card-body
+                    .row.my-2
+                        .col
+                            ul.list-unstyled.my-1
+                                each item in order.order_items
+                                    li.d-block.my-1
+                                        =item.name
+                                        .float-end $#{item.cost_in_cents/100}
+                                li.d-block.border-top.my-2
+                                    strong Total
+                                    strong.float-end $#{order.payment_amount_cents/100}
+                if checkPermission('admin')
+                    .card-footer
+                        p Stripe Id: #{order.charge_id}
+                        if order.status === 'complete'
+                            if order.charge_id && order.charge_id.match(/^ch_/)
+                                button.btn.btn-warning.me-2#refund-order-btn(
+                                    data-csrf=csrfToken
+                                    url=`/order/${order.id}`
+                                    data-refund="true"
+                                    data-back='/order/all'
+                                ) Delete with Refund
+
+                            button.btn.btn-danger.me-2#delete-order-btn(
+                                data-csrf=csrfToken
+                                url=`/order/${order.id}`
+                                data-refund="false"
+                                data-back='/order/all'
+                            ) Delete without Refund
+append scripts
+    if checkPermission('admin')
+        script(src='/javascripts/order.js')

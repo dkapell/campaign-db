@@ -17,7 +17,9 @@
 
         let modal = null;
 
-        this.off('click.confirmation').on('click.confirmation', function(e){
+        this.off('click.confirmation').on('click.confirmation', confirmAction);
+
+        async function confirmAction(e){
             const copy = $.extend(true, {}, e);
             e.preventDefault();
             e.stopPropagation();
@@ -37,10 +39,11 @@
                 const result = await runConfirm();
                 if (result){
                     $(copy.currentTarget).off('click.confirmation').trigger(copy);
+                    $(copy.currentTarget).on('click.confirmation', confirmAction);
                 }
                 return result;
             })();
-        });
+        }
 
         async function runConfirm() {
             return new Promise((resolve, reject) => {
@@ -54,7 +57,7 @@
                     else return;
 
                     document.body.removeEventListener('click', response);
-
+                    e.target.blur();
                     modal.modal('hide');
                     resolve(bool);
                 }

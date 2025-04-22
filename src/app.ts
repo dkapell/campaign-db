@@ -57,13 +57,16 @@ import eventRouter from './routes/event/event';
 import postEventSurveyRouter from './routes/post_event_survey';
 
 import translationRouter from './routes/translation';
-import rulebookRouter from './routes/admin/rulebook';
 
+import orderRouter from './routes/order';
+
+import adminRulebookRouter from './routes/admin/rulebook';
 import adminDocumentationRouter from './routes/admin/documentation';
 import adminUploadRouter from './routes/admin/upload';
 import adminFontRouter from './routes/admin/font';
 import adminAuditRouter from './routes/admin/audit';
 import adminImageRouter from './routes/admin/image';
+import adminStripeRouter from './routes/admin/stripe';
 
 
 
@@ -314,14 +317,16 @@ app.use('/event', eventRouter);
 app.use('/survey', surveyRouter);
 app.use('/post_event_survey', postEventSurveyRouter);
 app.use('/translation', translationRouter);
-app.use('/admin/rulebook', rulebookRouter);
+app.use('/order', orderRouter);
 
+app.use('/admin/rulebook', adminRulebookRouter);
 app.use('/admin/campaign', adminCampaignRouter);
 app.use('/admin/documentation', adminDocumentationRouter);
 app.use('/admin/font', adminFontRouter);
 app.use('/admin/upload', adminUploadRouter);
 app.use('/admin/audit', adminAuditRouter);
 app.use('/admin/image', adminImageRouter);
+app.use('/admin/stripe', adminStripeRouter);
 
 
 // catch 404 and forward to error handler

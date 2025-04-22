@@ -1,0 +1,9 @@
+mixin orderStatusBadge(status)
+    -
+        let statusClass='text-bg-info'
+        switch (status){
+            case 'complete': statusClass = 'text-bg-success'; break;
+            case 'failed': statusClass = 'text-bg-danger'; break;
+            case 'checkout': statusClass = 'text-bg-warning'; break;
+        }
+    .badge(class=statusClass)= capitalize(status)

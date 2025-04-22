@@ -174,9 +174,10 @@ function clickRow(e){
     if ($(e.target).hasClass('dtr-control')){
         return;
     }
-    var object = $(this).attr('data-click-object');
-    var id = $(this).attr('data-click-id');
-    window.location.href='/'+ object + '/' + id;
+    const object = $(this).attr('data-click-object');
+    const id = $(this).attr('data-click-id');
+    const query = $(this).attr('data-click-query');
+    window.location.href=`/${object}/${id}${query?'?'+query:''}`;
 }
 
 function exportCSV(e){

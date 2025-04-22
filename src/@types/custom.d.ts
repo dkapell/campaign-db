@@ -92,3 +92,11 @@ interface PDFFeatures {
     underline?:boolean
     strike?:boolean
 }
+
+interface OrderItem {
+   type: string
+   id: number
+   name: string
+   cost: number
+   quantity?:number
+}

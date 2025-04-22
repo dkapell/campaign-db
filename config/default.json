@@ -68,5 +68,10 @@
     },
     "upload": {
         "cleanupDays": 1
+    },
+    "stripe":{
+        "secretKey": null,
+        "publishableKey": null,
+        "endpointSecret": null
     }
 }

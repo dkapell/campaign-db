@@ -163,6 +163,9 @@
                                 a.dropdown-item(href='/admin/upload') Uploads
                                 a.dropdown-item(href='/admin/font') Fonts
                                 a.dropdown-item(href='/admin/documentation') Documentations
+                                if currentCampaign.stripe_account_ready
+                                    a.dropdown-item(href="/order/all") All Orders
+
 
 
         //- User Menu
@@ -171,6 +174,7 @@
                 li.nav-item.dropdown
                     a.nav-link.dropdown-toggle.px-4#userDropdown(
                         class=session.gm_mode || session.player_mode || session.admin_mode || session.assumed_user?'bg-warning rounded-pill':''
+                        class= siteSection==='user'||_.indexOf(siteSection, 'user') !== -1?"active":null
                         href='#'
                         role='button'
                         data-bs-toggle="dropdown"
@@ -182,6 +186,10 @@
                         a.dropdown-item(href="/user/profile")
                             i.fas.fa-user-cog.fa-fw.me-1
                             | My Profile
+                        if currentCampaign.stripe_account_ready
+                            a.dropdown-item(href="/order")
+                                i.fas.fa-credit-card.fa-fw.me-1
+                                | My Orders
                         a.dropdown-item(href="/auth/logout")
                             i.fas.fa-sign-out-alt.fa-fw.me-1
                             | Logout

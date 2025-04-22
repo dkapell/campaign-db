@@ -210,6 +210,10 @@ async function update(req, res){
         delete campaign.default_site;
     }
 
+    if (!(req.campaign.default_site || req.campaign.id === id)){
+        throw new Error('Can not update this campaign');
+    }
+
     try {
         const current = await req.models.campaign.get(id);
         if (current.player_gallery !== campaign.player_gallery){

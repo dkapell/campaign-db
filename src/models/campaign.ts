@@ -95,9 +95,6 @@ async function postSelect(data:ModelData){
     if (data.favicon_id){
         data.favicon = await models.image.get(data.favicon_id);
     }
-    if (data.site){
-        await cache.store('campaign-site', (data.site as string), data);
-    }
     data.renames = {};
     if (data.rename_map){
         for (const name in data.rename_map as Record<string, unknown>){
@@ -108,6 +105,9 @@ async function postSelect(data:ModelData){
         }
     }
     data.documentations = await models.documentation.find({campaign_id:Number(data.id)});
+    if (data.site){
+        await cache.store('campaign-site', (data.site as string), data);
+    }
     return data;
 }
 

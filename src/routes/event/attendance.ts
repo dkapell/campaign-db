@@ -213,6 +213,7 @@ async function createAttendance(req, res){
         }
         attendance.attending = true;
         attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.addons = await filterAttendeeAddons(req, attendance.addons);
 
         attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(null, attendance);
 
@@ -315,7 +316,11 @@ async function updateAttendance(req, res){
         let typeForSurvey = user.type;
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
-                attendance.paid = false
+                if (await orderHelper.isPaid('attendance', attendanceId)){
+                    attendance.paid = true;
+                } else {
+                    attendance.paid = false;
+                }
             }
         } else if (res.locals.checkPermission('registration edit')){
             delete attendance.paid;
@@ -347,6 +352,7 @@ async function updateAttendance(req, res){
         attendance.event_id = event.id;
 
         attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.addons = await filterAttendeeAddons(req, attendance.addons);
         attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(current.pre_event_survey_response_id, attendance);
         attendance.campaign_id = current.campaign_id;
         req.session.attendanceData = attendance;
@@ -626,6 +632,17 @@ function parseAttendeeAddons(input, forGm){
         }
     }
     return output;
+}
+
+async function filterAttendeeAddons(req, addons: AttendeeAddon[]){
+    return async.map(addons, async(addon) => {
+        if (addon.paid) { return addon; }
+        if (!addon.id){ return addon; }
+        if (await orderHelper.isPaid('attendance_addon', addon.id)){
+            addon.paid = true;
+        }
+        return addon;
+    });
 }
 
 export default {

@@ -37,12 +37,7 @@ async function linkStripeAccount(req, res){
             return res.send({ error: 'No account ID established yet' });
         }
         const account = req.campaign.stripe_account_id;
-        console.log({
-            account: req.campaign.stripe_account_id,
-            return_url: `${req.headers.origin}/admin/stripe/return/${account}`,
-            refresh_url: `${req.headers.origin}/admin/stripe/refresh/${account}`,
-            type: "account_onboarding",
-        })
+
         const accountLink = await stripe.accountLinks.create({
             account: req.campaign.stripe_account_id,
             return_url: `${req.headers.origin}/admin/stripe/return/${account}`,

@@ -411,7 +411,7 @@ async function checkoutEvent(req, res){
                     items.push({
                         type:'attendance_addon',
                         id: addon.id,
-                        name: `Event Addon: ${event_addon.name}`,
+                        name: `Addon for ${event.name}: ${event_addon.name}`,
                         cost: event_addon.cost * 100
                     });
 

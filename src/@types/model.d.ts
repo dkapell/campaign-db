@@ -238,3 +238,29 @@ interface AttendeeAddon {
     paid?: boolean
 }
 
+interface OrderItem extends ModelData{
+   id?: number
+   order_id?: number
+   object_type?: string
+   object_id?: number
+   cost_in_cents?: number
+   quantity?:number
+   created?: Date
+}
+
+interface OrderModel extends ModelData{
+    id?: number
+    campaign_id?: number
+    user_id?: number
+    status?: string
+    checkout_id?: string
+    charge_id?: string
+    payment_amount_cents?: number
+    payment_note?: string
+    created?: Date
+    updated?: Date
+    submitted?: Date
+    paid?: Date
+    order_items?: OrderItem[]
+
+}

@@ -92,7 +92,7 @@ async function checkout(orderId:number, returnUrl:string):Promise<Stripe.Checkou
     return session;
 }
 
-async function getOpenOrder(campaignId, userId, create=false){
+async function getOpenOrder(campaignId:number, userId:number, create:boolean=false): Promise<OrderModel>{
     let order = await models.order.findOne({campaign_id:campaignId, user_id: userId, status:'new'});
     if (order){
         return order;
@@ -114,7 +114,7 @@ async function getOpenOrder(campaignId, userId, create=false){
     return models.order.get(orderId);
 }
 
-async function payOrder(orderId){
+async function payOrder(orderId:number): Promise<void>{
     const order = await models.order.get(orderId);
     if (!order) {
         throw new Error('Order not found');
@@ -130,7 +130,7 @@ async function payOrder(orderId){
     }
 }
 
-async function unpayOrder(orderId){
+async function unpayOrder(orderId:number): Promise<void>{
     const order = await models.order.get(orderId);
     if (!order) {
         throw new Error('Order not found');
@@ -149,7 +149,8 @@ async function unpayOrder(orderId){
 interface refundOptions {
     reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer';
 }
-async function refund(orderId, options:refundOptions = {}){
+
+async function refund(orderId:number, options:refundOptions = {}): Promise<Stripe.Refund>{
     const order = await models.order.get(orderId);
     if (!order) {
         throw new Error('Order not found');
@@ -170,7 +171,7 @@ async function refund(orderId, options:refundOptions = {}){
     return stripe.refunds.create(doc, { stripeAccount:campaign.stripe_account_id });
 }
 
-async function isPaid(objectType, objectId){
+async function isPaid(objectType:string, objectId:number): Promise<boolean|number>{
     const object = await models[objectType].get(objectId);
     if (!object){
         throw new Error('Invalid Object');
@@ -178,12 +179,19 @@ async function isPaid(objectType, objectId){
     if (!object.paid){
         return false;
     }
-    const order_item = await models.order_item.findOne({object_type:objectType, object_id:objectId});
-    if (!order_item){
-        return false
+    const order_items = await models.order_item.find({object_type:objectType, object_id:objectId});
+
+    for (const order_item of order_items){
+        const order = await models.order.get(order_item.order_id);
+        if (order.status === 'complete') { return order.id; }
     }
-    const order = await models.order.get(order_item.order_id);
-    return order.status === 'complete'?order.id:false
+    return false;
+}
+
+function isSubmitted(order){
+    if (order.status === 'new') { return false; }
+    if (order.status === 'checkout') { return false; }
+    return true;
 }
 
 export default {
@@ -193,5 +201,6 @@ export default {
     payOrder,
     unpayOrder,
     refund,
-    isPaid
+    isPaid,
+    isSubmitted
 };

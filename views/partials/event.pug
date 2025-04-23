@@ -401,10 +401,8 @@ mixin addonField(addon, attendance_addon, user, attendance)
                             for=`attendance_addons_${addon.id}_paid`
                         ) Paid
                         if attendance_addon.paid_by_order && attendance_addon.paid_by_order !== attendance.paid_by_order
-                            if checkPermission('admin')
-                                a.ms-2(href=`/order/${attendance_addon.paid_by_order}`) Order ##{attendance.paid_by_order}
-                            else
-                                .ms-2 Order ##{attendance_addon.paid_by_order}
+                            a.ms-2(href=`/order/${attendance_addon.paid_by_order}?backto=all`) Order ##{attendance_addon.paid_by_order}
+
             else
                 if attendance_addon.paid
                     .badge.text-bg-success Paid

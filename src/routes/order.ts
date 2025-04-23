@@ -14,8 +14,8 @@ async function list(req, res, next){
         current: 'My Orders'
     };
     try {
-        res.locals.orders = await req.models.order.find({campaign_id:req.campaign.id, user_id:req.session.activeUser.id});
-        
+        const orders = await req.models.order.find({campaign_id:req.campaign.id, user_id:req.session.activeUser.id});
+        res.locals.orders = orders.filter(orderHelper.isSubmitted);
         res.locals.title += ' - My Orders';
         res.render('order/list', { pageTitle: 'My Orders' });
     } catch (err){
@@ -37,6 +37,7 @@ async function listAll(req, res, next){
             order.user = await req.models.user.get(req.campaign.id, order.user_id);
             return order;
         });
+        res.locals.orders = res.locals.orders.filter(orderHelper.isSubmitted);
 
         res.locals.title += ' - All Orders';
         res.render('order/list_all', { pageTitle: 'All Orders' });
@@ -52,7 +53,7 @@ async function show(req, res, next){
         if (!order || order.campaign_id!== req.campaign.id){
             throw new Error ('Invalid Order');
         }
-        if (! res.locals.checkPermission('admin') && req.session.activeUser.id !== order.user_id){
+        if (! res.locals.checkPermission('gm') && req.session.activeUser.id !== order.user_id){
             req.flash('error', 'You are not allowed to view that order');
             return res.redirect('/order');
         }
@@ -90,7 +91,6 @@ async function deleteOrder(req, res){
         if (!order || order.campaign_id!== req.campaign.id){
             throw new Error ('Invalid Order');
         }
-        console.log(req.body.refund);
         if (req.body.refund){
             order.status = 'refunded';
             await orderHelper.refund(order.id);
@@ -157,7 +157,7 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/all', permission('admin'), listAll);
+router.get('/all', permission('gm'), listAll);
 router.get('/checkout', checkout);
 router.get('/:id', csrf(), show);
 router.post('/create-checkout-session', createCheckoutSession);

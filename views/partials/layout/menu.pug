@@ -150,6 +150,8 @@
                                 a.dropdown-item(href='/admin/image') Images
                                 a.dropdown-item(href='/page') Pages
                                 a.dropdown-item(href='/survey') Surveys
+                                if currentCampaign.stripe_account_ready
+                                    a.dropdown-item(href="/order/all") All Orders
 
                                 .dropdown-divider
                                 a.dropdown-item(href='/character_field') Character Fields
@@ -163,9 +165,6 @@
                                 a.dropdown-item(href='/admin/upload') Uploads
                                 a.dropdown-item(href='/admin/font') Fonts
                                 a.dropdown-item(href='/admin/documentation') Documentations
-                                if currentCampaign.stripe_account_ready
-                                    a.dropdown-item(href="/order/all") All Orders
-
 
 
         //- User Menu
@@ -205,7 +204,6 @@
                             a.dropdown-item(href="/auth/gm")
                                 i.fas.fa-user-tie.fa-fw.me-1
                                 | #{session.gm_mode?'Disable':'Enable'} GM Mode
-
                         if checkPermission('gm', true) && ! session.gm_mode
                             a.dropdown-item(href="/auth/player")
                                 i.far.fa-user.fa-fw.me-1

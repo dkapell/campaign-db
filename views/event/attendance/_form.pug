@@ -2,7 +2,6 @@ if (backto)
     input(type="hidden" name="backto" value=backto)
 
 if checkPermission('gm')
-    - console.log(attendance)
     .row.my-2
         .col
             label.control-label(for="attendance_user_id") Attendee
@@ -44,10 +43,7 @@ if checkPermission('gm') && attendance.user.type === 'player'
                 input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid disabled=attendance.paid_by_order)
                 label.form-check-label(for="attendance_paid") Paid
                 if attendance.paid_by_order
-                    if checkPermission('admin')
-                        a.ms-2(href=`/order/${attendance.paid_by_order}`) Order ##{attendance.paid_by_order}
-                    else
-                        .ms-2 Order ##{attendance.paid_by_order}
+                    a.ms-2(href=`/order/${attendance.paid_by_order}?backto=all`) Order ##{attendance.paid_by_order}
 
 if event.addons
     .row.my-2

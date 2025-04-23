@@ -262,5 +262,6 @@ interface OrderModel extends ModelData{
     submitted?: Date
     paid?: Date
     order_items?: OrderItem[]
+    user?: UserModel
 
 }

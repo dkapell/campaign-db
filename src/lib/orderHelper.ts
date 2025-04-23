@@ -1,6 +1,9 @@
 import config from 'config';
 import Stripe from 'stripe';
+import moment from 'moment';
+import stringify from 'csv-stringify-as-promised';
 import models from './models';
+
 
 const stripe = new Stripe(config.get('stripe.secretKey'));
 
@@ -194,6 +197,53 @@ function isSubmitted(order){
     return true;
 }
 
+async function buildCsv(orders:OrderModel[], showUser?:boolean): Promise<string>{
+    const output = [];
+    const header = ['Order ID']
+    if (showUser){
+        header.push('Stripe Id');
+        header.push('User');
+        header.push('Email');
+    }
+    for (const item of ['Status', 'Amount', 'Created', 'Updated', 'Submitted', 'Paid', 'Items']){
+        header.push(item);
+    }
+    output.push(header);
+    for (const order of orders){
+        const row = [];
+        row.push(order.id);
+        if (showUser){
+            row.push(order.charge_id);
+            if (order.user){
+                row.push(order.user.name);
+                row.push(order.user.email);
+            } else {
+                const user = await models.user.get(order.campaign_id, order.user_id);
+                row.push(user.name);
+                row.push(user.email);
+            }
+        }
+        row.push(order.status);
+        row.push(order.payment_amount_cents/100);
+        const campaign = await models.campaign.get(order.campaign_id);
+        for (const field of ['created', 'updated', 'submitted', 'paid']){
+            if (!order[field]){
+                row.push(null);
+            } else {
+                const timestamp = moment.utc(order[field]).tz(campaign.timezone);
+                row.push(timestamp.format('lll'));
+            }
+        }
+        const items = [];
+        for (const item of order.order_items){
+            items.push(`${item.name} ($${item.cost_in_cents/100}${item.quantity!==1?'x'+item.quantity:''})`);
+        }
+        row.push(items.join(', '));
+        output.push(row);
+    }
+    return stringify(output, {});
+}
+
 export default {
     checkout,
     getOpenOrder,
@@ -202,5 +252,6 @@ export default {
     unpayOrder,
     refund,
     isPaid,
-    isSubmitted
+    isSubmitted,
+    buildCsv
 };

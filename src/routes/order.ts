@@ -14,8 +14,15 @@ async function list(req, res, next){
         current: 'My Orders'
     };
     try {
-        const orders = await req.models.order.find({campaign_id:req.campaign.id, user_id:req.session.activeUser.id});
-        res.locals.orders = orders.filter(orderHelper.isSubmitted);
+        let orders = await req.models.order.find({campaign_id:req.campaign.id, user_id:req.session.activeUser.id});
+        orders = orders.filter(orderHelper.isSubmitted);
+        if (req.query.export){
+            const csvOutput = await orderHelper.buildCsv(orders, false);
+            res.attachment(`${req.campaign.name} - My Orders.csv`);
+            return res.end(csvOutput);
+        } else {
+            res.locals.orders = orders;
+        }
         res.locals.title += ' - My Orders';
         res.render('order/list', { pageTitle: 'My Orders' });
     } catch (err){
@@ -32,12 +39,20 @@ async function listAll(req, res, next){
     };
     try {
         res.locals.siteSection='admin';
-        const orders = await req.models.order.find({campaign_id:req.campaign.id});
-        res.locals.orders = await async.map(orders, async (order) => {
+        let orders = await req.models.order.find({campaign_id:req.campaign.id});
+        orders = await async.map(orders, async (order) => {
             order.user = await req.models.user.get(req.campaign.id, order.user_id);
             return order;
         });
-        res.locals.orders = res.locals.orders.filter(orderHelper.isSubmitted);
+        orders = orders.filter(orderHelper.isSubmitted);
+
+        if (req.query.export){
+            const csvOutput = await orderHelper.buildCsv(orders, true);
+            res.attachment(`${req.campaign.name} - All Orders.csv`);
+            return res.end(csvOutput);
+        } else {
+            res.locals.orders = orders;
+        }
 
         res.locals.title += ' - All Orders';
         res.render('order/list_all', { pageTitle: 'All Orders' });

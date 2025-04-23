@@ -6,9 +6,10 @@ block content
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.table-exportable.w-100(
             style="display: none"
             data-csrf=csrfToken
+            data-export='/order?export=1'
             )
             thead
                 tr

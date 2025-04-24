@@ -125,7 +125,7 @@ async function showEditAttendance(req, res, next){
             res.locals.attendance.character_id = activeCharacter?activeCharacter.id:null;
         }
 
-        if (res.locals.checkPermission('gm')) {
+        if (req.checkPermission('gm')) {
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             let users = await async.map(campaign_users, async (campaign_user) => {
                 const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
@@ -133,7 +133,7 @@ async function showEditAttendance(req, res, next){
             });
             users = users.filter(user => { return user.type !== 'none'});
             res.locals.users = _.sortBy(users, 'typeForDisplay')
-        } else if ( attendance.user_id !== user.id && !res.locals.checkPermission('registration edit')){
+        } else if ( attendance.user_id !== user.id && !req.checkPermission('registration edit')){
             return res.redirect(`/event/${eventId}/register`);
         }
 
@@ -171,7 +171,7 @@ async function createAttendance(req, res){
         }
         attendance.event_id = eventId;
 
-        if (res.locals.checkPermission('gm')) {
+        if (req.checkPermission('gm')) {
             if (attendance.user_id) {
                 user = await req.models.user.get(req.campaign.id, attendance.user_id);
             } else {
@@ -212,7 +212,7 @@ async function createAttendance(req, res){
             );
         }
         attendance.attending = true;
-        attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.addons = parseAttendeeAddons(attendance.addons, req.checkPermission('gm'));
         attendance.addons = await filterAttendeeAddons(req, attendance.addons);
 
         attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(null, attendance);
@@ -322,7 +322,7 @@ async function updateAttendance(req, res){
                     attendance.paid = false;
                 }
             }
-        } else if (res.locals.checkPermission('registration edit')){
+        } else if (req.checkPermission('registration edit')){
             delete attendance.paid;
             attendance.user_id = current.user_id;
             typeForSurvey = 'core staff';
@@ -351,7 +351,7 @@ async function updateAttendance(req, res){
         attendance.attending = true;
         attendance.event_id = event.id;
 
-        attendance.addons = parseAttendeeAddons(attendance.addons, res.locals.checkPermission('gm'));
+        attendance.addons = parseAttendeeAddons(attendance.addons, req.checkPermission('gm'));
         attendance.addons = await filterAttendeeAddons(req, attendance.addons);
         attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(current.pre_event_survey_response_id, attendance);
         attendance.campaign_id = current.campaign_id;

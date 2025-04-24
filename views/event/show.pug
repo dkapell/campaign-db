@@ -46,6 +46,10 @@ block content
                     li.nav-item(role="presentation")
                         a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
 
+                    if checkPermission('gm')
+                        li.nav-item(role="presentation")
+                            a.nav-link#event-income-tab(href="#event-income" data-bs-toggle="tab" role="tab" aria-controls="event-income" aria-selected="false") Income
+
                     if checkPermission('contrib') && post_event_surveys.length
                         li.nav-item(role="presentation")
                             a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") #{currentCampaign.renames.post_event_survey.plural}
@@ -314,6 +318,44 @@ block content
                                     else
                                         - const attendees = event.attendees.filter(attendee => { return attendee.attending });
                                         +attendeeListDisplay(attendees)
+                    if checkPermission('gm')
+                         .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
+                            .row.my-2
+                                .col-xl-8
+                                    .table-responsive
+                                        table.table.table-sm
+                                            thead
+                                                tr
+                                                    th Item
+                                                    th All
+                                                        i.far.fa-question-circle.ms-1(
+                                                            data-bs-title='Total from all attendees marked Paid'
+                                                            data-bs-toggle='popover'
+                                                            )
+                                                    th Orders
+                                                        i.far.fa-question-circle.ms-1(
+                                                            data-bs-title='Total collected via payment processing'
+                                                            data-bs-content='Does not account for credit card processing fees'
+                                                            data-bs-toggle='popover'
+                                                            )
+
+                                            tbody.table-group-divider
+                                                tr
+                                                    td Event
+                                                    td $#{income.event.raw}
+                                                    td $#{income.event.orders}
+                                                tr
+                                                    td Addons
+                                                    td $#{income.addons.raw}
+                                                    td $#{income.addons.orders}
+
+                                            tfoot.table-group-divider
+                                                tr
+                                                    th Total
+                                                    th $#{income.event.raw + income.addons.raw}
+                                                    th $#{income.event.orders + income.addons.orders}
+
+
                     if checkPermission('contrib') && post_event_surveys.length
                         .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")
                             +postEventSurveyGmTable(post_event_surveys, {

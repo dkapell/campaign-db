@@ -49,7 +49,7 @@ async function show(req, res, next){
             return req.models.user.get(req.campaign.id, campaign_user.user_id);
         });
 
-        if (res.locals.checkPermission('contrib')){
+        if (req.checkPermission('contrib')){
 
             res.locals.post_event_surveys = event.attendees.filter(attendance => {
                 if (!attendance.post_event_submitted){
@@ -66,6 +66,35 @@ async function show(req, res, next){
             });
         } else {
             res.locals.post_event_surveys = [];
+        }
+
+        if (req.checkPermission('gm')){
+            res.locals.income = {
+                event: {
+                    raw: 0,
+                    orders: 0
+                },
+                addons: {
+                    raw: 0,
+                    orders: 0
+                }
+            };
+            for (const attendance of event.attendees){
+                if (attendance.paid) {
+                    res.locals.income.event.raw += event.cost;
+                    if (await orderHelper.isPaid('attendance', attendance.id)){
+                        res.locals.income.event.orders += event.cost;
+                    }
+                }
+                for (const attendance_addon of attendance.addons){
+                    if (attendance_addon.paid){
+                        res.locals.income.addons.raw += attendance_addon.addon.cost;
+                        if (await orderHelper.isPaid('attendance_addon', attendance_addon.id)){
+                           res.locals.income.addons.orders += attendance_addon.addon.cost;
+                        }
+                    }
+                }
+            }
         }
 
         users = users.filter(user => {return user.type !== 'none'});

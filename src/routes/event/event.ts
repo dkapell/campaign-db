@@ -426,6 +426,7 @@ async function checkoutEvent(req, res){
             req.flash('success', 'No outstanding balance');
             return res.redirect(`/event/${id}`);
         }
+        await orderHelper.emptyOrder(req.campaign.id, req.session.activeUser.id);
         await orderHelper.addItemsToOrder(req.campaign.id, req.session.activeUser.id, items);
         res.redirect(`/order/checkout?back=/event/${id}`);
         //res.redirect(await orderHelper.checkout(order.id, `/event/${id}`));

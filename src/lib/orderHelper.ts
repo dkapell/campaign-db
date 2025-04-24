@@ -1,6 +1,7 @@
 import config from 'config';
 import Stripe from 'stripe';
 import moment from 'moment';
+import async from 'async';
 import stringify from 'csv-stringify-as-promised';
 import models from './models';
 
@@ -244,10 +245,24 @@ async function buildCsv(orders:OrderModel[], showUser?:boolean): Promise<string>
     return stringify(output, {});
 }
 
+async function emptyOrder(campaignId:number, userId:number, create?:boolean): Promise<void>{
+    const order = await getOpenOrder(campaignId, userId, create);
+    if (!order){ return; }
+    await async.each(order.order_items, async (order_item) => {
+        return models.order_item.delete(order_item.id);
+    })
+    order.payment_amount_cents = null;
+    order.updated = new Date();
+    order.status = 'new';
+    await models.order.update(order.id, order);
+    return;
+}
+
 export default {
     checkout,
     getOpenOrder,
     addItemsToOrder,
+    emptyOrder,
     payOrder,
     unpayOrder,
     refund,

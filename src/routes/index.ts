@@ -85,7 +85,7 @@ async function showIndex(req, res){
                 res.locals.events = futureEvents;
             }
         }
-        if (res.locals.checkPermission('gm, cp grant') && res.locals.pending_cp_grants && req.campaign.display_cp){
+        if (req.checkPermission('gm, cp grant') && res.locals.pending_cp_grants && req.campaign.display_cp){
             res.locals.showTasks = true;
         }
 

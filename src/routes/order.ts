@@ -68,7 +68,7 @@ async function show(req, res, next){
         if (!order || order.campaign_id!== req.campaign.id){
             throw new Error ('Invalid Order');
         }
-        if (! res.locals.checkPermission('gm') && req.session.activeUser.id !== order.user_id){
+        if (! req.checkPermission('gm') && req.session.activeUser.id !== order.user_id){
             req.flash('error', 'You are not allowed to view that order');
             return res.redirect('/order');
         }

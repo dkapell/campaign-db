@@ -152,10 +152,10 @@ async function getUpload(req, res, next){
         if (upload.campaign_id !== req.campaign.id){
             throw new Error('Can not access record from different campaign');
         }
-        if (!res.locals.checkPermission(upload.permission) && user.id !== upload.user_id){
+        if (!req.checkPermission(upload.permission) && user.id !== upload.user_id){
             upload = await uploadHelper.fillUsage(upload);
             if (upload.usedFor.type === 'registration'){
-                if (!res.locals.checkPermission('registration view')){
+                if (!req.checkPermission('registration view')){
                     throw new Error('Can not access this record');
                 }
             } else if (upload.usedFor.type === 'user'){

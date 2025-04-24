@@ -4,7 +4,8 @@ declare namespace Express {
       models?: Models,
       session: Session,
       audit?: Audit,
-      user?:CampaignUser
+      user?:CampaignUser,
+      checkPermission?:function
    }
 }
 

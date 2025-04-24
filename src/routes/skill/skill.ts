@@ -43,7 +43,7 @@ async function list(req, res, next){
 }
 
 async function listDoc(req, res, next){
-    if (res.locals.checkPermission('npc')){
+    if (req.checkPermission('npc')){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -453,7 +453,7 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        if (!res.locals.checkPermission('gm')){
+        if (!req.checkPermission('gm')){
             for (const field in current){
                 if (field !== 'notes'){
                     skill[field] = current[field];

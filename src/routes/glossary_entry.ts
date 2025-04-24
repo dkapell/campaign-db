@@ -15,7 +15,7 @@ async function list(req, res, next){
     };
     try {
         const glossary_entries = await req.models.glossary_entry.find({campaign_id: req.campaign.id});
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, req.checkPermission('contrib'), req.campaign.id);
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
         res.locals.listName = 'All Entries';
@@ -45,7 +45,7 @@ async function listTag(req, res, next){
         };
 
         const glossary_entries = await req.models.glossary_entry.listByTag(tagId);
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, req.checkPermission('contrib'), req.campaign.id);
         res.locals.glossary_tag = tag;
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
@@ -89,7 +89,7 @@ async function listStatus(req, res, next){
         };
 
         const glossary_entries = await req.models.glossary_entry.find({status_id:status.id});
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, req.checkPermission('contrib'), req.campaign.id);
         res.locals.glossary_status = status;
         res.locals.listName = `Status: ${res.locals.capitalize(status.name)}`;
         res.locals.listType = 'status';
@@ -134,7 +134,7 @@ async function listReview(req, res, next){
             glossary_entries.push( await req.models.glossary_entry.find({status_id:status.id}));
         }
 
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(_.flatten(glossary_entries, true), res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(_.flatten(glossary_entries, true), req.checkPermission('contrib'), req.campaign.id);
         res.locals.listName = 'Reviewable';
         res.locals.listType = 'status';
         res.locals.reviewReady = await glossaryHelper.reviewReady(req.campaign.id);
@@ -157,7 +157,7 @@ async function search(req, res, next){
         };
 
         const glossary_entries = await req.models.glossary_entry.search(req.campaign.id, query);
-        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, res.locals.checkPermission('contrib'), req.campaign.id);
+        res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, req.checkPermission('contrib'), req.campaign.id);
         res.locals.searchQuery = query;
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
@@ -178,7 +178,7 @@ async function show(req, res, next){
         if (!glossary_entry || glossary_entry.campaign_id !== req.campaign.id){
             throw new Error('Invalid Glossary Entry');
         }
-        if (!res.locals.checkPermission('gm') || (glossary_entry.status && glossary_entry.status.display_to_pc)){
+        if (!req.checkPermission('gm') || (glossary_entry.status && glossary_entry.status.display_to_pc)){
             req.flash('warning', 'No permission to view this entry');
             return res.redirect('/glossary');
         }
@@ -191,8 +191,8 @@ async function show(req, res, next){
         };
         if (glossary_entry.content){
             glossary_entry.content = {
-                anchor: await glossaryHelper.format(glossary_entry.content, true, res.locals.checkPermission('contrib'), [], req.campaign.id),
-                entry: await glossaryHelper.format(glossary_entry.content, false, res.locals.checkPermission('contrib'), [], req.campaign.id),
+                anchor: await glossaryHelper.format(glossary_entry.content, true, req.checkPermission('contrib'), [], req.campaign.id),
+                entry: await glossaryHelper.format(glossary_entry.content, false, req.checkPermission('contrib'), [], req.campaign.id),
             };
         }
         res.locals.glossary_entry = glossary_entry;
@@ -358,7 +358,7 @@ async function renderPreview(req, res){
     try {
         res.json({
             success:true,
-            content: await glossaryHelper.format(content, true, res.locals.checkPermission('gm'), [], req.campaign.id)
+            content: await glossaryHelper.format(content, true, req.checkPermission('gm'), [], req.campaign.id)
         });
     } catch (err){
         res.json({success:false, error:err});

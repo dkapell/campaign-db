@@ -9,6 +9,10 @@ function permission(permission?:string, redirect?:string, bypass?:boolean){
             return check(req, permission, bypass);
         };
 
+        req.checkPermission = function(permission, bypass){
+            return check(req, permission, bypass);
+        }
+
         if (!permission){
             return next();
         }

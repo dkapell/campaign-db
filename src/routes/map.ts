@@ -78,7 +78,7 @@ async function show(req, res, next){
             ],
             current: map.name
         };
-        if (res.locals.checkPermission('contrib')){
+        if (req.checkPermission('contrib')){
             res.locals.breadcrumbs.path[1].url = '/map/list';
         }
         res.locals.map = map;

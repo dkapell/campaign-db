@@ -22,7 +22,7 @@ async function list(req, res, next){
         res.locals.title += ' - Character Points';
 
         const user = req.session.activeUser;
-        if (res.locals.checkPermission('contrib, cp grant')){
+        if (req.checkPermission('contrib, cp grant')){
             const grants = await req.models.cp_grant.find({campaign_id:req.campaign.id});
             res.locals.grants = await async.map(grants, async (grant) => {
                 grant.user = await req.models.user.get(req.campaign.id, grant.user_id);
@@ -159,7 +159,7 @@ async function create(req, res){
     grant.updated = new Date();
     const user = req.session.activeUser;
 
-    if (res.locals.checkPermission('contrib, cp grant')){
+    if (req.checkPermission('contrib, cp grant')){
         grant.status = 'approved';
     } else if (user.type === 'player'){
         grant.user_id = user.id;

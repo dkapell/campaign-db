@@ -97,7 +97,7 @@ async function show(req, res, next){
         }
         res.locals.character = await character.data();
         res.locals.character.custom_field = res.locals.character.custom_field.filter(field => {
-            return field.custom_field.display_to_pc || res.locals.checkPermission('contrib');
+            return field.custom_field.display_to_pc || req.checkPermission('contrib');
         });
 
         res.locals.cp = await campaignHelper.cpCalculator(character._data.user_id, req.campaign.id);
@@ -317,7 +317,7 @@ async function create(req, res){
                 if (fieldData && fieldData === 'on'){
                     characterData.custom_field[`cf-${field.id}`] = true;
 
-                } else if (field.editable_by_pc || res.locals.checkPermission('contrib')){
+                } else if (field.editable_by_pc || req.checkPermission('contrib')){
                     characterData.custom_field[`cf-${field.id}`] = false;
                 }
             } else if (fieldData === ''){
@@ -379,7 +379,7 @@ async function update(req, res){
                 if (fieldData && fieldData === 'on'){
                     characterData.custom_field[`cf-${field.id}`] = true;
 
-                } else if (field.editable_by_pc || res.locals.checkPermission('contrib')){
+                } else if (field.editable_by_pc || req.checkPermission('contrib')){
                     characterData.custom_field[`cf-${field.id}`] = false;
                 }
             } else if (fieldData === ''){

@@ -259,7 +259,7 @@ function uploadMiddleware(){
                     is_public: false,
                     permission: permission
                 };
-                if (is_public && res.locals.checkPermission('gm')){
+                if (is_public && req.checkPermission('gm')){
                     console.log('setting upload public')
                     uploadData.is_public = true;
                 }

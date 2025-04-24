@@ -188,7 +188,7 @@ async function create(req, res){
         }
 
         if (req.campaign.documentations){
-            user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
+            user.documentations = await parseDocumentations(req, user.documentations, req.checkPermission('gm'));
         }
 
 
@@ -229,7 +229,7 @@ async function update(req, res){
         }
 
         if (req.campaign.documentations){
-            user.documentations = await parseDocumentations(req, user.documentations, res.locals.checkPermission('gm'));
+            user.documentations = await parseDocumentations(req, user.documentations, req.checkPermission('gm'));
         }
 
         if ( user.image_id ===''){
@@ -388,7 +388,7 @@ async function signS3UserImage(req, res, next){
 }
 
 async function gallery(req, res, next){
-    if (!req.campaign.player_gallery && !res.locals.checkPermission('event')){
+    if (!req.campaign.player_gallery && !req.checkPermission('event')){
         req.flash('warning', `Gallery is not available to ${req.campaign.user_type_map['player'].name}s` );
         return res.redirect('/');
     }

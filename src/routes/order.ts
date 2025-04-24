@@ -161,13 +161,15 @@ async function createCheckoutSession(req, res){
     }
 }
 
-
-
 const router = express.Router();
 
 router.use(permission('login'));
 router.use(function(req, res, next){
     res.locals.siteSection='user';
+    if (!req.campaign.stripe_account_ready){
+        req.flash('info', 'Orders are not enabled for this Campaign');
+        return res.redirect('/');
+    }
     next();
 });
 

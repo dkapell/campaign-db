@@ -383,6 +383,10 @@ async function grantAttendanceCp(req, res){
 
 async function checkoutEvent(req, res){
     const id = req.params.id;
+    if (!req.campaign.stripe_account_ready){
+        req.flash('info', 'Orders are not enabled for this Campaign');
+        return res.redirect(`/event/${id}`);
+    }
     try{
         const event = await req.models.event.get(id);
         if (!event || event.campaign_id !== req.campaign.id){

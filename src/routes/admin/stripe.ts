@@ -21,7 +21,10 @@ async function createStripeAccount(req, res) {
                 url: site_url
             }
         });
-        const doc = {stripe_account_id:account.id};
+        const doc = {
+            stripe_account_id:account.id,
+            site:req.campaign.site
+        };
         await req.models.campaign.update(req.campaign.id, doc);
         await req.audit('campaign', req.campaign.id, 'update', {old: {stripe_account_id:null}, new:doc});
         res.json({
@@ -105,7 +108,10 @@ async function returnStripeConnection(req, res){
         const account = await stripe.accounts.retrieve(req.campaign.stripe_account_id);
 
         if (account.details_submitted){
-            const doc = {stripe_account_ready:true};
+            const doc = {
+                stripe_account_ready:true,
+                site:req.campaign.site
+            };
             await req.models.campaign.update(req.campaign.id, doc);
             await req.audit('campaign', req.campaign.id, 'update', {old: {stripe_account_ready:false}, new: doc});
         } else {

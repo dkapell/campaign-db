@@ -332,28 +332,32 @@ block content
                                                             data-bs-title='Total from all attendees marked Paid'
                                                             data-bs-toggle='popover'
                                                             )
-                                                    th Orders
-                                                        i.far.fa-question-circle.ms-1(
-                                                            data-bs-title='Total collected via payment processing'
-                                                            data-bs-content='Does not account for credit card processing fees'
-                                                            data-bs-toggle='popover'
-                                                            )
+                                                    if currentCampaign.stripe_account_ready
+                                                        th Orders
+                                                            i.far.fa-question-circle.ms-1(
+                                                                data-bs-title='Total collected via payment processing'
+                                                                data-bs-content='Does not account for credit card processing fees'
+                                                                data-bs-toggle='popover'
+                                                                )
 
                                             tbody.table-group-divider
                                                 tr
                                                     td Event
                                                     td $#{income.event.raw}
-                                                    td $#{income.event.orders}
+                                                    if currentCampaign.stripe_account_ready
+                                                        td $#{income.event.orders}
                                                 tr
                                                     td Addons
                                                     td $#{income.addons.raw}
-                                                    td $#{income.addons.orders}
+                                                    if currentCampaign.stripe_account_ready
+                                                        td $#{income.addons.orders}
 
                                             tfoot.table-group-divider
                                                 tr
                                                     th Total
                                                     th $#{income.event.raw + income.addons.raw}
-                                                    th $#{income.event.orders + income.addons.orders}
+                                                    if currentCampaign.stripe_account_ready
+                                                        th $#{income.event.orders + income.addons.orders}
 
 
                     if checkPermission('contrib') && post_event_surveys.length

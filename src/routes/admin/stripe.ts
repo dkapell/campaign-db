@@ -14,7 +14,13 @@ async function createStripeAccount(req, res) {
                 account: req.campaign.stripe_account_id,
             });
         }
-        const account = await stripe.accounts.create({});
+        const site_url = `${config.get('app.secureOnly')?'https':'http'}://${req.campaign.site}`
+
+        const account = await stripe.accounts.create({
+            business_profile: {
+                url: site_url
+            }
+        });
         const doc = {stripe_account_id:account.id};
         await req.models.campaign.update(req.campaign.id, doc);
         await req.audit('campaign', req.campaign.id, 'update', {old: {stripe_account_id:null}, new:doc});
@@ -33,14 +39,15 @@ async function createStripeAccount(req, res) {
 
 async function linkStripeAccount(req, res){
     try {
-        if (!req.campaign.stripe_account_id){
+        const campaign = await req.models.campaign.get(req.campaign.id);
+        if (!campaign.stripe_account_id){
             res.status(500);
             return res.send({ error: 'No account ID established yet' });
         }
-        const account = req.campaign.stripe_account_id;
+        const account = campaign.stripe_account_id;
 
         const accountLink = await stripe.accountLinks.create({
-            account: req.campaign.stripe_account_id,
+            account: account,
             return_url: `${req.headers.origin}/admin/stripe/return/${account}`,
             refresh_url: `${req.headers.origin}/admin/stripe/refresh/${account}`,
             type: "account_onboarding",

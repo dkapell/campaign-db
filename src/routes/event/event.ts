@@ -82,14 +82,14 @@ async function show(req, res, next){
             for (const attendance of event.attendees){
                 if (attendance.paid) {
                     res.locals.income.event.raw += event.cost;
-                    if (await orderHelper.isPaid('attendance', attendance.id)){
+                    if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)){
                         res.locals.income.event.orders += event.cost;
                     }
                 }
                 for (const attendance_addon of attendance.addons){
                     if (attendance_addon.paid){
                         res.locals.income.addons.raw += attendance_addon.addon.cost;
-                        if (await orderHelper.isPaid('attendance_addon', attendance_addon.id)){
+                        if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)){
                            res.locals.income.addons.orders += attendance_addon.addon.cost;
                         }
                     }

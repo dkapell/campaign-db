@@ -23,7 +23,7 @@ const tableFields = [
 ];
 
 const Order = new Model('orders', tableFields, {
-    order: ['created'],
+    order: ['updated desc'],
     postSelect: fill,
 });
 

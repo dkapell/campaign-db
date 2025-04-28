@@ -44,9 +44,17 @@
             "dir": "flatly",
             "description": "Flat and modern"
         },
-        "Mintly": {
-            "dir": "mintly",
+        "Minty": {
+            "dir": "minty",
             "description": "A fresh feel"
+        },
+         "Mintly": {
+            "dir": "minty",
+            "description": "A fresh feel, but misspelled"
+        },
+        "Superhero":{
+            "dir": "superhero",
+            "description": "The brave and the blue"
         },
         "Bootstrap Default":{
             "default": true,

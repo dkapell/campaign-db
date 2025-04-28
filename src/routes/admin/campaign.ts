@@ -210,7 +210,7 @@ async function update(req, res){
         delete campaign.default_site;
     }
 
-    if (!(req.campaign.default_site || req.campaign.id === id)){
+    if (!(req.campaign.default_site || Number(req.campaign.id) === Number(id))){
         throw new Error('Can not update this campaign');
     }
 

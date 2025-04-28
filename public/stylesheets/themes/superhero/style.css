@@ -1,0 +1,25 @@
+#main-content {
+    margin-top:69px;
+}
+table {
+--bs-table-color: #eee;
+}
+.table>:not(caption)>*>* {
+    color: white;
+}
+.editor-preview {
+    color: black;
+    background-color: #ddd !important;
+}
+#skill-description {
+    color: black;
+    background-color: #ddd;
+}
+.gm-note-body {
+    color: #888;
+}
+
+.list-group-item+.list-group-item {
+    border-top-width: 1px;
+    border-top-color: #555;
+}

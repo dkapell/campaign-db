@@ -85,7 +85,11 @@ mixin characterSheet(character)
                                 if attribute.name.match(/^Unset/)
                                     i.fas.fa-exclamation-triangle.me-1
                                 =attribute.name
-                                span.ms-1.float-end= attribute.value
+                                span.ms-1.float-end
+                                    if typeof attribute.value === 'object'
+                                        i= attribute.value.join(', ')
+                                    else
+                                        = attribute.value
 
             if _.keys(character.provides.traits).length
                 each traits, type in character.provides.traits

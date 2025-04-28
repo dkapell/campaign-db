@@ -212,7 +212,7 @@ interface AttendanceData extends ModelData {
 
 interface AttributeRecord {
     name: string
-    value: number
+    value: number|string
     internal?:boolean
 }
 

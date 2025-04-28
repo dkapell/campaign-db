@@ -16,6 +16,9 @@ block content
                 li.py-2.list-group-item=attribute.name
                     if attribute.internal
                         .badge.text-bg-info.ms-2 Internal
-                    span.ms-1.float-end #{attribute.values.min}/
-                        strong #{attribute.values.avg}
-                        | /#{attribute.values.max}
+                    if attribute.values.avg
+                        span.ms-1.float-end #{attribute.values.min}/
+                            strong #{attribute.values.avg}
+                            | /#{attribute.values.max}
+                    else
+                        span.ms-1.float-end= attribute.values.data.join(', ')

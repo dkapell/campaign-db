@@ -189,22 +189,39 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     }
 
     function renderAttributes(character: CharacterData, row:number):number{
-        const attributeBoxHeight = 40;
+        let attributeBoxHeight = 40;
 
-        const numAttributes = character.provides.attributes.length;
+        const numericAttributes = (character.provides.attributes as AttributeRecord[]).filter( (attribute: AttributeRecord) => {
+            return typeof attribute.value === 'number'
+        })
 
-        doc.lineWidth(0.5).rect(options.margin+10, row, doc.page.width - (options.margin*2 + 20), attributeBoxHeight).stroke();
+        const stringAttributes = (character.provides.attributes as AttributeRecord[]).filter( (attribute: AttributeRecord) => {
+            return typeof attribute.value !== 'number'
+        });
+
+        const numAttributes = numericAttributes.length;
 
         const attributeWidth = (doc.page.width - (options.margin*2 + 20)) / numAttributes;
 
         let offsetX = options.margin + 10 + 5;
-        const offsetY = row + 5;
+        let offsetY = row + 5;
 
-        for (const attribute of character.provides.attributes as AttributeRecord[]){
+        for (const attribute of numericAttributes as AttributeRecord[]){
             addText(attribute.name, {font: 'Header Font', nowrap:true, align:'center'}, 14*options.headerScale, offsetX, offsetY, attributeWidth - 10, 15);
             addText('' + attribute.value, {font: 'Body Font Bold', nowrap:true, align:'center'}, 14*options.bodyScale, offsetX, offsetY + 15, attributeWidth - 10, 15);
             offsetX += attributeWidth;
         }
+        offsetX = options.margin + 10 + 10;
+        offsetY += 15;
+        for (const attribute of stringAttributes){
+            offsetY += 15;
+            attributeBoxHeight += 15;
+            addText(`${attribute.name}:`, {font: 'Header Font', nowrap:true, align:'left'}, 14*options.headerScale, offsetX, offsetY, attributeWidth - 10, 15);
+            addText((attribute.value as unknown as string[]).join(', '), {font: 'Body Font Italic', nowrap:true, align:'left'}, 14*options.bodyScale, offsetX + 100, offsetY, doc.page.width - ((options.margin + 15) *2) - 100, 15);
+        }
+
+        doc.lineWidth(0.5).rect(options.margin+10, row, doc.page.width - (options.margin*2 + 20), attributeBoxHeight).stroke();
+
 
         return row + attributeBoxHeight;
     }

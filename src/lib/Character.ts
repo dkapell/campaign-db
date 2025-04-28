@@ -8,6 +8,7 @@ import skillHelper from './skillHelper';
 import characterRenderer from './renderer/character';
 import campaignHelper from './campaignHelper';
 import cache from './cache';
+import validator from 'validator';
 
 
 
@@ -999,9 +1000,18 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
                         }
 
                         if (!_.has(provides.attributes, type)){
-                            provides.attributes[type] = 0;
+                            if (validator.isNumeric(provider.value)){
+                                provides.attributes[type] = 0;
+                            } else {
+                                provides.attributes[type] = [];
+                            }
                         }
-                        provides.attributes[type] += Number(provider.value);
+                        if (validator.isNumeric(provider.value)){
+
+                            provides.attributes[type] += Number(provider.value);
+                        } else {
+                            provides.attributes[type].push(provider.value)
+                        }
 
 
                         break;

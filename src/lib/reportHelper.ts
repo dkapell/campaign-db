@@ -48,29 +48,45 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
         output.characters.push(character);
 
         for (const attribute of character.provides.attributes as AttributeRecord[]){
-            const existing = _.findWhere(output.attributes, {name: attribute.name});
+            let existing = _.findWhere(output.attributes, {name: attribute.name});
             if (!existing){
-                output.attributes.push({
+                existing = {
                     name: attribute.name,
-                    values: [attribute.value]
-                });
-            } else {
-                (existing.values as number[]).push(attribute.value);
+                    values: []
+                };
 
+                output.attributes.push(existing);
+            }
+
+            if (typeof attribute.value === 'number'){
+                (existing.values as number[]).push(attribute.value);
+            } else {
+                for (const value of attribute.value){
+                    if (_.indexOf(existing.values as string[], value) === -1){
+                        (existing.values as string[]).push(value);
+                    }
+                }
             }
         }
 
         for (const attribute of character.provides.internalAttributes){
-            const existing = _.findWhere(output.attributes, {name: attribute.name});
+            let existing = _.findWhere(output.attributes, {name: attribute.name});
             if (!existing){
-                output.attributes.push({
+                existing = {
                     name: attribute.name,
-                    values: [attribute.value],
+                    values: [],
                     internal: true,
-                });
-            } else {
+                };
+                output.attributes.push(existing);
+            }
+            if (typeof attribute.value === 'number'){
                 (existing.values as number[]).push(attribute.value);
-
+            } else {
+                for (const value of attribute.value){
+                    if (_.indexOf(existing.values as string[], value) === -1){
+                        (existing.values as string[]).push(value);
+                    }
+                }
             }
         }
 
@@ -134,7 +150,7 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
 }
 
 interface ArrayAggregate {
-    data: number[],
+    data: number[] | string[],
     length: number,
     min: number,
     max: number,
@@ -143,6 +159,16 @@ interface ArrayAggregate {
 }
 
 function arrayAggregate(arr: number[]): ArrayAggregate{
+    if (arr.length && typeof arr[0] !== 'number'){
+        return {
+            data: arr,
+            length: arr.length,
+            min: null,
+            max: null,
+            sum: null,
+            avg: null
+        };
+    }
     const output: ArrayAggregate = {
         data: arr,
         length: arr.length,

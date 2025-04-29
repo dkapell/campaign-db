@@ -129,7 +129,9 @@ async function showData(req, res, next){
         if (character._data.campaign_id !== req.campaign.id){
             throw new Error('Invalid Character');
         }
-        res.json({success:true, character:await character.data()});
+        const skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
+
+        res.json({success:true, skill_usages:skill_usages, character:await character.data()});
     } catch(err){
         next(err);
     }

@@ -1010,7 +1010,9 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
 
                             provides.attributes[type] += Number(provider.value);
                         } else {
-                            provides.attributes[type].push(provider.value)
+                            if (_.indexOf(provides.attributes[type], provider.value) === -1){
+                                provides.attributes[type].push(provider.value)
+                            }
                         }
 
 

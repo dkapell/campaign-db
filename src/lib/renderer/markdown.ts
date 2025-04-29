@@ -48,6 +48,9 @@ const styles = {
     },
     italic: {
         font: ' Italic'
+    },
+    em: {
+        font: ' Italic'
     }
 };
 
@@ -184,7 +187,6 @@ class Node {
                break;
                */
         }
-
         this.style = styles[this.type] || styles.para;
     }
 

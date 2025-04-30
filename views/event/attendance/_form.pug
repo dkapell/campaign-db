@@ -60,7 +60,7 @@ if event.addons
                         +addonField(addon, attendance_addon, attendance.user, attendance)
 
 
-if event.pre_event_survey
+if event.pre_event_survey && event.pre_event_survey.definition
     -
         const canEditStaffFields = checkPermission('gm, registration edit');
         const days_before = ((new Date(event.start_time)).getTime() - (new Date()).getTime()) / (1000 * 60 * 60 * 24);

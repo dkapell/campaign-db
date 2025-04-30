@@ -146,11 +146,20 @@ async function showNew(req, res, next){
                 hide_attendees: false,
                 post_event_survey_deadline_date: null,
                 post_event_survey_deadline_hour: 0,
-                pre_event_survey_id: (await req.models.survey.findOne({campaign_id:req.campaign.id, type:'registration', default:true})).id,
-                post_event_survey_id: (await req.models.survey.findOne({campaign_id:req.campaign.id, type:'post event', default:true})).id,
+                pre_event_survey_id: null,
+                post_event_survey_id: null,
                 addons: []
-
             };
+
+            const preEventSurvey = await req.models.survey.findOne({ campaign_id: req.campaign.id, type: 'registration', default: true });
+            if (preEventSurvey){
+                res.locals.event.pre_event_survey_id = preEventSurvey.id;
+            }
+            const postEventSurvey = await req.models.survey.findOne({ campaign_id: req.campaign.id, type: 'post event', default: true });
+            if (postEventSurvey){
+                res.locals.event.post_event_survey_id = postEventSurvey.id;
+            }
+
             res.locals.breadcrumbs = {
                 path: [
                     { url: '/', name: 'Home'},

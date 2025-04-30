@@ -16,6 +16,7 @@ const tableFields = [
 const Survey = new Model('surveys', tableFields, {
     order: ['type', 'is_default desc'],
     validator: validate,
+    postSelect: fill,
     skipAuditFields: ['created']
 });
 
@@ -26,5 +27,11 @@ function validate(data){
     return true;
 }
 
+async function fill(record){
+    if (!record.definition){
+        record.definition = [];
+    }
+    return record;
+}
 
 export = Survey;

@@ -133,7 +133,7 @@
                                     a.dropdown-item(href='/translation') Translations
 
                 //- Admin Menu
-                if checkPermission('gm, documentation edit')
+                if checkPermission('gm, documentation edit, orders view')
                     li.nav-item.dropdown
                         a.nav-link.dropdown-toggle#adminDropdown(
                             href='#'
@@ -144,15 +144,18 @@
                             class= siteSection==='admin'||_.indexOf(siteSection, 'admin') !== -1?"active":null
                             ) Admin
                         .dropdown-menu(aria-labelledby="adminDropdown")
-                            a.dropdown-item(href='/user') Users
+                            if checkPermission('gm, documentation edit')
+                                a.dropdown-item(href='/user') Users
                             if checkPermission('gm')
                                 a.dropdown-item(href='/admin/audit') Audits
                                 a.dropdown-item(href='/admin/image') Images
                                 a.dropdown-item(href='/page') Pages
                                 a.dropdown-item(href='/survey') Surveys
-                                if currentCampaign.stripe_account_ready
-                                    a.dropdown-item(href="/order/all") All Orders
 
+                            if currentCampaign.stripe_account_ready && checkPermission('gm, orders view')
+                                a.dropdown-item(href="/order/all") All Orders
+
+                            if checkPermission('gm')
                                 .dropdown-divider
                                 a.dropdown-item(href='/character_field') Character Fields
                             if checkPermission('admin')

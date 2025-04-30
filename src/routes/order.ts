@@ -68,7 +68,7 @@ async function show(req, res, next){
         if (!order || order.campaign_id!== req.campaign.id){
             throw new Error ('Invalid Order');
         }
-        if (! req.checkPermission('gm') && req.session.activeUser.id !== order.user_id){
+        if (! req.checkPermission('gm, orders view') && req.session.activeUser.id !== order.user_id){
             req.flash('error', 'You are not allowed to view that order');
             return res.redirect('/order');
         }
@@ -82,6 +82,7 @@ async function show(req, res, next){
                 ],
                 current: `Order #${order.id}`
             };
+            res.locals.siteSection='admin';
         } else {
             res.locals.breadcrumbs = {
                 path: [
@@ -174,7 +175,7 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/all', permission('gm'), listAll);
+router.get('/all', permission('gm, orders view'), listAll);
 router.get('/checkout', checkout);
 router.get('/:id', csrf(), show);
 router.post('/create-checkout-session', createCheckoutSession);

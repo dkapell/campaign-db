@@ -68,31 +68,42 @@ async function show(req, res, next){
             res.locals.post_event_surveys = [];
         }
 
-        if (req.checkPermission('gm')){
+        if (req.checkPermission('gm')) {
             res.locals.income = {
                 event: {
                     raw: 0,
-                    orders: 0
+                    orders: 0,
+                    outstanding: 0
                 },
                 addons: {
                     raw: 0,
-                    orders: 0
+                    orders: 0,
+                    outstanding: 0
                 }
+
             };
-            for (const attendance of event.attendees){
+            for (const attendance of event.attendees) {
+                if (attendance.not_attending){ continue; }
                 if (attendance.paid) {
                     res.locals.income.event.raw += event.cost;
-                    if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)){
+                    if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)) {
                         res.locals.income.event.orders += event.cost;
                     }
+                } else if (attendance.user.type === 'player') {
+                    res.locals.income.event.outstanding += event.cost;
                 }
-                for (const attendance_addon of attendance.addons){
-                    if (attendance_addon.paid){
+                for (const attendance_addon of attendance.addons) {
+                    if (attendance_addon.paid) {
                         res.locals.income.addons.raw += attendance_addon.addon.cost;
-                        if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)){
-                           res.locals.income.addons.orders += attendance_addon.addon.cost;
+                        if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)) {
+                            res.locals.income.addons.orders += attendance_addon.addon.cost;
                         }
+                    } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
+                        res.locals.income.addons.outstanding += attendance_addon.addon.cost;
+                    } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
+                        res.locals.income.addons.outstanding += attendance_addon.addon.cost;
                     }
+
                 }
             }
         }

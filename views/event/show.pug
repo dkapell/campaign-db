@@ -321,7 +321,7 @@ block content
                     if checkPermission('gm')
                          .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
                             .row.my-2
-                                .col-xl-8
+                                .col
                                     .table-responsive
                                         table.table.table-sm
                                             thead
@@ -339,6 +339,18 @@ block content
                                                                 data-bs-content='Does not account for credit card processing fees'
                                                                 data-bs-toggle='popover'
                                                                 )
+                                                    th Outstanding
+                                                        i.far.fa-question-circle.ms-1(
+                                                            data-bs-title='Total yet to be collected'
+                                                            data-bs-content='Based on unpaid registrations'
+                                                            data-bs-toggle='popover'
+                                                            )
+                                                    th Total
+                                                        i.far.fa-question-circle.ms-1(
+                                                            data-bs-title='Expected Final Total'
+                                                            data-bs-content='Paid and Unpaid, does not account for credit card processing fees.'
+                                                            data-bs-toggle='popover'
+                                                            )
 
                                             tbody.table-group-divider
                                                 tr
@@ -346,11 +358,16 @@ block content
                                                     td $#{income.event.raw}
                                                     if currentCampaign.stripe_account_ready
                                                         td $#{income.event.orders}
+                                                    td $#{income.event.outstanding}
+                                                    td $#{income.event.raw + income.event.outstanding}
                                                 tr
                                                     td Addons
                                                     td $#{income.addons.raw}
                                                     if currentCampaign.stripe_account_ready
                                                         td $#{income.addons.orders}
+                                                    td $#{income.addons.outstanding}
+                                                    td $#{income.addons.raw + income.addons.outstanding}
+
 
                                             tfoot.table-group-divider
                                                 tr
@@ -358,6 +375,8 @@ block content
                                                     th $#{income.event.raw + income.addons.raw}
                                                     if currentCampaign.stripe_account_ready
                                                         th $#{income.event.orders + income.addons.orders}
+                                                    th $#{income.event.outstanding + income.addons.outstanding}
+                                                    th $#{income.event.raw + income.event.outstanding + income.addons.raw + income.addons.outstanding}
 
 
                     if checkPermission('contrib') && post_event_surveys.length

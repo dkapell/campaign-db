@@ -327,7 +327,9 @@ block content
                                             thead
                                                 tr
                                                     th Item
-                                                    th All
+                                                    th Price
+                                                    th Quantity
+                                                    th Paid
                                                         i.far.fa-question-circle.ms-1(
                                                             data-bs-title='Total from all attendees marked Paid'
                                                             data-bs-toggle='popover'
@@ -355,28 +357,46 @@ block content
                                             tbody.table-group-divider
                                                 tr
                                                     td Event
+                                                    td $#{income.event.price}
+                                                    td= income.event.count
                                                     td $#{income.event.raw}
                                                     if currentCampaign.stripe_account_ready
                                                         td $#{income.event.orders}
                                                     td $#{income.event.outstanding}
                                                     td $#{income.event.raw + income.event.outstanding}
-                                                tr
-                                                    td Addons
-                                                    td $#{income.addons.raw}
-                                                    if currentCampaign.stripe_account_ready
-                                                        td $#{income.addons.orders}
-                                                    td $#{income.addons.outstanding}
-                                                    td $#{income.addons.raw + income.addons.outstanding}
+                                                each value, name in income.addons.addons
+                                                    tr
+                                                        td Addon: #{name}
+                                                        td $#{value.price}
+                                                        td= value.count
 
+                                                        td $#{value.raw}
+                                                        if currentCampaign.stripe_account_ready
 
+                                                            td $#{value.orders}
+                                                        td $#{value.outstanding}
+                                                        td $#{value.raw + value.outstanding}
                                             tfoot.table-group-divider
                                                 tr
-                                                    th Total
-                                                    th $#{income.event.raw + income.addons.raw}
+                                                    td All Addons
+                                                    td
+                                                    td
+                                                    td $#{income.addons.total.raw}
                                                     if currentCampaign.stripe_account_ready
-                                                        th $#{income.event.orders + income.addons.orders}
-                                                    th $#{income.event.outstanding + income.addons.outstanding}
-                                                    th $#{income.event.raw + income.event.outstanding + income.addons.raw + income.addons.outstanding}
+                                                        td $#{income.addons.total.orders}
+                                                    td $#{income.addons.total.outstanding}
+                                                    td $#{income.addons.total.raw + income.addons.total.outstanding}
+
+
+                                                tr
+                                                    th Total
+                                                    td
+                                                    td
+                                                    th $#{income.event.raw + income.addons.total.raw}
+                                                    if currentCampaign.stripe_account_ready
+                                                        th $#{income.event.orders + income.addons.total.orders}
+                                                    th $#{income.event.outstanding + income.addons.total.outstanding}
+                                                    th $#{income.event.raw + income.event.outstanding + income.addons.total.raw + income.addons.total.outstanding}
 
 
                     if checkPermission('contrib') && post_event_surveys.length

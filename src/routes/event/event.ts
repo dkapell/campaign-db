@@ -71,14 +71,19 @@ async function show(req, res, next){
         if (req.checkPermission('gm')) {
             res.locals.income = {
                 event: {
+                    count: 0,
+                    price: event.cost,
                     raw: 0,
                     orders: 0,
                     outstanding: 0
                 },
                 addons: {
-                    raw: 0,
-                    orders: 0,
-                    outstanding: 0
+                    total: {
+                        raw: 0,
+                        orders: 0,
+                        outstanding: 0
+                    },
+                    addons: {}
                 }
 
             };
@@ -86,22 +91,44 @@ async function show(req, res, next){
                 if (attendance.not_attending){ continue; }
                 if (attendance.paid) {
                     res.locals.income.event.raw += event.cost;
+                    res.locals.income.event.count++;
                     if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)) {
                         res.locals.income.event.orders += event.cost;
                     }
                 } else if (attendance.user.type === 'player') {
                     res.locals.income.event.outstanding += event.cost;
+                    res.locals.income.event.count++;
                 }
+
                 for (const attendance_addon of attendance.addons) {
+                    const addonName = attendance_addon.addon.name;
+                    if (attendance_addon.addon.charge_player || attendance_addon.addon.charge_staff){
+                        if (!_.has(res.locals.income.addons.addons, addonName)){
+                            res.locals.income.addons.addons[addonName] = {
+                                count: 0,
+                                price: attendance_addon.addon.cost,
+                                raw: 0,
+                                orders: 0,
+                                outstanding: 0
+                            };
+                        }
+                    }
                     if (attendance_addon.paid) {
-                        res.locals.income.addons.raw += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.raw += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].raw += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].count++;
                         if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)) {
-                            res.locals.income.addons.orders += attendance_addon.addon.cost;
+                            res.locals.income.addons.total.orders += attendance_addon.addon.cost;
+                            res.locals.income.addons.addons[addonName].orders += attendance_addon.addon.cost;
                         }
                     } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
                         res.locals.income.addons.outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].count++;
                     } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
                         res.locals.income.addons.outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.addons[addonName].count++;
                     }
 
                 }

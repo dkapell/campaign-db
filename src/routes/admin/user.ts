@@ -213,15 +213,13 @@ async function update(req, res){
     try {
         const current = await req.models.user.get(req.campaign.id, id);
 
-        const currentUser = req.session.activeUser;
-
         if (!user.permissions){
             user.permissions = [];
         } else if(!_.isArray(user.permissions)){
             user.permissions = [user.permissions];
         }
 
-        if (! (currentUser.type === 'admin' || current.site_admin)){
+        if (! req.checkPermission('admin')){
             delete user.name;
             delete user.email;
             delete user.type;

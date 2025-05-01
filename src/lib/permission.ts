@@ -51,11 +51,12 @@ function fail(req, res, reason:string, redirect?:string){
             res.redirect('/auth/google');
         }
     } else {
-        if (redirect){
-            req.flash('error', 'You are not allowed to access that resource');
-            res.redirect(redirect);
-        } else {
+        if (req.originalUrl.match(/\/api\//)){
             res.status('403').send('Forbidden');
+
+        } else {
+            req.flash('error', 'You are not allowed to access that resource');
+            res.redirect(redirect ||= '/');
         }
     }
 }

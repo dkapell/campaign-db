@@ -15,7 +15,7 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
         .row
             .col-md-8.skill-name
                 i.me-2= skill.name
-                if skill.count > 1
+                if skill.count > 1 && !skill.usage.display_uses
                     span.me-2 (X#{skill.count})
                 for tag in skill.tags
                     if tag.display_to_pc && tag.on_sheet
@@ -36,7 +36,15 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
 
         .row.skill-summary
             .col
-                p.my-1!=marked.parseInline(skill.summary)
+                p.my-1
+                    if skill.usage.display_uses
+                        strong.skill-usages.me-1
+                            =skill.count * skill.uses
+                            | /
+                            = skill.usage.usage_format
+                            | :
+
+                    !=marked.parseInline(skill.summary)
         if skill.description
             .row.skill-description(style=showDescription?'':'display:none')
                 .col

@@ -28,19 +28,25 @@ if (backto)
 
 .row.my-2
 
-    .col
+    .col-md-6
         label.control-label(for="skill_source_id") Source
         select.form-select.select2(name="skill[source_id]",id="skill_source_id" data-placeholder='Source' required disabled=!checkPermission('gm'))
             option
             for source in skill_sources
                 option(value=source.id selected=Number(skill.source_id)===source.id)= capitalize(source.name)
 
-    .col
+    .col-md-4
         label.control-label(for="skill_usage_id") Usage
         select.form-select.select2(name="skill[usage_id]",id="skill_usage_id" data-placeholder='Usage' disabled=!checkPermission('gm'))
             option
             for usage in skill_usages
-                option(value=usage.id selected=Number(skill.usage_id)===usage.id)= capitalize(usage.name)
+                option(value=usage.id selected=Number(skill.usage_id)===usage.id data-usage=usage)= capitalize(usage.name)
+    .col-md-2#skill-uses-container(style='display:none')
+        label.control-label(for='skill_uses') Uses
+        .input-group
+            input.form-control#skill_uses(type='number' name="skill[uses]" placeholder='Uses' value=skill.uses)
+            .input-group-text /
+                .span#uses-append Ev
 .row.my-2
     .col
         label.control-label(for="skill_tags") Tags

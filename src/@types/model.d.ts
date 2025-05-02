@@ -102,6 +102,7 @@ interface SkillModel extends ModelData{
     status: Record<string, unknown>
     tags: string[]|TagModel[]
     count: number
+    uses?: number
     details?: {
         hide_on_sheet:boolean
         sheet_note:string

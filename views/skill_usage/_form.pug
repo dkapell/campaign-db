@@ -1,15 +1,25 @@
 .row.my-2
     .col
         label.control-label(for="skill_usage_name") Name
-        input.form-control(type="text",placeholder="Name",name="skill_usage[name]",value=skill_usage.name,id='skill_usage_name',required)
+        input.form-control#skill_usage_name(type="text",placeholder="Name",name="skill_usage[name]",value=skill_usage.name,required)
         div.invalid-feedback Please choose a valid name
 
 .row.my-2
     .col
         .form-check.form-switch
-            input.form-check-input(type="checkbox", name="skill_usage[display_name]", id="skill_usage_display_name", checked=skill_usage.display_name)
+            input.form-check-input#skill_usage_display_name(type="checkbox", name="skill_usage[display_name]", checked=skill_usage.display_name)
             label.form-check-label(for="skill_usage_display_name") Display Name to Players in Skill List
+    .col
+        .form-check.form-switch
+            input.form-check-input#skill_usage_display_uses(type="checkbox", name="skill_usage[display_uses]", checked=skill_usage.display_uses)
+            label.form-check-label(for="skill_usage_display_uses") Display Uses (i.e. "N/Event")
 
+.row.my-2
+     .col
+        label.control-label(for="skill_usage_usage_format") Uses Short Name
+        .input-group
+            .input-group-text /
+            input.form-control#skill_usage_usage_format(type="text",placeholder="Format (i.e. Ev)",name="skill_usage[usage_format]",value=skill_usage.usage_format)
 .row.my-2
     .col
         label.control-label(for="skill_usage_description") Description

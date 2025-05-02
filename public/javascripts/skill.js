@@ -773,6 +773,9 @@ function prepSkillForm($form){
         cloneSkill($(this).data('click-id'));
 
     });
+
+    $('#skill_usage_id').on('change', updateSkillUsage).trigger('change');
+
     prepProvides();
 
     $('#skill_requires').on('change', function(e){
@@ -834,6 +837,17 @@ function prepSourceForm($form){
         toggleProvidesFields($(this).closest('.provides-row'));
     });
     prepProvides();
+}
+
+function updateSkillUsage(e){
+    const usage = $('#skill_usage_id').find(":selected").data("usage");
+    if (usage.display_uses){
+        $('#uses-append').text(usage.usage_format);
+        $('#skill-uses-container').show();
+
+    } else {
+        $('#skill-uses-container').hide();
+    }
 }
 
 function toggleProvidesFields($row){

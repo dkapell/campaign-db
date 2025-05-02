@@ -144,6 +144,8 @@ create table skill_usages(
     display_name    boolean default true,
     display_order   int,
     description     text,
+    display_uses    boolean default false,
+    usage_format    varchar(80),
     primary key (id),
     CONSTRAINT skill_usages_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
@@ -202,6 +204,7 @@ create table skills(
     source_id       int not null,
     usage_id        int,
     status_id       int,
+    uses            int not null default 1,
     provides        jsonb,
     requires        jsonb,
     require_num     int,

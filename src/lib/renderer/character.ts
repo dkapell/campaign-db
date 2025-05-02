@@ -328,8 +328,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 continued:true,
                 paragraphGap:3
             });
-            if (skill.count > 1){
-                doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`X${skill.count} `, {continued:true});
+            if (skill.count > 1 && !skill.usage.display_uses){
+                doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`(X${skill.count}) `, {continued:true});
             }
 
             for (const tag of skill.tags as TagModel[]){
@@ -344,6 +344,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
             doc.font('Body Font').fontSize(10*options.bodyScale).text('- ', {continued:true});
 
+            if (skill.usage.display_uses){
+                doc.font('Body Font Bold').fontSize(10*options.bodyScale);
+                doc.text(`${skill.count * skill.uses}/${skill.usage.usage_format}: `, {continued:true});
+            }
             doc.font('Body Font').fontSize(10*options.bodyScale);
             if (skill.details && skill.details.sheet_note){
                 markdown(doc, skill.summary, {continued:true});

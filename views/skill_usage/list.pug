@@ -21,6 +21,7 @@ block content
                     th Order
                     th(data-priority="1") Name
                     th Display to Players?
+                    th Uses
                     th Description
                     if checkPermission('admin')
                         th
@@ -35,6 +36,10 @@ block content
                         td= skill_usage.name
                         td
                             .badge(class=`text-bg-${skill_usage.display_name?'success':'warning'}`)=skill_usage.display_name?'Yes':'No'
+                        td
+                            if skill_usage.display_uses
+                                i N
+                                | /#{skill_usage.usage_format}
                         td= skill_usage.description
                         if checkPermission('admin')
                             td.text-end

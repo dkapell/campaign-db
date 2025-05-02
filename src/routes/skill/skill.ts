@@ -173,7 +173,8 @@ async function showNew(req, res, next){
                 require_num: 0,
                 conflicts: [],
                 required: false,
-                provides: []
+                provides: [],
+                uses: 1
             };
 
             res.locals.breadcrumbs = {

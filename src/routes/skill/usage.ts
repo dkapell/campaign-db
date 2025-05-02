@@ -109,9 +109,12 @@ async function create(req, res){
     const skill_usage = req.body.skill_usage;
 
     req.session.skill_usageData = skill_usage;
-    if (!_.has(skill_usage, 'display_name')){
-        skill_usage.display_name = false;
+    for (const field of ['display_name', 'display_uses']){
+        if (!_.has(skill_usage, field)){
+            skill_usage.field = false;
+        }
     }
+
     skill_usage.campaign_id = req.campaign.id;
     try{
         const skill_usages = await req.models.skill_usage.find({campaign_id:req.campaign.id});
@@ -133,8 +136,10 @@ async function update(req, res){
     const id = req.params.id;
     const skill_usage = req.body.skill_usage;
     req.session.skill_usageData = skill_usage;
-    if (!_.has(skill_usage, 'display_name')){
-        skill_usage.display_name = false;
+    for (const field of ['display_name', 'display_uses']){
+        if (!_.has(skill_usage, field)){
+            skill_usage.field = false;
+        }
     }
 
     try {

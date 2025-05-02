@@ -32,7 +32,8 @@ const tableFields = [
     'require_num',
     'conflicts',
     'updated',
-    'required'
+    'required',
+    'uses'
 ];
 
 async function get(id:number): Promise<SkillModel>{

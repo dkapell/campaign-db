@@ -104,7 +104,11 @@ mixin skillDoc(skill, backto)
                 if checkPermission('contrib') || tag.display_to_pc
                     span.skill-tag.me-2.d-inline [ #{tag.name} ]
 
-    .skill-summary !{marked.parseInline(skill.summary)}
+    .skill-summary
+        if skill.usage && skill.usage.display_uses && skill.uses
+            strong.me-1 #{skill.uses}/#{skill.usage.usage_format}:
+
+        | !{marked.parseInline(skill.summary)}
 
     if (skill.requires && skill.requires.length)
         p.my-1

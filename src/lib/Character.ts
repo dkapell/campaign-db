@@ -447,7 +447,7 @@ class Character{
         return doc;
     }
 
-    async skills(noCache?){
+    async skills(noCache?): Promise<CharacterSkillModel[]> {
         let skills = await cache.check('character-skills-cache', this.id);
         if (!noCache && skills){
             return skills;
@@ -481,7 +481,7 @@ class Character{
         return skills;
     }
 
-    async skill(characterSkillId:number){
+    async skill(characterSkillId:number): Promise<CharacterSkillModel>{
         const skill = await models.character_skill.get(characterSkillId);
         const doc = skill.skill;
         delete doc.notes;
@@ -511,7 +511,7 @@ class Character{
         return gatherProvides([skill], true, null, true);
     }
 
-    async sources(skipSkills?:boolean){
+    async sources(skipSkills?:boolean): Promise<CharacterSourceModel[]>{
         const sources = (await models.character_skill_source.find({character_id:this.id})).sort(skillHelper.sourceSorter);
 
         const allSources = JSON.parse(JSON.stringify(sources));
@@ -560,7 +560,7 @@ class Character{
         return filledSouces.sort(skillHelper.sourceSorter);
     }
 
-    async source(sourceId){
+    async source(sourceId): Promise<CharacterSourceModel>{
         const source = await models.character_skill_source.findOne({character_id: this.id, skill_source_id:sourceId});
         if (!source) { return; }
         const doc = source.skill_source;
@@ -584,9 +584,9 @@ class Character{
             } else {
                 const allSources = await this.sources();
                 for (const checkSource of allSources){
-                    if (_.isArray(checkSource.requires) && _.indexOf(checkSource.requires, source.skill_source.id) !== -1){
+                    if (_.isArray(checkSource.requires) && _.indexOf(checkSource.requires, source.id) !== -1){
                         doc.removable = false;
-                        doc.no_remove_reason = `Prereq for "${checkSource.skill_source.name}"`;
+                        doc.no_remove_reason = `Prereq for "${checkSource.name}"`;
                     }
                 }
             }
@@ -717,7 +717,7 @@ class Character{
         return characterRenderer([await this.data()], options);
     }
 
-    async possibleSkills(all?:boolean){
+    async possibleSkills(all?:boolean): Promise<SkillModel[]>{
         const sources = await this.sources();
         const localSkills = await this.skills();
 
@@ -774,6 +774,10 @@ class Character{
                     continue checkSkills;
                 }
 
+                if (source.max_skills && (_.where(localSkills, {source_id:source.id})).length >= source.max_skills){
+                    continue checkSkills;
+                }
+
                 skill.provides_data = await gatherProvides([skill], true, null, true);
 
                 skills.push(skill);
@@ -784,7 +788,7 @@ class Character{
         return skills.sort(skillHelper.sorter);
 
     }
-    async possibleSources(campaignId:number, all?:boolean){
+    async possibleSources(campaignId:number, all?:boolean): Promise<SourceModel[]>{
         const sources = await models.skill_source.find({campaign_id:campaignId});
         const localSources = await this.sources();
 
@@ -792,16 +796,20 @@ class Character{
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
-        return sources.filter (source => {
+        return async.filter(sources, async (source) => {
             if (_.findWhere(localSources, {id: source.id} )){
                 return false;
             }
             if (!(this.showAll || all || source.display_to_pc)){
                 return false;
             }
+            const sourceType = await models.skill_source_type.get(source.type_id);
+            if (sourceType.max_sources && (_.where(localSources, {type_id: source.type_id})).length >= sourceType.max_sources){
+                return false;
+            }
             if (_.isArray(source.conflicts)){
                 for (const conflict of source.conflicts){
-                    if (_.findWhere(localSources, {id: conflict} )){
+                    if (_.findWhere(localSources, {id: Number(conflict)} )){
                         return false;
                     }
                 }
@@ -809,7 +817,7 @@ class Character{
             if (_.isArray(source.requires)){
                 let found = 0;
                 for (const item of source.requires){
-                    if (_.findWhere(localSources, {id: item} )){
+                    if (_.findWhere(localSources, {id: Number(item)} )){
                         found++;
                     }
                 }

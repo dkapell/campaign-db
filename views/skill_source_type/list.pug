@@ -23,6 +23,7 @@ block content
                     th Order
                     th(data-priority="1") Name
                     th Number Free
+                    th Max Sources
                     th Display on Sheet
                     th Display in Header
                     th
@@ -36,6 +37,11 @@ block content
                         td= skill_source_type.display_order
                         td= capitalize(skill_source_type.name)
                         td= skill_source_type.num_free
+                        td
+                            if skill_source_type.max_sources
+                                = skill_source_type.max_sources
+                            else
+                                i Unlimited
                         td
                             .badge(class=`text-bg-${skill_source_type.display_on_sheet?'success':'warning'}`)=skill_source_type.display_on_sheet?'Yes':'No'
                         td

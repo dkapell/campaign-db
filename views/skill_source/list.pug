@@ -7,7 +7,7 @@ block content
             |  New Source
 
     .row
-        .col-sm-auto
+        .col-xl-auto
             span.me-2.d-block.d-lg-inline.align-middle Toggle Column:
             .btn-group.btn-group-sm.d-inline.align-middle
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
@@ -36,10 +36,13 @@ block content
                     | Conflicts
                 button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
                     i.fas.fa-eye.fa-fw.me-1.col-indicator
+                    | Max Skills
+                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="9")
+                    i.fas.fa-eye.fa-fw.me-1.col-indicator
                     | Actions
 
         if checkPermission('admin')
-            .col-sm.text-end
+            .col-xl.text-end
                 .form-check.form-switch.form-check-reverse
                     input.form-check-input#skillDeleteSwitch(type="checkbox")
                     label.form-check-label(for="skillDeleteSwitch") Show Delete Buttons
@@ -63,6 +66,7 @@ block content
                     th PC Visible
                     th(data-partialmatch="true") Requires
                     th(data-partialmatch="true") Conflicts
+                    th Max Skills
                     th(data-priority="3")
 
 
@@ -103,6 +107,11 @@ block content
                                     data-bs-title='Conflicts'
                                     data-bs-content=skill_source.conflicts.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join('<br> ')
                                 )
+                        td
+                            if skill_source.max_skills
+                                = skill_source.max_skills
+                            else
+                                i Unlimited
 
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn(

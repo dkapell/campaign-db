@@ -2,7 +2,16 @@
 import validator from 'validator';
 import Model from  '../lib/Model';
 
-const tableFields = ['id', 'campaign_id', 'name', 'display_order', 'num_free', 'display_on_sheet', 'display_in_header'];
+const tableFields = [
+    'id',
+    'campaign_id',
+    'name',
+    'display_order',
+    'num_free',
+    'max_sources',
+    'display_on_sheet',
+    'display_in_header'
+];
 
 const SkillSourceType = new Model('skill_source_types', tableFields, {
     order: ['display_order'],

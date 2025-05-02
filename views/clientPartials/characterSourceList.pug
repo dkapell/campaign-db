@@ -28,13 +28,15 @@ table.table.table-sm.table-striped
                             i.ms-2 (#{source.details.skill})
 
                         if source.details.notes
-                            span.badge.text-bg-info.mt-1.float-end notes
+                            span.badge.text-bg-info.mt-1.float-end= notes
                 td
                     if source.character_cost !== source.cost
                         span.text-success(title="Reduced Cost" data-bs-toggle="tooltip")= source.character_cost
                     else
                         = source.character_cost
                 td= source.character_skills.length
+                    if source.max_skills
+                        span.ms-1 of #{source.max_skills}
                 if allowedEdit
                     td.text-end
                         if source.removable

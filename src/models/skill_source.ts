@@ -19,6 +19,7 @@ const tableFields = [
     'provides',
     'requires',
     'require_num',
+    'max_skills',
     'conflicts',
     'required',
     'display_to_pc'

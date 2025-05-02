@@ -104,14 +104,18 @@ interface SkillModel extends ModelData{
     count: number
     uses?: number
     details?: {
-        hide_on_sheet:boolean
-        sheet_note:string
-        notes:string
+        hide_on_sheet?:boolean
+        sheet_note?:string
+        notes?:string
     }
 }
 
 interface CharacterSkillModel extends SkillModel{
     character_skill_id: number
+    character_cost: number
+    character_updated: Date
+    removable: boolean
+    no_remove_reason?: string
 }
 
 interface SourceTypeModel extends ModelData{
@@ -121,9 +125,11 @@ interface SourceTypeModel extends ModelData{
     description: string
     display_order:number
     num_free:number
+    max_sources:number
     display_on_sheet:boolean
     display_in_header:boolean
 }
+
 
 interface SourceModel extends ModelData{
     id: number
@@ -132,14 +138,23 @@ interface SourceModel extends ModelData{
     description: string
     notes: string
     type_id: number
-    cost: string
+    cost: number
     provides: Provides
-    requires: SourceModel[]
+    requires: SourceModel[]|number[]
     require_num: number
-    conflicts: SourceModel[]
+    conflicts: SourceModel[]|number[]
     required: boolean
     display_to_pc: boolean
     type: SourceTypeModel
+    max_skills: number
+}
+
+interface CharacterSourceModel extends SourceModel{
+    character_cost: number
+    character_updated: Date
+    characterSkills: CharacterSkillModel[]
+    removable:boolean
+    no_remove_reason?:string
 }
 
 interface CharacterData extends ModelData {

@@ -840,7 +840,7 @@ function prepSourceForm($form){
 }
 
 function updateSkillUsage(e){
-    const usage = $('#skill_usage_id').find(":selected").data("usage");
+    const usage = $('#skill_usage_id').find(':selected').data('usage');
     if (usage.display_uses){
         $('#uses-append').text(usage.usage_format);
         $('#skill-uses-container').show();

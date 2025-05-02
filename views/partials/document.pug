@@ -2,17 +2,14 @@ mixin sourceDoc(source, backto)
     if source.display_to_pc || checkPermission('contrib')
         .row
             .col
-
                 h1.h3(id=`source-${source.id}`)
                     if checkPermission('gm')
                         a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Source')
                             | #{source.name}
-                        if source.cost
-                            span.ms-2 (#{source.cost} CP)
                     else
                         span.source-name #{source.name}
-                        if source.cost
-                            span.ms-2 (#{source.cost} CP)
+                    if source.cost
+                        span.ms-2 (#{source.cost} CP)
             .col
                 strong.h4.float-end #{capitalize(source.type.name)}
 
@@ -54,6 +51,8 @@ mixin sourceDoc(source, backto)
             .source-notes !{marked.parse(source.notes, {breaks: true})}
 
         h2.h4 Skills
+            if source.max_skills
+                span.ms-2.h5 (Max #{source.max_skills})
         ul.list-unstyled.ms-4
             for skill in source.skills
                 if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
@@ -79,21 +78,16 @@ mixin skillDoc(skill, backto)
             a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
                 if skill.name==='TBD'
                     i.skill-name Unnamed Skill
-                    if (skill.cost)
-                        span.skill-cost.ms-2 (#{skill.cost} cp)
                 else
                     span.skill-name= skill.name
-                    if (skill.cost)
-                        span.skill-cost.ms-2 (#{skill.cost} cp)
         else
             if skill.name==='TBD'
                 i.skill-name Unnamed Skill
-                if (skill.cost)
-                    span.skill-cost.ms-2 (#{skill.cost} cp)
             else
                 span.skill-name= skill.name
-                if (skill.cost)
-                    span.skill-cost.ms-2 (#{skill.cost} cp)
+        if (skill.cost)
+                span.skill-cost.ms-2 (#{skill.cost} cp)
+
     .skill-attributes
         if (skill.usage && skill.usage.display_name)
             span.skill-usage.me-2.d-inline Usage: #{skill.usage.name}
@@ -144,61 +138,6 @@ mixin skillDoc(skill, backto)
     if checkPermission('gm') && skill.notes
         strong.mb-0.mt-1.d-block GM Notes
         .skill-notes !{marked.parse(skill.notes, {breaks: true})}
-
-mixin cardDoc(card)
-    li.media.py-2.border-bottom.border-light.card-entry
-        .media-body.border-start.border-white.px-2
-
-            .row.my-0
-                .col-sm-1
-                    h5= capitalize(card.type)
-                .col
-
-                    .row
-                        .col
-                            strong.me-1 Option One:
-                            |  !{marked.parseInline(card.option_one)}
-                    if (card.option_two)
-                        .row
-                            .col
-                                strong.me-1 Option Two:
-                                |  !{marked.parseInline(card.option_two)}
-                    if !_.isNull(card.ending)
-                        .row.mt-2
-                            .col
-                                if card.ending === 0
-                                    strong The game ends immediately.
-                                else
-                                    strong The game ends after up to #{card.ending} years.
-
-                    if card.min_years
-                        .row.mt-2
-                            .col
-                                if card.min_years !== card.max_years
-                                    strong.me-1 Then:
-                                    |  Between #{card.min_years} and #{card.max_years} years pass
-                                else
-                                    strong.me-1 Then:
-                                    |  #{card.min_years} year#{card.min_years!==1?'s':''} pass#{card.min_years===1?'es':''}
-                if checkPermission('gm')
-                    .float-end.text-end
-                        a.btn.btn-outline-secondary.btn-sm.card-edit-btn.invisible(href=`/card/${card.id}/edit?backto=document` title='Edit Card' data-bs-toggle="tooltip")
-                            i.fas.fa-edit
-
-
-mixin deckCardDoc(card, years)
-    li.media.py-2.border-bottom.border-light
-        .media-body.border-start.border-white.px-2
-            .row.mt-0
-                .col-sm-1
-                    h5= years
-                .col
-
-                    if card.story
-                        | !{marked.parse(card.story)}
-                    else
-                        i TBD
-
 
 append scripts
     script.

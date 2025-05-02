@@ -19,6 +19,12 @@ if (backto)
         .input-group
             input.form-control.text-end.pe-3(type="number",placeholder="Cost",name="skill_source[cost]",value=skill_source.cost,id='skill_source_cost')
             span.input-group-text CP
+    .col
+        label.control-label(for="skill_source_max_skills") Max Skills
+            small.ms-1 (0 or unset for unlimited)
+        input.form-control.text-end.pe-3(type="number",placeholder="Max Skills",name="skill_source[max_skills]",value=skill_source.max_skills,id='skill_source_max_skills')
+
+
 
 .row.my-2
     .col

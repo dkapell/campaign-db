@@ -352,7 +352,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (skill.details && skill.details.sheet_note){
                 markdown(doc, skill.summary, {continued:true});
                 doc.font('Body Font').text('  •  ', {continued:true});
-                doc.font('Header Font Italic').text(skill.details.sheet_note);
+                doc.font('Body Font Italic').text(skill.details.sheet_note);
             } else {
                 markdown(doc, skill.summary);
             }

@@ -164,7 +164,7 @@ class Character{
         console.log(`Cloned character ${this.id}: ${sourceCharacter.name} from ${sourceCharacterId}`);
     }
 
-    async addSource(sourceId:number, skipCost?:boolean){
+    async addSource(sourceId:number, skipCost?:boolean, activeUserId?:number){
         interface sourceDoc {
             character_id: number,
             skill_source_id: number,
@@ -184,8 +184,28 @@ class Character{
             return;
         }
 
-        if (!(this.showAll || skill_source.display_to_pc)){
-            return;
+        const user = await models.user.get(this._data.campaign_id, this._data.user_id);
+        let activeUser = user;
+        if (activeUserId){
+            activeUser = await models.user.get(this._data.campaign_id, activeUserId);
+        }
+
+        if (!this.showAll){
+            let showSource = false;
+            const sourceUser = await models.skill_source_user.findOne({source_id:skill_source.id, user_id:user.id});
+            if (sourceUser){
+                showSource = true;
+            }
+
+            if (skill_source.display_to_pc && activeUser.type === 'player'){
+                showSource = true;
+            }
+            if (skill_source.display_to_staff && activeUser.type !== 'player'){
+                showSource = true;
+            }
+            if (!showSource){
+                return false;
+            }
         }
 
         if (skill_source.type.num_free){
@@ -199,7 +219,6 @@ class Character{
             doc.cost = skill_source.cost;
         }
 
-        const user = await models.user.get(this._data.campaign_id, this._data.user_id);
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
@@ -263,13 +282,34 @@ class Character{
         return this.calculateCP();
     }
 
-    async addSkill(skillId:number, details, skipCost?:boolean){
+    async addSkill(skillId:number, details, skipCost?:boolean, activeUserId?:number){
         const skill = await models.skill.get(skillId);
-        // If the skill isn't PC visibible, don't add it.
-        if (!skill.status.purchasable){
+
+        if (skill.campaign_id !== this._data.campaign_id){
             return;
         }
-        if (skill.campaign_id !== this._data.campaign_id){
+
+        const user = await models.user.get(this._data.campaign_id, this._data.user_id);
+        let activeUser = user;
+        if (activeUserId){
+            activeUser = await models.user.get(this._data.campaign_id, activeUserId);
+        }
+
+        let addableSkill = skill.status.purchasable; // Skill is purchasable normally
+
+        if (!addableSkill){
+            const skillUser = await models.skill_user.findOne({skill_id:skill.id, user_id:user.id});
+            if (skillUser){
+                // Skill is purchasable because of specific user permissions
+                addableSkill = true;
+            }
+            if (activeUser.type.match(/(admin|core staff)/)){
+                // Skill is purchasable because the current user is a GM
+                addableSkill = true;
+            }
+        }
+
+        if (!addableSkill){
             return;
         }
 
@@ -313,7 +353,6 @@ class Character{
             doc.details = JSON.stringify(details);
         }
 
-        const user = await models.user.get(this._data.campaign_id, this._data.user_id);
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
@@ -717,12 +756,13 @@ class Character{
         return characterRenderer([await this.data()], options);
     }
 
-    async possibleSkills(all?:boolean): Promise<SkillModel[]>{
+    async possibleSkills(activeUserId:number): Promise<SkillModel[]>{
         const sources = await this.sources();
         const localSkills = await this.skills();
 
         let skills = [];
         const user = await models.user.get(this._data.campaign_id, this._data.user_id);
+        const activeUser = await models.user.get(this._data.campaign_id, activeUserId);
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
@@ -730,8 +770,30 @@ class Character{
             const sourceSkills = await models.skill.find({source_id: source.id});
             checkSkills: for (const skill of sourceSkills){
                 // Show all skills, if showAll, otherwise show purchasable and visible skills (or purchasable + all)
-                if (!(this.showAll || (skill.status.purchasable && (all || skill.status.display_to_pc)))){
-                    continue checkSkills;
+                if (!this.showAll){
+                    let showSkill = false;
+                    const skillUser = await models.skill_user.findOne({skill_id:skill.id, user_id:user.id});
+                    if (skillUser){
+                        showSkill = true;
+                        skill.unlocked = true;
+                    } else {
+                        if (skill.status.display_to_pc && activeUser.type === 'player'){
+                            showSkill = true;
+                            skill.unlocked = false;
+                        }
+                        if (activeUser.type !== 'player'){
+                            showSkill = true;
+                            skill.unlocked = false;
+                        }
+
+                        if (!skill.status.purchasable) {
+                            showSkill = false;
+                            skill.unlocked = false;
+                        }
+                    }
+                    if (!showSkill){
+                        continue checkSkills;
+                    }
                 }
 
                 const matches = _.where(localSkills,  {name: skill.name});
@@ -788,11 +850,13 @@ class Character{
         return skills.sort(skillHelper.sorter);
 
     }
-    async possibleSources(campaignId:number, all?:boolean): Promise<SourceModel[]>{
-        const sources = await models.skill_source.find({campaign_id:campaignId});
+    async possibleSources(activeUserId:number): Promise<SourceModel[]>{
+        const sources = await models.skill_source.find({campaign_id:this._data.campaign_id});
+
         const localSources = await this.sources();
 
         const user = await models.user.get(this._data.campaign_id, this._data.user_id);
+        const activeUser = await models.user.get(this._data.campaign_id, activeUserId);
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
@@ -800,9 +864,27 @@ class Character{
             if (_.findWhere(localSources, {id: source.id} )){
                 return false;
             }
-            if (!(this.showAll || all || source.display_to_pc)){
-                return false;
+            if (!this.showAll){
+                let showSource = false;
+                const sourceUser = await models.skill_source_user.findOne({source_id:source.id, user_id:user.id});
+                if (sourceUser){
+                    showSource = true;
+                    source.unlocked = true;
+                }
+
+                if (source.display_to_pc && activeUser.type === 'player'){
+                    showSource = true;
+                    source.unlocked = false;
+                }
+                if (source.display_to_staff && activeUser.type !== 'player'){
+                    showSource = true;
+                    source.unlocked = false;
+                }
+                if (!showSource){
+                    return false;
+                }
             }
+
             const sourceType = await models.skill_source_type.get(source.type_id);
             if (sourceType.max_sources && (_.where(localSources, {type_id: source.type_id})).length >= sourceType.max_sources){
                 return false;

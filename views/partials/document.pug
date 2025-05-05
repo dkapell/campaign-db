@@ -1,8 +1,11 @@
 mixin sourceDoc(source, backto)
-    if source.display_to_pc || checkPermission('contrib')
+    - const showSource = sourceCheck(source)
+
+    if showSource.show
         .row
             .col
                 h1.h3(id=`source-${source.id}`)
+
                     if checkPermission('gm')
                         a.text-reset.source-name(href=`/skill_source/${source.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Source')
                             | #{source.name}
@@ -10,6 +13,8 @@ mixin sourceDoc(source, backto)
                         span.source-name #{source.name}
                     if source.cost
                         span.ms-2 (#{source.cost} CP)
+                    if showSource.unlocked
+                        i.fas.fa-unlock.ms-2
             .col
                 strong.h4.float-end #{capitalize(source.type.name)}
 
@@ -55,11 +60,24 @@ mixin sourceDoc(source, backto)
                 span.ms-2.h5 (Max #{source.max_skills})
         ul.list-unstyled.ms-4
             for skill in source.skills
-                if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
-
+                - const showSkill = skillCheck(skill)
+                if showSkill.show
                     li
                         a.text-body.skill-link(href=`#skill-${skill.id}`)
+                            if showSkill.unlocked
+                                i.fas.fa-unlock.me-1
                             strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} cp)
+                            if !(skill.status.complete && skill.status.display_to_pc && skill.status.purchasable)
+                                if checkPermission('contrib')
+                                    span.badge.ms-2(
+                                        class=`text-bg-${skill.status?skill.status.class:'danger'}`
+                                        title=skill.status?skill.status.description:''
+                                        data-bs-toggle="tooltip"
+                                    )= skill.status?skill.status.name:'Unknown'
+                                else
+                                    span.badge.ms-2(
+                                        class=`text-bg-${skill.status?skill.status.class:'danger'}`
+                                    )= skill.status?skill.status.name:'Unknown'
 
         +skillList(source.skills, backto)
 
@@ -67,13 +85,17 @@ mixin sourceDoc(source, backto)
 
 mixin skillList(skills, backto)
     for skill in skills
-        if checkPermission('contrib') || (checkPermission('player') && skill.status.display_to_pc)
+        - const showSkill = skillCheck(skill)
+        if showSkill.show
+            - skill.unlocked = showSkill.unlocked
             +skillDoc(skill, backto)
 
 
 
 mixin skillDoc(skill, backto)
     h2.h5(id=`skill-${skill.id}`)
+        if skill.unlocked
+            i.fas.fa-unlock.me-1
         if checkPermission('gm')
             a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=${backto}` data-bs-toggle='tooltip' title='Edit Skill')
                 if skill.name==='TBD'
@@ -87,6 +109,18 @@ mixin skillDoc(skill, backto)
                 span.skill-name= skill.name
         if (skill.cost)
                 span.skill-cost.ms-2 (#{skill.cost} cp)
+        if !(skill.status.complete && skill.status.display_to_pc && skill.status.purchasable)
+            if checkPermission('contrib')
+                span.badge.float-end(
+                    class=`text-bg-${skill.status?skill.status.class:'danger'}`
+                    title=skill.status?skill.status.description:''
+                    data-bs-toggle="tooltip"
+                )= skill.status?skill.status.name:'Unknown'
+            else
+                span.badge.float-end(
+                    class=`text-bg-${skill.status?skill.status.class:'danger'}`
+                )= skill.status?skill.status.name:'Unknown'
+
 
     .skill-attributes
         if (skill.usage && skill.usage.display_name)

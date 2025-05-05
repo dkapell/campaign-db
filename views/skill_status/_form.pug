@@ -17,6 +17,11 @@
 .row.my-2
     .col
         .form-check.form-switch
+            input.form-check-input(type="checkbox", name="skill_status[complete]", id="skill_status_complete", checked=skill_status.complete)
+            label.form-check-label(for="skill_status_complete") Complete / Ready to use
+.row.my-2
+    .col
+        .form-check.form-switch
             input.form-check-input(type="checkbox", name="skill_status[display_to_pc]", id="skill_status_display_to_pc", checked=skill_status.display_to_pc)
             label.form-check-label(for="skill_status_display_to_pc") Display to Players in Skill List
     .col

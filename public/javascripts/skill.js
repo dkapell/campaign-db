@@ -546,7 +546,6 @@ function updateTable(data){
     rowData[column++] = getButtons(skill);
 
     let tableRow = null;
-    console.log(rowData);
     if (data.update){
         tableRow = $('.skill-table').find(`tr[data-click-id="${skill.id}"]`);
         const current = $('.skill-table').DataTable().row( tableRow ).data();
@@ -654,6 +653,10 @@ function getStatus(skill){
         .addClass('skill-status')
         .addClass(`text-bg-${skill.status.class}`)
         .text(capitalize(skill.status.name));
+
+    if (skill.users.length && (!skill.status.display_to_pc || !skill.status.purchasable) && skill.status.complete){
+        $badge.text(`${capitalize(skill.status.name)} (+${skill.users.length})`);
+    }
     return $badge[0].outerHTML;
 }
 
@@ -775,7 +778,7 @@ function prepSkillForm($form){
     });
 
     $('#skill_usage_id').on('change', updateSkillUsage).trigger('change');
-
+    $('#skill_status_id').on('change', updateSkillStatus).trigger('change');
     prepProvides();
 
     $('#skill_requires').on('change', function(e){
@@ -841,7 +844,7 @@ function prepSourceForm($form){
 
 function updateSkillUsage(e){
     const usage = $('#skill_usage_id').find(':selected').data('usage');
-    if (usage.display_uses){
+    if (usage && usage.display_uses){
         $('#uses-append').text(usage.usage_format);
         $('#skill-uses-container').show();
 
@@ -849,6 +852,17 @@ function updateSkillUsage(e){
         $('#skill-uses-container').hide();
     }
 }
+
+function updateSkillStatus(e){
+    const status = $('#skill_status_id').find(':selected').data('status');
+    if (status.display_to_pc && status.purchasable || !status.complete){
+        $('#skill-available').hide();
+
+    } else {
+        $('#skill-available').show();
+    }
+}
+
 
 function toggleProvidesFields($row){
     const type = $row.find('.skill-provides-type').val();

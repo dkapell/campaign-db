@@ -12,6 +12,8 @@ block content
                     .badge.text-bg-warning.ms-2 Required
                 if (!skill_source.display_to_pc)
                     .badge.text-bg-danger.ms-2 Hidden
+                if (!skill_source.display_to_staff)
+                    .badge.text-bg-danger.ms-2 Hidden to Staff
 
 
     .row.my-3
@@ -26,15 +28,18 @@ block content
                 |  View as Document
 
     dl.row.my-2
-        if (skill_source.type)
+        if skill_source.type
             dt.col-sm-2 Type
             dd.col-sm-10=capitalize(skill_source.type.name)
 
-        if (skill_source.cost)
+        if skill_source.cost
             dt.col-sm-2 Cost
             dd.col-sm-10 #{skill_source.cost} CP
+        if skill_source.users.length
+            dt.col-sm-2 Available To
+            dd.col-sm-10= (_.pluck(skill_source.users, 'name')).join(', ')
 
-        if (skill_source.requires && skill_source.requires.length)
+        if skill_source.requires && skill_source.requires.length
             dt.col-sm-2 Requires #{skill_source.require_num} of
             dd.col-sm-10
                 if _.uniq(_.pluck(skill_source.requires, 'name')).length === 1
@@ -73,6 +78,8 @@ block content
         .col
 
             h4 Skills
+                if skill_source.max_skills
+                    span.h5.ms-2 (#{skill_source.max_skills} Maximum)
             if checkPermission('gm')
                 .row.my-3
                     .col

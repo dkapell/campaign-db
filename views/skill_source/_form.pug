@@ -34,6 +34,20 @@ if (backto)
     .col
         +markdownEditor('Notes (GM Only)', 'skill_source_notes', 'skill_source[notes]', 5, 80, skill_source.notes)
 
+.row.my-2
+    .col
+        label.control-label(for='skill_source_users') Available to
+        select.form-select.complex-select2#skill_source_users(name="skill_source[users]" data-placeholder='Select User' multiple)
+            option
+            for user in users
+                option(
+                    value=user.id
+                    selected=_.indexOf(skill_source.users, user.id) !== -1
+                    title=user.name
+                    data-text=`<strong>${user.name}</strong> (<i>${user.typeForDisplay}</i>)`
+                    data-html=`<span class='float-end badge text-bg-info'>${user.typeForDisplay}</span><strong>${user.name}</strong>`
+                ) #{user.name} (#{user.typeForDisplay})
+
 
 fieldset.mb-2.border.p-2.rounded
     label.h5.w-100.mb-1#source-builder-heading(role='button' for="skill-config", data-bs-toggle="collapse" data-bs-target="#source-config" aria-expanded="false") Character Builder Configuration
@@ -48,10 +62,17 @@ fieldset.mb-2.border.p-2.rounded
                 .form-check.form-switch
                     input.form-check-input(type="checkbox", name="skill_source[required]", id="skill_source_required", checked=skill_source.required)
                     label.form-check-label(for="skill_source_required") Required
+                    .form-text Automatically add this source to characters
             .col
                 .form-check.form-switch
                     input.form-check-input(type="checkbox", name="skill_source[display_to_pc]", id="skill_source_display_to_pc", checked=skill_source.display_to_pc)
                     label.form-check-label(for="skill_source_display_to_pc") Display to PCs
+                    .form-text Make available to PCs in the skills list and character builder
+            .col
+                .form-check.form-switch
+                    input.form-check-input(type="checkbox", name="skill_source[display_to_staff]", id="skill_source_display_to_staff", checked=skill_source.display_to_staff)
+                    label.form-check-label(for="skill_source_display_to_staff") Display to Staff
+                    .form-text Make available to non-GM Staff in the character builder
         .row.my-2
             .col-md-9
                 label.control-label(for="skill_source_requires") Prereqs
@@ -70,7 +91,6 @@ fieldset.mb-2.border.p-2.rounded
                     for source in skill_sources
                         if source.id !== skill_source.id
                             option(value=source.id selected=_.indexOf(skill_source.conflicts, source.id)!== -1) #{capitalize(source.type.name)}: #{source.name}
-
         #provides-list
                 +providesHeader()
                 - let i = 0;

@@ -90,8 +90,10 @@ router.get('/player', permission('player'),
     function togglePlayerMode(req, res){
         if (req.session.player_mode){
             delete req.session.player_mode;
+            req.session.activeUser.type = req.user.type;
         } else {
             req.session.player_mode = true;
+            req.session.activeUser.type = 'player';
         }
         res.redirect('/');
     });

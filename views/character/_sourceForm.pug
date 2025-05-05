@@ -6,12 +6,13 @@ if (backto)
         select.form-select.complex-select2#character_skill_source_source_id(name="character_skill_source[source_id]" data-placeholder='Select Header' required)
             option
             for source in possibleSources
+                - const unlocked = '<i class="fas fa-unlock me-1"></i>';
                 option(
                     value=source.id
                     selected=Number(character_skill_source.source_id)===source.id data-source=source
                     title=source.name
                     data-text=`<strong>${capitalize(source.type.name)}</strong>: ${source.name}`
-                    data-html=`<div class="float-end">${source.cost} CP</div><div><strong>${capitalize(source.type.name)}</strong>: ${source.name}</div>`
+                    data-html=`<div class="float-end">${source.cost} CP</div><div>${source.unlocked?unlocked:''}<strong>${capitalize(source.type.name)}</strong>: ${source.name}</div>`
                 ) #{capitalize(source.type.name)}: #{source.name}: #{source.cost} CP
 
 

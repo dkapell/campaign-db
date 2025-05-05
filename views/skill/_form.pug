@@ -14,6 +14,7 @@ if (backto)
                     value=status.id
                     selected=Number(skill.status_id)===status.id
                     title=status.name
+                    data-status=status
                     data-text= `<div class="badge text-bg-${status.class} skill-status badge-pill">${status.name}</div>`
                     data-html=`<div class="text-${status.class}">${status.name}</div><div class="ms-2">${status.description}</div>`
                 )= capitalize(status.name)
@@ -75,6 +76,20 @@ if (backto)
 .row.my-2
     .col
         +markdownEditor('Notes (GM Only)', 'skill_notes', 'skill[notes]', 5, 80, skill.notes)
+
+.row.my-2#skill-available(style="display:none")
+    .col
+        label.control-label(for='skill_users') Available to
+        select.form-select.complex-select2#skill_users(name="skill[users]" data-placeholder='Select User' multiple)
+            option
+            for user in users
+                option(
+                    value=user.id
+                    selected=_.indexOf(skill.users, user.id) !== -1
+                    title=user.name
+                    data-text=`<strong>${user.name}</strong> (<i>${user.typeForDisplay}</i>)`
+                    data-html=`<span class='float-end badge text-bg-info'>${user.typeForDisplay}</span><strong>${user.name}</strong>`
+                ) #{user.name} (#{user.typeForDisplay})
 
 if checkPermission('gm')
     fieldset.mb-2.border.p-2.rounded

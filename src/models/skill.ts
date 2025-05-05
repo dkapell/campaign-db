@@ -9,12 +9,14 @@ import skill_sourceModel from './skill_source';
 import skill_usageModel from './skill_usage';
 import skill_tagModel from './skill_tag';
 import skill_statusModel from './skill_status';
+import skill_userModel from './skill_user';
 
 const models = {
     source: skill_sourceModel,
     usage: skill_usageModel,
     tag: skill_tagModel,
-    status: skill_statusModel
+    status: skill_statusModel,
+    skill_user: skill_userModel
 };
 
 const tableFields = [
@@ -139,7 +141,7 @@ async function search(conditions:Conditions): Promise<SkillModel[]>{
     });
 }
 
-async function create(data:ModelData): Promise<number> {
+async function create(data:SkillModel): Promise<number> {
     if (! validate(data)){
         throw new Error('Invalid Data');
     }
@@ -168,10 +170,13 @@ async function create(data:ModelData): Promise<number> {
     if (_.has(data, 'tags')){
         await saveTags(id, data.tags);
     }
+    if (_.has(data, 'users')){
+        await saveUsers(id, data.users);
+    }
     return result.rows[0].id;
 }
 
-async function update(id:number, data:ModelData):Promise<void>{
+async function update(id:number, data:SkillModel):Promise<void>{
     if (! validate(data)){
         throw new Error('Invalid Data');
     }
@@ -199,6 +204,10 @@ async function update(id:number, data:ModelData):Promise<void>{
         await saveTags(id, data.tags);
     }
 
+    if (_.has(data, 'users')){
+        await saveUsers(id, data.users);
+    }
+
     await database.query(query, queryData);
     await cache.invalidate('skill', id);
 }
@@ -208,8 +217,6 @@ async function remove(id): Promise<void>{
     await database.query(query, [id]);
     await cache.invalidate('skill', id);
 }
-
-
 
 function validate(data){
     if (! validator.isLength(data.name, {min:2, max:512})){
@@ -308,6 +315,29 @@ async function saveTags(skill_id, tags){
     for (const row of current.rows){
         if(_.indexOf(newTags, row.tag_id) === -1){
             await database.query(deleteQuery, [skill_id, row.tag_id]);
+        }
+    }
+}
+
+async function saveUsers(skillId:number, users:number[]|string[]|string|null){
+    if (typeof users === 'string'){
+        users = [users];
+    }
+    if (_.isNull(users)){
+        users = [];
+    }
+    users = users.map(userId => { return Number(userId)});
+
+    const current = _.pluck(await models.skill_user.find({skill_id:skillId}), 'user_id');
+
+    for (const userId of users){
+        if (_.indexOf(current, userId) === -1){
+            await models.skill_user.create({skill_id:skillId, user_id:userId});
+        }
+    }
+    for (const userId of current){
+        if (_.indexOf(users, Number(userId)) === -1){
+            await models.skill_user.delete({skill_id:skillId, user_id:Number(userId)});
         }
     }
 }

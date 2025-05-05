@@ -56,7 +56,8 @@ async function showNew(req, res, next){
             class: 'secondary',
             advanceable: true,
             purchasable: false,
-            reviewable: false
+            reviewable: false,
+            ready: false,
         };
         res.locals.breadcrumbs = {
             path: [
@@ -113,7 +114,7 @@ async function create(req, res){
     const skill_status = req.body.skill_status;
 
     req.session.skill_statusData = skill_status;
-    for (const field of ['display_to_pc', 'advanceable', 'purchasable', 'reviewable']){
+    for (const field of ['display_to_pc', 'advanceable', 'purchasable', 'reviewable', 'complete']){
         if (!_.has(skill_status, field)){
             skill_status[field] = false;
         }
@@ -140,7 +141,7 @@ async function update(req, res){
     const id = req.params.id;
     const skill_status = req.body.skill_status;
     req.session.skill_statusData = skill_status;
-    for (const field of ['display_to_pc', 'advanceable', 'purchasable', 'reviewable']){
+    for (const field of ['display_to_pc', 'advanceable', 'purchasable', 'reviewable', 'complete']){
         if (!_.has(skill_status, field)){
             skill_status[field] = false;
         }

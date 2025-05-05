@@ -4,6 +4,7 @@ import _ from 'underscore';
 import async from 'async';
 import permission from '../../lib/permission';
 import skillHelper from '../../lib/skillHelper';
+import campaignHelper from '../../lib/campaignHelper';
 import moment from 'moment';
 
 /* GET skills listing. */
@@ -22,6 +23,10 @@ async function list(req, res, next){
 
                 skill.approvals = reviews.filter(review => {return review.created > skill.updated;}).length;
             }
+            const skillUsers = await req.models.skill_user.find({skill_id: skill.id});
+            skill.users =  await async.map(skillUsers, async (skillUser) => {
+                return req.models.user.get(req.campaign.id, skillUser.user_id);
+            });
         });
         if (req.query.export){
             let forPlayers = false;
@@ -64,6 +69,8 @@ async function listDoc(req, res, next){
         res.locals.sources = (await async.map(sources, async (source) => {
             source.skills = await req.models.skill.find({source_id:source.id});
             source.skills = source.skills.sort(skillHelper.sorter);
+            source.users = _.pluck(await req.models.skill_source_user.find({source_id: source.id}), 'user_id');
+
             source.skills = await async.map(source.skills, async (skill) => {
                 skill.requires = (await async.map(skill.requires, async (requirement) => {
                     return req.models.skill.get(requirement);
@@ -75,6 +82,7 @@ async function listDoc(req, res, next){
                 })).filter((item) => {
                     return item;
                 });
+                skill.users = _.pluck(await req.models.skill_user.find({skill_id: skill.id}), 'user_id');
                 return skill;
             });
 
@@ -90,6 +98,47 @@ async function listDoc(req, res, next){
             });
             return source;
         })).sort(skillHelper.sourceSorter);
+
+        res.locals.sourceCheck = function(source){
+            let showSource = false;
+            let unlocked = false;
+            if (_.indexOf(source.users, req.session.activeUser.id) !== -1){
+                showSource = true;
+                unlocked = true;
+            }
+            if (source.display_to_pc && (req.session.activeUser.type === 'player' || req.session.player_mode)){
+                showSource = true;
+                unlocked = false;
+            }
+            if (source.display_to_staff && req.checkPermission('event')){
+                showSource = true;
+                unlocked = false;
+            }
+            if (req.checkPermission('gm')){
+                showSource = true;
+                unlocked = false;
+            }
+            return {show: showSource, unlocked:unlocked}
+        }
+
+        res.locals.skillCheck = function(skill){
+            let showSkill = false;
+            let unlocked = false;
+            if (_.indexOf(skill.users, req.session.activeUser.id) !== -1){
+                showSkill = true;
+                unlocked = true;
+            }
+            if (skill.status.display_to_pc && req.checkPermission('player')){
+                showSkill = true;
+                unlocked = false;
+            }
+            if (req.checkPermission('contrib')){
+                showSkill = true;
+                unlocked = false;
+            }
+            return {show: showSkill, unlocked:unlocked}
+        }
+
         res.locals.title += ' - Skill List';
         res.render('skill/document');
     } catch (err){
@@ -122,6 +171,12 @@ async function show(req, res, next){
             return item;
         });
         skill.updatedFormatted = moment(skill.updated).format('lll');
+
+        const users = await req.models.skill_user.find({skill_id: id});
+        skill.users = await async.map(users, async (sourceUser) => {
+            return req.models.user.get(req.campaign.id, sourceUser.user_id);
+        });
+
         res.locals.skill = skill;
 
         const audits = await req.models.audit.find({object_type: 'skill', object_id: id});
@@ -194,6 +249,9 @@ async function showNew(req, res, next){
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
         res.locals.providesTypes = skillHelper.getProvidesTypes('skill');
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
+        }).sort(campaignHelper.userSorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
@@ -221,7 +279,10 @@ async function showNewApi(req, res, next){
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
             providesTypes: skillHelper.getProvidesTypes('skill'),
             skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter),
-            skill:null
+            skill:null,
+            users: (await req.models.user.find(req.campaign.id)).filter(user => {
+                return user.type !== 'none';
+            }).sort(campaignHelper.userSorter)
         };
 
         if (req.query.clone){
@@ -249,7 +310,8 @@ async function showNewApi(req, res, next){
                 require_num: 0,
                 conflicts: [],
                 required: false,
-                provides: []
+                provides: [],
+                uses: 1
             };
         }
         if (_.has(req.session, 'skillData')){
@@ -271,6 +333,7 @@ async function showEdit(req, res, next){
         if(!skill || skill.campaign_id !== req.campaign.id){
             throw new Error('Invalid Skill');
         }
+        skill.users = _.pluck(await req.models.skill_user.find({skill_id: id}), 'user_id');
         res.locals.skill = skill;
         if (_.has(req.session, 'skillData')){
             res.locals.skill = req.session.skillData;
@@ -283,6 +346,9 @@ async function showEdit(req, res, next){
         res.locals.skill_statuses = await req.models.skill_status.find({campaign_id: req.campaign.id});
         res.locals.providesTypes = skillHelper.getProvidesTypes('skill');
         res.locals.skills = (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter);
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
+        }).sort(campaignHelper.userSorter);
 
         if (req.query.backto && ['list', 'source', 'skilldoc', 'sourcedoc', 'review', 'validate'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
@@ -310,6 +376,7 @@ async function showEditApi(req, res, next){
         if(!skill || skill.campaign_id !== req.campaign.id){
             throw new Error('Invalid Skill');
         }
+        skill.users = _.pluck(await req.models.skill_user.find({skill_id: id}), 'user_id');
         const doc = {
             csrfToken: req.csrfToken(),
             skill: skill,
@@ -318,8 +385,12 @@ async function showEditApi(req, res, next){
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
             skill_statuses: await req.models.skill_status.find({campaign_id: req.campaign.id}),
             providesTypes: skillHelper.getProvidesTypes('skill'),
-            skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter)
+            skills: (await req.models.skill.find({campaign_id: req.campaign.id})).sort(skillHelper.sorter),
+            users: (await req.models.user.find(req.campaign.id)).filter(user => {
+                return user.type !== 'none';
+            }).sort(campaignHelper.userSorter)
         };
+
         if (_.has(req.session, 'skillData')){
             doc.skill = req.session.skillData;
             delete req.session.skillData;
@@ -343,6 +414,10 @@ async function create(req, res){
     }
     if (skill.provides && _.isString(skill.provides)){
         skill.provides = [skill.provides];
+    }
+
+    if (!_.has(skill, 'users')){
+        skill.users = [];
     }
 
     skill.provides = skillHelper.parseProvides(skill.provides);
@@ -392,6 +467,10 @@ async function create(req, res){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
+            const skillUsers = await req.models.skill_user.find({skill_id: id});
+            created.users =  await async.map(skillUsers, async (skillUser) => {
+                return req.models.user.get(req.campaign.id, skillUser.user_id);
+            });
             return res.json({success: true, update:false, skill: created, skills:skills});
         }
         req.flash('success', 'Created Skill ' + skill.name);
@@ -435,6 +514,10 @@ async function update(req, res){
         skill.provides = [skill.provides];
     }
 
+    if (!_.has(skill, 'users')){
+        skill.users = [];
+    }
+
     skill.provides = skillHelper.parseProvides(skill.provides);
 
     skill.conflicts = skill.conflicts?JSON.stringify(skill.conflicts.map(e => {return Number(e);})):[];
@@ -454,6 +537,11 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+
+        if (!_.has(skill, 'users')){
+           skill.users = current.users;
+        }
+
         if (!req.checkPermission('gm')){
             for (const field in current){
                 if (field !== 'notes'){
@@ -497,6 +585,10 @@ async function update(req, res){
                     skills.push(await req.models.skill.get(skillId));
                 }
             }
+            const skillUsers = await req.models.skill_user.find({skill_id: id});
+            updated.users =  await async.map(skillUsers, async (skillUser) => {
+                return req.models.user.get(req.campaign.id, skillUser.user_id);
+            });
             return res.json({success: true, update:true, skill: updated, skills:skills});
         }
 

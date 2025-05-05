@@ -3,6 +3,8 @@
 
 $(function(){
     $('.skill-link').click(scrollToItem);
+    $('[data-bs-toggle="tooltip"]').tooltip();
+
 });
 
 function scrollToItem(){

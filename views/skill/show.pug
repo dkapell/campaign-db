@@ -46,6 +46,11 @@ block content
             else
                 i Unset
 
+        if skill.users.length && (!skill.status.display_to_pc || !skill.status.purchasable) && skill.status.complete
+            dt.col-sm-3 Available To
+            dd.col-sm-9= (_.pluck(skill.users, 'name')).join(', ')
+
+
         if skill.requires && skill.requires.length
             dt.col-sm-3 Requires #{skill.require_num} of
             dd.col-sm-9

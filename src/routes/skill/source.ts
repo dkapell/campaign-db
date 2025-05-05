@@ -4,6 +4,7 @@ import async from 'async';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 import skillHelper from '../../lib/skillHelper';
+import campaignHelper from '../../lib/campaignHelper';
 
 /* GET skill_sources listing. */
 async function list(req, res, next){
@@ -16,8 +17,16 @@ async function list(req, res, next){
     };
     try {
         const skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
+
         res.locals.skill_sources = await async.map ( skill_sources, async (source) => {
             source.skills = await req.models.skill.find({source_id:source.id}, {skipRelations:true});
+            const sourceUsers = await req.models.skill_source_user.find({source_id: source.id});
+            const users =  await async.map(sourceUsers, async (sourceUser) => {
+                return req.models.user.get(req.campaign.id, sourceUser.user_id);
+            });
+            source.players = users.filter(user => { return user.type === 'player' });
+            source.staff = users.filter(user => { return user.type !== 'player' });
+
             return source;
         });
         res.locals.title += ' - Skill Sources';
@@ -35,6 +44,12 @@ async function show(req, res, next){
             throw new Error('Invalid Skill Source');
         }
         const skills: SkillModel[] = await req.models.skill.find({source_id:id});
+
+        const users = await req.models.skill_source_user.find({source_id: id});
+        skill_source.users = await async.map(users, async (sourceUser) => {
+            return req.models.user.get(req.campaign.id, sourceUser.user_id);
+        });
+
         await async.each(skills, async(skill: SkillModel) => {
             if (skill.status.reviewable){
                 const reviews = await req.models.skill_review.find({skill_id:skill.id, approved:true});
@@ -47,6 +62,10 @@ async function show(req, res, next){
             if (skill.conflicts && _.isArray(skill.conflicts)){
                 skill.conflicts = await async.map(skill.conflicts, async(skillId) => { return req.models.skill.get(skillId); });
             }
+            const skillUsers = await req.models.skill_user.find({skill_id: skill.id});
+            skill.users =  await async.map(skillUsers, async (skillUser) => {
+                return req.models.user.get(req.campaign.id, skillUser.user_id);
+            });
         });
         if (req.query.export){
             let forPlayers = false;
@@ -138,10 +157,12 @@ async function showNew(req, res, next){
             cost: 0,
             required: false,
             display_to_pc: false,
+            display_to_staff: true,
             requires: [],
             require_num: 1,
             conflicts: [],
-            provides: []
+            provides: [],
+            users: []
         };
         res.locals.breadcrumbs = {
             path: [
@@ -156,6 +177,10 @@ async function showNew(req, res, next){
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.providesTypes = skillHelper.getProvidesTypes('source');
+
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
+        }).sort(campaignHelper.userSorter);
 
         if (_.has(req.session, 'skill_sourceData')){
             res.locals.skill_source = req.session.skill_sourceData;
@@ -183,6 +208,8 @@ async function showEdit(req, res, next){
             throw new Error('Invalid Skill Source');
         }
 
+        skill_source.users = _.pluck(await req.models.skill_source_user.find({source_id: id}), 'user_id');
+
         res.locals.skill_source = skill_source;
         if (_.has(req.session, 'skill_sourceData')){
             res.locals.skill_source = req.session.skill_sourceData;
@@ -191,6 +218,10 @@ async function showEdit(req, res, next){
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.providesTypes = skillHelper.getProvidesTypes('source');
+
+        res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
+            return user.type !== 'none';
+        }).sort(campaignHelper.userSorter);
 
         res.locals.breadcrumbs = {
             path: [
@@ -216,11 +247,18 @@ async function create(req, res){
     const skill_source = req.body.skill_source;
 
     req.session.skill_sourceData = skill_source;
-    if (!_.has(skill_source, 'required')){
-        skill_source.required = false;
+    for (const field of ['required', 'display_to_pc', 'display_to_staff']){
+        if (!_.has(skill_source, field)){
+            skill_source[field] = false;
+        }
     }
-    if (!_.has(skill_source, 'display_to_pc')){
-        skill_source.display_to_pc = false;
+
+    if (skill_source.max_skills === ''){
+        skill_source.max_skills = null;
+    }
+
+    if (!_.has(skill_source, 'users')){
+        skill_source.users = [];
     }
 
     if (skill_source.conflicts && _.isString(skill_source.conflicts)){
@@ -274,11 +312,18 @@ async function update(req, res){
     const id = req.params.id;
     const skill_source = req.body.skill_source;
     req.session.skill_sourceData = skill_source;
-    if (!_.has(skill_source, 'required')){
-        skill_source.required = false;
+    for (const field of ['required', 'display_to_pc', 'display_to_staff']){
+        if (!_.has(skill_source, field)){
+            skill_source[field] = false;
+        }
     }
-    if (!_.has(skill_source, 'display_to_pc')){
-        skill_source.display_to_pc = false;
+
+    if (skill_source.max_skills === ''){
+        skill_source.max_skills = null;
+    }
+
+    if (!_.has(skill_source, 'users')){
+        skill_source.users = [];
     }
 
     if (skill_source.conflicts && _.isString(skill_source.conflicts)){

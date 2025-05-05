@@ -103,6 +103,7 @@ interface SkillModel extends ModelData{
     tags: string[]|TagModel[]
     count: number
     uses?: number
+    users?: number[]|string|string[]
     details?: {
         hide_on_sheet?:boolean
         sheet_note?:string
@@ -147,6 +148,7 @@ interface SourceModel extends ModelData{
     display_to_pc: boolean
     type: SourceTypeModel
     max_skills: number
+    users?: number[]|string|string[]
 }
 
 interface CharacterSourceModel extends SourceModel{

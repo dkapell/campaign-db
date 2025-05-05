@@ -7,14 +7,18 @@ block content
             h1.h3 Headers
             ul.list-unstyled.section-nav.sticky-top(style="top:72px")
                 for source in sources
-                    if source.display_to_pc || checkPermission('contrib')
+                    - const showSource = sourceCheck(source)
+                    if showSource.show
                         if source.type.name !== currentType
                             li.fw-bold= capitalize(source.type.name)
                                 if source.type.max_sources
                                     span.fw-normal.ms-1 (#{source.type.max_sources} Max)
                             - currentType= source.type.name
                         li
-                            a.ms-2.skill-link(href=`#source-${source.id}`)= source.name
+                            a.ms-2.skill-link(href=`#source-${source.id}`)
+                                = source.name
+                                if showSource.unlocked
+                                    i.fas.fa-unlock.ms-2
 
 
         .col.skillDoc

@@ -130,6 +130,7 @@ create table skill_sources(
     conflicts       jsonb,
     required        boolean default false,
     display_to_pc   boolean default false,
+    display_to_staff boolean default true,
     primary key (id),
     CONSTRAINT type_fk FOREIGN KEY (type_id)
         REFERENCES "skill_source_types" (id) MATCH SIMPLE
@@ -188,6 +189,7 @@ create table skill_statuses(
     advanceable     boolean default true,
     purchasable     boolean default false,
     reviewable      boolean default false,
+    complete        boolean default false,
     class           varchar(20) default 'secondary',
     primary key (id),
     CONSTRAINT skill_statuses_campaign_fk FOREIGN KEY (campaign_id)
@@ -907,3 +909,28 @@ create table orders_items(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create table skill_sources_users(
+    user_id int not null,
+    source_id int not null,
+    created timestamp with time zone default now(),
+    primary key (source_id, user_id),
+    CONSTRAINT source_fk FOREIGN KEY (source_id)
+        REFERENCES "skill_sources" (id) MATCH SIMPLE
+        on update no action on delete cascade,
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        on update no action on delete cascade
+);
+
+create table skills_users(
+    user_id int not null,
+    skill_id int not null,
+    created timestamp with time zone default now(),
+    primary key (skill_id, user_id),
+    CONSTRAINT skill_fk FOREIGN KEY (skill_id)
+        REFERENCES "skills" (id) MATCH SIMPLE
+        on update no action on delete cascade,
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        on update no action on delete cascade
+);

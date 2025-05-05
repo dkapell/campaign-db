@@ -214,10 +214,12 @@ mixin skillList(skills, showSource, backto)
                                                 return `<strong>${conflict.source?conflict.source.name:'unknown'}:</strong> <i>${conflict.name?conflict.name:'TBD'}</i>`
                                             }).join('<br> ')
                                         )
-                                td
+                                td(data-search=skill.status?skill.status.name:'')
                                     if skill.status
                                         .badge.badge-pill.skill-status(class=`text-bg-${skill.status.class}`)
                                             = capitalize(skill.status.name)
+                                            if skill.users.length && (!skill.status.display_to_pc || !skill.status.purchasable) && skill.status.complete
+                                                span.ms-1 (+#{skill.users.length})
 
                                 td.text-end
 

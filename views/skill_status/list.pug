@@ -20,6 +20,7 @@ block content
                     th.sort-handle
                     th Order
                     th(data-priority="1") Name
+                    th Complete/Ready?
                     th Review?
                     th Display to Players?
                     th Purchasable
@@ -39,6 +40,8 @@ block content
                         td
                             .badge.badge-pill.skill-status(class=`text-bg-${skill_status.class}`)
                                 = capitalize(skill_status.name)
+                        td
+                            .badge(class=`text-bg-${skill_status.complete?'success':'warning'}`)=skill_status.complete?'Yes':'No'
                         td
                             .badge(class=`text-bg-${skill_status.reviewable?'success':'warning'}`)=skill_status.reviewable?'Yes':'No'
                         td

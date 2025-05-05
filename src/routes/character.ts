@@ -510,7 +510,7 @@ async function showAddSkillApi(req, res, next){
 
         const doc = {
             csrfToken: req.csrfToken(),
-            possibleSkills: await character.possibleSkills(),
+            possibleSkills: await character.possibleSkills(req.session.activeUser.id),
             character_skill:null
         };
         doc.character_skill = {
@@ -777,7 +777,7 @@ async function showAddSourceApi(req, res, next){
 
         const doc = {
             csrfToken: req.csrfToken(),
-            possibleSources: await character.possibleSources(req.campaign.id),
+            possibleSources: await character.possibleSources(req.session.activeUser.id),
             character_skill_source: null
         };
         doc.character_skill_source = {
@@ -816,7 +816,7 @@ async function addSource(req, res, next){
             if (!source || source.campaign_id !== req.campaign.id){
                 throw new Error('Source not found');
             }
-            await character.addSource(sourceId);
+            await character.addSource(sourceId, false, req.session.activeUser.id);
             await req.audit('character', character.id, 'add source', {source: sourceId});
 
             return res.json({success:true, source: await character.source(sourceId)});

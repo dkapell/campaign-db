@@ -10,36 +10,10 @@ block content
         .col-xl-auto
             span.me-2.d-block.d-lg-inline.align-middle Toggle Column:
             .btn-group.btn-group-sm.d-inline.align-middle
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Name
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Type
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Cost
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Skill Count
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Required
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | PC Visible
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Requires
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Conflicts
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Max Skills
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="9")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    | Actions
+                for field, idx in ['Name', 'Type', 'Cost', 'Skill Count', 'Required', 'PC Visible', 'Staff Visible', 'Requires', 'Conflicts', 'Max Skills', 'Actions']
+                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column=idx)
+                        i.fas.fa-eye.fa-fw.me-1.col-indicator
+                        = field
 
         if checkPermission('admin')
             .col-xl.text-end
@@ -64,6 +38,7 @@ block content
                     th Skill Count
                     th Required
                     th PC Visible
+                    th Staff Visible
                     th(data-partialmatch="true") Requires
                     th(data-partialmatch="true") Conflicts
                     th Max Skills
@@ -86,6 +61,12 @@ block content
 
                         td
                             .badge(class=`text-bg-${skill_source.display_to_pc?'success':'warning'}`)=skill_source.display_to_pc?'Yes':'No'
+                                if !skill_source.display_to_pc && skill_source.players.length
+                                    span.ms-1 (+#{skill_source.players.length})
+                        td
+                            .badge(class=`text-bg-${skill_source.display_to_staff?'success':'warning'}`)=skill_source.display_to_staff?'Yes':'No'
+                                 if !skill_source.display_to_pc && skill_source.staff.length
+                                    span.ms-1 (+#{skill_source.staff.length})
                         td(data-search=skill_source.requires && _.isArray(skill_source.requires)?skill_source.requires.map(source => {return (_.findWhere(skill_sources, {id: source})).name;}).join(','):'')
                             if skill_source.requires && _.isArray(skill_source.requires) && skill_source.requires.length
                                 | Requires #{skill_source.require_num} of #{skill_source.requires.length}

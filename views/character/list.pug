@@ -24,6 +24,9 @@ block content
                 a.nav-link#active-staff-tab(href="#active-staff" data-bs-toggle="tab" role="tab" aria-controls="active-staff" aria-selected="false") Active Staff Characters
 
             li.nav-item(role="presentation")
+                a.nav-link#my-characters-tab(href="#my-characters" data-bs-toggle="tab" role="tab" aria-controls="my-characters" aria-selected="false") My Characters
+
+            li.nav-item(role="presentation")
                 a.nav-link#all-tab(href="#all" data-bs-toggle="tab" role="tab" aria-controls="all" aria-selected="false") All Characters
 
 
@@ -42,6 +45,13 @@ block content
                         return character.active && character.user.type !== 'player'
                     });
                 +characterListDisplay(activeStaffCharacters, 'staff', false, true)
+
+            .tab-pane.fade#my-characters(role="tabpanel" aria-labelledby="my-characters-tab")
+                -
+                    const myCharacters = characters.filter(character => {
+                        return character.user.id === activeUser.id
+                    });
+                +characterListDisplay(myCharacters, 'staff', true, true, true)
 
 
             .tab-pane.fade#all(role="tabpanel" aria-labelledby="all-tab")

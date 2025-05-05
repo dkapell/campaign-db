@@ -537,6 +537,7 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+        current.users = _.pluck(await req.models.skill_user.find({skill_id: id}), 'user_id');
 
         if (!_.has(skill, 'users')){
            skill.users = current.users;

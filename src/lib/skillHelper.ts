@@ -1,6 +1,7 @@
 'use strict';
 import {diffChars} from 'diff';
 import _ from 'underscore';
+import async from 'async';
 import models from './models';
 import removeMd from 'remove-markdown';
 import stringify from 'csv-stringify-as-promised';
@@ -54,6 +55,23 @@ function sourceSorter(a, b){
     return a.name.localeCompare(b.name);
 };
 
+function compareArrays(a1, a2) {
+    const s1 = new Set(a1);
+    const s2 = new Set(a2);
+
+    if (s1.size !== s2.size) {
+        return false;
+    }
+
+    for (const item of s1) {
+        if (!s2.has(item)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 async function diff(oldSkill, newSkill){
     const changes = [];
@@ -88,6 +106,53 @@ async function diff(oldSkill, newSkill){
             type: 'field',
             old: oldSkill.cost,
             new: newSkill.cost
+        });
+    }
+
+    oldSkill.users ||= [];
+    newSkill.users ||= [];
+    if (typeof oldSkill.users === 'string'){
+        oldSkill.users = [oldSkill.users]
+    }
+    if (typeof newSkill.users === 'string'){
+        newSkill.users = [newSkill.users]
+    }
+    oldSkill.users = oldSkill.users.map(item => {return Number(item);});
+    newSkill.users = newSkill.users.map(item => {return Number(item);});
+
+    if (!compareArrays(oldSkill.users, newSkill.users)){
+
+        const oldUserIds = _.difference(oldSkill.users, newSkill.users);
+        const newUserIds = _.difference(newSkill.users, oldSkill.users);
+
+        const oldUsers = await async.map(oldUserIds, async (userId)=> {
+                const user = await models.user.get(oldSkill.campaign_id, userId);
+                if (user){
+                    return user.name;
+                }
+                return '';
+            });
+
+        const newUsers = await async.map(newUserIds, async (userId)=> {
+            const user = await models.user.get(oldSkill.campaign_id, userId);
+            if (user){
+                return user.name;
+            }
+            return userId;
+        });
+
+        const output = [];
+        if (oldUsers.length){
+            output.push(`removed: ${oldUsers.sort().join(', ')}`);
+        }
+        if (newUsers.length){
+            output.push(`added: ${newUsers.sort().join(', ')}`);
+        }
+        changes.push({
+            field: 'Access',
+            type: 'plaintext',
+            text: output.join(', ')
+
         });
     }
     if (Number(oldSkill.source_id) !== Number(newSkill.source_id)){

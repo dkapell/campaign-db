@@ -44,7 +44,7 @@ function prepAuditTable(){
         ordering: true,
         order: [[0, 'desc']],
         ajax: {
-            url: '/audit/query',
+            url: '/admin/audit/query',
             dataSrc: 'data'
         },
         serverSide:true,
@@ -157,6 +157,10 @@ function diffFormatter(diffRow){
 
             return `<strong>${diffRow.field}</strong>: ${marked.parseInline($output.prop('outerHTML'), {breaks: true})}`;
         }
+        case 'plaintext':
+            return `<strong>${diffRow.field}</strong>: ${diffRow.text}`;
+
+
         case 'longtext': {
             let $output = $('<span>');
             for (const part of diffRow.text){

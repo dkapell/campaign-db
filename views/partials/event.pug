@@ -409,4 +409,71 @@ mixin addonField(addon, attendance_addon, user, attendance)
                 else
                     .badge.text-bg-danger Unpaid
 
+mixin attenanceTable(attendances)
+    .table-responsive.my-2
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            data-order='[[2, "desc"]]'
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th Event
+                    th Date
+                    th Status
+                    th Checked In
+                    th
+
+
+            tbody
+                for attendance in attendances
+                    - const pastEvent = (new Date(attendance.event.start_time) < new Date())
+                    tr
+                        td.dtr-control
+                        td
+                            a.action-btn(href=`/event/${attendance.event.id}`)= attendance.event.name
+                        td(data-sort=(new Date(attendance.event.start_time)).getTime())
+                            +eventDate(attendance.event.start_time, attendance.event.end_time)
+                            if pastEvent
+                                .badge.text-bg-info.ms-2 Past Event
+                        td
+                            if !attendance.attending
+                                .badge.text-bg-info Not Attending
+                            else if attendance.user.type === 'player' && attendance.event.cost
+                                if attendance.paid
+                                    .badge.text-bg-success Paid
+                                else
+                                    .badge.text-bg-danger Unpaid
+                            else if pastEvent
+                                .badge.text-bg-success Attended
+                            else
+                                .badge.text-bg-success Attending
+
+                        td
+                            if attendance.checked_in
+                                .badge.text-bg-success Yes
+                            else if attendance.attending
+                                .badge.text-bg-danger No
+                        td.text-end
+                            if attendance.attending && !pastEvent
+                                a.btn.btn-outline-info.btn-xs.action-btn.me-1(
+                                    role="button",
+                                    title="View/Edit Registration"
+                                    data-bs-toggle="tooltip"
+                                    href=`/event/${attendance.event_id}/register/${attendance.id}`
+                                )
+                                    i.fas.fa-edit.fa-fw.me-1
+                                    | Edit Registration
+                            if checkPermission('gm') && !pastEvent
+                                a.btn.btn-outline-danger.btn-xs.delete-btn(
+                                    role="button",
+                                    title=type==='not attending'?"Remove Not-Attending Record":"Delete Registration"
+                                    data-bs-toggle="tooltip"
+                                    data-csrf=csrfToken
+                                    url=`/event/${attendance.event_id}/register/${attendance.id}`
+                                )
+                                    i.fas.fa-trash.fa-fw
 

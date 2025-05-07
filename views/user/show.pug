@@ -6,6 +6,7 @@ include ../partials/post_event_survey
 include ../partials/image
 
 block content
+    input#userId(type='hidden' value=user.id)
     h2.d-inline
         if user.image && checkPermission('event')
             a.img-display-btn.d-inline.me-2(
@@ -32,31 +33,11 @@ block content
         span.badge.text-bg-info=user.type
             if user.permissions.length
                 i.fas.fa-plus.ms-1
-    
+
     .row.my-2
         .col-lg-auto
             if checkPermission('gm')
-                if user.staff_drive_folder
-                    a.btn.btn-outline-info.me-2(
-                        href=user.staff_drive_folder
-                        target="_blank"
-                        data-bs-toggle="tooltip"
-                        title="Open Player's Staff Folder"
-                    )
-                        i.fab.fa-google-drive.me-1
-                        | Staff Drive
-                        i.fa.fa-external-link.ms-1
 
-                if user.drive_folder
-                    a.btn.btn-outline-info.me-2(
-                        href=user.drive_folder
-                        target="_blank"
-                        data-bs-toggle="tooltip"
-                        title="Open Player's Drive Folder"
-                    )
-                        i.fab.fa-google-drive.me-1
-                        | Player Drive
-                        i.fa.fa-external-link.ms-1
 
 
                 if !_.has(session, 'assumed_user')
@@ -74,55 +55,140 @@ block content
                 i.fas.fa-edit.me-1
                 |  Edit User
 
-    if checkPermission('gm')
-        if user.notes
-            .row.my-2
-                .col
-                    h4 Notes
-                    != marked.parse(user.notes)
+    -
+        let tabCount = 0;
+        if (checkPermission('gm, documentation edit')){
+            tabCount++;
+        }
+        if (checkPermission('gm')){
+            tabCount++;
+        }
 
-        if user.permissions.length
-            .row.my-2
-                .col
-                    h4 Permissions
-                    ul.list-unstyled
-                        each permission of user.permissions
-                            li= capitalize(permission)
+    if tabCount > 1
 
-        if characters.length
-            .row.my-2
-                .col
-                    h4 Characters
-                    +characterListDisplay(characters, true, true, true, true)
+        ul.nav.nav-tabs.w-100.my-2#userTabs(role="tablist")
+            if checkPermission('gm')
 
-        if surveys.length
-            .row.my-2
-                .col
-                    h4 #{currentCampaign.renames.post_event_survey.plural}
-                    +postEventSurveyGmTable(surveys, {backto:'user'})
+                li.nav-item(role="presentation")
+                    a.nav-link.active#user-details-tab(href="#user-details" data-bs-toggle="tab" role="tab" aria-controls="user-details" aria-selected="true") Details
+                if user.permissions.length
+                    li.nav-item(role="presentation")
+                        a.nav-link#user-permissions-tab(href="#user-permissions" data-bs-toggle="tab" role="tab" aria-controls="user-permissions" aria-selected="true") Permissions
+                if characters.length
+                    li.nav-item(role="presentation")
+                        a.nav-link#user-characters-tab(href="#user-characters" data-bs-toggle="tab" role="tab" aria-controls="user-characters" aria-selected="true") Characters
+                if surveys.length
+                    li.nav-item(role="presentation")
+                        a.nav-link#user-surveys-tab(href="#user-surveys" data-bs-toggle="tab" role="tab" aria-controls="user-surveys" aria-selected="true") #{currentCampaign.renames.post_event_survey.plural}
+                if attendances.length
+                    li.nav-item(role="presentation")
+                        a.nav-link#user-events-tab(href="#user-events" data-bs-toggle="tab" role="tab" aria-controls="user-events" aria-selected="true") Events
 
-    if currentCampaign.documentations.length
-        .row.my-2
-            .col
-                h4 Documentation
-                ul.list-group
-                    each documentation of currentCampaign.documentations
-                        if !documentation.staff_only || checkPermission('gm')
-                            li.list-group-item
-                                strong.me-2= documentation.name
-                                - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
-                                if !userDoc
-                                    .badge.text-bg-danger Missing
-                                else if !documentation.valid_from || userDoc.status === 'valid'
-                                    .badge.text-bg-success Yes
-                                else
-                                    .badge.text-bg-danger Expired
-                                if userDoc && userDoc.valid_from && userDoc.valid_date
-                                    .float-end
-                                        - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
-                                        = validDate.format('ll')
+            li.nav-item(role="presentation")
+                a.nav-link#user-documentation-tab(href="#user-documentation" data-bs-toggle="tab" role="tab" aria-controls="user-documentation" aria-selected="false") Documentation
+
+    .tab-content#userTabContent
+        if checkPermission('gm')
+            .tab-pane.fade.show.active#user-details(role="tabpanel" aria-labelledby="user-details-tab")
+                .row.my-2
+                    .col
+                        h4 User Details
+                        if user.staff_drive_folder
+                            a.btn.btn-outline-info.me-2(
+                                href=user.staff_drive_folder
+                                target="_blank"
+                                data-bs-toggle="tooltip"
+                                title="Open Player's Staff Folder"
+                            )
+                                i.fab.fa-google-drive.me-1
+                                | Staff Drive
+                                i.fa.fa-external-link.ms-1
+
+                        if user.drive_folder
+                            a.btn.btn-outline-info.me-2(
+                                href=user.drive_folder
+                                target="_blank"
+                                data-bs-toggle="tooltip"
+                                title="Open Player's Drive Folder"
+                            )
+                                i.fab.fa-google-drive.me-1
+                                | Player Drive
+                                i.fa.fa-external-link.ms-1
+
+                if user.notes
+                    .row.my-2
+                        .col
+                            h5 Notes
+                            != marked.parse(user.notes)
+
+            if user.permissions.length
+                .tab-pane.fade#user-permissions(role="tabpanel" aria-labelledby="user-permissions-tab")
+                    .row.my-2
+                        .col
+                            h4 Permissions
+                            ul.list-unstyled
+                                each permission of user.permissions
+                                    li= capitalize(permission)
+
+            if characters.length
+                .tab-pane.fade#user-characters(role="tabpanel" aria-labelledby="user-characters-tab")
+                    .row.my-2
+                        .col
+                            h4 Characters
+                            +characterListDisplay(characters, true, true, true, true)
+
+            if surveys.length
+                .tab-pane.fade#user-surveys(role="tabpanel" aria-labelledby="user-surveys-tab")
+
+                    .row.my-2
+                        .col
+                            h4 #{currentCampaign.renames.post_event_survey.plural}
+                            +postEventSurveyGmTable(surveys, {backto:'user'})
+            if attendances.length
+                .tab-pane.fade#user-events(role="tabpanel" aria-labelledby="user-events-tab")
+                    .row.my-2
+                    .col
+                        h4 Event Registrations
+                        +attenanceTable(attendances)
+
+        if currentCampaign.documentations.length
+            .tab-pane.fade#user-documentation(role="tabpanel" aria-labelledby="user-documentation-tab"
+                class=tabCount===1?'active':''
+                class=tabCount===1?'show':''
+            )
+                .row.my-2
+                    .col
+                        h4 Documentation
+                        ul.list-group
+                            each documentation of currentCampaign.documentations
+                                if !documentation.staff_only || checkPermission('gm')
+                                    li.list-group-item
+                                        strong.me-2= documentation.name
+                                        - userDoc = _.findWhere(documentations, {documentation_id:documentation.id});
+                                        if !userDoc
+                                            .badge.text-bg-danger Missing
+                                        else if !documentation.valid_from || userDoc.status === 'valid'
+                                            .badge.text-bg-success Yes
+                                        else
+                                            .badge.text-bg-danger Expired
+                                        if userDoc && userDoc.valid_from && userDoc.valid_date
+                                            .float-end
+                                                - const validDate = moment.utc(userDoc.valid_date).tz(currentCampaign.timezone);
+                                                = validDate.format('ll')
+
     +imageModal()
 
 append scripts
     script(src='/javascripts/data-table.js')
     script(src='/javascripts/character.js')
+    script.
+        $(function(){
+            const eventTabStorageId = `cdb-user-tab-${$('#userId').val()}`;
+            const selectedTab = localStorage.getItem(eventTabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#userTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(eventTabStorageId, $(e.target).attr('id'));
+            });
+        });

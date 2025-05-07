@@ -81,6 +81,14 @@ async function show(req, res, next){
         res.locals.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
         res.locals.surveys = await surveyHelper.getPostEventSurveys(req.campaign.id, user.id);
         res.locals.characters = characters;
+        const attendances = await req.models.attendance.find({campaign_id:req.campaign.id, user_id:user.id});
+
+        res.locals.attendances = await async.map(attendances, async (attendance) => {
+            const event = await req.models.event.get(attendance.event_id);
+            attendance.event = event;
+            return surveyHelper.fillAttendance(attendance, event);
+        });
+
         res.locals.user = user;
         res.locals.title += ` - Users - ${user.name}`;
         res.render('user/show');

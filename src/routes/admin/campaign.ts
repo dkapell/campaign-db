@@ -59,13 +59,7 @@ async function showNew(req, res){
         post_event_survey_hide_days: 0,
         event_attendance_cp: 0,
         timezone: 'America/New_York',
-        user_type_map: {
-            'admin': { name: 'core staff', order: 0 },
-            'core staff': { name: 'core staff', order: 0 },
-            'contributing staff': { name: 'contributing staff', order: 1 },
-            'event staff':  { name: 'event staff', order: 3 },
-            'player':  { name: 'player', order: 2 },
-        },
+        user_type_map: config.get('userTypeMap'),
         rename_map: config.get('renames'),
         translation_drive_folder: null,
         default_translation_body_font_id: null,
@@ -79,7 +73,9 @@ async function showNew(req, res){
         character_sheet_title_font_scale: 1,
         translation_scale: 1,
         player_gallery: false,
+
     };
+    res.locals.fonts = [];
     res.locals.googleFonts = await fontHelper.list()
     res.locals.breadcrumbs = {
         path: [
@@ -104,20 +100,11 @@ async function showEdit(req, res, next){
     try{
         const campaign = await req.models.campaign.get(id);
         if(!campaign.user_type_map){
-            campaign.user_type_map = {
-            'admin': { name: 'core staff', order: 0 },
-            'core staff': { name: 'core staff', order: 0 },
-            'contributing staff': { name: 'contributing staff', order: 1 },
-            'event staff':  { name: 'event staff', order: 3 },
-            'player':  { name: 'player', order: 2 },
-            };
+            campaign.user_type_map = config.get('userTypeMap');
         }
 
         if (!campaign.rename_map){
-            campaign.rename_map = {
-               post_event_survey: 'Post Event Survey',
-                pes: 'PES'
-            };
+            campaign.rename_map = config.get('renames');
         }
 
         res.locals.campaign = campaign;

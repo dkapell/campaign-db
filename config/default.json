@@ -71,6 +71,13 @@
         "post_event_survey": "Post Event Survey",
         "pes": "PES"
     },
+    "userTypeMap": {
+        "admin": { "name": "core staff", "order": 0 },
+        "core staff": { "name": "core staff", "order": 0 },
+        "contributing staff": { "name": "contributing staff", "order": 1 },
+        "event staff":  { "name": "event staff", "order": 3 },
+        "player":  { "name": "player", "order": 2 },
+    },
     "upload": {
         "cleanupDays": 1
     },

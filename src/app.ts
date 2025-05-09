@@ -189,9 +189,19 @@ app.use(async function(req, res, next){
             default_to_player: false,
             default_site:true,
             description: `This is the root site of ${config.get('app.name')}`,
-            renames: config.get('renames')
+            renames: config.get('renames'),
+            user_type_map: config.get('userTypeMap')
         };
     }
+
+    if (!_.has(campaign, 'user_type_map') || !campaign.user_type_map){
+        campaign.user_type_map = config.get('userTypeMap');
+    }
+
+    if (!_.has(campaign, 'renames') || !campaign.renames || (_.keys(campaign.renames)).length === 0){
+        campaign.renames = config.get('renames');
+    }
+
     req.campaign = campaign;
 
     res.locals.currentCampaign = campaign;

@@ -137,9 +137,13 @@ fieldset.mb-2.border.p-2.rounded
         -
             const types = [];
             for (const type of _.keys(campaign.user_type_map)){
-                const typeData = campaign.user_type_map[type];
-                typeData.type = type;
-                types.push(typeData);
+                const doc = {
+                    type: type,
+                    name: campaign.user_type_map[type].name,
+                    order: campaign.user_type_map[type].order
+                };
+
+                types.push(doc);
             }
 
         each type in _.sortBy(types, 'order')

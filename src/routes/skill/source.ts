@@ -156,7 +156,7 @@ async function showNew(req, res, next){
             type_id: null,
             cost: 0,
             required: false,
-            display_to_pc: false,
+            display_to_pc: true,
             display_to_staff: true,
             requires: [],
             require_num: 1,

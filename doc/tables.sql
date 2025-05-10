@@ -49,6 +49,7 @@ create table campaigns (
     cp_cap int,
     cp_factor float,
     cp_approval boolean default true,
+    cp_requests boolean default true,
     event_default_cost int,
     event_default_location varchar(255),
     post_event_survey_cp float not null default 0,

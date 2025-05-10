@@ -51,6 +51,10 @@ async function showNew(req, res, next){
         req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
+    if (!(req.campaign.cp_requests || req.checkPermission('gm, cp grant'))){
+        req.flash('warning', `You are not allowed to request ${req.campaign.renames.character_point.singular} Grants`);
+        return res.redirect('/');
+    }
     try{
         const user = req.session.activeUser;
         res.locals.grant = {
@@ -87,6 +91,10 @@ async function showNew(req, res, next){
 async function showEdit(req, res, next){
     if (!req.campaign.display_cp){
         req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
+        return res.redirect('/');
+    }
+    if (!(req.campaign.cp_requests || req.checkPermission('gm, cp grant'))){
+        req.flash('warning', `You are not allowed to edit {req.campaign.renames.character_point.singular} Grants`);
         return res.redirect('/');
     }
     const id = req.params.id;

@@ -51,6 +51,7 @@ const tableFields = [
     'cp_cap',
     'cp_factor',
     'cp_approval',
+    'cp_requests',
     'event_default_cost',
     'event_default_location',
     'timezone',
@@ -99,7 +100,7 @@ async function postSelect(data:ModelData){
     if (data.favicon_id){
         data.favicon = await models.image.get(data.favicon_id);
     }
-    data.renames = buildRenameMap(data);
+    data.renames = buildRenameMap(data.rename_map as Record<string, string>);
 
     data.documentations = await models.documentation.find({campaign_id:Number(data.id)});
     if (data.site){
@@ -122,16 +123,16 @@ function validate(data:ModelData){
     return true;
 }
 
-function buildRenameMap(data:ModelData){
+function buildRenameMap(rename_map:Record<string, string>){
     const renames = {};
-    if (data.rename_map){
-        for (const name in data.rename_map as Record<string, unknown>){
-            renames[name] = buildRename(data.rename_map[name]);
+    if (rename_map){
+        for (const name in rename_map as Record<string, string>){
+            renames[name] = buildRename(rename_map[name]);
         }
     }
-    const defaultRenames = config.get('renames');
+    const defaultRenames: Record<string, string> = config.get('renames');
     for (const name in defaultRenames){
-        if (!_.has(data.renames, name)){
+        if (!_.has(rename_map, name)){
             renames[name] = buildRename(defaultRenames[name]);
         }
     }

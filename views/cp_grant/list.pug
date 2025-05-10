@@ -4,9 +4,10 @@ include ../partials/cp_grant
 block content
     .row
         .col
-            a.btn.btn-outline-success.my-2(href='/cp_grant/new')
-                span(class="fa fa-plus")
-                |  New #{currentCampaign.renames.character_point.singular} Grant
+            if currentCampaign.cp_requests || checkPermission('gm, cp grant')
+                a.btn.btn-outline-success.my-2(href='/cp_grant/new')
+                    span(class="fa fa-plus")
+                    |  New #{currentCampaign.renames.character_point.singular} Grant
 
         if myGrants && grants
             ul.nav.nav-tabs.w-100.my-2#grantTabs(role="tablist")

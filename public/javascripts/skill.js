@@ -511,9 +511,9 @@ function updateTable(data){
             rowData[column++] = {display: '<i>Not Set</i>', '@data-sort': 0};
         } else {
             rowData[column++] = {
-             display: `<a class="action-btn" href="/skill_source/${skill.source.id}"><strong>${capitalize(skill.source.name)}</strong></a>`,
-            '@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
-            '@data-search': skill.source.name
+                display: `<a class="action-btn" href="/skill_source/${skill.source.id}"><strong>${capitalize(skill.source.name)}</strong></a>`,
+                '@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
+                '@data-search': skill.source.name
             };
         }
     }

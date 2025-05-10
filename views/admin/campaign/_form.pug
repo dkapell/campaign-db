@@ -178,7 +178,7 @@ fieldset.mb-2.border.p-2.rounded
                         type='text'
                         id=`campaign_user_rename_map-${type}`
                         name=`campaign[rename_map][${type}]`
-                        value=value
+                        value=campaign.rename_map[type]
                     )
 
 //- Character Points
@@ -197,6 +197,10 @@ fieldset.mb-2.border.p-2.rounded
                 .form-check.form-switch
                     input.form-check-input#campaign_cp_approval(type="checkbox", name="campaign[cp_approval]", checked=campaign.cp_approval)
                     label.form-check-label(for="campaign_cp_approval") Require Staff approval for #{currentCampaign.renames.cp.singular} Grants
+            .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_cp_requests(type="checkbox", name="campaign[cp_requests]", checked=campaign.cp_requests)
+                    label.form-check-label(for="campaign_cp_approval") Allow Players to request #{currentCampaign.renames.cp.singular} Grants
         .row.my-2
             label.col-form-label.col-md-4(for="campaign_cp_base") Base/Starting #{currentCampaign.renames.character_point.singular}
             .col

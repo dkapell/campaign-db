@@ -53,6 +53,7 @@ async function showNew(req, res){
         cp_cap: 50,
         cp_factor: 0,
         cp_approval: true,
+        cp_requests: true,
         event_default_cost: 0,
         event_default_location: null,
         post_event_survey_cp: 0,
@@ -146,6 +147,7 @@ async function create(req, res){
         'default_to_player',
         'menu_dark',
         'cp_approval',
+        'cp_requests',
         'display_translations',
         'display_gallery',
         'player_gallery'
@@ -180,6 +182,7 @@ async function update(req, res){
         'default_to_player',
         'menu_dark',
         'cp_approval',
+        'cp_requests',
         'display_translations',
         'display_gallery',
         'player_gallery'

@@ -103,26 +103,15 @@ mixin skillList(skills, showSource, backto)
                             th(data-priority="2" data-orderable="false")
 
                     tbody
-                        tr(style='display:none')
-                            if showSource
-                                th
-                            td
-                            td
-                            td(data-search='')
-                            td
-                            td
-                            td(data-search='')
-                            td(data-search='')
-                            td
-                            td
 
                         for skill in skills
 
                             tr.clickable-row.skillRow(data-click-object='skill' data-click-id=skill.id )
                                 if showSource
-                                    th.source-column(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
+                                    td.source-column(data-sort=`${skill.source.type.display_order}-${skill.source.name}` data-search=skill.source.name)
                                         if skill.source
-                                            a.action-btn(href=`/skill_source/${skill.source.id}`)= capitalize(skill.source.name)
+                                            a.action-btn(href=`/skill_source/${skill.source.id}`)
+                                                strong= capitalize(skill.source.name)
                                         else
                                             i Not Set
 

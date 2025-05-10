@@ -478,6 +478,11 @@ async function submitModal(e) {
     e.preventDefault();
     const $modal = $('#skillModal');
     const form = $modal.find('.modal-body').find('form')[0];
+    if (form.checkValidity() === false) {
+        form.classList.add('was-validated');
+        return;
+    }
+    form.classList.add('was-validated');
     const data = new URLSearchParams();
     for (const pair of new FormData(form)) {
         data.append(pair[0], pair[1]);
@@ -498,19 +503,18 @@ async function submitModal(e) {
 
 function updateTable(data){
     const skill = data.skill;
-
+    if (!skill) { return; }
     const rowData = [];
     let column = 0;
     if ($('.skill-table').data('showsource')){
         if (!skill.source){
             rowData[column++] = {display: '<i>Not Set</i>', '@data-sort': 0};
         } else {
-            rowData[column++] = `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`;
-            //{
-            // display: `<a class="action-btn" href="/skill_source/${skill.source.id}">${capitalize(skill.source.name)}</a>`,
-            //'@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
-            //'@data-search': skill.source.name
-            //};
+            rowData[column++] = {
+             display: `<a class="action-btn" href="/skill_source/${skill.source.id}"><strong>${capitalize(skill.source.name)}</strong></a>`,
+            '@data-sort': `${skill.source.type.display_order}-${skill.source.name}`,
+            '@data-search': skill.source.name
+            };
         }
     }
     rowData[column++] = skill.name;
@@ -657,7 +661,10 @@ function getStatus(skill){
     if (skill.users.length && (!skill.status.display_to_pc || !skill.status.purchasable) && skill.status.complete){
         $badge.text(`${capitalize(skill.status.name)} (+${skill.users.length})`);
     }
-    return $badge[0].outerHTML;
+    return  {
+        display: $badge[0].outerHTML,
+        '@data-search': skill.status.name
+    };
 }
 
 function getRequires(skill, skills){

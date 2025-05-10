@@ -69,7 +69,9 @@
     ],
     "renames": {
         "post_event_survey": "Post Event Survey",
-        "pes": "PES"
+        "pes": "PES",
+        "character_point": "Character Point",
+        "cp": "CP"
     },
     "userTypeMap": {
         "admin": { "name": "core staff", "order": 0 },

@@ -6,15 +6,15 @@ block content
         .col
             a.btn.btn-outline-success.my-2(href='/cp_grant/new')
                 span(class="fa fa-plus")
-                |  New Character Point Grant
+                |  New #{currentCampaign.renames.character_point.singular} Grant
 
         if myGrants && grants
             ul.nav.nav-tabs.w-100.my-2#grantTabs(role="tablist")
                 li.nav-item(role="presentation")
-                    a.nav-link.active#my-grants-tab(href="#my-grants" data-bs-toggle="tab" role="tab" aria-controls="my-grants" aria-selected="true") My CP Grants
+                    a.nav-link.active#my-grants-tab(href="#my-grants" data-bs-toggle="tab" role="tab" aria-controls="my-grants" aria-selected="true") My #{currentCampaign.renames.cp.singular} Grants
 
                 li.nav-item(role="presentation")
-                    a.nav-link#all-grants-tab(href="#all-grants" data-bs-toggle="tab" role="tab" aria-controls="all-grants-tab" aria-selected="false") All CP Grants
+                    a.nav-link#all-grants-tab(href="#all-grants" data-bs-toggle="tab" role="tab" aria-controls="all-grants-tab" aria-selected="false") All #{currentCampaign.renames.cp.singular} Grants
 
             .tab-content#grantTabsContent
                 .tab-pane.fade.show.active#my-grants(role="tabpanel" aria-labelledby="my-grants-tab")

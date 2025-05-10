@@ -1,5 +1,7 @@
 'use strict';
 import validator from 'validator';
+import config from 'config';
+import _ from 'underscore';
 import cache from '../lib/cache';
 
 import Model from '../lib/Model';
@@ -97,15 +99,8 @@ async function postSelect(data:ModelData){
     if (data.favicon_id){
         data.favicon = await models.image.get(data.favicon_id);
     }
-    data.renames = {};
-    if (data.rename_map){
-        for (const name in data.rename_map as Record<string, unknown>){
-            data.renames[name] = {
-                singular: data.rename_map[name],
-                plural: pluralize(data.rename_map[name])
-            };
-        }
-    }
+    data.renames = buildRenameMap(data);
+
     data.documentations = await models.documentation.find({campaign_id:Number(data.id)});
     if (data.site){
         await cache.store('campaign-site', (data.site as string), data);
@@ -125,6 +120,33 @@ function validate(data:ModelData){
         return false;
     }
     return true;
+}
+
+function buildRenameMap(data:ModelData){
+    const renames = {};
+    if (data.rename_map){
+        for (const name in data.rename_map as Record<string, unknown>){
+            renames[name] = buildRename(data.rename_map[name]);
+        }
+    }
+    const defaultRenames = config.get('renames');
+    for (const name in defaultRenames){
+        if (!_.has(data.renames, name)){
+            renames[name] = buildRename(defaultRenames[name]);
+        }
+    }
+    return renames;
+}
+
+function buildRename(input:string){
+    const doc = {
+        singular: input,
+        plural: pluralize(input)
+    }
+    if (input.match(/^[A-Z]+$/)){
+        doc.plural = `${input}s`;
+    }
+    return doc;
 }
 
 export = Campaign;

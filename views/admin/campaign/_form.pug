@@ -169,7 +169,7 @@ fieldset.mb-2.border.p-2.rounded
             .col-md
                 h4 Other
 
-        each value, type in campaign.rename_map
+        each value, type in config.get('renames')
             .row.my-2
                 .col-md-4
                     strong=type
@@ -183,7 +183,7 @@ fieldset.mb-2.border.p-2.rounded
 
 //- Character Points
 fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#cp-heading(data-bs-toggle="collapse" data-bs-target="#cp-container" aria-expanded="false" area-controls="cp-container") Character Point Options
+    label.h5.w-100#cp-heading(data-bs-toggle="collapse" data-bs-target="#cp-container" aria-expanded="false" area-controls="cp-container") #{currentCampaign.renames.character_point.singular} Options
         span.float-end.ps-2
             i.fa.fa-chevron-up
             i.fa.fa-chevron-down
@@ -192,21 +192,21 @@ fieldset.mb-2.border.p-2.rounded
             .col
                 .form-check.form-switch
                     input.form-check-input#campaign_display_cp(type="checkbox", name="campaign[display_cp]", checked=campaign.display_cp)
-                    label.form-check-label(for="campaign_display_cp") Enable Character Point Tracker and CP limits
+                    label.form-check-label(for="campaign_display_cp") Enable #{currentCampaign.renames.character_point.singular} Tracker and #{currentCampaign.renames.cp.singular} limits
             .col
                 .form-check.form-switch
                     input.form-check-input#campaign_cp_approval(type="checkbox", name="campaign[cp_approval]", checked=campaign.cp_approval)
-                    label.form-check-label(for="campaign_cp_approval") Require Staff approval for CP Grants
+                    label.form-check-label(for="campaign_cp_approval") Require Staff approval for #{currentCampaign.renames.cp.singular} Grants
         .row.my-2
-            label.col-form-label.col-md-4(for="campaign_cp_base") Base/Starting Character Points
+            label.col-form-label.col-md-4(for="campaign_cp_base") Base/Starting #{currentCampaign.renames.character_point.singular}
             .col
-                input.form-control#campaign_cp_base(placeholder="CP",name="campaign[cp_base]",value=campaign.cp_base type='number')
+                input.form-control#campaign_cp_base(placeholder=currentCampaign.renames.cp.singular name="campaign[cp_base]" value=campaign.cp_base type='number')
         .row.my-2
-            label.col-form-label.col-md-4(for="campaign_cp_cap") Current Character Point Cap
+            label.col-form-label.col-md-4(for="campaign_cp_cap") Current #{currentCampaign.renames.character_point.singular} Cap
             .col
-                input.form-control#campaign_cp_cap(placeholder="CP",name="campaign[cp_cap]",value=campaign.cp_cap type='number')
+                input.form-control#campaign_cp_cap(placeholder=currentCampaign.renames.cp.singular,name="campaign[cp_cap]",value=campaign.cp_cap type='number')
         .row.my-2
-            label.col-form-label.col-md-4(for="campaign_cp_factor") Over-Cap CP Value
+            label.col-form-label.col-md-4(for="campaign_cp_factor") Over-Cap #{currentCampaign.renames.cp.singular} Value
             .col
                 input.form-control#campaign_cp_cap(placeholder="Factor",name="campaign[cp_factor]",value=campaign.cp_factor type='number' max=1, min=0 step=0.125)
 
@@ -349,14 +349,14 @@ fieldset.mb-2.border.p-2.rounded
                     for timezone in moment.tz.names()
                         option(value=timezone, selected=campaign.timezone===timezone)= timezone
         .row.my-2
-            label.col-form-label.col-md-4(for="campaign_event_attendance_cp") Event Attendance CP
+            label.col-form-label.col-md-4(for="campaign_event_attendance_cp") Event Attendance #{currentCampaign.renames.cp.singular}
             .col
-                input.form-control#campaign_event_attendance_cp(placeholder="CP",name="campaign[event_attendance_cp]",value=campaign.event_attendance_cp type='number' min=0 step=0.125)
+                input.form-control#campaign_event_attendance_cp(placeholder=currentCampaign.renames.cp.singular,name="campaign[event_attendance_cp]",value=campaign.event_attendance_cp type='number' min=0 step=0.125)
 
         .row.my-2
-            label.col-form-label.col-md-4(for="campaign_post_event_survey_cp") #{currentCampaign.renames.post_event_survey.singular} CP
+            label.col-form-label.col-md-4(for="campaign_post_event_survey_cp") #{currentCampaign.renames.post_event_survey.singular} #{currentCampaign.renames.cp.singular}
             .col
-                input.form-control#campaign_post_event_survey_cp(placeholder="CP",name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
+                input.form-control#campaign_post_event_survey_cp(placeholder=currentCampaign.renames.cp.singular,name="campaign[post_event_survey_cp]",value=campaign.post_event_survey_cp type='number' min=0 step=0.125)
 
         .row.my-2
             label.col-form-label.col-md-4(for="campaign_post_event_survey_hide_days")

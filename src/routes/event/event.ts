@@ -435,7 +435,7 @@ async function grantAttendanceCp(req, res){
             if (!attendee.checked_in) { continue; }
             if (attendee.attendance_cp_granted) { continue; }
 
-            console.log(`adding CP to ${attendee.user.name}`);
+            console.log(`adding ${req.campaign.renames.cp.singular} to ${attendee.user.name}`);
             await req.models.cp_grant.create({
                 campaign_id: req.campaign.id,
                 user_id: attendee.user_id,
@@ -447,9 +447,9 @@ async function grantAttendanceCp(req, res){
             count++;
         }
         if (count){
-            req.flash('success', `Assigned ${req.campaign.event_attendance_cp} Event CP to ${count} checked in player(s) who had not already received it.`);
+            req.flash('success', `Assigned ${req.campaign.event_attendance_cp} Event ${req.campaign.renames.cp.singular} to ${count} checked in player(s) who had not already received it.`);
         } else {
-            req.flash('success', `No Players in need of Event CP assignment.`);
+            req.flash('success', `No Players in need of Event ${req.campaign.renames.cp.singular} assignment.`);
         }
         return res.json({success:true});
     } catch(err) {

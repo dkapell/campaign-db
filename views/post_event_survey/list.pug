@@ -6,10 +6,10 @@ block content
     if checkPermission('contrib')
         ul.nav.nav-tabs.w-100.my-2#postEventSurveyTabs(role="tablist")
             li.nav-item(role="presentation")
-                a.nav-link.active#player-surveys-tab(href="#player-surveys" data-bs-toggle="tab" role="tab" aria-controls="player-surveys" aria-selected="true") Player #{currentCampaign.renames.pes.singular}s
+                a.nav-link.active#player-surveys-tab(href="#player-surveys" data-bs-toggle="tab" role="tab" aria-controls="player-surveys" aria-selected="true") Player #{currentCampaign.renames.pes.plural}
 
             li.nav-item(role="presentation")
-                a.nav-link#staff-surveys-tab(href="#staff-surveys" data-bs-toggle="tab" role="tab" aria-controls="staff-surveys" aria-selected="true") Staff #{currentCampaign.renames.pes.singular}s
+                a.nav-link#staff-surveys-tab(href="#staff-surveys" data-bs-toggle="tab" role="tab" aria-controls="staff-surveys" aria-selected="true") Staff #{currentCampaign.renames.pes.plural}
 
             li.nav-item(role="presentation")
                 a.nav-link#my-surveys-tab(href="#my-surveys" data-bs-toggle="tab" role="tab" aria-controls="my-surveys" aria-selected="false") My #{currentCampaign.renames.post_event_survey.plural}

@@ -5,9 +5,9 @@ block content
         .col
             a.btn.btn-outline-success.my-2(href='/cp_grant/new')
                 span(class="fa fa-plus")
-                |  New Character Point Grant
+                |  New #{currentCampaign.renames.character_point.singular} Grant
         .col.text-end
-            span.h3 Current CP #{cp.usable}
+            span.h3 Current #{currentCampaign.renames.cp.singular} #{cp.usable}
                 if cp.total > cp.usable
                     span.ms-2 (#{cp.total} Total)
     .table-responsive.mt-2

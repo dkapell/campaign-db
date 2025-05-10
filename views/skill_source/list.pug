@@ -54,7 +54,7 @@ block content
                             data-search=skill_source.name)
                             a.action-btn(href=`/skill_source/${skill_source.id}`)= capitalize(skill_source.name)
                         td(data-sort=skill_source.type.display_order)= capitalize(skill_source.type.name)
-                        td #{skill_source.cost} CP
+                        td #{skill_source.cost} #{currentCampaign.renames.cp.singular}
                         td= skill_source.skills.length
                         td
                             .badge(class=`text-bg-${skill_source.required?'success':'warning'}`)=skill_source.required?'Yes':'No'

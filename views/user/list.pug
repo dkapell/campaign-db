@@ -44,7 +44,7 @@ block content
                     th Email
                     th Type
                     if currentCampaign.display_cp && checkPermission('gm')
-                        th.non-documentation-column(title='CP Spendable (Total)' data-bs-toggle='tooltip') CP
+                        th.non-documentation-column(title=`${currentCampaign.renames.cp.singular} Spendable (Total)` data-bs-toggle='tooltip') #{currentCampaign.renames.cp.singular}
                             i.far.fa-question-circle.ms-1
                     if checkPermission('gm')
                         th.non-documentation-column Drive

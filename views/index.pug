@@ -38,7 +38,7 @@ append content
                         if checkPermission('gm, cp_grant') && pending_cp_grants && currentCampaign.display_cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
-                                | Pending CP Grants
+                                | Pending #{currentCampaign.renames.cp.singular} Grants
                                 span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=pending_cp_grants
                         if post_event_surveys.length
                             each survey in post_event_surveys
@@ -118,7 +118,7 @@ append content
                         if currentCampaign.display_cp && (cp || checkPermission('gm, cp grant'))
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-hat-wizard.me-1
-                                | Character Points
+                                = currentCampaign.renames.character_point.plural
                                 if checkPermission('player') && !checkPermission('event')
                                     .badge.text-bg-info.float-end
                                         span=cp.usable

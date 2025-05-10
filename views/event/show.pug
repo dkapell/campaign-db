@@ -31,7 +31,7 @@ block content
                             data-url=`/event/${event.id}/grant_cp`
                         )
                             i.fas.fa-hat-wizard.recalc-icon
-                            |  Grant Event CP
+                            |  Grant Event #{currentCampaign.renames.cp.singular}
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)

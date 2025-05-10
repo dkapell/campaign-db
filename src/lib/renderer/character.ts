@@ -140,7 +140,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const maxTraitWidth = doc.page.width - (options.margin*2 + 220);
         addText(character.name, {font: 'Title Font', nowrap:true}, 24*options.titleScale, options.margin + 10, options.margin + 5, maxNameWidth, 100);
         addText(character.user.name, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + 10, options.margin + 35, maxNameWidth/2, 100);
-        addText(`${character.cp} CP`, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + maxNameWidth/2, options.margin + 35, maxNameWidth/2, 100);
+        addText(`${character.cp} ${campaign.renames.cp.singular}`, {font: 'Header Font', nowrap:true}, 8*options.headerScale, options.margin + maxNameWidth/2, options.margin + 35, maxNameWidth/2, 100);
 
         // List Traits by category
         let traitRow = options.margin + 45;

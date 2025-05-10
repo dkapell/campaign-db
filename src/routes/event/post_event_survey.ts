@@ -177,7 +177,7 @@ async function submitPostEventSurvey(req, res){
             case 'submit': {
                 let resultStr = `Submitted ${req.campaign.renames.post_event_survey.singular} for ${event.name}`;
                 if (cpGranted){
-                    resultStr += ` and granted ${req.campaign.post_event_survey_cp} CP.`;
+                    resultStr += ` and granted ${req.campaign.post_event_survey_cp} ${req.campaign.renames.cp.singular}.`;
                 } else {
                     resultStr += '.';
                 }

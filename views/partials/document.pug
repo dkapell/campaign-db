@@ -12,7 +12,7 @@ mixin sourceDoc(source, backto)
                     else
                         span.source-name #{source.name}
                     if source.cost
-                        span.ms-2 (#{source.cost} CP)
+                        span.ms-2 (#{source.cost} #{currentCampaign.renames.cp.singular})
                     if showSource.unlocked
                         i.fas.fa-unlock.ms-2
             .col

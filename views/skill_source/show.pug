@@ -34,7 +34,7 @@ block content
 
         if skill_source.cost
             dt.col-sm-2 Cost
-            dd.col-sm-10 #{skill_source.cost} CP
+            dd.col-sm-10 #{skill_source.cost} #{currentCampaign.renames.cp.singular}
         if skill_source.users.length
             dt.col-sm-2 Available To
             dd.col-sm-10= (_.pluck(skill_source.users, 'name')).join(', ')

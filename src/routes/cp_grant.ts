@@ -11,15 +11,15 @@ async function list(req, res, next){
         path: [
             { url: '/', name: 'Home'},
         ],
-        current: 'Character Point Grants'
+        current: `${req.campaign.renames.character_point.singular} Grants`
     };
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
     try {
         res.locals.csrfToken = req.csrfToken();
-        res.locals.title += ' - Character Points';
+        res.locals.title += ` - ${req.campaign.renames.character_point.plural}`;
 
         const user = req.session.activeUser;
         if (req.checkPermission('contrib, cp grant')){
@@ -33,46 +33,22 @@ async function list(req, res, next){
         if (user.type === 'player'){
             res.locals.myGrants = await req.models.cp_grant.find({campaign_id:req.campaign.id, user_id:user.id});
             res.locals.cp = await campaignHelper.cpCalculator(user.id, req.campaign.id);
-            //res.render('cp_grant/listPlayer', { pageTitle: 'Character Point Grants' });
+
         } else if (user.type === 'event staff'){
             req.flash('warning', 'Not allowed to view');
             return res.redirect('/');
 
         }
-        res.render('cp_grant/list', { pageTitle: 'Character Point Grants' });
+        res.render('cp_grant/list', { pageTitle: `${req.campaign.renames.character_point.singular} Grants` });
 
     } catch (err){
         next(err);
     }
 }
 
-/*
-async function show(req, res, next){
-    const id = req.params.id;
-    try{
-        const grant = await req.models.cp_grant.get(id);
-        if (!grant || grant.campaign_id !== req.campaign.id){
-            throw new Error('Invalid Character Point Grant');
-        }
-        res.locals.breadcrumbs = {
-            path: [
-                { url: '/', name: 'Home'},
-                { url: '/cp_grant', name: 'Character Point Grants'},
-            ],
-            current: grant.content
-        };
-        res.locals.skills = await req.models.skill.find({source_id:id});
-        res.locals.title += ` - Character Point - ${grant.content}`;
-        res.render('cp_grant/show');
-    } catch(err){
-        next(err);
-    }
-}
-*/
-
 async function showNew(req, res, next){
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
     try{
@@ -86,7 +62,7 @@ async function showNew(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/cp_grant', name: 'Character Point Grants'},
+                { url: '/cp_grant', name: `${req.campaign.renames.character_point.singular} Grants`},
             ],
             current: 'New'
         };
@@ -101,7 +77,7 @@ async function showNew(req, res, next){
             res.locals.grant = req.session.cpGrantData;
             delete req.session.cpGrantData;
         }
-        res.locals.title += ' - New Character Point Grant';
+        res.locals.title += ` - New ${req.campaign.renames.character_point.singular} Grant`;
         res.render('cp_grant/new');
     } catch (err){
         next(err);
@@ -110,7 +86,7 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
     const id = req.params.id;
@@ -119,7 +95,7 @@ async function showEdit(req, res, next){
     try{
         const grant = await req.models.cp_grant.get(id);
         if (!grant || grant.campaign_id !== req.campaign.id){
-            throw new Error('Invalid Character Point Grant');
+            throw new Error(`Invalid ${req.campaign.renames.character_point.singular} Grant`);
         }
         res.locals.grant = grant;
 
@@ -135,11 +111,11 @@ async function showEdit(req, res, next){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
-                { url: '/cp_grant', name: 'Character Point Grants'},
+                { url: '/cp_grant', name: `${req.campaign.renames.character_point.singular} Grants`},
             ],
-            current: 'Edit CP Grant'
+            current: `Edit ${req.campaign.renames.cp.singular} Grant`
         };
-        res.locals.title += ' - Edit Character Point Grant';
+        res.locals.title += ` - Edit ${req.campaign.renames.character_point.singular} Grant`;
         res.render('cp_grant/edit');
     } catch(err){
         next(err);
@@ -149,7 +125,7 @@ async function showEdit(req, res, next){
 async function create(req, res){
     const grant = req.body.grant;
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
 
@@ -169,14 +145,14 @@ async function create(req, res){
             grant.status = 'approved';
         }
     } else {
-        throw new Error('Can not create CP Grants.')
+        throw new Error(`Can not create ${req.campaign.renames.cp.singular} Grants.`)
     }
 
     try{
         const id = await req.models.cp_grant.create(grant);
         await req.audit('cp_grant', id, 'create', {new:grant});
         delete req.session.cpGrantData;
-        req.flash('success', 'Created Character Point Grant ' + grant.content);
+        req.flash('success', `Created ${req.campaign.renames.character_point.singular} Grant ${grant.content}`);
         res.redirect('/cp_grant');
     } catch (err) {
         req.flash('error', err.toString());
@@ -189,7 +165,7 @@ async function update(req, res){
     const grant = req.body.grant;
     req.session.cpGrantData = grant;
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
 
@@ -203,7 +179,7 @@ async function update(req, res){
         await req.models.cp_grant.update(id, grant);
         await req.audit('cp_grant', id, 'update', {old: current, new:grant});
         delete req.session.cpGrantData;
-        req.flash('success', 'Updated Character Point Grant ' + grant.content);
+        req.flash('success', `Updated ${req.campaign.renames.character_point.singular} Grant ${grant.content}`);
         res.redirect('/cp_grant');
     } catch(err) {
         req.flash('error', err.toString());
@@ -215,7 +191,7 @@ async function update(req, res){
 async function remove(req, res, next){
     const id = req.params.id;
     if (!req.campaign.display_cp){
-        req.flash('warning', 'Character Point Tracker is not enabled for this Campaign');
+        req.flash('warning', `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`);
         return res.redirect('/');
     }
     try {
@@ -225,7 +201,7 @@ async function remove(req, res, next){
         }
         await req.models.cp_grant.delete(id);
         await req.audit('cp_grant', id, 'delete', {old: current});
-        req.flash('success', 'Removed Character Points');
+        req.flash('success', `Removed ${req.campaign.renames.character_point.plural}`);
         res.redirect('/cp_grant');
     } catch(err) {
         return next(err);
@@ -235,7 +211,7 @@ async function remove(req, res, next){
 async function approveGrant(req, res, next){
     const id = req.params.id;
     if (!req.campaign.display_cp){
-        return res.json({error: 'Character Point Tracker is not enabled for this Campaign', success:false});
+        return res.json({error: `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`, success:false});
     }
     try {
         const current = await req.models.cp_grant.get(id);
@@ -255,7 +231,7 @@ async function approveGrant(req, res, next){
 async function denyGrant(req, res, next){
     const id = req.params.id;
     if (!req.campaign.display_cp){
-        return res.json({error: 'Character Point Tracker is not enabled for this Campaign', success:false});
+        return res.json({error: `${req.campaign.renames.character_point.singular} Tracker is not enabled for this Campaign`, success:false});
     }
     try {
         const current = await req.models.cp_grant.get(id);

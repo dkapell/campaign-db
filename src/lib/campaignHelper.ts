@@ -183,7 +183,8 @@ async function getCharacterCSV(campaignId: number, characters:ModelData[]): Prom
     const skill_source_types = await models.skill_source_type.find({campaign_id:campaignId});
     const skill_sources = await models.skill_source.find({campaign_id:campaignId});
     const data = [];
-    const header = ['Name', 'Pronouns', 'Player', 'Active', 'CP', 'Extra Traits'];
+    const campaign = await req.models.campaign.get(campaignId);
+    const header = ['Name', 'Pronouns', 'Player', 'Active', campaign.renames.cp.singular, 'Extra Traits'];
     for (const skill_source_type of skill_source_types){
         const optionalSources = _.where(skill_sources, {type_id: skill_source_type.id, required:false});
         if (!optionalSources.length){ continue; }

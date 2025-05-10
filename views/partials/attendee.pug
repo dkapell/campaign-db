@@ -47,9 +47,9 @@ mixin attendeeListItem(attendee, type)
                     if attendee.checked_in
                         .badge.text-bg-success.mx-1 Checked In
                     if attendee.attendance_cp_granted
-                        .badge.text-bg-info.mx-1 Event CP Granted
+                        .badge.text-bg-info.mx-1 Event #{currentCampaign.renames.cp.singular} Granted
                     if attendee.post_event_cp_granted
-                        .badge.text-bg-info.mx-1 #{currentCampaign.renames.pes.singular} CP Granted
+                        .badge.text-bg-info.mx-1 #{currentCampaign.renames.pes.singular} #{currentCampaign.renames.cp.singular} Granted
 
 
             if checkPermission('contrib, registration view') && !(type === 'not attending' || type === 'no response')
@@ -146,7 +146,7 @@ mixin attendeeTable(attendees, type)
 
                             th Checked In
                         if new Date(event.end_time) < Date.now()
-                            th CP
+                            th #{currentCampaign.renames.cp.singular}
                     if checkPermission('gm, registration edit') && type !== 'no response'
                         th
             tbody

@@ -16,10 +16,10 @@ if possibleSkills.length
                     option(
                         value=skill.id
                         selected=Number(character_skill.skill_id)===skill.id data-skill=skill
-                        title=`${skill.usage?skill.usage.name:''} ${skill.name} ${skill.next_cost} CP`
+                        title=`${skill.usage?skill.usage.name:''} ${skill.name} ${skill.next_cost} ${currentCampaign.renames.cp.singular}`
                         data-text=`<strong>${skill.source.name}</strong>: <i>${skill.name}</i>`
-                        data-html=`<div class="float-end">${skill.next_cost} CP</div><div class="float-end me-4">${skill.usage?skill.usage.name:''}</div><div>${skill.unlocked?unlocked:''}<strong>${skill.source.name}</strong>: <i>${skill.name}</i></div><div class="ms-2">${summary}</div>`
-                    ) #{skill.source.name}: #{skill.name}: #{skill.usage?skill.usage.name:''}: #{skill.cost} CP
+                        data-html=`<div class="float-end">${skill.next_cost} ${currentCampaign.renames.cp.singular}</div><div class="float-end me-4">${skill.usage?skill.usage.name:''}</div><div>${skill.unlocked?unlocked:''}<strong>${skill.source.name}</strong>: <i>${skill.name}</i></div><div class="ms-2">${summary}</div>`
+                    ) #{skill.source.name}: #{skill.name}: #{skill.usage?skill.usage.name:''}: #{skill.cost} #{currentCampaign.renames.cp.singular}
 
 
 .row.my-2.p-1

@@ -6,7 +6,7 @@ block content
     .row
         .col-sm-8.offset-sm-2
             .card
-                .card-header New Character Point Grant
+                .card-header New #{currentCampaign.renames.character_point.singular} Grant
                 .card-body
                     form.form.needs-validation(method="POST" action="/cp_grant" novalidate)
                         input(type="hidden", name='_csrf',value=csrfToken)

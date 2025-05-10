@@ -24,9 +24,9 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
             .col-md-1.skill-cost
                 if _.has(skill, 'character_cost')
                     if skill.character_cost
-                        | #{skill.character_cost} CP
+                        | #{skill.character_cost} #{currentCampaign.renames.cp.singular}
                 else
-                    | #{skill.next_cost} CP
+                    | #{skill.next_cost} #{currentCampaign.renames.cp.singular}
 
             .col.float-end.text-end
                 if showUsage
@@ -68,7 +68,7 @@ mixin characterSource(source)
                 i.me-2= source.name
                 if source.required
                     .badge.text-bg-info.me-1 required
-            .col.source-cost #{source.cost} CP
+            .col.source-cost #{source.cost} #{currentCampaign.renames.cp.singular}
 
             .col.float-end.text-end.source-type
                 strong= capitalize(source.type.name)
@@ -163,7 +163,7 @@ mixin characterSheet(character)
                             - continue
                         li.py-2.list-group-item=source.name
                             if source.character_cost
-                                span.ms-1.float-end #{source.character_cost} CP
+                                span.ms-1.float-end #{source.character_cost} #{currentCampaign.renames.cp.singular}
 
         .col-md
             .row
@@ -300,7 +300,7 @@ mixin characterTable(characters, type, forPlayer, showActive=false)
                     th(data-priority="1") Name
                     if showActive
                         th(data-priority="3") Active
-                    th CP
+                    th #{currentCampaign.renames.cp.singular}
                     th(data-priority="3") Updated
                     th(data-priority="2").col-1
 
@@ -355,7 +355,7 @@ mixin characterCard(character)
                         i.fas.fa-eye
                 .d-block
                     h4.d-inline= character.name
-                        h3.align-text-top.d-inline.badge.rounded-pill.text-bg-info.ms-3 #{character.cp} CP
+                        h3.align-text-top.d-inline.badge.rounded-pill.text-bg-info.ms-3 #{character.cp} #{currentCampaign.renames.cp.singular}
 
             .card-body
 
@@ -392,7 +392,7 @@ mixin characterListItem(character, forPlayer, extended, showActive)
                 if showActive && character.active
                     .badge.text-bg-success.badge-pill.ms-1 Active
             .col-1
-                small #{character.cp}&nbsp;CP
+                small #{character.cp}&nbsp;#{currentCampaign.renames.cp.singular}
             if !forPlayer
                 .col-4
                     a(href=`/user/${character.user.id}`)

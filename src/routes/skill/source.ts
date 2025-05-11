@@ -29,6 +29,7 @@ async function list(req, res, next){
 
             return source;
         });
+        res.locals.wideMain = true;
         res.locals.title += ' - Skill Sources';
         res.render('skill_source/list', { pageTitle: 'Skill Sources' });
     } catch (err){

@@ -1,40 +1,19 @@
 mixin skillList(skills, showSource, backto)
     .row.my-2
         .col-sm-auto
+            -
+                const columns = ['Name', 'Usage', 'Tag(s)', 'Summary', 'Cost', 'Requires', 'Conflicts', 'Status', 'Actions'];
+                if (showSource){
+                    columns.unshift('Source');
+                }
+
             span.me-2.d-block.d-lg-inline.align-middle Toggle Column:
             .btn-group.btn-group-sm.d-inline.align-middle
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="0")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Source':'Name'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="1")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Name':'Usage'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="2")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Usage':'Tag(s)'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="3")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Tag(s)':'Summary'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="4")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Summary':'Cost'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="5")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Cost':'Requires'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="6")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Requires':'Conflicts'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="7")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Conflicts':'Status'
-                button.btn.btn-outline-info.toggle-vis.mt-1(data-column="8")
-                    i.fas.fa-eye.fa-fw.me-1.col-indicator
-                    = showSource?'Status':'Actions'
-
-                if showSource
-                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column="9")
+                for field, idx in columns
+                    button.btn.btn-outline-info.toggle-vis.mt-1(data-column=idx)
                         i.fas.fa-eye.fa-fw.me-1.col-indicator
-                        | Actions
+                        = field
+
         if checkPermission('admin')
             .col-sm.text-end
                 .form-check.form-switch.form-check-reverse

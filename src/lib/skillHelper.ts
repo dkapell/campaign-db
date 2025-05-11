@@ -449,7 +449,17 @@ async function getCSV(skills, forPlayers){
             row.push('');
         }
         row.push(skill.cost?skill.cost:'');
-        row.push(skill.summary?removeMd(skill.summary):'');
+        let summary = '';
+        if (skill.usage && skill.usage.display_uses && skill.uses){
+            summary = `${skill.uses}/${skill.usage.usage_format}: `;
+        }
+        if (skill.summary){
+            summary += removeMd(skill.summary);
+        } else {
+            summary += 'Unset'
+        }
+
+        row.push(summary);
 
         if (!forPlayers){
             row.push(skill.status?capitalize(skill.status.name):'');

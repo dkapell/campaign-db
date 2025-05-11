@@ -425,8 +425,13 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                         }
                     }
                 }
+                if (skill.usage.display_uses && skill.uses){
+                    doc.font('Body Font Bold').fontSize(10*options.bodyScale);
+                    doc.text(`${skill.uses}/${skill.usage.usage_format}: `, {continued:true});
+                }
 
                 if (details.length){
+
                     markdown(doc, skill.summary, {continued:true});
                     doc.font('Header Font').text(`  [${details.join(', ')}]`);
                     doc.moveDown(0.5);

@@ -38,7 +38,7 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
             .col
                 p.my-1
                     if skill.usage.display_uses && skill.uses
-                        strong.skill-usages.me-1 #{skill.count?skill.count:1 * skill.uses}/#{skill.usage.usage_format}:
+                        strong.skill-usages.me-1 #{(skill.count?skill.count:1) * skill.uses}/#{skill.usage.usage_format}:
 
                     !=marked.parseInline(skill.summary)
         if skill.description

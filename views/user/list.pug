@@ -50,6 +50,8 @@ block content
                         th.non-documentation-column Drive
                         th.non-documentation-column(title='How many upcoming events is this user registered for' data-bs-toggle='tooltip') Events
                             i.far.fa-question-circle.ms-1
+                        th.non-documentation-column(title='Is an Occasional Attendee' data-bs-toggle='tooltip') Occasional
+                            i.far.fa-question-circle.ms-1
                     for documentation in currentCampaign.documentations
                         if !documentation.staff_only || checkPermission('gm')
                             th.documentation-column=documentation.name
@@ -101,6 +103,11 @@ block content
                                         | Player
                                         i.fa.fa-external-link.ms-1
                             td=user.regCount
+                            td
+                                if user.occasional_attendee
+                                    .badge.text-bg-info Yes
+                                else
+                                    .badge.text-bg-dark No
                         for documentation in currentCampaign.documentations
                             if !documentation.staff_only || checkPermission('gm')
                                 td

@@ -137,7 +137,7 @@ router.use(function(req, res, next){
         req.flash('error', 'The Translation Drive Folder is not configured for this campaign')
         return res.redirect('/');
     }
-    res.locals.siteSection='worldbuilding';
+    res.locals.siteSection='setting';
     next();
 });
 

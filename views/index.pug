@@ -14,7 +14,7 @@ append content
                 div !{marked.parse(currentCampaign.description,  {breaks: true})}
             if currentCampaign.image
                 .col-lg-4.d-none.d-lg-block
-                    if currentCampaign.display_map && mapCount
+                    if mapCount && (currentCampaign.display_map === 'public' || (currentCampaign.display_map === 'private' && checkPermission('player')))
                         a(href='/map')
                             img.rounded.img-fluid(src=currentCampaign.image.upload.url)
                     else
@@ -24,7 +24,7 @@ append content
             .col
                 h1.display-4
                     if currentCampaign.image
-                        if currentCampaign.display_map && mapCount
+                        if mapCount && (currentCampaign.display_map === 'public' || (currentCampaign.display_map === 'private' && checkPermission('player')))
                             a(href='/map')
                                 img.rounded.img-fluid.me-2(src=currentCampaign.image.thumbnailUrl style="max-height:100px")
                         else
@@ -102,7 +102,7 @@ append content
                             a.list-group-item.list-group-item-action(href='/skill/doc')
                                 i.fas.fa-fw.fa-file-alt.me-1
                                 | Skills
-                        if currentCampaign.display_glossary
+                        if currentCampaign.display_glossary === 'public' || (currentCampaign.display_glossary === 'private' && checkPermission('player'))
                             a.list-group-item.list-group-item-action(href='/glossary')
                                     i.fas.fa-fw.fa-book.me-1
                                     | Glossary

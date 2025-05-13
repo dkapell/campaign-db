@@ -48,7 +48,7 @@ async function list(req, res, next){
 }
 
 async function listDoc(req, res, next){
-    if (req.checkPermission('npc')){
+    if (req.checkPermission('event')){
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -102,11 +102,13 @@ async function listDoc(req, res, next){
         res.locals.sourceCheck = function(source){
             let showSource = false;
             let unlocked = false;
-            if (_.indexOf(source.users, req.session.activeUser.id) !== -1){
+            const userId = req.session.activeUser?req.session.activeUser.id:-1;
+            const userType = req.session.activeUser?req.session.activeUser.type:'player';
+            if (_.indexOf(source.users, userId) !== -1){
                 showSource = true;
                 unlocked = true;
             }
-            if (source.display_to_pc && (req.session.activeUser.type === 'player' || req.session.player_mode)){
+            if (source.display_to_pc && (userType === 'player' || req.session.player_mode || req.campaign.display_skill_doc === 'public')){
                 showSource = true;
                 unlocked = false;
             }
@@ -124,11 +126,12 @@ async function listDoc(req, res, next){
         res.locals.skillCheck = function(skill){
             let showSkill = false;
             let unlocked = false;
-            if (_.indexOf(skill.users, req.session.activeUser.id) !== -1){
+            const userId = req.session.activeUser?req.session.activeUser.id:-1;
+            if (_.indexOf(skill.users, userId) !== -1){
                 showSkill = true;
                 unlocked = true;
             }
-            if (skill.status.display_to_pc && req.checkPermission('player')){
+            if (skill.status.display_to_pc && (req.campaign.display_skill_doc === 'public' || req.checkPermission('player'))){
                 showSkill = true;
                 unlocked = false;
             }
@@ -784,9 +787,16 @@ async function showValidate(req, res, next){
 
 const router = express.Router();
 
-router.use(permission('player'));
+router.use(permission());
 router.use(function(req, res, next){
-    res.locals.siteSection=['character', 'gm'];
+    res.locals.siteSection='characters';
+
+    if (req.campaign.display_skill_doc === 'private'){
+        return permission('player')(req, res, next);
+    }
+    if (req.campaign.display_skill_doc === 'disabled'){
+        return permission('contrib')(req, res, next);
+    }
     next();
 });
 

@@ -243,7 +243,7 @@ const router = express.Router();
 
 router.use(permission('contrib'));
 router.use(function(req, res, next){
-    res.locals.siteSection='gm';
+    res.locals.siteSection='characters';
     next();
 });
 

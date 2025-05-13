@@ -29,24 +29,38 @@ fieldset.mb-2.border.p-2.rounded
                 +htmlEditor('campaign_description', 'campaign[description]', 10, 500, campaign.description, true)
 
 
-
-//- Website Display
+//- Features
 fieldset.mb-2.border.p-2.rounded
-    label.h5.w-100#design-heading(data-bs-toggle="collapse" data-bs-target="#design-container" aria-expanded="false" area-controls="design-container") Website Display Options
+    label.h5.w-100#features-heading(data-bs-toggle="collapse" data-bs-target="#features-container" aria-expanded="false" area-controls="features-container") Website Features
         span.float-end.ps-2
             i.fa.fa-chevron-up
             i.fa.fa-chevron-down
-
-    #design-container.collapse(aria-labeledby='design-heading')
+    #features-container.collapse(aria-labeledby='features-heading')
         .row.my-2
+            label.col-form-label.col-md-3(for="campaign_display_map") Display Map
             .col
-                .form-check.form-switch
-                    input.form-check-input#campaign_display_map(type="checkbox", name="campaign[display_map]", checked=campaign.display_map)
-                    label.form-check-label(for="campaign_display_map") Display Map
+                select.form-select.select2#campaign_display_map(name="campaign[display_map]")
+                    for value in ['disabled', 'private', 'public']
+                        option(value=value selected=campaign.display_map===value)=capitalize(value)
+                .form-text Should Maps be disabled, displayed to Players+ or public?
+
+        .row.my-2
+            label.col-form-label.col-md-3(for="campaign_display_glossary") Display Glossary
             .col
-                .form-check.form-switch
-                    input.form-check-input#campaign_display_glossary(type="checkbox", name="campaign[display_glossary]", checked=campaign.display_glossary)
-                    label.form-check-label(for="campaign_display_glossary") Display Glossary
+                select.form-select.select2#campaign_display_glossary(name="campaign[display_glossary]")
+                    for value in ['disabled', 'private', 'public']
+                        option(value=value selected=campaign.display_glossary===value)=capitalize(value)
+                .form-text Should the Glossary be disabled, displayed to Players+ or public?
+        .row.my-2
+            label.col-form-label.col-md-3(for="campaign_display_skill_doc") Display Skill Document
+            .col
+                select.form-select.select2#campaign_display_skill_doc(name="campaign[display_skill_doc]")
+                    for value in ['private', 'public']
+                        option(value=value selected=campaign.display_skill_doc===value)=capitalize(value)
+                .form-text Should the Skills Document be displayed to Players+ or public?
+
+
+        .row.my-2
             .col
                 .form-check.form-switch
                     input.form-check-input#campaign_display_translations(type="checkbox", name="campaign[display_translations]", checked=campaign.display_translations)
@@ -63,6 +77,15 @@ fieldset.mb-2.border.p-2.rounded
                     label.form-check-label(for="campaign_player_gallery") Gallery available to #{capitalize(currentCampaign.user_type_map['player'].name)}s
                     .form-text Requires Display Gallery.  This will expose PC names to #{capitalize(currentCampaign.user_type_map['player'].name)}s
 
+
+//- Website Display
+fieldset.mb-2.border.p-2.rounded
+    label.h5.w-100#design-heading(data-bs-toggle="collapse" data-bs-target="#design-container" aria-expanded="false" area-controls="design-container") Website Look and Feel
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+
+    #design-container.collapse(aria-labeledby='design-heading')
         .row.my-2
             label.col-form-label.col-md-3(for="campaign_theme") Theme
             .col

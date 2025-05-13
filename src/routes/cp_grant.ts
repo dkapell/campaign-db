@@ -261,7 +261,7 @@ const router = express.Router();
 
 router.use(permission('player'));
 router.use(function(req, res, next){
-    res.locals.siteSection = ['gm', 'character'];
+    res.locals.siteSection = 'characters';
     next();
 });
 

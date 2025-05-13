@@ -13,20 +13,19 @@ async function showIndex(req, res){
 
         const user = req.session.activeUser;
 
-        if (req.session.player_mode){
-            user.type = 'player';
-        }
-
         const events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         const futureEvents = events.filter( event => { return event.end_time > new Date(); })
         const pastEvents = events.filter( event => { return event.end_time <= new Date(); })
 
         res.locals.showTasks = false;
-        if (req.campaign.display_gallery && !user.image_id){
+        if (req.campaign.display_gallery && user && !user.image_id){
             res.locals.showTasks = true;
         }
 
-        const post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
+        let post_event_surveys = []
+        if (user){
+            post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);
+        }
         res.locals.post_event_surveys = post_event_surveys.filter( survey => {return !survey.post_event_submitted && !survey.hidden});
 
         if (res.locals.post_event_surveys.length){
@@ -35,7 +34,7 @@ async function showIndex(req, res){
         res.locals.pending_cp_grants = Number(await req.models.cp_grant.count({campaign_id:req.campaign.id, status:'pending'}));
 
         // User is a Player - show my cp grants, events, current character
-        if (user && user.type === 'player' && !req.session.admin_mode){
+        if (user && (user.type === 'player' || req.session.player_mode) && !req.session.admin_mode){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
             if (characterData){
                 const character = new Character({id:characterData.id});

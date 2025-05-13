@@ -234,7 +234,14 @@ const router = express.Router();
 
 router.use(permission());
 router.use(function(req, res, next){
-    res.locals.siteSection='worldbuilding';
+    res.locals.siteSection='setting';
+    if (req.campaign.display_map === 'private'){
+        return permission('player')(req, res, next);
+    }
+    if (req.campaign.display_map === 'disabled'){
+        req.flash('warning', 'Map is disabled')
+        return res.redirect('/');
+    }
     next();
 });
 

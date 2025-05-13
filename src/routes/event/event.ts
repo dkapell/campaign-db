@@ -550,7 +550,7 @@ const router = express.Router();
 
 router.use(permission('player'));
 router.use(function(req, res, next){
-    res.locals.siteSection='event';
+    res.locals.siteSection='events';
     next();
 });
 

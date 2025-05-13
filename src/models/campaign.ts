@@ -37,6 +37,7 @@ const tableFields = [
     'display_map',
     'display_cp',
     'display_translations',
+    'display_skill_doc',
     'staff_drive_folder',
     'npc_drive_folder',
     'player_drive_folder',

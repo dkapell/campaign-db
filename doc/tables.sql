@@ -19,6 +19,12 @@ create table users (
     PRIMARY KEY (id)
 );
 
+create TYPE function_status as ENUM (
+    'disabled',
+    'private',
+    'public'
+);
+
 create table campaigns (
     id serial,
     name varchar(80) not null,
@@ -31,8 +37,8 @@ create table campaigns (
     created_by int,
     default_site boolean default false,
     default_to_player boolean default false,
-    display_map boolean default false,
-    display_glossary boolean default true,
+    display_map function_status default 'disabled',
+    display_glossary function_status default 'private',
     display_gallery boolean default false,
     staff_drive_folder varchar(255),
     npc_drive_folder varchar(255),
@@ -568,6 +574,7 @@ create table pages (
     name varchar(255) not null,
     path varchar(255) not null,
     show_full_menu boolean default false,
+    menu varchar(80),
     content text,
     permission varchar(80),
     created timestamp with time zone DEFAULT now(),

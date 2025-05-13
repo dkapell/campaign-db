@@ -178,7 +178,7 @@ async function show(req, res, next){
         if (!glossary_entry || glossary_entry.campaign_id !== req.campaign.id){
             throw new Error('Invalid Glossary Entry');
         }
-        if (!req.checkPermission('gm') || (glossary_entry.status && glossary_entry.status.display_to_pc)){
+        if (!(req.checkPermission('gm') || (glossary_entry.status && glossary_entry.status.display_to_pc))){
             req.flash('warning', 'No permission to view this entry');
             return res.redirect('/glossary');
         }
@@ -367,10 +367,17 @@ async function renderPreview(req, res){
 
 const router = express.Router();
 
-router.use(permission('player')); //TODO change to null to allow world readable glossary
+router.use(permission());
 router.use(function(req, res, next){
-    res.locals.siteSection='worldbuilding';
+    res.locals.siteSection='setting';
     res.locals.querystring = querystring;
+    if (req.campaign.display_glossary === 'private'){
+        return permission('player')(req, res, next);
+    }
+    if (req.campaign.display_glossary === 'disabled'){
+        req.flash('warning', 'Glossary is disabled')
+        return res.redirect('/');
+    }
     next();
 });
 

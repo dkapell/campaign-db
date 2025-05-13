@@ -1,3 +1,12 @@
+mixin menuPages(pages, showDivider)
+    if pages
+        - const visiblePages = pages.filter(page => { return checkPermission(page.permission)});
+        if visiblePages.length
+            if showDivider
+                hr.dropdown-divider
+            each page in visiblePages
+                a.dropdown-item(href=`/page/${page.path}`)= page.name
+
 .container
 
     a.navbar-brand(href='/')= currentCampaign.name
@@ -29,14 +38,14 @@
             else
                 //- Event+ Character
                 if checkPermission('event')
-                    li.nav-item.dropdown(class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null)
+                    li.nav-item.dropdown(class= siteSection==='characters'||_.indexOf(siteSection, 'characters') !== -1 ?"active":null)
                         a.nav-link.dropdown-toggle#gmDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                            class= siteSection==='gm'||_.indexOf(siteSection, 'gm') !== -1 ?"active":null
+                            class= siteSection==='characters'||_.indexOf(siteSection, 'characters') !== -1 ?"active":null
                             ) Characters
                         .dropdown-menu(aria-labelledby="gmDropdown")
                             if checkPermission('event')
@@ -58,79 +67,144 @@
                                 a.dropdown-item(href='/report/source') Character Source Report
                                 a.dropdown-item(href='/report/skill') Character Skill Report
                                 a.dropdown-item(href='/report/custom_field') Custom Field Report
+                            +menuPages(menuPages.characters, true)
 
                 //- Player Character Menu
-                if checkPermission('player') && !checkPermission('event')
-                    li.nav-item.dropdown(class= siteSection==='character'||_.indexOf(siteSection, 'character') !== -1 ?"active":null)
-                        a.nav-link.dropdown-toggle#gmDropdown(
+                else
+                    -
+                        let characterMenuItems = 0
+                        if (checkPermission('player')){
+                            characterMenuItems++
+                        }
+                        if (currentCampaign.display_skill_doc === 'public'){
+                            characterMenuItems++;
+                        }
+                        if (menuPages.characters){
+                            const visiblePages = menuPages.characters.filter(page => { return checkPermission(page.permission)});
+                            if (visiblePages.length){
+                                characterMenuItems++;
+                            }
+                        }
+                    if characterMenuItems
+                        li.nav-item.dropdown(class= siteSection==='characters'||_.indexOf(siteSection, 'characters') !== -1 ?"active":null)
+                            a.nav-link.dropdown-toggle#gmDropdown(
+                                href='#'
+                                role='button'
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                                class= siteSection==='characters'||_.indexOf(siteSection, 'characters') !== -1 ?"active":null
+                                ) Characters
+                            .dropdown-menu(aria-labelledby="gmDropdown")
+                                if checkPermission('player') && !checkPermission('event')
+                                    if characterCount > 0
+                                        a.dropdown-item(href='/character/active') Current Character
+                                        a.dropdown-item(href='/character') All Characters
+                                    else
+                                        a.dropdown-item(href='/character/new') New Character
+
+                                    if currentCampaign.display_cp
+                                        a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
+                                if checkPermission('player') || currentCampaign.display_skill_doc === 'public'
+                                    a.dropdown-item(href='/skill/doc') Skills
+                                if checkPermission('player') && !checkPermission('event')
+                                    if currentCampaign.display_gallery && currentCampaign.player_gallery
+                                         a.dropdown-item(href='/user/gallery') Gallery
+                                +menuPages(menuPages.characters, characterMenuItems>1)
+
+                //- Events menu
+                -
+                    let eventMenuItems = 0;
+                    if (checkPermission('player')){
+                        eventMenuItems++;
+                    }
+                    if (menuPages.events){
+                        const visiblePages = menuPages.events.filter(page => { return checkPermission(page.permission)});
+                        if (visiblePages.length){
+                            eventMenuItems++;
+                        }
+                    }
+
+                if eventMenuItems
+                    li.nav-item.dropdown(class= siteSection==='events'||_.indexOf(siteSection, 'events') !== -1 ?"active":null)
+                        a.nav-link.dropdown-toggle#eventDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                            class= siteSection==='character'||_.indexOf(siteSection, 'character') !== -1 ?"active":null
-                            ) Characters
-                        .dropdown-menu(aria-labelledby="gmDropdown")
-                            if characterCount > 0
-                                a.dropdown-item(href='/character/active') Current Character
-                                a.dropdown-item(href='/character') All Characters
-                            else
-                                a.dropdown-item(href='/character/new') New Character
-
-                            if currentCampaign.display_cp
-                                a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
-
-                            a.dropdown-item(href='/skill/doc') Skills
-                            if currentCampaign.display_gallery && currentCampaign.player_gallery
-                                 a.dropdown-item(href='/user/gallery') Gallery
-
-                //- Events menu
-                li.nav-item.dropdown(class= siteSection==='event'||_.indexOf(siteSection, 'event') !== -1 ?"active":null)
-                    a.nav-link.dropdown-toggle#eventDropdown(
-                        href='#'
-                        role='button'
-                        data-bs-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        class= siteSection==='event'||_.indexOf(siteSection, 'event') !== -1 ?"active":null
-                        ) Events
-                    .dropdown-menu(aria-labelledby="eventDropdown")
-                        a.dropdown-item(href='/event') Events
-                        a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
+                            class= siteSection==='events'||_.indexOf(siteSection, 'events') !== -1 ?"active":null
+                            ) Events
+                        .dropdown-menu(aria-labelledby="eventDropdown")
+                            a.dropdown-item(href='/event') Events
+                            a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
+                            +menuPages(menuPages.events, eventMenuItems>1)
 
                 //- Setting Menu
                 -
-                    let showSettingMenu = false
-                    if (currentCampaign.display_glossary && checkPermission('player')){
-                        showSettingMenu = true;
+                    let settingMenuItems = 0
+                    if (currentCampaign.display_glossary === 'public'){
+                        settingMenuItems++;
+                    }
+                    if (currentCampaign.display_glossary === 'private' && checkPermission('player')){
+                        settingMenuItems++;
                     }
                     if (currentCampaign.display_translations && checkPermission('gm')){
-                        showSettingMenu = true;
+                        settingMenuItems++;
                     }
-                    if (currentCampaign.display_map){
-                        showSettingMenu = true;
+                    if (currentCampaign.display_map === 'public'){
+                        settingMenuItems++;
                     }
-                if showSettingMenu
+                    if (currentCampaign.display_map === 'private' && checkPermission('player')){
+                        settingMenuItems++;
+                    }
+                    if (menuPages.setting){
+                        const visiblePages = menuPages.setting.filter(page => { return checkPermission(page.permission)});
+                        if (visiblePages.length){
+                            settingMenuItems++;
+                        }
+                    }
+                if settingMenuItems
                     li.nav-item.dropdown
-                        a.nav-link.dropdown-toggle#worldbuildingDropdown(
+                        a.nav-link.dropdown-toggle#settingDropdown(
                             href='#'
                             role='button'
                             data-bs-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
-                            class= siteSection==='worldbuilding'||_.indexOf(siteSection, 'worldbuilding') !== -1?"active":null
+                            class= siteSection==='setting'||_.indexOf(siteSection, 'setting') !== -1?"active":null
                             ) Setting
-                        .dropdown-menu(aria-labelledby="worldbuildingDropdown")
-                                if currentCampaign.display_glossary
-                                    if checkPermission('contrib') || checkPermission('player')
-                                        a.dropdown-item(href='/glossary') Glossary
-                                if currentCampaign.display_map
-                                    if checkPermission('contrib')
-                                        a.dropdown-item(href='/map/list') Maps
-                                    else if mapCount
-                                        a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
-                                if currentCampaign.display_translations && checkPermission('gm')
-                                    a.dropdown-item(href='/translation') Translations
+                        .dropdown-menu(aria-labelledby="settingDropdown")
+                            if currentCampaign.display_glossary==='public' || (currentCampaign.display_glossary === 'private' && checkPermission('player'))
+                                    a.dropdown-item(href='/glossary') Glossary
+                            if currentCampaign.display_map==='public' || (currentCampaign.display_map === 'private' && checkPermission('player'))
+                                if checkPermission('contrib')
+                                    a.dropdown-item(href='/map/list') Maps
+                                else if mapCount
+                                    a.dropdown-item(href='/map') #{mapCount > 1?'Maps':'World Map'}
+                            if currentCampaign.display_translations && checkPermission('gm')
+                                a.dropdown-item(href='/translation') Translations
+                            +menuPages(menuPages.setting, settingMenuItems>1)
+                -
+                    let pagesMenuItems = 0;
+                    if (menuPages.pages){
+                        const visiblePages = menuPages.pages.filter(page => { return checkPermission(page.permission)});
+                        if (visiblePages.length){
+                            pagesMenuItems++;
+                        }
+                    }
+                if pagesMenuItems
+                    li.nav-item.dropdown
+                        a.nav-link.dropdown-toggle#pagesDropdown(
+                            href='#'
+                            role='button'
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            class= siteSection==='pages'||_.indexOf(siteSection, 'pages') !== -1?"active":null
+                            ) Pages
+                        .dropdown-menu(aria-labelledby="pagesDropdown")
+                            +menuPages(menuPages.pages, pagesMenuItems>1)
 
                 //- Admin Menu
                 if checkPermission('gm, documentation edit, orders view')
@@ -168,6 +242,7 @@
                                 a.dropdown-item(href='/admin/upload') Uploads
                                 a.dropdown-item(href='/admin/font') Fonts
                                 a.dropdown-item(href='/admin/documentation') Documentations
+                            +menuPages(menuPages.admin, true)
 
 
         //- User Menu
@@ -211,6 +286,7 @@
                             a.dropdown-item(href="/auth/player")
                                 i.far.fa-user.fa-fw.me-1
                                 | #{session.player_mode?'Disable':'Enable'} Player Mode
+                        +menuPages(menuPages.user, true)
 
 
             - else

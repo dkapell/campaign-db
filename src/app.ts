@@ -296,6 +296,19 @@ app.use(async function(req, res, next){
     } else {
         res.locals.characterCount = 0;
     }
+
+    if (req.campaign.display_glossary === 'public' || req.campaign.display_skill_doc === 'public' || req.campaign.display_map === 'public') {
+        res.locals.showFullMenu = true;
+    }
+
+    res.locals.menuPages = await req.models.page.getForMenu(req.campaign.id);
+
+    for (const menu in res.locals.menuPages){
+        const visiblePages = res.locals.menuPages[menu].filter(page => { return req.checkPermission(page.permission)});
+        if (visiblePages.length){
+            res.locals.showFullMenu = true;
+        }
+    }
     next();
 });
 

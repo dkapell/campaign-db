@@ -49,6 +49,9 @@ async function show(req, res, next){
         if (page.show_full_menu){
             res.locals.showFullMenu = true;
         }
+        if (page.menu){
+            res.locals.siteSection=page.menu;
+        }
         res.locals.csrfToken = req.csrfToken();
         res.locals.page = page;
         res.locals.title += ` - ${page.name}`;
@@ -152,6 +155,9 @@ async function create(req, res){
             page[field] = false;
         }
     }
+    if (page.menu === 'none'){
+        page.menu = null
+    }
     if (!page.codes){
         page.codes = [];
     } else if(!_.isArray(page.codes)){
@@ -178,6 +184,10 @@ async function update(req, res){
             page[field] = false;
         }
     }
+    if (page.menu === 'none'){
+        page.menu = null
+    }
+
     if (!page.codes){
         page.codes = [];
     } else if(!_.isArray(page.codes)){
@@ -222,7 +232,7 @@ async function remove(req, res, next){
 const router = express.Router();
 
 router.use(function(req, res, next){
-    res.locals.siteSection='gm';
+    res.locals.siteSection='admin';
     next();
 });
 

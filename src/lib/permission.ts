@@ -64,9 +64,14 @@ function fail(req, res, reason:string, redirect?:string){
 function check(req: Express.Request, permissionList:string, bypass?:boolean){
     const user = req.session.activeUser as CampaignUser;
 
+    if (permissionList === 'any'){
+        return true;
+    }
+
     if (!user){
         return false;
     }
+
     if (permissionList === 'login'){
         return true;
     }

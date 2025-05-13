@@ -404,6 +404,7 @@ async function gallery(req, res, next){
         ],
         current: 'Gallery'
     };
+    res.locals.siteSection='characters';
     try {
         const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
         const image_users = campaign_users.filter(user => {

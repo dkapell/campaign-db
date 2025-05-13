@@ -27,6 +27,12 @@
             option(value='event' selected=page.permission==='event') #{capitalize(currentCampaign.user_type_map['event staff'].name)} or higher required
             option(value='contrib' selected=page.permission==='contrib') #{capitalize(currentCampaign.user_type_map['contributing staff'].name)} or higher required
             option(value='gm' selected=page.permission==='gm') #{capitalize(currentCampaign.user_type_map['core staff'].name)} Only
+    .col
+        label.control-label(for='page_manu') On Menu
+        select.form-select.select2#page_menu(name="page[menu]" data-placeholder='Menu')
+            option
+            each menu in ['none', 'characters', 'events', 'setting', 'pages', 'admin', 'user']
+                option(value=menu selected=page.menu===menu)=capitalize(menu)
 .row.my-2
     .col
         label.control-label(for="page_codes") Codes

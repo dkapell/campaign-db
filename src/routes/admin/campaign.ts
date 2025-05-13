@@ -40,8 +40,8 @@ async function showNew(req, res){
         theme: 'Flatly',
         css: null,
         default_to_player: false,
-        display_map: false,
-        display_glossary: true,
+        display_map: 'disabled',
+        display_glossary: 'private',
         display_cp: false,
         display_translations: false,
         display_gallery: false,
@@ -141,8 +141,6 @@ async function create(req, res){
     req.session.campaignData = campaign;
 
     for(const field of [
-        'display_map',
-        'display_glossary',
         'display_cp',
         'default_to_player',
         'menu_dark',
@@ -176,8 +174,6 @@ async function update(req, res){
     const campaign = req.body.campaign;
     req.session.campaignData = campaign;
     for(const field of [
-        'display_map',
-        'display_glossary',
         'display_cp',
         'default_to_player',
         'menu_dark',

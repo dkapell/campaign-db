@@ -17,11 +17,15 @@ const tableFields = [
     'name',
     'path',
     'show_full_menu',
+    'menu',
     'content',
     'permission'
 ];
 
-const Page = new Model('pages', tableFields, {
+interface PageModel extends IModel {
+   getForMenu?: (campaignId:number) => Promise<Record<string,ModelData[]>>
+}
+const Page: PageModel = new Model('pages', tableFields, {
     order: ['name'],
     validator: validate,
     postSelect: fill,
@@ -75,6 +79,12 @@ async function saveCodes(pageId, data){
             await database.query(deleteQuery, [pageId, row.code]);
         }
     }
+}
+
+Page.getForMenu = async function getForMenu(campaignId:number): Promise<Record<string,ModelData[]>>{
+    const query = 'select id, name, path, menu, permission from pages where campaign_id = $1 and menu is not null';
+    const result = await database.query(query, [campaignId]);
+    return _.groupBy(result.rows, 'menu');
 }
 
 export = Page;

@@ -17,7 +17,8 @@ block content
                     th
                     th(data-priority="1") Name
                     th URL
-                    th Menu
+                    th Show Menu
+                    th On Menu
                     th Codes
                     th Permission
                     th
@@ -34,6 +35,7 @@ block content
                                 .badge.text-bg-success Full
                             else
                                 .badge.text-bg-info Mini
+                        td= page.menu?capitalize(page.menu):''
                         td
                             if page.codes.length
                                 | #{page.codes.length} Codes

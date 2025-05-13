@@ -68,7 +68,7 @@ async function show(req, res, next){
             res.locals.post_event_surveys = [];
         }
 
-        if (req.checkPermission('gm')) {
+        if (req.checkPermission('gm, orders view')) {
             res.locals.income = {
                 event: {
                     count: 0,

@@ -46,7 +46,7 @@ block content
                     li.nav-item(role="presentation")
                         a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
 
-                    if checkPermission('gm')
+                    if checkPermission('gm, orders view')
                         li.nav-item(role="presentation")
                             a.nav-link#event-income-tab(href="#event-income" data-bs-toggle="tab" role="tab" aria-controls="event-income" aria-selected="false") Income
 
@@ -318,7 +318,7 @@ block content
                                     else
                                         - const attendees = event.attendees.filter(attendee => { return attendee.attending });
                                         +attendeeListDisplay(attendees)
-                    if checkPermission('gm')
+                    if checkPermission('gm, orders view')
                          .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
                             .row.my-2
                                 .col

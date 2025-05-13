@@ -18,6 +18,8 @@ mixin attendeeList(attendees, type)
 
     ul.list-group
         each attendee in attendees
+            if type === 'no response' && attendee.user.occasional_attendee
+                - continue
             +attendeeListItem(attendee, type)
 
 mixin attendeeListItem(attendee, type)

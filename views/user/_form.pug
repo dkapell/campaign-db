@@ -24,7 +24,17 @@ if checkPermission('admin')
             select.form-control.select2#user_type(name="user[type]")
                 for type in [ 'admin', 'core staff', 'contributing staff', 'event staff', 'player','none']
                     option(value=type selected=user.type===type)= capitalize(type)
+
 if checkPermission('gm')
+    .row.my-2
+        .col-md
+            .form-check.form-switch
+                input.form-check-input#user_occasional_attendee(
+                    type="checkbox"
+                    name=`user[occasional_attendee]`
+                    checked=user.occasional_attendee
+                )
+                label.form-check-label(for='user_occasional_attendee') Occasional Attendee
     .row.my-2
         .col-md
             label.control-label(for="user_drive_folder") Player Drive Folder (PC Facing, does not grant access)

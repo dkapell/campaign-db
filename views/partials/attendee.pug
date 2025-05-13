@@ -151,6 +151,8 @@ mixin attendeeTable(attendees, type)
                         th
             tbody
                 each attendee in attendees
+                    if type === 'no response' && attendee.user.occasional_attendee
+                        - continue
                     tr
                         td.dtr-control
                         td

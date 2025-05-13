@@ -211,6 +211,7 @@ async function postSelect(user, campaignId){
         user.staff_drive_folder = campaign_user.staff_drive_folder;
         user.permissions = campaign_user.permissions;
         user.image_id = campaign_user.image_id;
+        user.occasional_attendee = campaign_user.occasional_attendee;
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
@@ -240,7 +241,7 @@ async function postSave(id, data, campaignId){
     let campaign_user = await models.campaign_user.findOne({user_id: id, campaign_id: campaignId});
     if (campaign_user){
         let changed = false;
-        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'image_id']){
+        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'image_id', 'occasional_attendee']){
             if (_.has(data, field) && campaign_user[field] !== data[field]){
                 campaign_user[field] = data[field];
                 changed = true;
@@ -281,7 +282,7 @@ async function postSave(id, data, campaignId){
             campaign_id: campaignId,
             type: campaign.default_to_player?'player':'none'
         };
-        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes']){
+        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'occasional_attendee']){
             if (_.has(data, field)){
                 campaign_user[field] = data[field];
             }
@@ -296,8 +297,6 @@ async function postSave(id, data, campaignId){
         if (_.has(data, 'permissions')){
             campaign_user.permissions = JSON.stringify(data.permissions);
         }
-
-
 
         await models.campaign_user.create(campaign_user);
 

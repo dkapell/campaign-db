@@ -12,7 +12,8 @@ const tableFields = [
     'staff_drive_folder',
     'notes',
     'permissions',
-    'image_id'
+    'image_id',
+    'occasional_attendee'
 ];
 
 const CampaignUser = new Model('campaigns_users', tableFields, {

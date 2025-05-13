@@ -35,10 +35,10 @@ block content
                 i.fas.fa-plus.ms-1
 
     .row.my-2
-        .col-lg-auto
+        .col-lg
+            if user.occasional_attendee
+                .badge.text-bg-info.float-end Occassional Attendee
             if checkPermission('gm')
-
-
 
                 if !_.has(session, 'assumed_user')
                     a.btn.btn-outline-danger.me-2(

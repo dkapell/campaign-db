@@ -199,6 +199,11 @@ async function create(req, res){
             user.documentations = await parseDocumentations(req, user.documentations, req.checkPermission('gm'));
         }
 
+        for (const field of ['occasional_attendee']){
+            if (!_.has(user, field)){
+                user[field] = false;
+            }
+        }
 
         if ( user.image_id ===''){
             user.image_id = null;
@@ -225,6 +230,12 @@ async function update(req, res){
             user.permissions = [];
         } else if(!_.isArray(user.permissions)){
             user.permissions = [user.permissions];
+        }
+
+        for (const field of ['occasional_attendee']){
+            if (!_.has(user, field)){
+                user[field] = false;
+            }
         }
 
         if (! req.checkPermission('admin')){

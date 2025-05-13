@@ -489,6 +489,7 @@ async function exportEventAttendees(req, res, next){
                 attendees = users
                     .filter(user => {return user.type !== 'none'})
                     .filter(user => {return !_.findWhere(event.attendees, {user_id: user.id})})
+                    .filter(user => {return !user.occasional_attendee})
                     .map(user => {
                         return {
                             user_id: user.id,

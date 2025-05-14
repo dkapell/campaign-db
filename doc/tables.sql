@@ -98,6 +98,7 @@ create table campaigns_users(
     permissions         jsonb default [],
     image_id            int,
     created             timestamp with time zone DEFAULT now(),
+    occasional_attendee boolean default false,
     primary key(user_id, campaign_id),
     CONSTRAINT campaigns_users_user_fk FOREIGN KEY (user_id)
         REFERENCES "users" (id) MATCH SIMPLE

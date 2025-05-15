@@ -65,7 +65,8 @@
         "registration view",
         "cp grant",
         "documentation edit",
-        "orders view"
+        "orders view",
+        "checkin edit"
     ],
     "renames": {
         "post_event_survey": "Post Event Survey",

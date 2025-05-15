@@ -20,7 +20,7 @@ block content
                             span.fa.fa-edit.me-2
                             | Edit Event
 
-                    if checkPermission('contrib, registration view, checkin edit')
+                    if checkPermission('contrib, registration view')
                         a.btn.btn-outline-primary.btn-sm.ms-2(href=`/event/${event.id}/checkin`)
                             span.fas.fa-clipboard-check.me-2
                             | Event Check-in

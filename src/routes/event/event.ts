@@ -567,9 +567,9 @@ router.put('/:id', csrf(), permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);
 router.put('/:id/grant_cp', csrf(), permission('gm'), grantAttendanceCp);
 
-router.get('/:id/checkin', csrf(), permission('contrib, registration view, checkin edit'), checkinRoutes.show);
-router.post('/:id/checkin/:attendanceId', csrf(), permission('contrib, registration edit, checkin edit'), checkinRoutes.checkin);
-router.post('/:id/uncheckin/:attendanceId', csrf(), permission('contrib, registration edit, checkin edit'), checkinRoutes.uncheckin);
+router.get('/:id/checkin', csrf(), permission('contrib, registration view'), checkinRoutes.show);
+router.post('/:id/checkin/:attendanceId', csrf(), permission('contrib, checkin edit'), checkinRoutes.checkin);
+router.post('/:id/uncheckin/:attendanceId', csrf(), permission('contrib, checkin edit'), checkinRoutes.uncheckin);
 
 router.get('/:id/register', csrf(), attendanceRoutes.showNew);
 router.post('/:id/register', csrf(), attendanceRoutes.create);

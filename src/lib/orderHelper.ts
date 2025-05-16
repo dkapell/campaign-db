@@ -50,7 +50,7 @@ async function checkout(orderId:number, returnUrl:string):Promise<Stripe.Checkou
     }
     if (order.checkout_id) {
         const checkoutSession = await stripe.checkout.sessions.retrieve(order.checkout_id, {stripeAccount:campaign.stripe_account_id});
-        if (checkoutSession.status !== 'expired'){
+        if (checkoutSession.status === 'open'){
             // Expire old session and start over
             await stripe.checkout.sessions.expire(order.checkout_id, {stripeAccount:campaign.stripe_account_id});
         }

@@ -49,8 +49,11 @@ async function checkout(orderId:number, returnUrl:string):Promise<Stripe.Checkou
         throw new Error('Order already submitted');
     }
     if (order.checkout_id) {
-        // Expire old session and start over
-        await stripe.checkout.sessions.expire(order.checkout_id, {stripeAccount:campaign.stripe_account_id});
+        const checkoutSession = await stripe.checkout.sessions.retrieve(order.checkout_id, {stripeAccount:campaign.stripe_account_id});
+        if (checkoutSession.status !== 'expired'){
+            // Expire old session and start over
+            await stripe.checkout.sessions.expire(order.checkout_id, {stripeAccount:campaign.stripe_account_id});
+        }
     }
 
     const user = await models.user.get(campaign.id, order.user_id);

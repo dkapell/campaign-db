@@ -131,7 +131,7 @@ async function showData(req, res, next){
         }
         const skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
 
-        res.json({success:true, skill_usages:skill_usages, character:await character.data()});
+        res.json({success:true, renames:req.campaign.renames, skill_usages:skill_usages, character:await character.data()});
     } catch(err){
         next(err);
     }
@@ -440,7 +440,8 @@ async function showSkill(req, res, next){
         }
 
         const doc = {
-            character_skill: await character.skill(skillId)
+            character_skill: await character.skill(skillId),
+            renames: req.campaign.renames
         };
         if (!_.has(doc.character_skill, 'details') || !doc.character_skill.details){
             doc.character_skill.details = {};
@@ -469,7 +470,8 @@ async function showSources(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             sources: await character.sources(),
-            character_id: characterId
+            character_id: characterId,
+            renames: req.campaign.renames
         };
         res.json(doc);
     } catch(err){
@@ -490,7 +492,8 @@ async function showSkills(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             skills: await character.skills(true),
-            character_id: characterId
+            character_id: characterId,
+            renames: req.campaign.renames
         };
         res.json(doc);
     } catch(err){
@@ -511,7 +514,8 @@ async function showAddSkillApi(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             possibleSkills: await character.possibleSkills(req.session.activeUser.id),
-            character_skill:null
+            character_skill:null,
+            renames: req.campaign.renames
         };
         doc.character_skill = {
             character_id: characterId,
@@ -555,7 +559,8 @@ async function showEditSkillApi(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             possibleSkills: [],
-            character_skill: character_skill
+            character_skill: character_skill,
+            renames: req.campaign.renames
         };
 
         if (!_.has(doc.character_skill, 'details') || !doc.character_skill.details){
@@ -749,7 +754,8 @@ async function showSource(req, res, next){
         }
 
         const doc = {
-            character_skill_source: await character.source(sourceId)
+            character_skill_source: await character.source(sourceId),
+            renames: req.campaign.renames
         };
         if (!_.has(doc.character_skill_source, 'details') || !doc.character_skill_source.details){
             doc.character_skill_source.details = {};
@@ -778,7 +784,8 @@ async function showAddSourceApi(req, res, next){
         const doc = {
             csrfToken: req.csrfToken(),
             possibleSources: await character.possibleSources(req.session.activeUser.id),
-            character_skill_source: null
+            character_skill_source: null,
+            renames: req.campaign.renames
         };
         doc.character_skill_source = {
             character_id: characterId,

@@ -12,8 +12,8 @@ if (backto)
                     selected=Number(character_skill_source.source_id)===source.id data-source=source
                     title=source.name
                     data-text=`<strong>${capitalize(source.type.name)}</strong>: ${source.name}`
-                    data-html=`<div class="float-end">${source.cost} ${currentCampaign.renames.cp.singular}</div><div>${source.unlocked?unlocked:''}<strong>${capitalize(source.type.name)}</strong>: ${source.name}</div>`
-                ) #{capitalize(source.type.name)}: #{source.name}: #{source.cost} #{currentCampaign.renames.cp.singular}
+                    data-html=`<div class="float-end">${source.cost} ${renames.cp.singular}</div><div>${source.unlocked?unlocked:''}<strong>${capitalize(source.type.name)}</strong>: ${source.name}</div>`
+                ) #{capitalize(source.type.name)}: #{source.name}: #{source.cost} #{renames.cp.singular}
 
 
 .row.my-2.p-1

@@ -10,7 +10,11 @@ mixin characterModal()
                     button.btn.btn-secondary(type="button", data-bs-dismiss="modal") Cancel
                     button.btn.btn-primary.save-btn(type="submit") Save
 
-mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=false)
+mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=false, renames=[])
+    -
+        if (currentCampaign){
+            renames = currentCampaign.renames
+        }
     .character-skill
         .row
             .col-md-8.skill-name
@@ -24,9 +28,9 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
             .col-md-1.skill-cost
                 if _.has(skill, 'character_cost')
                     if skill.character_cost
-                        | #{skill.character_cost} #{currentCampaign.renames.cp.singular}
+                        | #{skill.character_cost} #{renames.cp.singular}
                 else
-                    | #{skill.next_cost} #{currentCampaign.renames.cp.singular}
+                    | #{skill.next_cost} #{renames.cp.singular}
 
             .col.float-end.text-end
                 if showUsage
@@ -61,14 +65,19 @@ mixin characterSkill(skill, showDescription=false, showSource=false, showUsage=f
                             !=marked.parseInline(skill.details.notes, {breaks: true})
 
 
-mixin characterSource(source)
+mixin characterSource(source, renames)
+    -
+        if (currentCampaign){
+            renames = currentCampaign.renames
+        }
+
     .character-source
         .row
             .col-md-8.source-name
                 i.me-2= source.name
                 if source.required
                     .badge.text-bg-info.me-1 required
-            .col.source-cost #{source.cost} #{currentCampaign.renames.cp.singular}
+            .col.source-cost #{source.cost} #{renames.cp.singular}
 
             .col.float-end.text-end.source-type
                 strong= capitalize(source.type.name)
@@ -77,7 +86,11 @@ mixin characterSource(source)
                 .col
                     p.my-1!=marked.parseInline(source.description, {breaks: true})
 
-mixin characterSheet(character)
+mixin characterSheet(character, renames)
+    -
+        if (currentCampaign){
+            renames = currentCampaign.renames
+        }
     .row
         .col-md-4.mt-4
             if character.provides.attributes.length
@@ -163,7 +176,7 @@ mixin characterSheet(character)
                             - continue
                         li.py-2.list-group-item=source.name
                             if source.character_cost
-                                span.ms-1.float-end #{source.character_cost} #{currentCampaign.renames.cp.singular}
+                                span.ms-1.float-end #{source.character_cost} #{renames.cp.singular}
 
         .col-md
             .row
@@ -183,7 +196,7 @@ mixin characterSheet(character)
                             ul.card-text.list-group.list-group-flush
                                 each skill in character.provides.rules
                                     li.list-group-item.py-1
-                                        +characterSkill(skill, false, false)
+                                        +characterSkill(skill, false, false, false, renames)
             .row
                 .col
                     -
@@ -214,7 +227,7 @@ mixin characterSheet(character)
                                 ul.card-text.list-group.list-group-flush
                                     each skill in groupReduced
                                         li.list-group-item.py-1
-                                            +characterSkill(skill, false, true)
+                                            +characterSkill(skill, false, true, false, renames)
 
 
 

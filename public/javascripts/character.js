@@ -219,7 +219,7 @@ async function addSource(e){
 
     $modal.find('.modal-title').text('Add Header');
     $modal.find('.modal-body').html(addsourceformTemplate(data));
-    prepCharacterSourceForm($modal.find('form'), data.character_skill_source);
+    prepCharacterSourceForm($modal.find('form'), data.character_skill_source, data.renames);
     $modal.find('.save-btn').text('Add Header');
     $modal.modal('show');
 
@@ -273,7 +273,7 @@ async function addSkill(e){
 
     $modal.find('.modal-title').text('Add Skill');
     $modal.find('.modal-body').html(addskillformTemplate(data));
-    prepCharacterSkillForm($modal.find('form'), data.character_skill);
+    prepCharacterSkillForm($modal.find('form'), data.character_skill, data.renames);
     $modal.find('.save-btn').text('Add Skill');
     $modal.modal('show');
     $modal.one('shown.bs.modal', function(e){
@@ -297,7 +297,6 @@ async function editSkill(e){
 
     const result = await fetch(`/character/${characterId}/skill/${characterSkillId}/edit`);
     const data = await result.json();
-
     const $modal = $('#characterModal');
     data.characterId = characterId;
     data.capitalize = capitalize;
@@ -307,7 +306,8 @@ async function editSkill(e){
 
     $modal.find('.modal-title').text(`Edit Skill: ${data.character_skill.name}`);
     $modal.find('.modal-body').html(editskillformTemplate(data));
-    prepCharacterSkillForm($modal.find('form'), data.character_skill);
+
+    prepCharacterSkillForm($modal.find('form'), data.character_skill, data.renames);
     $modal.find('.save-btn').text('Update Skill');
     $modal.modal('show');
 
@@ -337,7 +337,7 @@ async function removeSkill(e){
     showCp(characterId);
 }
 
-function prepCharacterSourceForm($form){
+function prepCharacterSourceForm($form, character_source, renames){
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -368,12 +368,12 @@ function prepCharacterSourceForm($form){
 
     $('#character_skill_source_source_id').on('change', function(e){
         const source = $(this).find(':selected').data('source');
-        $('#source-description').html(charactersourceTemplate({source:source}));
+        $('#source-description').html(charactersourceTemplate({source:source, renames:renames}));
         displayDetails(source);
     });
 }
 
-function prepCharacterSkillForm($form, character_skill){
+function prepCharacterSkillForm($form, character_skill, renames){
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -404,7 +404,7 @@ function prepCharacterSkillForm($form, character_skill){
 
     $('#character_skill_skill_id').on('change', function(e){
         const skill = $(this).find(':selected').data('skill');
-        $('#skill-description').html(characterskillTemplate({skill:skill}));
+        $('#skill-description').html(characterskillTemplate({skill:skill, renames:renames}));
         if (skill.provides_data.skill){
             $('#skill-details-on-sheet-options').show();
         } else {

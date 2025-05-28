@@ -139,8 +139,6 @@ async function getSkillReportData(req, res, next){
             skills = await req.models.skill.find({campaign_id: req.campaign.id, name: chosenSkill.name});
         }
 
-
-
         chosenSkill.source.name = (_.pluck(_.pluck(skills, 'source'), 'name')).join(', ');
 
         const character_skills = [];
@@ -149,6 +147,7 @@ async function getSkillReportData(req, res, next){
             const charactersWithSkill = await req.models.character_skill.find({skill_id: skill.id});
             character_skills.push(...charactersWithSkill);
         }
+
 
         let characters = await async.map(_.uniq(_.pluck(character_skills, 'character_id')), async (characterId) => {
             const character = await req.models.character.get(characterId);
@@ -160,6 +159,7 @@ async function getSkillReportData(req, res, next){
             };
             return character;
         });
+
         counts.total = characters.length;
         characters = characters.filter(character => {
             if (!character.active){
@@ -179,7 +179,7 @@ async function getSkillReportData(req, res, next){
             }
             return true;
         });
-        res.json({characters:characters, skill:chosenSkill, counts: counts});
+        res.json({characters:characters, skill:chosenSkill, counts: counts, renames:req.campaign.renames});
     } catch (err){
         next(err);
     }

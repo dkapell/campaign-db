@@ -388,12 +388,16 @@ mixin characterCard(character)
 
 
 
-mixin characterList(characters, forPlayer=false, extended=false, showActive=false)
+mixin characterList(characters, forPlayer=false, extended=false, showActive=false, renames=[])
+    -
+        if (currentCampaign){
+            renames = currentCampaign.renames
+        }
     ul.list-group
         each character in characters
-            +characterListItem(character, forPlayer, extended, showActive)
+            +characterListItem(character, forPlayer, extended, showActive, renames)
 
-mixin characterListItem(character, forPlayer, extended, showActive)
+mixin characterListItem(character, forPlayer, extended, showActive, renames)
     li.list-group-item.py-2(href=`/character/${character.id}`)
         .row
             .col
@@ -405,7 +409,7 @@ mixin characterListItem(character, forPlayer, extended, showActive)
                 if showActive && character.active
                     .badge.text-bg-success.badge-pill.ms-1 Active
             .col-1
-                small #{character.cp}&nbsp;#{currentCampaign.renames.cp.singular}
+                small #{character.cp}&nbsp;#{renames.cp.singular}
             if !forPlayer
                 .col-4
                     a(href=`/user/${character.user.id}`)

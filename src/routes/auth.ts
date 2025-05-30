@@ -66,8 +66,7 @@ router.get('/logout',
         });
     });
 
-router.get('/admin', permission('site_admin'),
-    function toggleAdminMode(req, res){
+router.get('/admin',function toggleAdminMode(req, res){
         if (req.session.admin_mode){
             delete req.session.admin_mode;
         } else if (req.checkPermission('site_admin')){
@@ -76,11 +75,11 @@ router.get('/admin', permission('site_admin'),
         res.redirect('/');
     });
 
-router.get('/gm', permission('gm'),
+router.get('/gm',
     function toggleGmMode(req, res){
         if (req.session.gm_mode){
             delete req.session.gm_mode;
-        } else {
+        } else if (req.checkPermission('admin')){
             req.session.gm_mode = true;
         }
         res.redirect('/');
@@ -91,7 +90,7 @@ router.get('/player', permission('player'),
         if (req.session.player_mode){
             delete req.session.player_mode;
             req.session.activeUser.type = req.user.type;
-        } else {
+        } else if (req.checkPermission('gm')){
             req.session.player_mode = true;
             req.session.activeUser.type = 'player';
         }

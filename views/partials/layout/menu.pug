@@ -274,7 +274,7 @@ mixin menuPages(pages, showDivider)
                             a.dropdown-item(href="/user/revert")
                                 i.fas.fa-user-secret.fa-fw.me-1
                                 | Revert to #{actualUser.name}
-                        if checkPermission('site_admin')
+                        if checkPermission('site_admin') || session.admin_mode
                             a.dropdown-item(href="/auth/admin")
                                 i.fas.fa-user-tie.fa-fw.me-1
                                 | #{session.admin_mode?'Disable':'Enable'} Admin Mode

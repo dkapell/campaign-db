@@ -57,7 +57,7 @@ mixin sourceDoc(source, backto)
 
         h2.h4 Skills
             if source.max_skills
-                span.ms-2.h5 (Max #{source.max_skills})
+                span.ms-2.h5 (#{source.max_skills} Max)
         ul.list-unstyled.ms-4
             for skill in source.skills
                 - const showSkill = skillCheck(skill)
@@ -66,7 +66,7 @@ mixin sourceDoc(source, backto)
                         a.text-body.skill-link(href=`#skill-${skill.id}`)
                             if showSkill.unlocked
                                 i.fas.fa-unlock.me-1
-                            strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} cp)
+                            strong #{skill.name==='TBD'?'Unnamed Skill':skill.name} (#{skill.cost||'Unset'} #{currentCampaign.renames.cp.singular})
                             if !(skill.status.complete && skill.status.display_to_pc && skill.status.purchasable)
                                 if checkPermission('contrib')
                                     span.badge.ms-2(
@@ -108,7 +108,7 @@ mixin skillDoc(skill, backto)
             else
                 span.skill-name= skill.name
         if (skill.cost)
-                span.skill-cost.ms-2 (#{skill.cost} cp)
+                span.skill-cost.ms-2 (#{skill.cost} #{currentCampaign.renames.cp.singular})
         if !(skill.status.complete && skill.status.display_to_pc && skill.status.purchasable)
             if checkPermission('contrib')
                 span.badge.float-end(

@@ -47,9 +47,13 @@ $(function(){
             }
         });
     });
-    $('[data-bs-toggle="popover"]').popover({
-        trigger: 'hover'
+
+    $('body').popover({
+        trigger: 'hover',
+        selector: '[data-bs-toggle="popover"]'
     });
+
+
     $('[data-bs-toggle="tooltip"]').tooltip();
 
     $('#event-unregister-btn').confirmation({

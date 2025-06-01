@@ -110,7 +110,7 @@ async function getBuffer(upload: UploadModel, options:UploadOptions={}):Promise<
     return new Promise((resolve,reject) => {
         s3.getObject(requestOptions, function(err, data){
             if (err) { return reject(err); }
-            resolve(data.Body);
+            resolve(data.Body as Buffer);
         });
     });
 };

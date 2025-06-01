@@ -95,6 +95,26 @@ function getStream(upload: UploadModel, options:UploadOptions={}):Readable{
     return s3.getObject(requestOptions).createReadStream();
 };
 
+async function getBuffer(upload: UploadModel, options:UploadOptions={}):Promise<Buffer>{
+    const key = getKey(upload, options);
+    const s3 = new aws.S3({
+        accessKeyId: config.get('aws.accessKeyId'),
+        secretAccessKey: config.get('aws.secretKey'),
+        signatureVersion: 'v4',
+
+    });
+    const requestOptions:aws.S3.GetObjectRequest = {
+        Bucket: upload.is_public?config.get('aws.assetBucket'):config.get('aws.privateBucket'),
+        Key: key
+    };
+    return new Promise((resolve,reject) => {
+        s3.getObject(requestOptions, function(err, data){
+            if (err) { return reject(err); }
+            resolve(data.Body);
+        });
+    });
+};
+
 async function signS3(key:string, fileType:string, isPublic:boolean): Promise<string> {
     return new Promise((resolve,reject) => {
         const s3 = new aws.S3({
@@ -393,6 +413,7 @@ export default {
     getUrl,
     sorter,
     getStream,
+    getBuffer,
     getSize,
     getContentType,
     signS3,

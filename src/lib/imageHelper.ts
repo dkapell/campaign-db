@@ -2,6 +2,7 @@
 import config from 'config';
 import sharp from 'sharp';
 import {Readable} from 'stream';
+import convert from 'heic-convert';
 
 import uploadHelper from './uploadHelper';
 
@@ -30,8 +31,25 @@ async function buildThumbnail(image:ImageModel){
         return uploadHelper.copy({key:key, bucket:bucket}, {key:thumbnailKey, bucket:bucket});
     }
     try{
-        const s3Stream = uploadHelper.getStream(image.upload);
-        const thumbnail = await makeThumbnail(s3Stream, thumbnailSize);
+        const contentType = await uploadHelper.getContentType(image.upload);
+        let thumbnail = null
+        if (contentType === 'image/heic'){
+            const s3Buffer = await uploadHelper.getBuffer(image.upload);
+
+            const convertedImage = await convert({
+                buffer: s3Buffer,
+                format: 'JPEG',
+                quality: 1
+            });
+            const imageStream = Readable.from(convertedImage);
+            thumbnail = await makeThumbnail(imageStream, thumbnailSize);
+            await uploadHelper.upload(bucket, key, Readable.from(convertedImage));
+
+        } else {
+            const s3Stream = uploadHelper.getStream(image.upload);
+
+            thumbnail = await makeThumbnail(s3Stream, thumbnailSize);
+        }
         return uploadHelper.upload(bucket, thumbnailKey, Readable.from(thumbnail));
     } catch (err){
         console.trace(err);

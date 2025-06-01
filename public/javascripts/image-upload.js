@@ -106,7 +106,7 @@ async function uploadFile(file, url, $container){
             resolve(xhr.readyState === 4 && xhr.status === 200);
         });
         xhr.open('PUT', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+        xhr.setRequestHeader('Content-Type', file.type);
         xhr.send(file);
     });
 

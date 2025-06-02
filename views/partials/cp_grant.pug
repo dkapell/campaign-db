@@ -21,7 +21,7 @@ mixin playerGrants(grants)
                 for grant in grants
                     tr
                         td.dtr-control
-                        td!= marked.parseInline(grant.content, {breaks: true})
+                        td.text-wrap!= marked.parseInline(grant.content, {breaks: true})
                         td= grant.amount
                         if currentCampaign.cp_approval
                             td
@@ -69,7 +69,7 @@ mixin staffGrants(grants)
                     tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
                         td.dtr-control
                         td= grant.user.name
-                        td
+                        td.text-wrap
                             if grant.content.length>83
                                 | !{marked.parseInline(grant.content.substr(0, 80)+'...')}
                             else

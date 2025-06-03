@@ -8,11 +8,17 @@ $(document).ready(function () {
 function loadGalleryFilter(){
     const types = JSON.parse(localStorage.getItem('cdb-gallery-type-filter'));
     if (types){
-        for (const type in types){
+        for (let type in types){
             if (types[type]){
+                if (type === 'player'){
+                    type = 'players';
+                }
                 $(`.gallery-type-${type}`).show();
                 $(`#gallery-type-filter-${type}`).prop('checked', true);
             } else {
+                if (type === 'player'){
+                    type = 'players';
+                }
                 $(`.gallery-type-${type}`).hide();
                 $(`#gallery-type-filter-${type}`).prop('checked', false);
             }

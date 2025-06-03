@@ -436,10 +436,34 @@ async function gallery(req, res, next){
             return user;
         });
         res.locals.users = users.sort(campaignHelper.userSorter);
+
+        let galleryImages = await req.models.image.find({campaign_id:req.campaign.id, type:'gallery'});
+        galleryImages = galleryImages.filter(image => {
+            return image.display_to_pc || req.checkPermission('event');
+        });
+
+        const images = [...users.sort(campaignHelper.userSorter), ...galleryImages];
+        res.locals.images = images.sort(gallerySorter);
         res.render('user/gallery', { pageTitle: 'Gallery' });
     } catch (err){
         next(err);
     }
+}
+
+function gallerySorter(a, b){
+    const aName = getGallerySortName(a);
+    const bName = getGallerySortName(b);
+    return aName.localeCompare(bName);
+}
+
+function getGallerySortName(obj){
+    if (_.has(obj, 'upload')){
+        return obj.upload.display_name?obj.upload.display_name:obj.upload.name;
+    }
+    if (_.has(obj, 'character')){
+        return obj.character.name;
+    }
+    return obj.name
 }
 
 const router = express.Router();

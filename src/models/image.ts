@@ -17,7 +17,8 @@ const tableFields = [
     'type',
     'width',
     'height',
-    'for_cms'
+    'for_cms',
+    'display_to_pc'
 ];
 
 const Image = new Model('images', tableFields, {
@@ -26,8 +27,10 @@ const Image = new Model('images', tableFields, {
 });
 
 async function postProcess(image:ModelData){
-    image.upload = await models.upload.get(image.upload_id);
-    image.thumbnailUrl = uploadHelper.getUrl(image.upload as ImageModel, {thumbnail:true});
+    const upload = await models.upload.get(image.upload_id);
+    image.upload = upload;
+    image.thumbnailUrl = uploadHelper.getUrl(upload as UploadModel, {thumbnail:true});
+    image.name = upload.display_name?upload.display_name:upload.name;
     return image;
 }
 

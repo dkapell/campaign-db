@@ -487,7 +487,8 @@ create type image_type as ENUM(
     'content',
     'map',
     'survey',
-    'custom field response'
+    'custom field response',
+    'gallery'
 );
 
 create table images (
@@ -498,6 +499,7 @@ create table images (
     height          int,
     upload_id       int,
     for_cms         boolean not null default false,
+    display_to_pc   boolean not null default true,
     created timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT images_campaign_fk FOREIGN KEY (campaign_id)

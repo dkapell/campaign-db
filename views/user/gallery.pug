@@ -1,6 +1,62 @@
 extends ../layout
 include ../partials/image
 
+mixin userImageCard(user)
+    if user.image
+        - const typeName = user.type==='player'?'players':'NPCs'
+        .col.mb-4.gallery-item(
+            class=`gallery-type-${typeName}`
+            data-name=user.name.toUpperCase()
+            data-type=typeName
+            data-charactername=user.character?user.character.name.toUpperCase():''
+        )
+            .card.h-100
+                .card-header.p-2
+                    .card-title
+                        .badge.text-bg-info.float-end=capitalize(user.typeForDisplay)
+                        h5
+                            if user.type === 'player' && user.character
+                                = user.character.name
+                            else
+                                = user.name
+                        if user.type === 'player'
+                            h6= user.name
+                .card-body.p-0.text-center.bg-light
+                    a.img-display-btn(
+                        href=user.image.upload.url
+                        target='_blank'
+                        role="button"
+                        data-imageurl=user.image.upload.url
+                        data-imagename=user.character?`${user.character.name} (${user.name})`:user.name
+                    )
+                        img.img-fluid(src=user.image.thumbnailUrl alt=user.name)
+
+mixin galleryImageCard(image)
+    .col.mb-4.gallery-item(
+        class='gallery-type-NPCs'
+        data-name=image.upload.description.toUpperCase()
+        data-type='NPCs'
+        data-charactername=image.name.toUpperCase()
+    )
+        .card.h-100.border-secondary
+            .card-header.p-2
+                .card-title
+                    .badge.text-bg-info.float-end NPC
+                    h5= image.name
+                    if image.upload.description
+                        h6= image.upload.description
+            .card-body.p-0.text-center.bg-secondary
+                a.img-display-btn(
+                    href=image.upload.url
+                    target='_blank'
+                    role="button"
+                    data-imageurl=image.upload.url
+                    data-imagename=image.name
+                )
+                    img.img-fluid(src=image.thumbnailUrl alt=image.name)
+
+
+
 block content
     .row.my-2
         .col
@@ -9,11 +65,11 @@ block content
                     .col
                         h5.my-0 Filter:
 
-                    for type in  _.uniq(_.pluck(_.sortBy(_.values(currentCampaign.user_type_map), 'order'), 'name'))
+                    for type in  ['players', 'NPCs']
                         - const typeName = type.replace(/[^\w]/g, '_');
                         .col
                             .form-check.form-switch
-                                input.form-check-input.gallery-filter(type="checkbox", id=`gallery-type-filter-${typeName}` checked=type==='player'?true:false data-type=typeName)
+                                input.form-check-input.gallery-filter(type="checkbox", id=`gallery-type-filter-${typeName}` checked=type==='players'?true:false data-type=typeName)
                                 label.form-check-label(for=`gallery-type-filter-${typeName}`)=capitalize(type)
                 .row.my-1
                     .col-auto
@@ -23,35 +79,12 @@ block content
                         input.form-control#gallerySearch(type="text")
 
     .row.row-cols-1.row-cols-md-4.pt-2.my-2#resultsContainer
-        for user in users
-            if user.image
-                - const typeName = user.typeForDisplay.replace(/[^\w]/g, '_');
-                .col.mb-4.gallery-item(
-                    class=`gallery-type-${typeName}`
-                    data-name=user.name.toUpperCase()
-                    data-type=typeName
-                    data-charactername=user.character?user.character.name.toUpperCase():''
-                )
-                    .card.h-100
-                        .card-header.p-2
-                            .card-title
-                                .badge.text-bg-info.float-end=capitalize(user.typeForDisplay)
-                                h5
-                                    if user.type === 'player' && user.character
-                                        = user.character.name
-                                    else
-                                        = user.name
-                                if user.type === 'player'
-                                    h6= user.name
-                        .card-body.p-0.text-center.bg-light
-                            a.img-display-btn(
-                                href=user.image.upload.url
-                                target='_blank'
-                                role="button"
-                                data-imageurl=user.image.upload.url
-                                data-imagename=user.character?`${user.character.name} (${user.name})`:user.name
-                            )
-                                img.img-fluid(src=user.image.thumbnailUrl alt=user.name)
+        - console.log(images)
+        for obj in images
+            if _.has(obj, 'upload')
+                +galleryImageCard(obj)
+            else
+                +userImageCard(obj)
 
     .row.my-2#noResults(style='display:none')
         .col.border.rounded.p-4.m-2.text-center

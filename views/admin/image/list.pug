@@ -11,7 +11,7 @@ block content
             .col
                 h5.my-0 Filter:
 
-            for type in ['favicon', 'website', 'content', 'map']
+            for type in ['favicon', 'website', 'content', 'gallery', 'map']
                 .col
                     .form-check.form-switch
                         input.form-check-input.image-filter(type="checkbox", id=`image-type-filter-${type}` checked=type==='content'?true:false data-type=type)
@@ -23,7 +23,12 @@ block content
             .col.mb-4(class=`image-type-${image.type}`)
                 .card.h-100
                     .card-header.p-1
-                        .badge.text-bg-info.float-end=capitalize(image.type)
+                        .float-end
+                            .badge.text-bg-info=capitalize(image.type)
+                            if image.type==='gallery' && !image.display_to_pc
+                                br
+                                .badge.text-bg-danger Private
+
                         .card-title
                             h5= image.upload.display_name?image.upload.display_name:image.upload.name
                             .small= image.upload.display_name?image.upload.name:''
@@ -54,7 +59,7 @@ block content
 
                             span.float-start
                                 strong.me-2 Id: #{image.upload.id}
-                                if image.type === 'content'
+                                if image.type === 'content' || image.type === 'gallery'
                                     a.btn.btn-outline-info.btn-xs.me-2.copy-img-btn(
                                         role="button",
                                         href='#'

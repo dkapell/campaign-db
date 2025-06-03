@@ -41,9 +41,10 @@ function showNew(req, res){
     res.locals.image = {
         upload: {
             display_name: null,
-            description:null,
+            description:null
         },
-        type: 'content'
+        type: 'content',
+        display_to_pc:true
     };
     res.locals.breadcrumbs = {
         path: [
@@ -93,6 +94,12 @@ async function update(req, res){
     const image = req.body.image;
     req.session.imageData = image;
 
+    for (const field of ['display_to_pc']){
+        if (!_.has(image, field)){
+            image[field] = false;
+        }
+    }
+
     try {
         const current = await req.models.image.get(id);
         if (!current){
@@ -101,6 +108,8 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
+
+
         image.upload_id = current.upload_id;
         await req.models.image.update(id, image);
         delete req.session.imageData;
@@ -141,11 +150,12 @@ async function signS3(req, res, next){
 
     const fileName = decodeURIComponent(req.query.filename);
     const fileType = decodeURIComponent(req.query.filetype);
+    const imageType = decodeURIComponent(req.query.imagetype);
 
     if (!fileType.match(/^image/)){
         return res.json({success:false, error: 'invalid file type'});
     }
-    const upload = await req.upload.makeEmptyUpload(fileName, 'image', true);
+    const upload = await req.upload.makeEmptyUpload(fileName, 'image', imageType !== 'gallery');
 
     const image = {
         id: null,
@@ -185,7 +195,7 @@ router.use(permission('gm'));
 router.get('/', list);
 router.get('/list', listApi);
 router.get('/new', csrf(), showNew);
-router.get('/sign-s3', csrf(), signS3);
+router.get('/sign-s3', signS3);
 router.get('/:id', csrf(), showEdit);
 router.put('/:id', csrf(), update);
 router.delete('/:id', permission('admin'), remove);

@@ -123,6 +123,12 @@ async function update(req, res){
     const font = req.body.font;
     req.session.fontData = font;
 
+    for (const field of ['vertical', 'lettersonly']){
+        if (!_.has(font, field)){
+            font[field] = false;
+        }
+    }
+
     try {
         const current = await req.models.font.get(id);
         if (!current){

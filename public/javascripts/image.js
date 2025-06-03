@@ -8,7 +8,7 @@ $(document).ready(function () {
     $('.delete-img-btn').confirmation({
         title: 'Delete this item'
     }).on('click', deleteImage);
-
+    $('#image_type').on('change', updateImageFields).trigger('change');
 });
 
 async function deleteImage(e){
@@ -45,6 +45,20 @@ async function copyImageMarkdown(e){
 
 }
 
+function updateImageFields(e){
+    const type = $(this).val();
+    if (type === 'gallery'){
+        $('#display-image-row').show();
+        $('.gallery-field-label').show();
+        $('.image-field-label').hide();
+
+    } else {
+        $('#display-image-row').hide();
+        $('.image-field-label').show();
+        $('.gallery-field-label').hide();
+
+    }
+}
 async function submitImageForm(e){
     e.preventDefault();
     const $form = $(this);
@@ -56,7 +70,8 @@ async function submitImageForm(e){
     if (!file){
         return false;
     }
-    const request = await getSignedRequest(file);
+    const imageType = $('#image_type').val();
+    const request = await getSignedRequest(file, imageType);
     $('#image-id').val(request.objectId);
     $('#new-image-form').attr('action', `/admin/image/${request.objectId}`);
 
@@ -78,9 +93,11 @@ async function submitImageForm(e){
     }
 }
 
-async function getSignedRequest(file){
+async function getSignedRequest(file, imageType){
+    console.log('here');
     try{
-        const result = await fetch(`/admin/image/sign-s3?filename=${file.name}&filetype=${file.type}`, {credentials: 'include'});
+        const url = `/admin/image/sign-s3?filename=${file.name}&filetype=${file.type}&imagetype=${imageType}`;
+        const result = await fetch(url, {credentials: 'include'});
         const response = await result.json();
         if (!response.success){
             $('#upload-feedback').text(response.error);

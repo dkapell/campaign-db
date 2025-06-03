@@ -18,21 +18,31 @@ block content
 
                                 .row.my-2
                                     .col
-                                        label.control-label(for="image_display_name") Display Name
+                                        label.control-label(for="image_display_name")
+                                            .gallery-field-label NPC Name
+                                            .image-field-label Display Name
                                         input.form-control(type="text",placeholder="Name",name="image[upload][display_name]",value=image.upload.display_name,id='image_display_name')
 
                                 .row.my-2
                                     .col
                                         label.control-label(for="image_type") Image Type
-                                        select.form-select.select2#image_type(name="image[type]" data-placeholder='Image Type' required)
+                                        select.form-select.select2#image_type(name="image[type]" data-placeholder='Image Type' required disabled=image.type==='gallery')
                                             option
-                                            for type in ['favicon', 'website', 'content', 'map']
+                                            for type in ['favicon', 'website', 'content', 'gallery', 'map']
                                                 option(value=type selected=image.type === type)= capitalize(type)
+
+                                .row.my-2#display-image-row
+                                    .col
+                                        .form-check.form-switch
+                                            input.form-check-input#image_display_to_pc(type="checkbox" name="image[display_to_pc]" checked=image.display_to_pc)
+                                            label.form-check-label(for="image_display_to_pc") Display to Players in Gallery
 
                                 .row.my-2
                                     .col
 
-                                        label.control-label(for="image_description") Description
+                                        label.control-label(for="image_description")
+                                            .gallery-field-label NPC Details (i.e. staff member name)
+                                            .image-field-label Description
                                         textarea.form-control(name="image[upload][description]",id="image_description",rows=3) #{image.upload.description}
 
 

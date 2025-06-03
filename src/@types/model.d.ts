@@ -62,6 +62,7 @@ interface ImageModel extends ModelData{
     name:string,
     display_name?:string
     upload?: UploadModel
+    display_to_pc?: boolean
 }
 
 interface SkillProvide{

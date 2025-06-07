@@ -4,7 +4,7 @@ include ../partials/scene
 block content
     .row.my-2
         .col
-            a.btn.btn-outline-primary.me-2(role="button" href=`/scene/${scene.id}/edit`)
+            a.btn.btn-outline-primary.me-2(role="button" href=`/scene/${scene.id}/edit?backto=scene`)
                 i.fas.fa-edit.me-1
                 | Edit Scene
     .row.my-1
@@ -106,78 +106,85 @@ block content
 
         if scene.users.length
             -
-                let players = scene.users.filter(user => {
+                let playersByScheduleStatus = scene.users.filter(user => {
                     return user.type === 'player'
                 });
-                players = _.groupBy(players, 'scene_status')
+                playersByScheduleStatus = _.groupBy(playersByScheduleStatus, 'scene_schedule_status')
 
-            if players.confirmed
+            if playersByScheduleStatus.confirmed
                 dt.col-sm-3 Players
                 dd.col-sm-9
-                    = (_.pluck(players.confirmed, 'name')).join(', ')
-                    if scene.player_count - players.confirmed.length !== 0
-                        span.ms-2 (+#{scene.player_count - players.confirmed.length}, #{scene.player_count} Requested)
+                    = (_.pluck(playersByScheduleStatus.confirmed, 'name')).join(', ')
+                    if scene.player_count - playersByScheduleStatus.confirmed.length !== 0
+                        span.ms-2 (+#{scene.player_count - playersByScheduleStatus.confirmed.length}, #{scene.player_count} Requested)
 
-            else if players.suggested
+            else if playersByScheduleStatus.suggested
                 dt.col-sm-3 Players Suggested
                 dd.col-sm-9
-                    = (_.pluck(players.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.player_count - players.confirmed.length}, #{scene.player_count} Requested)
+                    = (_.pluck(playersByScheduleStatus.suggested, 'name')).join(', ')
+                    span.ms-2 (+#{scene.player_count - playersByScheduleStatus.confirmed.length}, #{scene.player_count} Requested)
 
             else
                 dt.col-sm-3 Player Count
                 dd.col-sm-9= scene.player_count
-                for status in ['requested', 'required', 'rejected']
-                    if players[status]
-                        dt.col-sm-3 Players #{capitalize(status)}
-                        dd.col-sm-9= (_.pluck(players[status], 'name')).join(', ')
+                for scheduleStatus in ['unscheduled', 'rejected']
+                    if playersByScheduleStatus[scheduleStatus]
+                        - let playersByRequestStatus = _.groupBy(playersByScheduleStatus[scheduleStatus], 'scene_request_status')
+                        each requestStatus in _.keys(playersByRequestStatus)
+                            dt.col-sm-3 Players #{capitalize(requestStatus)}
+                            dd.col-sm-9= (_.pluck(playersByRequestStatus[requestStatus], 'name')).join(', ')
 
         if scene.users.length
             -
 
-                let staff = scene.users.filter(user => {
+                let staffByScheduleStatus = scene.users.filter(user => {
                     return user.type !== 'player'
                 });
-                staff = _.groupBy(staff, 'scene_status')
+                staffByScheduleStatus = _.groupBy(staffByScheduleStatus, 'scene_schedule_status')
 
-            if staff.confirmed
+            if staffByScheduleStatus.confirmed
                 dt.col-sm-3 Staff
                 dd.col-sm-9
-                    = (_.pluck(staff.confirmed, 'name')).join(', ')
-                    if scene.staff_count - staff.confirmed.length !== 0
-                        span.ms-2 (+#{scene.staff_count - staff.confirmed.length}, #{scene.staff_count} Requested)
+                    = (_.pluck(staffByScheduleStatus.confirmed, 'name')).join(', ')
+                    if scene.staff_count - staffByScheduleStatus.confirmed.length !== 0
+                        span.ms-2 (+#{scene.staff_count - staffByScheduleStatus.confirmed.length}, #{scene.staff_count} Requested)
 
-            else if staff.suggested
+            else if staffByScheduleStatus.suggested
                 dt.col-sm-3 Staff Suggested
                 dd.col-sm-9
-                    = (_.pluck(staff.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.staff_count - staff.confirmed.length}, #{scene.staff_count} Requested)
+                    = (_.pluck(staffByScheduleStatus.suggested, 'name')).join(', ')
+                    span.ms-2 (+#{scene.staff_count - staffByScheduleStatus.confirmed.length}, #{scene.staff_count} Requested)
 
             else
                 dt.col-sm-3 Staff Count
                 dd.col-sm-9= scene.staff_count
                     if scene.combat_staff_count
                         span.ms-1 (#{scene.combat_staff_count} as Combat Staff)
-
-                for status in ['requested', 'required', 'rejected']
-                    if staff[status]
-                        dt.col-sm-3 Staff #{capitalize(status)}
-                        dd.col-sm-9= (_.pluck(staff[status], 'name')).join(', ')
+                for scheduleStatus in ['unscheduled', 'rejected']
+                    if staffByScheduleStatus[scheduleStatus]
+                        - let staffByRequestStatus = _.groupBy(staffByScheduleStatus[scheduleStatus], 'scene_request_status')
+                        each requestStatus in _.keys(staffByRequestStatus)
+                            dt.col-sm-3 Staff #{capitalize(requestStatus)}
+                            dd.col-sm-9= (_.pluck(staffByRequestStatus[requestStatus], 'name')).join(', ')
 
         if scene.sources.length
-            - const sources = _.groupBy(scene.sources, 'scene_status');
-            if sources.confirmed
+            - const sourcesByScheduleStatus = _.groupBy(scene.sources, 'scene_schedule_status');
 
+            if sourcesByScheduleStatus.confirmed
                 dt.col-sm-3 Sources
                 dd.col-sm-9
-                    = (_.pluck(sources.confirmed, 'name')).join(', ')
-            else if sources.suggested
+                    = (_.pluck(sourcesByScheduleStatus.confirmed, 'name')).join(', ')
+
+            else if sourcesByScheduleStatus.suggested
                 dt.col-sm-3 Sources Suggested
                 dd.col-sm-9
-                    = (_.pluck(sources.suggested, 'name')).join(', ')
+                    = (_.pluck(sourcesByScheduleStatus.suggested, 'name')).join(', ')
+
             else
-                for status in ['requested', 'required', 'rejected']
-                    if sources[status]
-                        dt.col-sm-3 Sources #{capitalize(status)}
-                        dd.col-sm-9= (_.pluck(sources[status], 'name')).join(', ')
+                for scheduleStatus in ['unscheduled', 'rejected']
+                    if sourcesByScheduleStatus[scheduleStatus]
+                        - let sourcesByRequestStatus = _.groupBy(sourcesByScheduleStatus[scheduleStatus], 'scene_request_status')
+                        each requestStatus in _.keys(sourcesByRequestStatus)
+                            dt.col-sm-3 Sources #{capitalize(requestStatus)}
+                            dd.col-sm-9= (_.pluck(sourcesByRequestStatus[requestStatus], 'name')).join(', ')
 

@@ -2,13 +2,19 @@
   font-size: 0.77rem;
 }
 
+.scene-item .handle-icon{
+  font-size: 0.9rem;
+}
+
 #schedule-container, #schedule-legend, #unscheduled{
   display: grid;
   gap: 0px;
 }
-
+.schedule-cell{
+  z-index: -1;
+}
 .handle {
-  cursor: grab;
+  cursor: grab !important;
 }
 .scene-item .scene-warning, .scene-item .scene-info {
   display:none;

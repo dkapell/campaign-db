@@ -21,7 +21,7 @@ mixin sceneLocationInput(location, request_status, schedule_status)
             .col.px-1
                 if !schedule_status || schedule_status=== 'unscheduled'
                     select.form-select.form-select-sm.complex-select2(name=`scene[locations][id-${location.id}]`)
-                        +sceneStatusOptions(request_status)
+                        +sceneStatusRequestOptions(request_status)
                 else
                     input(type='hidden' name=`scene[locations][id-${location.id}]` value=request_status)
                     +sceneItemRequestText(request_status)
@@ -52,7 +52,7 @@ mixin sceneTimeslotInput(timeslot, request_status, schedule_status)
             .col.px-1
                 if !schedule_status || schedule_status=== 'unscheduled'
                     select.form-select.form-select-sm.complex-select2(name=`scene[timeslots][id-${timeslot.id}]`)
-                        +sceneStatusOptions(request_status)
+                        +sceneStatusRequestOptions(request_status)
                 else
                     input(type='hidden' name=`scene[timeslots][id-${timeslot.id}]` value=request_status)
                     +sceneItemRequestText(request_status)
@@ -96,7 +96,7 @@ mixin sceneUserInput(user, request_status, schedule_status)
                         name=`scene[users][id-${user.id}]`
                         id=`scene-users-${user.type}-${user.id}`
                     )
-                        +sceneStatusOptions(request_status)
+                        +sceneStatusRequestOptions(request_status)
                 else
                     input(type='hidden' name=`scene[users][id-${user.id}]` value=request_status)
 
@@ -123,7 +123,7 @@ mixin sceneSourceInput(source, request_status, schedule_status)
                         name=`scene[sources][id-${source.id}]`
                         id=`scene-sources-${source.id}`
                     )
-                        +sceneStatusOptions(status)
+                        +sceneStatusRequestOptions(request_status)
                 else
                     input(type='hidden' name=`scene[sources][id-${source.id}]` value=request_status)
 
@@ -151,7 +151,7 @@ mixin sceneItemScheduleBadge(schedule_status)
         when 'confirmed'
             .badge.text-bg-success Confirmed
 
-mixin sceneStatusOptions(status)
+mixin sceneStatusRequestOptions(status)
     each value in ['none', 'requested', 'required', 'rejected']
         -
             let badgeClass = 'dark';
@@ -179,6 +179,10 @@ mixin sceneStatusBadge(status)
             .badge.text-bg-success.mx-1 Confirmed
         when 'rejected'
             .badge.text-bg-danger.mx-1 Rejected
+        when 'scheduled'
+            .badge.text-bg-warning.mx-1 Scheduled
+
+
 
 mixin sceneScheduleItem(scene)
 
@@ -207,9 +211,9 @@ mixin sceneScheduleItem(scene)
             if (timeslots.length && locationIdx < locations.length){
                 cell = `cell-timeslot-${timeslots[0].id}-location-${locations[locationIdx].id}`
             }
-
-        .scene-item.border.bg-white.d-none.m-1.p-2(
-            style=`grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
+            // `grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
+        .scene-item.d-none(
+            style=`grid-row:span ${scene.timeslot_count}; z-index:10`
             data-scene-id=scene.id
             id=`scene-${scene.id}-${locationIdx}`
             locations=JSON.stringify(scene.locations)
@@ -223,29 +227,30 @@ mixin sceneScheduleItem(scene)
             class=scene.issues&&scene.issues.warning.length?'validation-warning':''
             class=scene.issues&&scene.issues.info.length?'validation-info':''
         )
-            i.far.fa-check-circle.float-end.text-success.status-indicator.confirmed-indicator(
-                title='Confirmed'
-                data-bs-toggle='tooltip'
-            )
-            i.far.fa-question-circle.float-end.text-warning.status-indicator.suggested-indicator(
-                title='Suggested'
-                data-bs-toggle='tooltip'
-            )
-            span(class=scene.status!=='confirmed'?'handle':'')
-                if scene.status !== 'confirmed'
-                    i.fas.fa-grip-vertical.me-2
-                i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning(
-                    title='Validation Warning'
-                    data-bs-html='true'
-                    data-bs-toggle='popover'
+            .scene-display.m-1.p-1.bg-white.border.d-block.flex-grow-1
+                i.far.fa-check-circle.float-end.text-success.status-indicator.confirmed-indicator(
+                    title='Confirmed'
+                    data-bs-toggle='tooltip'
                 )
-                i.fas.fa-info-circle.scene-info.me-1.text-info(
-                    title='Validation Info'
-                    data-bs-html='true'
-                    data-bs-toggle='popover'
+                i.far.fa-question-circle.float-end.text-warning.status-indicator.suggested-indicator(
+                    title='Suggested'
+                    data-bs-toggle='tooltip'
+                )
+                span(class=scene.status!=='confirmed'?'handle':'').p-1
+                    if scene.status !== 'confirmed'
+                        i.fas.fa-grip-vertical.me-2.handle-icon
+                    i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning(
+                        title='Validation Warning'
+                        data-bs-html='true'
+                        data-bs-toggle='popover'
+                    )
+                    i.fas.fa-info-circle.scene-info.me-1.text-info(
+                        title='Validation Info'
+                        data-bs-html='true'
+                        data-bs-toggle='popover'
 
-                )
-                span.scene-name= scene.name
-                if scene.locations_count > 1
-                    span.scene-location-idx.ms-2 (##{locationIdx+1})
+                    )
+                    span.scene-name= scene.name
+                    if scene.locations_count > 1
+                        span.scene-location-idx.ms-2 (##{locationIdx+1})
         - locationIdx++

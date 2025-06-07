@@ -1,4 +1,5 @@
 extends ../layout
+include ../partials/scene
 
 block content
     a.btn.btn-outline-success.my-2(href='/scene/new')
@@ -50,28 +51,42 @@ block content
                         td.dtr-control
                         td
                             if scene.event
-                                =scene.event.name
+                                a.action-btn(href=`/event/${scene.event.id}`)
+                                    i.far.fa-calendar.me-1
+                                    = scene.event.name
                             else 
                                 i Unassigned
                         td= scene.name
-                        td= capitalize(scene.status)
+                        td
+                            +sceneStatusBadge(scene.status)
                         td
                             if timeslotsConfirmed.length
                                 = (_.pluck(timeslotsConfirmed, 'name')).join(', ')
+                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
+                                if timeslotsConfirmed.length !== scene.timeslot_count
+                                    span.ms-1 (#{scene.timeslot_count} Requested)
                             else if timeslotsSuggested.length
                                 = (_.pluck(timeslotsSuggested, 'name')).join(', ')
-                                .badge.text-bg-warning.ms-1 Suggested
+                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
+                                if timeslotsSuggested.length !== scene.timeslot_count
+                                    span.ms-1 (#{scene.timeslot_count} Requested)
+
                         td
                             if locationsConfirmed.length
                                 = (_.pluck(locationsConfirmed, 'name')).join(', ')
+                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
+                                if locationsConfirmed.length !== scene.locations_count
+                                    span.ms-1 (#{scene.locations_count} Requested)
                             else if locationsSuggested.length
                                 = (_.pluck(locationsSuggested, 'name')).join(', ')
-                                .badge.text-bg-warning.ms-1 Suggested
+                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
+                                if locationsSuggested.length !== scene.locations_count
+                                    span.ms-1 (#{scene.locations_count} Requested)
                         td #{scene.player_count} (#{players.length})
                         td #{scene.staff_count} (#{staff.length})
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
-                                href=`/scene/${scene.id}/edit`
+                                href=`/scene/${scene.id}/edit?backto=list`
                                 title='Edit Scene'
                                 data-bs-toggle='tooltip'
                             )

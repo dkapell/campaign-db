@@ -1,26 +1,36 @@
+if (backto)
+    input(type="hidden" name="backto" value=backto)
+
 .row.my-2
-    label.col-form-label.col-md-3(for="scene_name") Name
+    label.col-form-label.col-md-2(for="scene_name") Name
         span.ms-1.text-danger *
     .col-md
         input.form-control#scene_name(type="text" placeholder="Scene Name" name="scene[name]" value=scene.name required)
-    label.col-form-label.col-md-2(for="scene_request_status") Status
+    label.col-form-label.col-md-1(for="scene_request_status") Status
         span.ms-1.text-danger *
     .col-md-2
-        select.form-select.select2#scene_request_status(name="scene[status]" data-placeholder='Status' required)
+        select.form-select.complex-select2#scene_request_status(name="scene[status]" data-placeholder='Status' required)
             option
-            for status in ['new', 'ready', 'scheduled', 'confirmed', 'postponed']
-                option(value=status selected=scene.status===status)=capitalize(status)
-.row.my-2
-    label.col-form-label.col-md-3(for="scene_player_name") Player-Facing Name
-    .col-md
-        input.form-control#scene_player_name(type="text" placeholder="Player-Facing Name (Optional)" name="scene[player_name]" value=scene.player_name)
-    .col-xl-4.offset-xl-0.offset-3
-         .form-check.form-switch
-            input.form-check-input#scene_display_to_pc(type="checkbox", name="scene[display_to_pc]", checked=scene.display_to_pc)
-            label.form-check-label(for="scene_display_to_pc") Display Scene to Player(s) when Confirmed
+            each status in ['new', 'ready', 'scheduled', 'confirmed', 'postponed']
+                -
+                    let badgeClass = 'dark';
+                    switch (status){
+                        case 'ready': badgeClass = 'info'; break;
+                        case 'scheduled': badgeClass = 'warning'; break;
+                        case 'confirmed': badgeClass = 'success'; break;
+                        case 'postponed': badgeClass = 'danger'; break;
+                    }
+                option(
+                    value=status
+                    selected=status===scene.status
+                    data-text=`<span class="badge text-bg-${badgeClass}">${capitalize(status)}</span>`
+                    data-html=`<span class="text-${badgeClass}">${capitalize(status)}</span>`
+                )= capitalize(status)
+
+
 
 .row.my-2
-    label.col-form-label.col-md-3(for="scene_event_id") Event
+    label.col-form-label.col-md-2(for="scene_event_id") Event
     .col-md
         select.form-select.complex-select2#scene_event_id(name='scene[event_id]')
             option(
@@ -37,12 +47,21 @@
                     data-html=`${event.name}${(event.start_time < new Date())?'<span class="badge text-bg-info float-end">Past</span>':''}`
 
                 )= event.name
-    label.col-form-label.col-md-2(for="scene_timeslot_count") Timeslot Count
-        span.ms-1.text-danger *
-    .col-md-2
-        input.form-control#scene_timeslot_count(type="number" placeholder="Timeslots" name="scene[timeslot_count]" value=scene.timeslot_count)
+
 .row.my-2
-    label.col-form-label.col-md-3(for="scene_prereqs") Prereq Scenes
+    label.col-form-label.col-md-1(for="scene_tags") Tags
+    .col-md
+        select.form-select.tag-select2#scene_tags(multiple, name="scene[tags]" data-placeholder="Tags")
+            for tag in tags
+                -let selected = false;
+                -if (_.findWhere(scene.tags, {id:tag.id})) { selected = true; }
+                -if (scene.tags && scene.tags.indexOf(tag.id) !== -1) { selected = true; }
+                option(value=tag.id selected=selected)= tag.name
+            for tag in scene.tags
+                if isNaN(tag) && !_.isObject(tag)
+                    option(value=tag selected=true)= tag
+
+    label.col-form-label.col-md-2(for="scene_prereqs") Prereq Scenes
     .col-md
         select.form-select.select2#scene_prereqs(name='scene[prereqs]' multiple)
             option
@@ -56,27 +75,38 @@
                     if (_.indexOf(scene.prereqs, prereq.id) !== -1){ selected = true }
                     if (_.findWhere(scene.prereqs, {id: prereq.id})){ selected = true }
                 option(value=prereq.id selected=selected)=prereq.name
-.external-links(style='display:none')
-    .row.my-2
-        label.col-form-label.col-md-3(for="scene_staff_url") Staff Writeup URL
-        .col-md
-            input.form-control#scene_staff_url(type="text" placeholder="Writeup URL" name="scene[staff_url]" value=scene.staff_url)
-    .row.my-2
-        label.col-form-label.col-md-3(for="scene_player_url") Player Writeup URL
-        .col-md
-            input.form-control#scene_player_url(type="text" placeholder="Writeup URL" name="scene[player_url]" value=scene.player_url)
-.row.my-2
-    label.col-form-label.col-md-3(for="scene_tags") Tags
-    .col-md
-        select.form-select.tag-select2#scene_tags(multiple, name="scene[tags]" data-placeholder="Tags")
-            for tag in tags
-                -let selected = false;
-                -if (_.findWhere(scene.tags, {id:tag.id})) { selected = true; }
-                -if (scene.tags && scene.tags.indexOf(tag.id) !== -1) { selected = true; }
-                option(value=tag.id selected=selected)= tag.name
-            for tag in scene.tags
-                if isNaN(tag) && !_.isObject(tag)
-                    option(value=tag selected=true)= tag
+
+fieldset.my-2.border.p-2.rounded
+    label.h5.w-100.mb-0#scene-details-heading( role="button" for="scene-details", data-bs-toggle="collapse" data-bs-target="#scene-details" aria-expanded="false") Scene Details
+        #display-to-players.badge.text-bg-info.mx-3 Display To Players
+        #player-facing-name.badge.text-bg-info.mx-3 Player-Facing Name
+
+        span.float-end.ps-2
+            i.fa.fa-chevron-up
+            i.fa.fa-chevron-down
+
+
+    #scene-details.collapse(aria-labelledby="scene-details-heading")
+        .row.my-2
+            label.col-form-label.col-md-2(for="scene_player_name") Player-Facing Name
+            .col-md
+                input.form-control#scene_player_name(type="text" placeholder="Player-Facing Name (Optional)" name="scene[player_name]" value=scene.player_name)
+            .col-xl-4.offset-xl-0.offset-3
+                 .form-check.form-switch
+                    input.form-check-input#scene_display_to_pc(type="checkbox", name="scene[display_to_pc]", checked=scene.display_to_pc)
+                    label.form-check-label(for="scene_display_to_pc") Display Scene to Player(s) when Confirmed
+        .row.my-2
+            label.col-form-label.col-md-2(for="scene_staff_url") Staff Writeup URL
+            .col-md
+                input.form-control#scene_staff_url(type="text" placeholder="Writeup URL" name="scene[staff_url]" value=scene.staff_url)
+        .row.my-2
+            label.col-form-label.col-md-2(for="scene_player_url") Player Writeup URL
+            .col-md
+                input.form-control#scene_player_url(type="text" placeholder="Writeup URL" name="scene[player_url]" value=scene.player_url)
+        .row.my-2
+            .col-md
+                +markdownEditor('Description/Notes (Staff-Only)', 'scene_description', 'scene[description]', 5, 100, scene.description, true)
+
 .row.my-3
     .col
         .row.mb-2
@@ -132,6 +162,11 @@
                     ) Clear
                 h5 Timeslots
         .row.my-2
+            label.col-form-label.col-md(for="scene_timeslot_count") Timeslot Count
+                span.ms-1.text-danger *
+            .col-md-4
+                input.form-control.form-control-sm#scene_timeslot_count(type="number" placeholder="Timeslots" name="scene[timeslot_count]" value=scene.timeslot_count)
+        .row.my-2
             .col
                 ul.list-group
                     each timeslot in timeslots
@@ -153,7 +188,7 @@
                             +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
                     +sceneUserInput({id:'new', typeForDisplay:'placeholder'}, 'requested', 'unscheduled')
                 .input-group
-                    select.form-select.complex-select2.scene-user-picker#scene-player-picker(data-placeholder='Player')
+                    select.form-select.complex-search-select2.scene-user-picker#scene-player-picker(data-placeholder='Player')
                         option
                         each user in users
                             if user.type === 'player'
@@ -162,14 +197,19 @@
                                     for (const tag of user.tags){
                                         tagString += `<span class="badge text-bg-info mx-1">${tag.name}</span>`
                                     }
+                                    let characterString = '';
+                                    if (user.character){
+                                        characterString = `<span class="mx-1">(${user.character.name})</span>`
+                                    }
                                 option(
                                     value=user.id
                                     data-user=user
                                     data-type='Player'
                                     title=user.name
-                                    data-text=`${user.name}`
-                                    data-html=`${user.name}${tagString}`
-                                ) #{capitalize(user.name)}
+                                    data-text=`${user.name}${characterString}`
+                                    data-html=`${user.name}${characterString}${tagString}`
+                                    data-search=`${user.name} ${characterString} ${_.pluck(user.tags, 'name').join(' ')}`
+                                ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
                     button.btn.btn-outline-dark.add-user-btn Add
         .row.mb-3
             .col.scene-user-picker-container
@@ -188,7 +228,7 @@
                         if user.type !== 'player'
                             +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
                 .input-group
-                    select.form-select.complex-select2.scene-user-picker#scene-staff-picker(data-placeholder='Staff')
+                    select.form-select.complex-search-select2.scene-user-picker#scene-staff-picker(data-placeholder='Staff')
                         option
                         each user in users
                             if user.type !== 'player'
@@ -205,6 +245,7 @@
                                     title=user.name
                                     data-text=`${user.name} (${type})`
                                     data-html=`<span class="text-danger"><strong>${type}</strong>:</span> ${user.name}${tagString}`
+                                    data-search=`${user.name} ${type} ${_.pluck(user.tags, 'name').join(' ')}`
                                 ) #{capitalize(user.name)} (#{type})
                     button.btn.btn-outline-dark.add-user-btn Add
 
@@ -238,4 +279,7 @@
         button.btn.btn-primary(type="submit")= scene.id?'Update':'Create'
         if scene.id
             a.btn.btn-secondary.mx-2(href=`/scene/new?clone=${scene.id}`) Clone
-        a.btn.btn-link(href="/scene") Cancel
+        if backto && backto === 'scene' && scene.id
+            a.btn.btn-link(href=`/scene/${scene.id}`) Cancel
+        else
+            a.btn.btn-link(href="/scene") Cancel

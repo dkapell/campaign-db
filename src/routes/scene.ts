@@ -117,6 +117,12 @@ async function showNew(req, res, next){
             return user;
         });
         users = users.filter(user => { return user.type !== 'none'});
+        users = await async.map(users, async(user)=>{
+            if (user.type === 'player'){
+                user.character = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
+            }
+            return user;
+        });
         res.locals.users = _.sortBy(users, 'typeForDisplay')
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
@@ -136,8 +142,6 @@ async function showNew(req, res, next){
         next(err);
     }
 }
-
-
 
 async function showEdit(req, res, next){
     const id = req.params.id;
@@ -167,6 +171,12 @@ async function showEdit(req, res, next){
             return user;
         });
         users = users.filter(user => { return user.type !== 'none'});
+        users = await async.map(users, async(user)=>{
+            if (user.type === 'player'){
+                user.character = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
+            }
+            return user;
+        });
         res.locals.users = _.sortBy(users, 'typeForDisplay')
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
@@ -175,6 +185,9 @@ async function showEdit(req, res, next){
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
         res.locals.events = await req.models.event.find({campaign_id:req.campaign.id}, {postSelect:async (data)=>{return data;}});
 
+        if (req.query.backto && ['list', 'scene'].indexOf(req.query.backto) !== -1){
+            res.locals.backto = req.query.backto;
+        }
 
         res.locals.title += ` - Edit Scene - ${scene.name}`;
         res.render('scene/edit');
@@ -247,7 +260,11 @@ async function update(req, res){
         await req.audit('scene', id, 'update', {old: current, new:scene});
         delete req.session.sceneData;
         req.flash('success', 'Updated Scene ' + scene.name);
-        res.redirect('/scene');
+        if (req.body.backto && req.body.backto==='list'){
+            res.redirect('/scene');
+        } else {
+            res.redirect(`/scene/${id}`);
+        }
     } catch(err) {
         req.flash('error', err.toString());
         return (res.redirect(`/scene/${id}/edit`));

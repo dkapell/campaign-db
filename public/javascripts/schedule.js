@@ -59,18 +59,19 @@ async function updateSceneSchedule(event, ui){
     $('#schedule-alert').hide();
 
     const $old = $(`#${$scene.attr('cell')}`);
+
     $scene.attr('cell', $slot.attr('id'));
-    /*if ($slot.attr('id') === 'unscheduled'){
+
+    if ($slot.attr('id') === 'unscheduled'){
         $scene.appendTo($slot);
     } else {
         $scene.appendTo($slot.parent());
-    }*/
+    }
 
     await updateScenes($slot);
     await updateScenes($old);
 
     await recordScheduleUpdate($scene, $slot);
-
 
     await validateAllScenes();
 }
@@ -157,13 +158,18 @@ async function updateScenes($slot){
     $children.each(async function(idx){
         const $scene = $(this);
         const rows = $scene.data('timeslot-count');
-        let cols = $('#maxScenes').val()
-        const columnCount = $('#columnCount').val();
+        let cols = $('#cellsPerSlot').val()
 
         if ($slot.attr('id') === 'unscheduled'){
-            gridX = $slot.data('pos-x') + (idx%columnCount * cols);
-            $scene.addClass('m-1');
-            if (idx * cols > columnCount){
+            const columnCount = $('#locationColumns').val();
+            $scene.appendTo($slot);
+            const maxCells = Math.floor(columnCount / cols);
+
+            gridX = $slot.data('pos-x') + idx%maxCells * cols
+
+            $scene.find('.scene-display').addClass('m-1');
+
+            if ((idx+1) * cols > columnCount){
                 gridY += maxRows;
                 maxRows = 1;
             }
@@ -175,30 +181,33 @@ async function updateScenes($slot){
             $scene.removeClass('border-warning');
 
         } else {
+            $scene.appendTo($slot.parent());
             if ($scene.attr('data-status') === 'confirmed'){
                 $scene.addClass('border-success');
             } else {
                 $scene.addClass('border-warning');
             }
-            if ($children.length >= $slot.data('children-count')){
-                $scene.removeClass('m-1');
-                const left = 0.25 + idx*5
+            if ($children.length > $slot.data('children-count')){
+
+                $scene.find('.scene-display').removeClass('m-1');
+                const width = $slot.width();
+                const left = 5 + idx* width / ($children.length * 1.5)
                 const top = 0.25 + idx*0.25
                 const right = ($children.length - idx) * 0.25
 
-                $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}rem`);
+                $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
                 gridX =  $slot.data('pos-x')
             } else {
-                cols = cols / $children.length;
-                $scene.addClass('m-1');
-                $scene.css('margin-left', 0);
-                gridX += idx * cols;
+                cols = Math.floor(cols / $children.length);
+                $scene.find('.scene-display').addClass('m-1');
+                $scene.css('margin', 0);
+                gridX = $slot.data('pos-x') + idx*cols;
             }
         }
         $scene
             .css('grid-row', `${gridY} / span ${rows}`)
             .css('grid-column', `${gridX} / span ${cols}`)
-            .removeClass('d-none').addClass('d-inline-block');
+            .removeClass('d-none').addClass('d-flex');
     });
 }
 

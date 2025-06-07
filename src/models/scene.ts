@@ -117,8 +117,9 @@ async function postSave(sceneId:number, data:ModelData){
     await saveTags(sceneId, data);
     for (const table of ['location', 'timeslot', 'source', 'user']){
         if (_.has(data, `${table}s`)){
-            console.log(`saving data for ${table}s`)
-            async.each(data[`${table}s`] as ModelData[], async (record:ModelData) => {
+            const currentRecords = await models[`scene_${table}`].find({scene_id:sceneId});
+
+            await async.each(data[`${table}s`] as ModelData[], async (record:ModelData) => {
                 const statuses:sceneElementStatuses = {};
                 if (_.has(record, 'scene_request_status')){
                     statuses.request = record.scene_request_status as string;
@@ -127,12 +128,17 @@ async function postSave(sceneId:number, data:ModelData){
                     statuses.schedule = record.scene_schedule_status as string;
                 }
 
-
-                //    request: typeof record.scene_request_status ==='string'?record.scene_request_status:null,
-                //    schedule: typeof record.scene_schedule_status ==='string'?record.scene_schedule_status:null
-
-                saveRecord(sceneId, table, record.id as number, statuses);
+               saveRecord(sceneId, table, record.id as number, statuses);
             })
+
+            await async.each(currentRecords as ModelData[], async (record:ModelData) => {
+                if (_.findWhere(data[`${table}s`] as ModelData[], {id:'' + record[`${table}_id`]})){
+                    return;
+                }
+                if (record.schedule_status === 'unscheduled'){
+                    return models[`scene_${table}`].delete(record);
+                }
+            });
         }
     }
 
@@ -145,7 +151,6 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
     doc[`${table}_id`] = objectId;
     let record = await models[`scene_${table}`].findOne(doc);
     if (record){
-        console.log(`found record for ${table}: ${record.request_status}|${record.schedule_status}`);
         let changed = false;
         if (record.request_status && _.has(statuses, 'request') && record.request_status !== statuses.request){
             record.request_status = statuses.request;

@@ -203,6 +203,10 @@ class Model implements IModel{
             }
         }
 
+        if (_.has(this.options, 'preSave') && _.isFunction(this.options.preSave)){
+            data = await this.options.preSave(data);
+        }
+
         const queryFields = [];
         const queryData = [];
         const queryValues = [];
@@ -237,6 +241,9 @@ class Model implements IModel{
 
                 return id;
             } else {
+                if (_.has(this.options, 'postSave') && _.isFunction(this.options.postSave)){
+                    await this.options.postSave(null, data);
+                }
                 return;
             }
         } catch (e){
@@ -249,6 +256,10 @@ class Model implements IModel{
     async update(id:ComplexId, data: ModelData){
         if (_.has(this.options, 'validator') && _.isFunction(this.options.validator) && ! this.options.validator(data)){
             throw new Error('Invalid Data');
+        }
+
+        if (_.has(this.options, 'preSave') && _.isFunction(this.options.preSave)){
+            data = await this.options.preSave(data);
         }
 
         const queryUpdates = [];
@@ -298,9 +309,14 @@ class Model implements IModel{
                 id = Number(id);
             }
 
-            if (typeof id === 'number' && _.has(this.options, 'postSave') && _.isFunction(this.options.postSave)){
-                await this.options.postSave(id, data);
+            if (_.has(this.options, 'postSave') && _.isFunction(this.options.postSave)){
+                if (typeof id === 'number'){
+                    await this.options.postSave(id, data);
+                } else {
+                    await this.options.postSave(null, data);
+                }
             }
+
             if (typeof id === 'number'){
                 await cache.invalidate(this.table, id);
             } else if (this.options.keyFields){

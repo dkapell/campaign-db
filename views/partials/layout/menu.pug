@@ -138,7 +138,11 @@ mixin menuPages(pages, showDivider)
                         .dropdown-menu(aria-labelledby="eventDropdown")
                             a.dropdown-item(href='/event') Events
                             a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
+                            if checkPermission('gm')
+                                a.dropdown-item(href='/scene') Scenes
+
                             +menuPages(menuPages.events, eventMenuItems>1)
+
 
                 //- Setting Menu
                 -
@@ -238,10 +242,7 @@ mixin menuPages(pages, showDivider)
                                     a.dropdown-item(href='/glossary_status') Glossary Statuses
                                 .dropdown-divider
                                 a.dropdown-item(href=`/admin/campaign/${currentCampaign.id}`) Campaign Configuration
-                                a.dropdown-item(href='/admin/rulebook') Rulebooks
-                                a.dropdown-item(href='/admin/upload') Uploads
-                                a.dropdown-item(href='/admin/font') Fonts
-                                a.dropdown-item(href='/admin/documentation') Documentations
+
                             +menuPages(menuPages.admin, true)
 
 

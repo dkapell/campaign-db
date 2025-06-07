@@ -29,7 +29,7 @@ if (backto)
 .row.my-2
     .col-md
         select.form-select.tag-select2(multiple, name="glossary_entry[tags]",id="glossary_entry_tags" data-placeholder="Tags")
-            for tag in glossary_tags
+            for tag in tags
                 -let selected = false;
                 -if (_.findWhere(glossary_entry.tags, {id:tag.id})) { selected = true; }
                 -if (glossary_entry.tags && glossary_entry.tags.indexOf(tag.id) !== -1) { selected = true; }

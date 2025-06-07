@@ -12,6 +12,7 @@ import orderHelper from '../../lib/orderHelper';
 import postEventSurveyRoutes from './post_event_survey';
 import attendanceRoutes from './attendance';
 import checkinRoutes from './checkin';
+import scheduleRoutes from './schedule';
 
 /* GET events listing. */
 async function list(req, res, next){
@@ -585,5 +586,9 @@ router.put('/:id/post_event/:attendanceId', csrf(), postEventSurveyRoutes.submit
 router.put('/:id/post_event/:attendanceId/api', csrf(), postEventSurveyRoutes.saveApi);
 router.put('/:id/post_event/:attendanceId/addendum', csrf(), postEventSurveyRoutes.submitAddendum);
 router.put('/:id/post_event/:attendanceId/addendum/api', csrf(), postEventSurveyRoutes.saveAddendumApi);
+
+router.get('/:id/schedule', csrf(), permission('gm'), scheduleRoutes.showSchedule);
+router.get('/:id/schedule/validate', permission('gm'), scheduleRoutes.validateScenes);
+router.put('/:id/schedule/:sceneId', csrf(), permission('gm'), scheduleRoutes.updateScene);
 
 export default router;

@@ -1,0 +1,41 @@
+
+.row.my-2
+    .col
+
+        label.control-label(for="timeslot_day") Day
+        select.form-select.select2#timeslot_day(name='timeslot[day]' data-placeholder='Day' required)
+            option
+            for day in ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+                option(value=day selected=timeslot.day===day)= capitalize(day)
+
+    .col
+        label.control-label(for='timestamp_start') Start Time
+        .input-group
+            select.select2#timeslot_start_hour(name="timeslot[start_hour]" data-placeholder="Start Hour" required )
+                option
+                for hour in _.range(0, 24)
+                    option(value=hour selected=Number(timeslot.start_hour)===hour)= hour
+            .input-group-text :
+            select.select2#timeslot_start_minute(name="timeslot[start_minute]" data-placeholder="Start Minute" required )
+                option
+                for minute in [0,15,30,45]
+                    option(value=minute selected=Number(timeslot.start_minute)===minute)= String(minute).padStart(2, '0')
+    .col
+        label.control-label(for="timeslot_length") Timeslot Length
+        .input-group
+            input.form-control#timeslot_length(placeholder="Minutes",name="timeslot[length]",value=timeslot.length type='number' required)
+            .input-group-text Minutes
+    .col
+        label.control-label(for="timeslot_type") Type
+        select.form-select.select2#timeslot_day(name='timeslot[type]' data-placeholder='Type' required)
+            option
+            for type in ['regular', 'special', 'meal']
+                option(value=type selected=timeslot.type===type)= capitalize(type)
+
+            
+.row.my-3
+    .col
+        button.btn.btn-primary(type="submit")= timeslot.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/timeslot") Cancel
+
+

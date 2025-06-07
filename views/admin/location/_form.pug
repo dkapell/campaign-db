@@ -1,0 +1,34 @@
+.row.my-2
+    .col
+
+        label.control-label(for="location_name") Name
+        input.form-control(type="text",placeholder="Name",name="location[name]",value=location.name,id='location_name',required)
+        .invalid-feedback Please choose a valid name
+
+.row.my-2
+    .col
+       .form-check.form-switch
+            input.form-check-input#location_multiple_scenes(type="checkbox" name="location[multiple_scenes]" checked=location.multiple_scenes)
+            label.form-check-label(for="location_multiple_scenes") Location can have multiple simultaneous scenes
+    .col
+       .form-check.form-switch
+            input.form-check-input#location_combat(type="checkbox" name="location[combat]" checked=location.combat)
+            label.form-check-label(for="location_combat") Combat Location
+.row.my-2
+    .col
+        label.control-label(for='location_tags') Tags
+        select.form-select.tag-select2#location_tags(multiple, name="location[tags]" data-placeholder="Tags")
+            for tag in tags
+                -let selected = false;
+                -if (_.findWhere(location.tags, {id:tag.id})) { selected = true; }
+                -if (location.tags && location.tags.indexOf(tag.id) !== -1) { selected = true; }
+                option(value=tag.id selected=selected)= tag.name
+            for tag in location.tags
+                if isNaN(tag) && !_.isObject(tag)
+                    option(value=tag selected=true)= tag
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= location.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/location") Cancel
+
+

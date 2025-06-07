@@ -97,31 +97,36 @@ async function show(req, res, next){
     }
 }
 
-function showNew(req, res){
-    res.locals.user = {
-        name: null,
-        email: null,
-        type: 'none',
-        drive_folder: null,
-        staff_drive_folder: null,
-        permissions: [],
-        documentations: [],
-    };
-    res.locals.breadcrumbs = {
-        path: [
-            { url: '/', name: 'Home'},
-            { url: '/user', name: 'User'},
-        ],
-        current: 'New'
-    };
+async function showNew(req, res, next){
+    try {
+        res.locals.user = {
+            name: null,
+            email: null,
+            type: 'none',
+            drive_folder: null,
+            staff_drive_folder: null,
+            permissions: [],
+            documentations: [],
+        };
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/user', name: 'User'},
+            ],
+            current: 'New'
+        };
 
-    res.locals.csrfToken = req.csrfToken();
-    if (_.has(req.session, 'userData')){
-        res.locals.user = req.session.userData;
-        delete req.session.userData;
+        res.locals.csrfToken = req.csrfToken();
+        if (_.has(req.session, 'userData')){
+            res.locals.user = req.session.userData;
+            delete req.session.userData;
+        }
+        res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'user'});
+        res.locals.title += ' - New User';
+        res.render('user/new');
+    } catch (err){
+        next(err);
     }
-    res.locals.title += ' - New User';
-    res.render('user/new');
 }
 
 async function showEdit(req, res, next){
@@ -148,6 +153,7 @@ async function showEdit(req, res, next){
         if (req.query.backto && ['list', 'user'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
         }
+        res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'user'});
         res.locals.title += ` - Edit User - ${user.name}`;
         res.render('user/edit');
 
@@ -205,6 +211,18 @@ async function create(req, res){
             }
         }
 
+        if (!user.tags){
+            user.tags = [];
+        } else if(!_.isArray(user.tags)){
+            user.tags = [user.tags];
+        }
+        user.tags = user.tags.map(tag => {
+            if (!isNaN(tag)){
+                return Number(tag);
+            }
+            return tag;
+        });
+
         if ( user.image_id ===''){
             user.image_id = null;
         }
@@ -237,6 +255,18 @@ async function update(req, res){
                 user[field] = false;
             }
         }
+
+        if (!user.tags){
+            user.tags = [];
+        } else if(!_.isArray(user.tags)){
+            user.tags = [user.tags];
+        }
+        user.tags = user.tags.map(tag => {
+            if (!isNaN(tag)){
+                return Number(tag);
+            }
+            return tag;
+        });
 
         if (! req.checkPermission('admin')){
             delete user.name;

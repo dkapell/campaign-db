@@ -1,0 +1,18 @@
+extends ../layout
+include ../partials/editor
+include ../partials/scene
+
+block content
+    .row
+        .col
+            .card
+                .card-header New Scene
+                .card-body
+                    form.form.needs-validation(method="POST" action="/scene" novalidate)
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script(src='/javascripts/scene.js')
+    script(src='/javascripts/tag.js')

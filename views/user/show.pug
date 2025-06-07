@@ -114,6 +114,12 @@ block content
                                 i.fab.fa-google-drive.me-1
                                 | Player Drive
                                 i.fa.fa-external-link.ms-1
+                        if user.tags.length
+                            .row.my-2
+                                .col
+                                    h5 Tags
+                                    each tag in user.tags
+                                        .badge.text-bg-info.mx-2.fs-6=tag.name
 
                 if user.notes
                     .row.my-2

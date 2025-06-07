@@ -66,7 +66,7 @@ router.get('/logout',
         });
     });
 
-router.get('/admin',function toggleAdminMode(req, res){
+router.get('/admin', function toggleAdminMode(req, res){
         if (req.session.admin_mode){
             delete req.session.admin_mode;
         } else if (req.checkPermission('site_admin')){

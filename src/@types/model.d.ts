@@ -5,6 +5,7 @@ interface ModelData{
 interface ModelOptions {
     skipAuditFields?: string[]
     postSelect?: (data:ModelData) => Promise<ModelData>
+    preSave?: (data:ModelData) => Promise<ModelData>
     postSave?: (id:number, ModelData) => Promise<void>
     postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
     validator?: (data: ModelData) => boolean
@@ -282,5 +283,26 @@ interface OrderModel extends ModelData{
     paid?: Date
     order_items?: OrderItem[]
     user?: UserModel
+}
 
+type scenePrereq = number|ModelData
+
+interface SceneModel extends ModelData{
+    id?:number
+    campaign_id?:number
+    event_id?:number
+    name?:string
+    player_name?:string
+    status?:string
+    description?:number
+    timeslot_count?:number
+    display_to_pc?:boolean
+    prereqs?:scenePrereq[]|string
+    player_count?:number
+    staff_count?:number
+    combat_staff_count?:number
+    locations_count?:number
+    staff_url?:string
+    player_url?:string
+    priority?:string
 }

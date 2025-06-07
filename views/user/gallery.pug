@@ -79,7 +79,6 @@ block content
                         input.form-control#gallerySearch(type="text")
 
     .row.row-cols-1.row-cols-md-4.pt-2.my-2#resultsContainer
-        - console.log(images)
         for obj in images
             if _.has(obj, 'upload')
                 +galleryImageCard(obj)

@@ -50,6 +50,7 @@
     "sharp": "^0.33.1",
     "stripe": "^18.0.0",
     "svg-to-pdfkit": "^0.1.8",
+    "tarjan-graph": "^3.0.0",
     "textbox-for-pdfkit": "^0.1.1",
     "underscore": "^1.13.6",
     "unzip-stream": "^0.3.1",

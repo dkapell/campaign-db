@@ -1,12 +1,10 @@
 .row.my-2
-    .col-md-3
-        label.control-label(for="survey_name") Name
+    label.col-form-label.col-md-3(for="survey_name") Name
     .col
         input.form-control(type="text",placeholder="Survey Name",name="survey[name]",value=survey.name,id='survey_name')
 
 .row.my-2
-    .col-md-3
-        label.control-label(for="survey_type") Type
+    label.col-form-label.col-md-3(for="survey_type") Type
     .col
         select.form-select.select2#survey_type(name="survey[type]" data-placeholder='Survey Type' required)
             option

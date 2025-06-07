@@ -1,0 +1,98 @@
+extends ../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/scene/new')
+        span(class="fa fa-plus")
+        |  New Scene
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th Event
+                    th(data-priority="1") Name
+                    th Status
+                    th Timeslot
+                    th Location
+                    th Players
+                    th Staff
+                    th
+
+
+            tbody
+                for scene in scenes
+                    -
+                        const timeslotsConfirmed = scene.timeslots.filter(timeslot => {
+                            return timeslot.scene_schedule_status === 'confirmed'
+                        });
+                        const timeslotsSuggested = scene.timeslots.filter(timeslot => {
+                            return timeslot.scene_schedule_status === 'suggested'
+                        });
+                        const locationsConfirmed = scene.locations.filter(location => {
+                            return location.scene_schedule_status === 'confirmed'
+                        });
+                        const locationsSuggested = scene.locations.filter(location => {
+                            return location.scene_schedule_status === 'suggested'
+                        });
+                        const players = scene.users.filter(user => {
+                            return user.scene_schedule_status === 'confirmed' && user.type === 'player'
+                        });
+                        const staff = scene.users.filter(user => {
+                            return user.scene_schedule_status === 'confirmed' && user.type !== 'player'
+                        });
+                    tr(class='clickable-row', data-click-object='scene' data-click-id=scene.id)
+                        td.dtr-control
+                        td
+                            if scene.event
+                                =scene.event.name
+                            else 
+                                i Unassigned
+                        td= scene.name
+                        td= capitalize(scene.status)
+                        td
+                            if timeslotsConfirmed.length
+                                = (_.pluck(timeslotsConfirmed, 'name')).join(', ')
+                            else if timeslotsSuggested.length
+                                = (_.pluck(timeslotsSuggested, 'name')).join(', ')
+                                .badge.text-bg-warning.ms-1 Suggested
+                        td
+                            if locationsConfirmed.length
+                                = (_.pluck(locationsConfirmed, 'name')).join(', ')
+                            else if locationsSuggested.length
+                                = (_.pluck(locationsSuggested, 'name')).join(', ')
+                                .badge.text-bg-warning.ms-1 Suggested
+                        td #{scene.player_count} (#{players.length})
+                        td #{scene.staff_count} (#{staff.length})
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/scene/${scene.id}/edit`
+                                title='Edit Scene'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-edit.fa-fw
+
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
+                                role="button",
+                                url=`/scene/${scene.id}`,
+                                data-back='/scene'
+                                title='Delete Scene'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+        });
+
+

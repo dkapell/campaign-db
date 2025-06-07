@@ -212,6 +212,7 @@ async function postSelect(user, campaignId){
         user.permissions = campaign_user.permissions;
         user.image_id = campaign_user.image_id;
         user.occasional_attendee = campaign_user.occasional_attendee;
+        user.tags = campaign_user.tags;
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
@@ -265,6 +266,14 @@ async function postSave(id, data, campaignId){
             }
         }
 
+        if (_.has(data, 'tags')){
+            const newTags = JSON.stringify(data.tags.sort());
+            if (JSON.stringify(campaign_user.tags.sort()) !== newTags){
+                campaign_user.tags = data.tags;
+                changed = true;
+            }
+        }
+
         if (typeof campaign_user.permissions === 'object'){
             campaign_user.permissions = JSON.stringify(campaign_user.permissions);
         }
@@ -282,7 +291,7 @@ async function postSave(id, data, campaignId){
             campaign_id: campaignId,
             type: campaign.default_to_player?'player':'none'
         };
-        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'occasional_attendee']){
+        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'occasional_attendee', 'tags']){
             if (_.has(data, field)){
                 campaign_user[field] = data[field];
             }

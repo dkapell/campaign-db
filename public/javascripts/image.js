@@ -94,7 +94,6 @@ async function submitImageForm(e){
 }
 
 async function getSignedRequest(file, imageType){
-    console.log('here');
     try{
         const url = `/admin/image/sign-s3?filename=${file.name}&filetype=${file.type}&imagetype=${imageType}`;
         const result = await fetch(url, {credentials: 'include'});

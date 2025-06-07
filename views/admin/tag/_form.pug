@@ -1,0 +1,20 @@
+
+.row.my-2
+    .col
+        label.control-label(for="tag_name") Name
+        input.form-control#tag_name(type="text",placeholder="Name",name="tag[name]",value=tag.name,required)
+            
+    .col
+
+        label.control-label(for="tag_type") Type
+        select.form-select.select2#tag_type(name='tag[type]' data-placeholder='Type' required)
+            option
+            for type in ['glossary', 'scene', 'user', 'location']
+                option(value=type selected=tag.type===type)= capitalize(type)
+            
+.row.my-3
+    .col
+        button.btn.btn-primary(type="submit")= tag.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/timeslot") Cancel
+
+

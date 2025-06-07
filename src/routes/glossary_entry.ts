@@ -31,9 +31,12 @@ async function list(req, res, next){
 async function listTag(req, res, next){
     const tagId = req.params.id;
     try{
-        const tag = await req.models.glossary_tag.get(tagId);
+        const tag = await req.models.tag.get(tagId);
         if (tag.campaign_id !== req.campaign.id){
             throw new Error('Can not get entries from different campaign');
+        }
+        if (tag.type !== 'glossary'){
+            throw new Error('Invalid tag type');
         }
 
         res.locals.breadcrumbs = {
@@ -46,7 +49,7 @@ async function listTag(req, res, next){
 
         const glossary_entries = await req.models.glossary_entry.listByTag(tagId);
         res.locals.glossary_entries = await glossaryHelper.prepEntries(glossary_entries, req.checkPermission('contrib'), req.campaign.id);
-        res.locals.glossary_tag = tag;
+        res.locals.tag = tag;
         res.locals.sortEntries = glossaryHelper.sorter;
         res.locals.wideMain = true;
         res.locals.listName = `Tag: ${tag.name}`;
@@ -222,7 +225,7 @@ async function showNew(req, res, next){
 
         res.locals.csrfToken = req.csrfToken();
         res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
-        res.locals.glossary_tags = await req.models.glossary_tag.find({campaign_id:req.campaign.id});
+        res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'glossary'});
 
         if (_.has(req.session, 'glossary_entryData')){
             res.locals.glossary_entry = req.session.glossary_entryData;
@@ -257,7 +260,7 @@ async function showEdit(req, res, next){
             current: 'Edit: ' + glossary_entry.name
         };
         res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
-        res.locals.glossary_tags = await req.models.glossary_tag.find({campaign_id:req.campaign.id});
+        res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'glossary'});
         res.locals.title += ` - Edit Glossary Entry - ${glossary_entry.name}`;
         res.render('glossary/edit');
     } catch(err){

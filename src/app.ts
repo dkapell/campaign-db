@@ -60,6 +60,8 @@ import translationRouter from './routes/translation';
 
 import orderRouter from './routes/order';
 
+import sceneRouter from './routes/scene';
+
 import adminRulebookRouter from './routes/admin/rulebook';
 import adminDocumentationRouter from './routes/admin/documentation';
 import adminUploadRouter from './routes/admin/upload';
@@ -67,9 +69,9 @@ import adminFontRouter from './routes/admin/font';
 import adminAuditRouter from './routes/admin/audit';
 import adminImageRouter from './routes/admin/image';
 import adminStripeRouter from './routes/admin/stripe';
-
-
-
+import adminTimeslotRouter from './routes/admin/timeslot';
+import adminLocationRouter from './routes/admin/location';
+import adminTagRouter from './routes/admin/tag';
 
 const app = express();
 
@@ -337,6 +339,7 @@ app.use('/survey', surveyRouter);
 app.use('/post_event_survey', postEventSurveyRouter);
 app.use('/translation', translationRouter);
 app.use('/order', orderRouter);
+app.use('/scene', sceneRouter);
 
 app.use('/admin/rulebook', adminRulebookRouter);
 app.use('/admin/campaign', adminCampaignRouter);
@@ -346,6 +349,9 @@ app.use('/admin/upload', adminUploadRouter);
 app.use('/admin/audit', adminAuditRouter);
 app.use('/admin/image', adminImageRouter);
 app.use('/admin/stripe', adminStripeRouter);
+app.use('/admin/timeslot', adminTimeslotRouter);
+app.use('/admin/location', adminLocationRouter);
+app.use('/admin/tag', adminTagRouter);
 
 
 // catch 404 and forward to error handler

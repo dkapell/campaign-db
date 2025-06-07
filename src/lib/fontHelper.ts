@@ -90,13 +90,18 @@ async function streamToBuffer(readableStream): Promise<Buffer> {
 }
 
 async function listFonts(){
-    let fonts = await cache.check('fontcache', 'list');
-    if (fonts){ return fonts; }
-    const url = `https://www.googleapis.com/webfonts/v1/webfonts?sort=alpha&key=${config.get('googleFonts.apiKey')}`
-    const getJSON = bent('json');
-    fonts = await getJSON(url);
-    await cache.store('fontcache', 'list', fonts.items, 300);
-    return fonts.items;
+    try{
+        let fonts = await cache.check('fontcache', 'list');
+        if (fonts){ return fonts; }
+        const url = `https://www.googleapis.com/webfonts/v1/webfonts?sort=alpha&key=${config.get('googleFonts.apiKey')}`
+        const getJSON = bent('json');
+        fonts = await getJSON(url);
+        await cache.store('fontcache', 'list', fonts.items, 300);
+        return fonts.items;
+    } catch (err){
+        console.trace(err);
+        return [];
+    }
 }
 
 async function getGoogleFont(name){

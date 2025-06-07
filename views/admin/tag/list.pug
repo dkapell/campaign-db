@@ -1,0 +1,52 @@
+extends ../../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/admin/tag/new')
+        span(class="fa fa-plus")
+        |  New Tag
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Type
+                    if checkPermission('admin')
+                        th
+
+            tbody
+                for tag in tags
+                    tr(class='clickable-row', data-click-object='admin/tag' data-click-id=tag.id)
+                        td.dtr-control
+                        td= tag.name
+                        td= capitalize(tag.type)
+                        
+                        if checkPermission('admin')
+                            td.text-end
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    role="button",
+                                    url=`/tag/${tag.id}`,
+                                    data-back='/tag'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 500, 'hide': 100 },
+                placement:'auto'
+            });
+        });
+
+

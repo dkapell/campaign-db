@@ -1,0 +1,251 @@
+mixin sceneLocationInput(location, request_status, schedule_status)
+    li.list-group-item.location-input(
+        data-multiple=location.multiple_scenes?'true':'false'
+        data-combat=location.combat?'true':'false'
+    )
+        .row.mb-2
+            .col.px-1
+                if schedule_status !== 'unscheduled'
+                    .float-end
+                        +sceneItemScheduleBadge(schedule_status)
+                -
+                    let iconClass = '';
+                    if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
+                    if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
+                i.fas.fa-map-marker-alt.me-1(class=iconClass)
+                strong.me-1= location.name
+                +locationTags(location)
+
+
+        .row.my-1
+            .col.px-1
+                if !schedule_status || schedule_status=== 'unscheduled'
+                    select.form-select.form-select-sm.complex-select2(name=`scene[locations][id-${location.id}]`)
+                        +sceneStatusOptions(request_status)
+                else
+                    input(type='hidden' name=`scene[locations][id-${location.id}]` value=request_status)
+                    +sceneItemRequestText(request_status)
+
+
+
+
+mixin locationTags(location)
+    if location.combat
+        .badge.text-bg-primary.me-1 Combat
+    else
+        .badge.text-bg-primary.me-1 Non-Combat
+
+    if location.multiple_scenes
+        .badge.text-bg-primary.mx-1 Multiple
+
+    .float-end
+        each tag in location.tags
+            .badge.text-bg-info.mx-1=tag.name
+
+mixin sceneTimeslotInput(timeslot, request_status, schedule_status)
+    li.list-group-item.timeslot-input(data-type=timeslot.type)
+        .row
+            .col-md-7.px-1
+                span.align-middle
+                    +timeslotName(timeslot, false, schedule_status)
+
+            .col.px-1
+                if !schedule_status || schedule_status=== 'unscheduled'
+                    select.form-select.form-select-sm.complex-select2(name=`scene[timeslots][id-${timeslot.id}]`)
+                        +sceneStatusOptions(request_status)
+                else
+                    input(type='hidden' name=`scene[timeslots][id-${timeslot.id}]` value=request_status)
+                    +sceneItemRequestText(request_status)
+                    .float-end
+                        +sceneItemScheduleBadge(schedule_status)
+
+
+mixin timeslotName(timeslot, showTags=false, schedule_status='unscheduled')
+    -
+        let iconClass = '';
+        if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
+        if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
+    case timeslot.type
+        when 'meal'
+            i.fas.fa-utensils.fa-fw.me-1(class=iconClass)
+        when 'special'
+            i.fas.fa-clock.fa-fw.me-1(class=iconClass)
+        default
+            i.far.fa-clock.fa-fw.me-1(class=iconClass)
+    strong= timeslot.name
+    if tags && timeslot.type !== 'regular'
+        .badge.text-bg-primary.ms-2=capitalize(timeslot.type)
+
+mixin sceneUserInput(user, request_status, schedule_status)
+    li.list-group-item.scene-user(id=`scene-user-${user.id}`)
+        .row
+            .col-md-7
+                -
+                    let iconClass = '';
+                    if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
+                    if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
+                i.far.fa-user.me-1.align-middle(class=iconClass)
+                strong.align-middle.user-name= user.name
+                .badge.text-bg-primary.ms-2.user-type(style=user.type==='player'?'display:none':'')=capitalize(user.typeForDisplay)
+
+            .col.px-1
+                if !schedule_status || schedule_status=== 'unscheduled'
+
+                    select.form-select.form-select-sm.scene-status-select(
+                        class=user.id!=='new'?'complex-select2':''
+                        name=`scene[users][id-${user.id}]`
+                        id=`scene-users-${user.type}-${user.id}`
+                    )
+                        +sceneStatusOptions(request_status)
+                else
+                    input(type='hidden' name=`scene[users][id-${user.id}]` value=request_status)
+
+                    +sceneItemRequestText(request_status)
+                    .float-end
+                        +sceneItemScheduleBadge(schedule_status)
+
+mixin sceneSourceInput(source, request_status, schedule_status)
+    li.list-group-item.scene-source(id=`scene-source-${source.id}`)
+        .row
+            .col-md-7
+                -
+                    let iconClass = '';
+                    if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
+                    if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
+                i.far.fa-id-card.me-1.align-middle(class=iconClass)
+                strong.align-middle.source-name= source.name
+                .badge.text-bg-primary.ms-2.source-type=capitalize(source.type.name)
+
+            .col.px-1
+                if !schedule_status || schedule_status=== 'unscheduled'
+                    select.form-select.form-select-sm.scene-status-select(
+                        class=source.id!=='new'?'complex-select2':''
+                        name=`scene[sources][id-${source.id}]`
+                        id=`scene-sources-${source.id}`
+                    )
+                        +sceneStatusOptions(status)
+                else
+                    input(type='hidden' name=`scene[sources][id-${source.id}]` value=request_status)
+
+                    +sceneItemRequestText(request_status)
+                    .float-end
+                        +sceneItemScheduleBadge(schedule_status)
+
+mixin sceneItemRequestText(request_status)
+    case request_status
+        when 'requested'
+            span.text-info Requested
+        when 'required'
+            span.text-primary Required
+        when 'rejected'
+            span.text-danger Rejected
+        default
+            span.text-dark None
+
+mixin sceneItemScheduleBadge(schedule_status)
+    case schedule_status
+        when 'unscheduled'
+            .badge.text-bg-dark Unscheduled
+        when 'suggested'
+            .badge.text-bg-warning Suggested
+        when 'confirmed'
+            .badge.text-bg-success Confirmed
+
+mixin sceneStatusOptions(status)
+    each value in ['none', 'requested', 'required', 'rejected']
+        -
+            let badgeClass = 'dark';
+            switch (value){
+                case 'requested': badgeClass = 'info'; break;
+                case 'required': badgeClass = 'primary'; break;
+                case 'rejected': badgeClass = 'danger'; break;
+            }
+        option(
+            value=value
+            selected=value===status
+            data-text=`<span class="text-${badgeClass}">${capitalize(value)}</span>`
+            data-html=`<span class="text-${badgeClass}">${capitalize(value)}</span>`
+            )= capitalize(value)
+
+mixin sceneStatusBadge(status)
+    case status
+        when 'requested'
+            .badge.text-bg-info.mx-1 Requested
+        when 'required'
+            .badge.text-bg-primary.mx-1 Required
+        when 'suggested'
+            .badge.text-bg-warning.mx-1 Suggested
+        when 'confirmed'
+            .badge.text-bg-success.mx-1 Confirmed
+        when 'rejected'
+            .badge.text-bg-danger.mx-1 Rejected
+
+mixin sceneScheduleItem(scene)
+
+    -
+        let timeslots = scene.timeslots.filter(timeslot => {
+            return timeslot.scene_schedule_status === 'confirmed'
+        });
+        if (!timeslots.length){
+            timeslots = scene.timeslots.filter(timeslot => {
+                return timeslot.scene_schedule_status === 'suggested'
+            });
+        }
+        let locations = scene.locations.filter(location => {
+            return location.scene_schedule_status === 'confirmed';
+        });
+        if (!locations.length){
+            locations = scene.locations.filter(location => {
+               return location.scene_schedule_status === 'suggested';
+            });
+        }
+
+        let locationIdx = 0
+    while locationIdx < scene.locations_count
+        -
+            let cell = 'unscheduled'
+            if (timeslots.length && locationIdx < locations.length){
+                cell = `cell-timeslot-${timeslots[0].id}-location-${locations[locationIdx].id}`
+            }
+
+        .scene-item.border.bg-white.d-none.m-1.p-2(
+            style=`grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
+            data-scene-id=scene.id
+            id=`scene-${scene.id}-${locationIdx}`
+            locations=JSON.stringify(scene.locations)
+            timeslots=JSON.stringify(scene.timeslots)
+            data-timeslot-count=scene.timeslot_count
+            cell=cell
+            data-location-idx=locationIdx
+            data-status=scene.status
+            data-scene-name=scene.name
+            class=scene.scene_schedule_status!=='confirmed'?'scene-item-draggable':''
+            class=scene.issues&&scene.issues.warning.length?'validation-warning':''
+            class=scene.issues&&scene.issues.info.length?'validation-info':''
+        )
+            i.far.fa-check-circle.float-end.text-success.status-indicator.confirmed-indicator(
+                title='Confirmed'
+                data-bs-toggle='tooltip'
+            )
+            i.far.fa-question-circle.float-end.text-warning.status-indicator.suggested-indicator(
+                title='Suggested'
+                data-bs-toggle='tooltip'
+            )
+            span(class=scene.status!=='confirmed'?'handle':'')
+                if scene.status !== 'confirmed'
+                    i.fas.fa-grip-vertical.me-2
+                i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning(
+                    title='Validation Warning'
+                    data-bs-html='true'
+                    data-bs-toggle='popover'
+                )
+                i.fas.fa-info-circle.scene-info.me-1.text-info(
+                    title='Validation Info'
+                    data-bs-html='true'
+                    data-bs-toggle='popover'
+
+                )
+                span.scene-name= scene.name
+                if scene.locations_count > 1
+                    span.scene-location-idx.ms-2 (##{locationIdx+1})
+        - locationIdx++

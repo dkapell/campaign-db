@@ -1,0 +1,183 @@
+extends ../layout
+include ../partials/scene
+
+block content
+    .row.my-2
+        .col
+            a.btn.btn-outline-primary.me-2(role="button" href=`/scene/${scene.id}/edit`)
+                i.fas.fa-edit.me-1
+                | Edit Scene
+    .row.my-1
+        .col
+            h3= scene.name
+
+        .col
+            h4.d-inline.float-end
+                .badge.text-bg-info.ms-2=capitalize(scene.status)
+            if scene.event
+                a.fs-4(href=`/event/${scene.event.id}`)
+                    i.far.fa-calendar.me-1
+                    = scene.event.name
+            else
+                i.fs-4 Unspecified Event
+
+    if scene.player_name
+
+        .row.my-1
+            .col
+                h4.d-inline= scene.player_name
+    .row
+        .col
+            if scene.display_to_pc
+                .badge.text-bg-success.me-2 Display to PC
+            else
+                .badge.text-bg-danger.me-2 Do Not Display to PC
+
+            each tag in scene.tags
+                .badge.text-bg-info.mx-1= tag.name
+        if scene.staff_url || scene.player_url
+            .col
+                if scene.staff_url
+                    a.btn.btn-outline-info.mx-1(href=scene.staff_url)
+                        | Staff Writeup
+                        i.fas.fa-external-link-alt.ms-1
+                if scene.player_url
+                    a.btn.btn-outline-info.mx-1(href=scene.player_url)
+                        | Player Writeup
+                        i.fas.fa-external-link-alt.ms-1
+
+    dl.row.my-2
+
+        if scene.prereqs.length
+            dt.col-sm-3 Prereqs
+            dd.col-sm-9
+                each prereq in scene.prereqs
+                    a.me-2(href=`/scene/${prereq.id}`)
+                        i.fas.fa-theater-masks.me-1
+                        =prereq.name
+
+        if scene.timeslots.length
+            - const timeslotsBySchedule = _.groupBy(scene.timeslots, 'scene_schedule_status');
+
+            if timeslotsBySchedule.confirmed
+                dt.col-sm-3 Timeslot(s)
+                dd.col-sm-9
+                    = (_.pluck(timeslotsBySchedule.confirmed, 'name')).join(', ')
+                    if scene.timeslot_count !== timeslotsBySchedule.confirmed.length
+                        span.ms-2 (#{scene.timeslot_count} Requested)
+            else if timeslotsBySchedule.suggested
+                dt.col-sm-3 Timeslot(s) Suggested
+                dd.col-sm-9
+                    = (_.pluck(timeslotsBySchedule.suggested, 'name')).join(', ')
+                    span.ms-2 (#{scene.timeslot_count} Requested)
+            else
+                - const timeslotsByRequest = _.groupBy(scene.timeslots, 'scene_request_status');
+                dt.col-sm-3 Timeslot Count
+                dd.col-sm-9= scene.timeslot_count
+
+                for status in ['requested', 'required', 'rejected']
+                    if timeslotsByRequest[status]
+                        dt.col-sm-3 Timeslot(s) #{capitalize(status)}
+                        dd.col-sm-9= (_.pluck(timeslotsByRequest[status], 'name')).join(', ')
+
+
+        if scene.locations.length
+            - const locationsBySchedule = _.groupBy(scene.locations, 'scene_schedule_status');
+            if locationsBySchedule.confirmed
+
+                dt.col-sm-3 Location(s)
+                dd.col-sm-9
+                    = (_.pluck(locationsBySchedule.confirmed, 'name')).join(', ')
+                    if scene.locations_count !== locationsBySchedule.confirmed.length
+                        span.ms-2 (#{scene.locations_count} Requested)
+            else if locationsBySchedule.suggested
+                dt.col-sm-3 Location(s) Suggested
+                dd.col-sm-9
+                    = (_.pluck(locationsBySchedule.suggested, 'name')).join(', ')
+                    span.ms-2 (#{scene.locations_count} Requested)
+            else
+                - const locationsByRequest = _.groupBy(scene.locations, 'scene_request_status');
+                dt.col-sm-3 Location Count
+                dd.col-sm-9= scene.locations_count
+                for status in ['requested', 'required', 'rejected']
+                    if locationsByRequest[status]
+                        dt.col-sm-3 Location(s) #{capitalize(status)}
+                        dd.col-sm-9= (_.pluck(locationsByRequest[status], 'name')).join(', ')
+
+        if scene.users.length
+            -
+                let players = scene.users.filter(user => {
+                    return user.type === 'player'
+                });
+                players = _.groupBy(players, 'scene_status')
+
+            if players.confirmed
+                dt.col-sm-3 Players
+                dd.col-sm-9
+                    = (_.pluck(players.confirmed, 'name')).join(', ')
+                    if scene.player_count - players.confirmed.length !== 0
+                        span.ms-2 (+#{scene.player_count - players.confirmed.length}, #{scene.player_count} Requested)
+
+            else if players.suggested
+                dt.col-sm-3 Players Suggested
+                dd.col-sm-9
+                    = (_.pluck(players.suggested, 'name')).join(', ')
+                    span.ms-2 (+#{scene.player_count - players.confirmed.length}, #{scene.player_count} Requested)
+
+            else
+                dt.col-sm-3 Player Count
+                dd.col-sm-9= scene.player_count
+                for status in ['requested', 'required', 'rejected']
+                    if players[status]
+                        dt.col-sm-3 Players #{capitalize(status)}
+                        dd.col-sm-9= (_.pluck(players[status], 'name')).join(', ')
+
+        if scene.users.length
+            -
+
+                let staff = scene.users.filter(user => {
+                    return user.type !== 'player'
+                });
+                staff = _.groupBy(staff, 'scene_status')
+
+            if staff.confirmed
+                dt.col-sm-3 Staff
+                dd.col-sm-9
+                    = (_.pluck(staff.confirmed, 'name')).join(', ')
+                    if scene.staff_count - staff.confirmed.length !== 0
+                        span.ms-2 (+#{scene.staff_count - staff.confirmed.length}, #{scene.staff_count} Requested)
+
+            else if staff.suggested
+                dt.col-sm-3 Staff Suggested
+                dd.col-sm-9
+                    = (_.pluck(staff.suggested, 'name')).join(', ')
+                    span.ms-2 (+#{scene.staff_count - staff.confirmed.length}, #{scene.staff_count} Requested)
+
+            else
+                dt.col-sm-3 Staff Count
+                dd.col-sm-9= scene.staff_count
+                    if scene.combat_staff_count
+                        span.ms-1 (#{scene.combat_staff_count} as Combat Staff)
+
+                for status in ['requested', 'required', 'rejected']
+                    if staff[status]
+                        dt.col-sm-3 Staff #{capitalize(status)}
+                        dd.col-sm-9= (_.pluck(staff[status], 'name')).join(', ')
+
+        if scene.sources.length
+            - const sources = _.groupBy(scene.sources, 'scene_status');
+            if sources.confirmed
+
+                dt.col-sm-3 Sources
+                dd.col-sm-9
+                    = (_.pluck(sources.confirmed, 'name')).join(', ')
+            else if sources.suggested
+                dt.col-sm-3 Sources Suggested
+                dd.col-sm-9
+                    = (_.pluck(sources.suggested, 'name')).join(', ')
+            else
+                for status in ['requested', 'required', 'rejected']
+                    if sources[status]
+                        dt.col-sm-3 Sources #{capitalize(status)}
+                        dd.col-sm-9= (_.pluck(sources[status], 'name')).join(', ')
+

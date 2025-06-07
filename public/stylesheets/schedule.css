@@ -1,0 +1,39 @@
+.timeslot-header, .scene-item {
+  font-size: 0.77rem;
+}
+
+#schedule-container, #schedule-legend, #unscheduled{
+  display: grid;
+  gap: 0px;
+}
+
+.handle {
+  cursor: grab;
+}
+.scene-item .scene-warning, .scene-item .scene-info {
+  display:none;
+}
+
+.scene-item.validation-warning .scene-warning, .scene-item.validation-info .scene-info {
+  display:inline;
+}
+
+.scene-item .status-indicator{
+  display: none;
+}
+
+.scene-item.border-warning .suggested-indicator, .scene-item.border-success .confirmed-indicator {
+  display: inline;
+}
+
+.schedule-cell .schedule-drop-indicator {
+  display:none;
+  font-size:0.77rem;
+}
+
+.schedule-cell.bg-warning-subtle .schedule-drop-requested, .schedule-cell.bg-info-subtle .schedule-drop-required,
+.schedule-cell.bg-success-subtle .schedule-drop-suggested, .schedule-cell.bg-dark-subtle .schedule-drop-confirmed,
+.schedule-cell.bg-danger-subtle .schedule-drop-rejected {
+  display:inline;
+}
+

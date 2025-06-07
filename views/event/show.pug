@@ -32,6 +32,12 @@ block content
                         )
                             i.fas.fa-hat-wizard.recalc-icon
                             |  Grant Event #{currentCampaign.renames.cp.singular}
+                    if checkPermission('gm') && new Date(event.start_time) > new Date()
+                        a.btn.btn-sm.btn-outline-primary.my-2.ms-2(
+                            href=`/event/${event.id}/schedule`
+                        )
+                            i.fas.fa-calendar
+                            |  Event Schedule
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)

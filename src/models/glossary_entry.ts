@@ -6,11 +6,11 @@ import validator from 'validator';
 import database from '../lib/database';
 import Model from  '../lib/Model';
 
-import glossary_tagModel from './glossary_tag';
+import tagModel from './tag';
 import glossary_statusModel from './glossary_status';
 
 const models = {
-    tag: glossary_tagModel,
+    tag: tagModel,
     status: glossary_statusModel
 };
 
@@ -95,7 +95,7 @@ async function saveTags(entry_id:number, data:ModelData){
 
     newTags = await async.map(newTags, async tagId => {
         if (isNaN(tagId)){
-            const tag = await models.tag.getByName(tagId, (data.campaign_id as number));
+            const tag = await models.tag.getByName('glossary', tagId, (data.campaign_id as number));
             return tag.id;
         }
         return Number(tagId);

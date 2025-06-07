@@ -188,3 +188,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
 .skillDoc b, .skillDoc strong {
 font-weight: 700;
 }
+
+.select2-container--bootstrap-5+.select2-container--bootstrap-5 {
+     z-index: 900;
+}

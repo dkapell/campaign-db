@@ -242,14 +242,12 @@ function addSceneUser(e){
     $new.find('.scene-status-select').on('change', updateSceneUser);
     $new.appendTo($container.find('.scene-user-list'))
     $new.show();
-    $container.find('.scene-user-count').val(Number($container.find('.scene-user-count').val()) +1);
     $userPicker.val(null).trigger('change');
 }
 
 function updateSceneUser(){
     const $container = $(this).closest('.scene-user-picker-container')
     if ($(this).val() === 'none'){
-        $container.find('.scene-user-count').val(Number($container.find('.scene-user-count').val()) -1);
         $(this).closest('.scene-user').remove();
     }
 }

@@ -178,10 +178,14 @@ fieldset.my-2.border.p-2.rounded
             .col.scene-user-picker-container
                 h5 Players
                 .row.my-1
-                    label.col-form-label.col-md(for="scene_player_count") Total Player Count
+                    label.col-form-label.col-lg(for="scene_player_count") Total Player Count
                         span.ms-1.text-danger *
-                    .col-md-4
-                        input.form-control.form-control-sm.scene-user-count#scene_player_count(type="number" placeholder="Players" name="scene[player_count]" value=scene.player_count)
+                    .col-lg-5
+                        .input-group.input-group-sm#scene_player_count
+                            input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min)
+                            .input-group-text to
+                            input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max)
+
                 ul.my-1.list-group.scene-user-list#scene-player-list
                     each user in scene.users
                         if user.type === 'player'
@@ -215,14 +219,20 @@ fieldset.my-2.border.p-2.rounded
             .col.scene-user-picker-container
                 h5 Staff
                 .row.my-1
-                    label.col-form-label.col-md(for="scene_staff_count") Total Staff Count
+                    label.col-form-label.col-lg(for="scene_staff_count") Total Staff Count
                         span.ms-1.text-danger *
-                    .col-md-4
-                        input.form-control.form-control-sm.scene-user-count#scene_staff_count(type="number" placeholder="Staff" name="scene[staff_count]" value=scene.staff_count)
+                    .col-lg-5
+                        .input-group.input-group-sm#scene_staff_count
+                            input.form-control.scene-user-count#scene_staff_count_min(type="number" placeholder="Min" name="scene[staff_count_min]" value=scene.staff_count_min)
+                            .input-group-text to
+                            input.form-control.scene-user-count#scene_staff_count_max(type="number" placeholder="Max" name="scene[staff_count_max]" value=scene.staff_count_max)
                 .row.my-1
-                    label.col-form-label.col-md(for="scene_combat_staff_count") Combat Staff Count
-                    .col-md-4
-                        input.form-control.form-control-sm#scene_combat_staff_count(type="number" placeholder="Staff" name="scene[combat_staff_count]" value=scene.combat_staff_count)
+                    label.col-form-label.col-lg(for="scene_combat_staff_count") Combat Staff Count
+                    .col-lg-5
+                        .input-group.input-group-sm#scene_combat_staff_count
+                            input.form-control#scene_combat_staff_count_min(type="number" placeholder="Min" name="scene[combat_staff_count_min]" value=scene.combat_staff_count_min)
+                            .input-group-text to
+                            input.form-control#scene_combat_staff_count_min(type="number" placeholder="Max" name="scene[combat_staff_count_max]" value=scene.combat_staff_count_max)
                 ul.my-1.list-group.scene-user-list#scene-staff-list
                     each user in scene.users
                         if user.type !== 'player'

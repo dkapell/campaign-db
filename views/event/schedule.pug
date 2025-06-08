@@ -6,7 +6,8 @@ block content
         const maxScenesPerSlot = 3;
         const cellsPerSlot = 6;
         const headerColumns = 3;
-        const columns = locations.length*cellsPerSlot + headerColumns;
+        const usersColumns = 1;
+        const columns = locations.length*cellsPerSlot + headerColumns + usersColumns;
         const rowHeight = 45;
     input#cellsPerSlot(type='hidden' value=cellsPerSlot)
     input#locationColumns(type='hidden' value=locations.length*cellsPerSlot)
@@ -40,6 +41,10 @@ block content
                         div.text-start.px-2
                             +locationTags(location)
 
+                div.users-header.d-flex.align-center(
+                    style=`grid-row: 1; grid-column: ${-1 - usersColumns}`)
+                    strong Users
+
                 each timeslot, row in timeslots
                     div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center(
                         id=`timeslot-${timeslot.id}-header`
@@ -68,6 +73,13 @@ block content
                             span.float-end.schedule-drop-indicator.m-1.text-success.schedule-drop-suggested Suggested
                             span.float-end.schedule-drop-indicator.m-1.text-dark.schedule-drop-confirmed Confirmed
                             span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
+
+                    div.users-cell.align-items-center.d-flex.text-center(
+                        style=`grid-row: ${row+2}; grid-column: ${-1 - usersColumns}`
+                    )
+                        i.fas.fa-user.mx-1
+                        i.far.fa-user.mx-1
+
 
                 div(style=`grid-row: ${timeslots.length+2}; grid-column: ${headerColumns+1} / span ${locations.length*cellsPerSlot}`)
                     #schedule-legend.my-2(

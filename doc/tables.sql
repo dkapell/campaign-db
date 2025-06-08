@@ -1009,9 +1009,12 @@ create table scenes (
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
     prereqs jsonb,
-    player_count int,
-    staff_count int,
-    combat_staff_count int,
+    player_count_min int,
+    player_count_max int,
+    staff_count_min int,
+    staff_count_max int,
+    combat_staff_count_min int,
+    combat_staff_count_max int,
     locations_count int default 1,
     staff_url varchar(255),
     player_url varchar(255),
@@ -1026,6 +1029,7 @@ create table scenes (
 );
 
 create type scene_element_request_status as enum(
+    'none',
     'requested',
     'required',
     'rejected'

@@ -117,7 +117,6 @@ async function updateScene(req, res){
             scene.event_id = null;
             scene.status = 'ready'
         }
-        console.log(scene);
         await req.models.scene.update(sceneId, scene);
 
         return res.json({success:true, scene:scene});

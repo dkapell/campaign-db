@@ -1,38 +1,47 @@
 doctype html
-html(lang="en")
+html(lang="en").h-100
     include ./partials/layout/head
 
-    body
+    body.h-100
+        nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
+            include ./partials/layout/menu
         .d-flex.flex-column.h-100.overflow-hidden
-            nav.navbar.navbar-expand-md.navbar-dark.bg-primary.fixed-top.mb-4.fh-fixedHeader
-                include ./partials/layout/menu
+            .flex-grow-1.pt-3#main-content
 
-            if breadcrumbs
-                .container-fluid.px-2
-                    include ./partials/layout/breadcrumbs
-
-            if (pageTitle)
-                .container(role="page_title")
-                    if (typeof pageTitle === 'string')
-                        h2=pageTitle
+                if breadcrumbs
+                    if wideMain
+                        .container-fluid
+                            include ./partials/layout/breadcrumbs
                     else
-                        if (pageTitle.h1)
-                            h1=pageTitle.h1
-                        if (pageTitle.h2)
-                            h2=pageTitle.h2
-                        if (pageTitle.h3)
-                            h3=pageTitle.h3
-                        if (pageTitle.h4)
-                            h4=pageTitle.h4
+                        .container
+                            include ./partials/layout/breadcrumbs
+
+                if (pageTitle)
+                    .container(role="page_title")
+                        if (typeof pageTitle === 'string')
+                            h2=pageTitle
+                        else
+                            if (pageTitle.h1)
+                                h1=pageTitle.h1
+                            if (pageTitle.h2)
+                                h2=pageTitle.h2
+                            if (pageTitle.h3)
+                                h3=pageTitle.h3
+                            if (pageTitle.h4)
+                                h4=pageTitle.h4
 
 
-            include ./partials/layout/messages
+                include ./partials/layout/messages
 
-            if wideMain
-                main.container-fluid.d-flex.h-100(role="main")
-                    block content
-            else
-                main.container.d-flex.overflow-hidden.h-100(role="main")
+                if wideMain
+                    main.container-fluid.h-100.px-0(role="main")
+                        block content
+
+                else if fullHeightMain
+                    main.container.h-100.px-0(role="main")
+                        block content
+                else
+                    main.container.overflow-hidden.h-100.px-0(role="main")
                     block content
 
         include ./partials/layout/footer

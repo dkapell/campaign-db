@@ -1,3 +1,4 @@
+/* globals _ */
 $(function(){
     $('.select2').select2({
         theme:'bootstrap-5',
@@ -23,7 +24,7 @@ $(function(){
                 }
                 return $(data.element).data('text');
             }
-        })
+        });
     });
 
     $('.complex-search-select2').each(function(e){
@@ -63,7 +64,7 @@ $(function(){
                 return null;
             }
 
-        })
+        });
     });
 
     $('.scene-user').find('.scene-status-select').on('change', updateSceneUser);
@@ -198,9 +199,9 @@ function clearTimeslots(e){
 function addSceneUser(e){
     e.preventDefault();
     const $container = $(this).closest('.scene-user-picker-container');
-    const $userPicker = $container.find('.scene-user-picker')
-    const user = $userPicker.find("option:selected").data("user");
-    const type = $userPicker.find("option:selected").data("type");
+    const $userPicker = $container.find('.scene-user-picker');
+    const user = $userPicker.find('option:selected').data('user');
+    const type = $userPicker.find('option:selected').data('type');
     if (!user) { return; }
     if ($(`#scene-user-${user.id}`).length){
         return;
@@ -231,22 +232,21 @@ function addSceneUser(e){
         },
         templateSelection: function(data) {
             if (data.id === '') {
-                return $select.data('placeholder');
+                return $(data.element).data('placeholder');
             }
             return $(data.element).data('text');
         },
-        width:'resolve',
         dropdownParent: $container.closest('form')
     });
 
     $new.find('.scene-status-select').on('change', updateSceneUser);
-    $new.appendTo($container.find('.scene-user-list'))
+    $new.appendTo($container.find('.scene-user-list'));
     $new.show();
     $userPicker.val(null).trigger('change');
 }
 
 function updateSceneUser(){
-    const $container = $(this).closest('.scene-user-picker-container')
+    const $container = $(this).closest('.scene-user-picker-container');
     if ($(this).val() === 'none'){
         $(this).closest('.scene-user').remove();
     }
@@ -254,9 +254,9 @@ function updateSceneUser(){
 
 function addSceneSource(e){
     e.preventDefault();
-    const $sourcePicker = $('#scene-source-picker')
-    const source = $sourcePicker.find("option:selected").data("source");
-    const type = $sourcePicker.find("option:selected").data("type");
+    const $sourcePicker = $('#scene-source-picker');
+    const source = $sourcePicker.find('option:selected').data('source');
+    const type = $sourcePicker.find('option:selected').data('type');
     if (!source) { return; }
     if ($(`#scene-source-${source.id}`).length){
         return;
@@ -278,7 +278,7 @@ function addSceneSource(e){
         dropdownParent: $(this).closest('form')
     });
     $new.find('.scene-status-select').on('change', updateSceneSource);
-    $new.appendTo($('#scene-source-list'))
+    $new.appendTo($('#scene-source-list'));
     $new.show();
     $sourcePicker.val(null).trigger('change');
 }

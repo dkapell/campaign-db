@@ -1,4 +1,4 @@
-/* globals _ scenepopupTemplate unscheduledusersTemplate */
+/* globals _ scenedetailsTemplate unscheduledusersTemplate */
 $(function(){
     $('.scene-item-draggable').draggable({
         snap:'.schedule-slot',
@@ -14,20 +14,20 @@ $(function(){
         stop: function (event, ui) {
             stopDragScene($(this));
         },
-        containment:'#schedule-container'
+        containment:'#schedule-container-grid'
 
     });
 
     $('.schedule-slot').droppable({
         accept: '.scene-item',
-        tolerance: "pointer",
+        tolerance: 'pointer',
         drop: updateSceneSchedule
 
     });
 
     $('#schedule-alert .btn-close').on('click', ()=>{
         $('#schedule-alert').hide();
-    })
+    });
 
     $('.issue-icon[data-bs-toggle="popover"]').popover({
         trigger: 'hover',
@@ -53,15 +53,24 @@ $(function(){
     }).on('click', confirmAllScenes);
 
     $('.unscheduled-users-btn').on('click', showUnscheduledUsersBtn);
-    /*$('#unscheduled-users').find('.btn-close').on('click', function(){
-        $('#unscheduled-users').offcanvas('hide');
-        clearTimeslotHighlight()
-    });*/
-    $('#unscheduled-users').on('hide.bs.offcanvas', function(){
-        clearTimeslotHighlight()
+
+    $('.resizer-close').on('click', function(){
+        closePickerArea();
+        clearTimeslotHighlight();
     });
+    $('.resizer-expand').on('click', function(){
+        fullPickerArea();
+    });
+    $('.resizer-restore').on('click', function(){
+        halfPickerArea();
+    });
+
     updateAllSlots();
     validateAllScenes();
+
+    $('.resizer').each(function(){
+        resizable($(this)[0]);
+    });
 });
 
 function clearTimeslotHighlight(){
@@ -87,7 +96,7 @@ async function updateSceneDetails($scene){
     const data = await result.json();
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
-        $scene.find('.scene-details').html(scenedetailsTemplate(data))
+        $scene.find('.scene-details').html(scenedetailsTemplate(data));
         $scene.find('.scene-details').find('[data-bs-toggle="tooltip"]').tooltip({
             delay: { 'show': 300, 'hide': 100 },
         });
@@ -105,7 +114,7 @@ async function updateSceneSchedule(event, ui){
     const reasons = validateMove($scene, $slot);
 
     if (reasons.length) {
-        $('#schedule-alert').find('.alert-text').html(reasons.join('<br>'))
+        $('#schedule-alert').find('.alert-text').html(reasons.join('<br>'));
         $('#schedule-alert').show();
         return;
     }
@@ -135,11 +144,11 @@ function validateMove($scene, $slot){
         if ($(this).data('scene-id') === $scene.data('scene-id') &&
             $slot.attr('id') !== 'unscheduled' &&
             $(this).attr('id') !== $scene.attr('id')){
-            reasons.push('Can not schedule two of the same scene in the same location/timeslot.')
+            reasons.push('Can not schedule two of the same scene in the same location/timeslot.');
         }
     });
     if ($slot.attr('id') !== 'unscheduled'){
-        const $scenes = $(`.scene-item[data-scene-id=${$scene.data('scene-id')}]`)
+        const $scenes = $(`.scene-item[data-scene-id=${$scene.data('scene-id')}]`);
         if ($scenes.length > 1){
             $scenes.each(function(){
                 if ($(this).data('locationIdx') === $scene.data('locationIdx')){
@@ -151,7 +160,7 @@ function validateMove($scene, $slot){
                 }
                 if ($itemSlot.data('timeslot-id') !== $slot.data('timeslot-id')){
 
-                    reasons.push('Can not schedule two locations of the same scene in different timeslots.')
+                    reasons.push('Can not schedule two locations of the same scene in different timeslots.');
                 }
             });
         }
@@ -162,7 +171,7 @@ function validateMove($scene, $slot){
 async function recordScheduleUpdate($scene){
     const sceneId = $scene.data('scene-id');
     const eventId = $('#eventId').val();
-    const $scenes = $(`.scene-item[data-scene-id=${sceneId}]`)
+    const $scenes = $(`.scene-item[data-scene-id=${sceneId}]`);
 
     const data = {
         timeslot: 'none',
@@ -175,7 +184,7 @@ async function recordScheduleUpdate($scene){
         if ($slot.data('timeslot-id') !== 'none'){
             data.timeslot = $slot.data('timeslot-id');
         }
-    })
+    });
     const url = `/event/${eventId}/scene/${sceneId}`;
     const result = await fetch(url, {
         method:'PUT',
@@ -192,7 +201,7 @@ async function recordScheduleUpdate($scene){
         $scene.attr('timeslots', JSON.stringify(resultObj.scene.timeslots));
         $scene.attr('locations', JSON.stringify(resultObj.scene.locations));
     } else {
-        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').find('.alert-text').html(resultObj.error);
         $('#schedule-alert').show();
     }
 }
@@ -231,12 +240,12 @@ async function confirmScene($scene){
 
     const resultObj = await result.json();
     if (resultObj.success){
-        updateScene($scene, resultObj.scene.status)
+        updateScene($scene, resultObj.scene.status);
         const $slot = $(`#${$scene.attr('cell')}`);
         await updateSceneDetails($scene);
         updateSlotScenes($slot);
     } else {
-        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').find('.alert-text').html(resultObj.error);
         $('#schedule-alert').show();
     }
 }
@@ -254,12 +263,12 @@ async function unconfirmScene($scene){
 
     const resultObj = await result.json();
     if (resultObj.success){
-        updateScene($scene, resultObj.scene.status)
+        updateScene($scene, resultObj.scene.status);
         const $slot = $(`#${$scene.attr('cell')}`);
         await updateSceneDetails($scene);
         updateSlotScenes($slot);
     } else {
-        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').find('.alert-text').html(resultObj.error);
         $('#schedule-alert').show();
     }
 }
@@ -281,7 +290,7 @@ function updateSlotScenes($slot){
     const xAxisType = $('#xAxisType').val();
 
     let gridY = $slot.data('pos-y');
-    let gridX = $slot.data('pos-x')
+    let gridX = $slot.data('pos-x');
     let maxRows = 1;
     let xCounter = 0;
 
@@ -289,7 +298,7 @@ function updateSlotScenes($slot){
         const $scene = $(this);
         const timeslotCount = $scene.data('timeslot-count');
         let rows = xAxisType==='location'?timeslotCount:$('#cellsPerSlot').val();
-        let cols = xAxisType==='location'?$('#cellsPerSlot').val():timeslotCount
+        let cols = xAxisType==='location'?$('#cellsPerSlot').val():timeslotCount;
 
         if ($slot.attr('id') === 'unscheduled'){
             $scene.find('.scene-display').addClass('m-1');
@@ -297,11 +306,11 @@ function updateSlotScenes($slot){
             const columnCount = $('#locationColumns').val();
             $scene.appendTo($slot);
 
-            let maxCells = columnCount
+            let maxCells = columnCount;
             if (xAxisType === 'location'){
                 maxCells = Math.floor(columnCount / cols);
 
-                gridX = $slot.data('pos-x') + idx%maxCells * cols
+                gridX = $slot.data('pos-x') + idx%maxCells * cols;
 
                 if ((idx+1) * cols > columnCount){
                     gridY += maxRows;
@@ -316,7 +325,7 @@ function updateSlotScenes($slot){
                 if ((gridX + timeslotCount) > columnCount){
                     gridX = $slot.data('pos-x');
                     xCounter = 0;
-                    gridY++
+                    gridY++;
                 }
                 xCounter += timeslotCount;
             }
@@ -328,12 +337,12 @@ function updateSlotScenes($slot){
 
                     $scene.find('.scene-display').removeClass('m-1');
                     const width = $slot.width();
-                    const left = 5 + idx* width / ($children.length * 1.5)
-                    const top = 0.25 + idx*0.25
-                    const right = ($children.length - idx) * 0.25
+                    const left = 5 + idx* width / ($children.length * 1.5);
+                    const top = 0.25 + idx*0.25;
+                    const right = ($children.length - idx) * 0.25;
 
                     $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
-                    gridX =  $slot.data('pos-x')
+                    gridX =  $slot.data('pos-x');
                 } else {
                     cols = Math.floor(cols / $children.length);
                     $scene.find('.scene-display').addClass('m-1');
@@ -345,12 +354,12 @@ function updateSlotScenes($slot){
 
                     $scene.find('.scene-display').removeClass('m-1');
                     const width = $slot.width();
-                    const left = 5 + idx* width / ($children.length * 1.5)
-                    const top = 0.25 + idx*0.25
-                    const right = ($children.length - idx) * 0.25
+                    const left = 5 + idx* width / ($children.length * 1.5);
+                    const top = 0.25 + idx*0.25;
+                    const right = ($children.length - idx) * 0.25;
 
                     $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
-                    gridX =  $slot.data('pos-x')
+                    gridX =  $slot.data('pos-x');
                 } else {
                     rows = Math.floor(rows / $children.length);
                     $scene.find('.scene-display').addClass('m-1');
@@ -394,8 +403,8 @@ async function validateAllScenes(){
     const sceneIds = [];
     $('.scene-item').each(function(){
         sceneIds.push($(this).data('scene-id'));
-    })
-    const url = `/event/${$('#eventId').val()}/scene/validate?`
+    });
+    const url = `/event/${$('#eventId').val()}/scene/validate?`;
 
     const result = await fetch(url + new URLSearchParams({
         scenes: _.uniq(sceneIds)
@@ -403,7 +412,7 @@ async function validateAllScenes(){
 
     const data = await result.json();
     if (data.success){
-        for (scene of data.scenes){
+        for (const scene of data.scenes){
             const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
             $scenes.each(function() {
                 const $scene = $(this);
@@ -426,7 +435,7 @@ async function validateAllScenes(){
 }
 
 function makeValidationHtml(issues){
-    const $ul = $('<ul>')
+    const $ul = $('<ul>');
     for (const issue of issues){
         const $li = $('<li>');
         $li.text(issue);
@@ -437,10 +446,7 @@ function makeValidationHtml(issues){
 
 function startDragScene($elem){
     const $details = $elem.find('.scene-details');
-    if ($details.hasClass('show')){
-        const detailsCollapse = bootstrap.Collapse.getInstance($details[0]);
-        detailsCollapse.hide();
-    }
+    $details.collapse('hide');
 
     const timeslots = JSON.parse($elem.attr('timeslots'));
     const locations = JSON.parse($elem.attr('locations'));
@@ -449,9 +455,9 @@ function startDragScene($elem){
     for (const timeslot of timeslots){
         const $header = $(`#timeslot-${timeslot.id}-header`);
         switch (timeslot.scene_request_status){
-            case 'requested': $header.addClass(`bg-warning-subtle`); break;
-            case 'required': $header.addClass(`bg-info-subtle`); break;
-            case 'rejected': $header.addClass(`bg-danger-subtle`); break;
+            case 'requested': $header.addClass('bg-warning-subtle'); break;
+            case 'required': $header.addClass('bg-info-subtle'); break;
+            case 'rejected': $header.addClass('bg-danger-subtle'); break;
         }
         /*switch (timeslot.scene_schedule_status){
             case 'suggested': $header.addClass(`bg-warning-subtle`); break;
@@ -462,9 +468,9 @@ function startDragScene($elem){
     for (const location of locations){
         const $header = $(`#location-${location.id}-header`);
         switch (location.scene_request_status){
-            case 'requested': $header.addClass(`bg-warning-subtle`); break;
-            case 'required': $header.addClass(`bg-info-subtle`); break;
-            case 'rejected': $header.addClass(`bg-danger-subtle`); break;
+            case 'requested': $header.addClass('bg-warning-subtle'); break;
+            case 'required': $header.addClass('bg-info-subtle'); break;
+            case 'rejected': $header.addClass('bg-danger-subtle'); break;
         }
         /*switch (location.scene_schedule_status){
             case 'suggested': $header.addClass(`bg-warning-subtle`); break;
@@ -509,8 +515,8 @@ function startDragScene($elem){
                     }*/
                     break;
                 case 'rejected':
-                    cellClass = 'danger'
-                    break
+                    cellClass = 'danger';
+                    break;
             }/*
             switch (sceneTimeslotData.scene_schedule_status){
                 case 'suggested':
@@ -566,17 +572,18 @@ async function showUnscheduledUsersBtn(e){
     e.preventDefault();
     const $btn = $(this);
     const timeslotId = $btn.data('timeslot-id');
-    const type = $btn.data('type')
+    const type = $btn.data('type');
     $('.users-btn').removeClass('active');
     if (Number($('#unscheduled-users').attr('timeslot-id')) !== timeslotId){
-        clearTimeslotHighlight()
+        clearTimeslotHighlight();
     }
 
     if (Number($('#unscheduled-users').attr('timeslot-id')) === timeslotId &&
         $('#unscheduled-users').attr('type') === type &&
         $('#unscheduled-users').hasClass('show')){
-        //clearTimeslotHighlight()
-        $('#unscheduled-users').offcanvas('hide');
+        clearTimeslotHighlight();
+        closePickerArea();
+        //$('#unscheduled-users').offcanvas('hide');
         return;
     }
     $btn.addClass('active');
@@ -587,7 +594,10 @@ async function showUnscheduledUsersBtn(e){
         .addClass('fa-sync');
     $btn.tooltip('hide');
     await updateUnscheduledUsersPanel(timeslotId, type);
-    $('#unscheduled-users').offcanvas('show');
+    if (!$('#unscheduled-users').hasClass('show')){
+        halfPickerArea();
+    }
+    //$('#unscheduled-users').offcanvas('show');
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
     $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
 
@@ -598,7 +608,7 @@ async function showUnscheduledUsersBtn(e){
     $btn.find('i.fas')
         .removeClass('fa-sync')
         .removeClass('fa-spin')
-        .addClass(icon)
+        .addClass(icon);
 }
 
 async function updateUnscheduledUsersPanel(timeslotId, type){
@@ -617,23 +627,23 @@ async function updateUnscheduledUsersPanel(timeslotId, type){
     $('#unscheduled-users').attr('type', type);
     $('#unscheduled-users').attr('timeslot-id', timeslotId);
     const eventId = $('#eventId').val();
-    const result = await fetch(`/event/${eventId}/timeslot/${timeslotId}?type=${type}`)
+    const result = await fetch(`/event/${eventId}/timeslot/${timeslotId}?type=${type}`);
     const data = await result.json();
     if (data.success){
         formatUnscheduledUsersData(data, type);
         $('#unscheduled-users').find('.loading').hide();
     } else {
-        $('#schedule-alert').find('.alert-text').html(data.error)
+        $('#schedule-alert').find('.alert-text').html(data.error);
         $('#schedule-alert').show();
     }
 }
 
 function formatUnscheduledUsersData(data, type){
-    let title = `Unscheduled Players at ${data.timeslot.name}`
+    let title = `Unscheduled Players at ${data.timeslot.name}`;
     if (type === 'staff'){
-        title = `Unscheduled Staff at ${data.timeslot.name}`
+        title = `Unscheduled Staff at ${data.timeslot.name}`;
     } else if (type === 'all'){
-        title = `All Attendees at ${data.timeslot.name}`
+        title = `All Attendees at ${data.timeslot.name}`;
     }
     data.capitalize=function capitalize(string){
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -657,7 +667,7 @@ function formatUnscheduledUsersData(data, type){
         snapMode:'inner',
         revert: true,
         revertDuration: 0,
-        appendTo: "body",
+        appendTo: 'body',
         helper: 'clone',
         start: function(event, ui){
             startDragUser($(this), data);
@@ -669,7 +679,7 @@ function formatUnscheduledUsersData(data, type){
 
     $('.scene-item-droppable').droppable({
         accept: '.user-item',
-        tolerance: "pointer",
+        tolerance: 'pointer',
         drop: updateSceneUser
 
     });
@@ -677,15 +687,15 @@ function formatUnscheduledUsersData(data, type){
 }
 
 function startDragUser($user, data){
-    $user.hide();
-    const userId = $user.data('user-id')
+    $user.addClass('disabled');
+    const userId = $user.data('user-id');
     $('.scene-item').each( function() {
         const sceneId = $(this).data('scene-id');
         const scene = _.findWhere(data.scenes, {id:Number(sceneId)});
         if (scene){
-            const scene_user = _.findWhere(scene.users, {id:userId})
+            const scene_user = _.findWhere(scene.users, {id:userId});
             if (scene_user){
-                const $sceneDisplay = $(this).find('.scene-display')
+                const $sceneDisplay = $(this).find('.scene-display');
                 switch (scene_user.scene_request_status){
                     case 'requested': $sceneDisplay.addClass('bg-info-subtle'); break;
                     case 'required': $sceneDisplay.addClass('bg-success-subtle'); break;
@@ -700,8 +710,9 @@ function startDragUser($user, data){
 }
 
 function stopDragUser($user, data){
-    $user.show();
-    $('.scene-item').removeClass('disabled')
+    $user.removeClass('disabled');
+
+    $('.scene-item').removeClass('disabled');
     $('.scene-display').removeClass('bg-info-subtle');
     $('.scene-display').removeClass('bg-success-subtle');
     $('.scene-display').removeClass('bg-danger-subtle');
@@ -761,7 +772,7 @@ async function assignUserToScene(userId, $scene, status='confirmed'){
         await updateUnscheduledUsersPanel();
         await validateAllScenes();
     } else {
-        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').find('.alert-text').html(resultObj.error);
         $('#schedule-alert').show();
     }
 }
@@ -773,9 +784,9 @@ async function updateTimeslotUsersCount(){
     const data = await result.json();
     if (data.success){
         for (const record of data.timeslots){
-            const unassignedPlayers = record.users.filter(user => {return user.type === 'player' && user.schedule_status==='unscheduled'});
-            const unassignedStaff = record.users.filter(user => {return user.type !== 'player' && user.schedule_status==='unscheduled'});
-            $elem = $(`.users-cell[data-timeslot-id=${record.timeslot.id}]`);
+            const unassignedPlayers = record.users.filter(user => {return user.type === 'player' && user.schedule_status==='unscheduled';});
+            const unassignedStaff = record.users.filter(user => {return user.type !== 'player' && user.schedule_status==='unscheduled';});
+            const $elem = $(`.users-cell[data-timeslot-id=${record.timeslot.id}]`);
             if (unassignedPlayers.length){
                 $elem.find('.unscheduled-players-btn .user-count').text(unassignedPlayers.length);
             } else {
@@ -788,7 +799,198 @@ async function updateTimeslotUsersCount(){
             }
         }
     } else {
-        $('#schedule-alert').find('.alert-text').html(data.error)
+        $('#schedule-alert').find('.alert-text').html(data.error);
         $('#schedule-alert').show();
     }
+}
+
+function closePickerArea(){
+    if (!$('#unscheduled-users').hasClass('show')){
+        return;
+    }
+    $('#schedule-container')
+        .removeClass('d-none')
+        .addClass('d-flex')
+        .css({overflow:'hidden'})
+        .animate({height:'100%'}, 200);
+    $('#unscheduled-users')
+        .addClass('d-none')
+        .removeClass('show')
+        .css({overflow:'hidden'})
+        .animate({height:'0'}, 200, function(){
+            $('#content-adjust')
+                .removeClass('d-flex')
+                .addClass('d-none');
+        });
+
+}
+
+function fullPickerArea(hideAdjust, hideClose = false){
+    let minSize = 0;
+    if ($('#schedule-container').attr('min-size')){
+        minSize = $('#schedule-container').attr('min-size');
+    }
+    $('#schedule-container')
+        .removeClass('d-none')
+        .addClass('d-flex')
+        .css({overflow:'scroll'})
+        .animate({height:`${minSize}%`}, 200);
+    if(hideAdjust){
+        $('#content-adjust').addClass('d-none');
+    } else {
+        $('#content-adjust').removeClass('d-none');
+    }
+
+    if (hideClose){
+        $('#content-adjust >> .resizer-close').addClass('d-none');
+    } else {
+        $('#content-adjust >> .resizer-close').removeClass('d-none');
+    }
+
+    $('#unscheduled-users')
+        .removeClass('d-none')
+        .addClass('show')
+        .animate({height:`${100-minSize}%`}, 200);
+    $('#content-adjust >> .resizer-expand').hide();
+    $('#content-adjust >> .resizer-restore').show();
+}
+
+function halfPickerArea(hideAdjust, hideClose = false){
+
+    if(hideAdjust){
+        $('#content-adjust').addClass('d-none');
+    } else {
+        $('#content-adjust').removeClass('d-none');
+    }
+
+    if (hideClose){
+        $('#content-adjust >> .resizer-close').addClass('d-none');
+    } else {
+        $('#content-adjust >> .resizer-close').removeClass('d-none');
+    }
+
+    $('#content-adjust >> .resizer-expand').show();
+    $('#content-adjust >> .resizer-restore').hide();
+
+    $('#schedule-container')
+        .removeClass('d-none')
+        .addClass('d-flex')
+        .show()
+        .css({overflow:'scroll'})
+        .animate({height:'60%'}, 200);
+    $('#unscheduled-users')
+        .removeClass('d-none')
+        .addClass('show')
+        .css({height:'0%'})
+        .show()
+        .animate({height:'40%'}, 200);
+
+    $('#content-adjust >> .resizer-expand').show();
+    $('#content-adjust >> .resizer-restore').hide();
+}
+
+
+function resizable(resizer) {
+    const direction = resizer.getAttribute('data-direction') || 'horizontal';
+    const prevSibling = resizer.previousElementSibling;
+    const nextSibling = resizer.nextElementSibling;
+    const minSize = Number(prevSibling.getAttribute('min-size'));
+    // The current position of mouse
+    let x = 0;
+    let y = 0;
+    let prevSiblingHeight = 0;
+    let prevSiblingWidth = 0;
+
+    // Handle the mousedown event
+    // that's triggered when user drags the resizer
+    const mouseDownHandler = function(e) {
+        // Get the current mouse position
+        x = e.clientX;
+        y = e.clientY;
+        const rect = prevSibling.getBoundingClientRect();
+        prevSiblingHeight = rect.height;
+        prevSiblingWidth = rect.width;
+
+        // Attach the listeners to `document`
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+    };
+
+    const mouseMoveHandler = function(e) {
+        // How far the mouse has been moved
+        const dx = e.clientX - x;
+        const dy = e.clientY - y;
+
+        switch (direction) {
+            case 'vertical':{
+                let h = (prevSiblingHeight + dy) * 100 / resizer.parentNode.getBoundingClientRect().height;
+                if (minSize && h < minSize){
+                    h = minSize;
+                }
+                prevSibling.style.height = `${h}%`;
+                nextSibling.style.height = `${100-h}%`;
+                break;
+            }
+            case 'horizontal':
+            default:{
+                let w = (prevSiblingWidth + dx) * 100 / resizer.parentNode.getBoundingClientRect().width;
+                if (minSize && w < minSize){
+                    w = minSize;
+                }
+                prevSibling.style.width = `${w}%`;
+                break;
+            }
+        }
+
+        const cursor = direction === 'horizontal' ? 'col-resize' : 'row-resize';
+        resizer.style.cursor = cursor;
+        document.body.style.cursor = cursor;
+
+        prevSibling.style.userSelect = 'none';
+        prevSibling.style.pointerEvents = 'none';
+
+        nextSibling.style.userSelect = 'none';
+        nextSibling.style.pointerEvents = 'none';
+        if (direction === 'vertical'){
+            if (parseInt(prevSibling.style.height) < (minSize+3)){
+                $(resizer).find('.resizer-expand').hide();
+                $(resizer).find('.resizer-restore').show();
+            } else {
+                $(resizer).find('.resizer-expand').show();
+                $(resizer).find('.resizer-restore').hide();
+            }
+        }
+    };
+
+    const mouseUpHandler = function() {
+        resizer.style.removeProperty('cursor');
+        document.body.style.removeProperty('cursor');
+
+        prevSibling.style.removeProperty('user-select');
+        prevSibling.style.removeProperty('pointer-events');
+
+        nextSibling.style.removeProperty('user-select');
+        nextSibling.style.removeProperty('pointer-events');
+
+        // Remove the handlers of `mousemove` and `mouseup`
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+        if (parseInt(nextSibling.style.height) < 10){
+            closePickerArea();
+            clearTimeslotHighlight();
+        }
+    };
+
+    // Attach the handler
+    resizer.addEventListener('mousedown', mouseDownHandler);
+
+    resizer.addEventListener('dblclick', function(){
+        const height = parseInt($('#schedule-container')[0].style.height);
+        if ( height < (minSize+5)){
+            halfPickerArea();
+
+        } else {
+            fullPickerArea();
+        }
+    });
 }

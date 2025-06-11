@@ -72,3 +72,25 @@
 .scene-item.disabled {
   opacity: 33%
 }
+.user-item.disabled {
+  opacity: 0
+}
+
+.screen-container{
+    overflow: scroll;
+    height:100%;
+}
+
+.resizer[data-direction="horizontal"] {
+    cursor: ew-resize;
+    height: 100%;
+    margin-left:5px;
+    margin-right: :5px;
+    width: 2px;
+}
+.resizer[data-direction="vertical"] {
+    cursor: ns-resize;
+    height: 2px;
+    width: 100%;
+    box-shadow: 0 -1px 7px 1px rgba(0,0,0,0.3);
+}

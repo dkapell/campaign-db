@@ -10,11 +10,11 @@ const tableFields = [
     'name'
 ];
 
-interface TagModel extends IModel {
-   getByName?: (type:string, name:string, campaignId: number) => Promise<ModelData>
+interface TagIModel extends IModel {
+   getByName?: (type:string, name:string, campaignId: number) => Promise<TagModel>
 }
 
-const Tag: TagModel = new Model('tags', tableFields, {
+const Tag: TagIModel = new Model('tags', tableFields, {
     order: ['name']
 });
 

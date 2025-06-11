@@ -588,7 +588,12 @@ router.put('/:id/post_event/:attendanceId/addendum', csrf(), postEventSurveyRout
 router.put('/:id/post_event/:attendanceId/addendum/api', csrf(), postEventSurveyRoutes.saveAddendumApi);
 
 router.get('/:id/schedule', csrf(), permission('gm'), scheduleRoutes.showSchedule);
-router.get('/:id/schedule/validate', permission('gm'), scheduleRoutes.validateScenes);
-router.put('/:id/schedule/:sceneId', csrf(), permission('gm'), scheduleRoutes.updateScene);
+router.get('/:id/scene/validate', permission('gm'), scheduleRoutes.validateScenes);
+router.get('/:id/timeslot', permission('gm'), scheduleRoutes.getUsersPerTimeslot);
+router.get('/:id/timeslot/:timeslotId', permission('gm'), scheduleRoutes.getUsersAtTimeslot);
+router.put('/:id/scene/:sceneId', csrf(), permission('gm'), scheduleRoutes.updateScene);
+router.put('/:id/scene/:sceneId/confirm', csrf(), permission('gm'), scheduleRoutes.confirmScene);
+router.put('/:id/scene/:sceneId/unconfirm', csrf(), permission('gm'), scheduleRoutes.unconfirmScene);
+router.put('/:id/user/:userId', csrf(), permission('gm'), scheduleRoutes.updateUser);
 
 export default router;

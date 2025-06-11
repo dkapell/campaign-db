@@ -32,6 +32,10 @@ async function show(req, res, next){
         if (!scene || scene.campaign_id !== req.campaign.id){
             throw new Error('Invalid Scene');
         }
+        if (req.query.api){
+
+            return res.json({scene:scheduleHelper.formatScene(scene)});
+        }
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},

@@ -894,7 +894,7 @@ async function recalculateAll(req, res){
 }
 
 
-async function checkAllowed(req, res, next){
+async function checkAllowedEdit(req, res, next){
     const characterId = req.params.id;
     if (!characterId){ return next(); }
     const character = await req.models.character.get(characterId);
@@ -912,7 +912,7 @@ async function checkAllowed(req, res, next){
         res.locals.allowedEdit = true;
         return next();
     }
-    if (!user.type.match(/^(admin|core staff)$/)){
+    if (!req.checkPermission('gm')){
         // Event Staff can only View
         return next(createError(403));
     }
@@ -941,16 +941,17 @@ async function checkAllowedView(req, res, next){
         res.locals.allowedEdit = true;
         return next();
     }
-    if (!user.type.match(/^(admin|core staff|contributing staff)$/)){
-        // Event Staff can only View
-        return next(createError(403));
-    }
-    if (user.type.match(/^(admin|core staff)$/)){
+    if (req.checkPermission('gm')){
+        // GMs can view and edit all
         res.locals.allowedView = true;
         res.locals.allowedEdit = true;
-    } else {
+    } else if (req.checkPermission('contrib')){
+        // Contrib can view all
         res.locals.allowedView = true;
         res.locals.allowedEdit = false;
+    } else {
+        // Event can only view/edit their own
+        return next(createError(403));
     }
 
     next();
@@ -973,26 +974,26 @@ router.get('/:id/cp', csrf(), checkAllowedView, showCp);
 router.get('/:id/data', csrf(), checkAllowedView, showData);
 router.get('/:id/audit', csrf(), checkAllowedView, showAudits);
 router.get('/:id/pdf', csrf(), checkAllowedView, showPdf);
-router.get('/:id/edit', csrf(), checkAllowed, showEdit);
+router.get('/:id/edit', csrf(), checkAllowedEdit, showEdit);
 router.post('/', csrf(), create);
 router.post('/:id/clone', checkAllowedView, csrf(), clone);
-router.put('/:id', csrf(), checkAllowed, update);
+router.put('/:id', csrf(), checkAllowedEdit, update);
 router.put('/:id/recalculate', csrf(), permission('gm'), recalculate);
-router.delete('/:id', checkAllowed, remove);
+router.delete('/:id', checkAllowedEdit, remove);
 
 router.get('/:id/skill', csrf(), checkAllowedView, showSkills);
-router.get('/:id/skill/add', csrf(), checkAllowed, showAddSkillApi);
-router.get('/:id/skill/:skill_id/edit', csrf(), checkAllowed, showEditSkillApi);
+router.get('/:id/skill/add', csrf(), checkAllowedEdit, showAddSkillApi);
+router.get('/:id/skill/:skill_id/edit', csrf(), checkAllowedEdit, showEditSkillApi);
 router.get('/:id/skill/:skill_id', csrf(), checkAllowedView, showSkill);
-router.post('/:id/skill/', csrf(), checkAllowed, addSkill);
-router.put('/:id/skill/:skill_id', csrf(), checkAllowed, editSkill);
-router.delete('/:id/skill/:skill_id', csrf(), checkAllowed, removeSkill);
+router.post('/:id/skill/', csrf(), checkAllowedEdit, addSkill);
+router.put('/:id/skill/:skill_id', csrf(), checkAllowedEdit, editSkill);
+router.delete('/:id/skill/:skill_id', csrf(), checkAllowedEdit, removeSkill);
 
 router.get('/:id/source', csrf(), checkAllowedView, showSources);
-router.get('/:id/source/add', csrf(), checkAllowed, showAddSourceApi);
+router.get('/:id/source/add', csrf(), checkAllowedEdit, showAddSourceApi);
 router.get('/:id/source/:source_id', csrf(), checkAllowedView, showSource);
-router.post('/:id/source/', csrf(), checkAllowed, addSource);
-router.delete('/:id/source/:source_id', csrf(), checkAllowed, removeSource);
+router.post('/:id/source/', csrf(), checkAllowedEdit, addSource);
+router.delete('/:id/source/:source_id', csrf(), checkAllowedEdit, removeSource);
 
 router.put('/rebuild/:id');
 export default router;

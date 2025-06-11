@@ -1,9 +1,10 @@
+/* globals _ scenepopupTemplate unscheduledusersTemplate */
 $(function(){
     $('.scene-item-draggable').draggable({
         snap:'.schedule-slot',
         handle: '.handle',
+        cursor: 'move',
         zIndex: 9999,
-        tolerance: 'pointer',
         snapMode:'inner',
         revert: true,
         revertDuration: 0,
@@ -12,8 +13,10 @@ $(function(){
         },
         stop: function (event, ui) {
             stopDragScene($(this));
-        }
-    }); 
+        },
+        containment:'#schedule-container'
+
+    });
 
     $('.schedule-slot').droppable({
         accept: '.scene-item',
@@ -22,28 +25,76 @@ $(function(){
 
     });
 
-    $('.schedule-slot').each(function(){
-        updateScenes($(this));
-    });
-
     $('#schedule-alert .btn-close').on('click', ()=>{
         $('#schedule-alert').hide();
     })
 
-    $('[data-bs-toggle="popover"]').popover({
+    $('.issue-icon[data-bs-toggle="popover"]').popover({
         trigger: 'hover',
         delay: { 'show': 300, 'hide': 100 },
         content: function(elem){
             return elem.getAttribute('content');
-        }
+        },
+        customClass:'scene-info-popover'
     });
+
+    $('.scene-details').on('show.bs.collapse', function(e){
+        const $scene = $(e.target).closest('.scene-item');
+        updateSceneDetails($scene);
+    });
+
+
     $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 300, 'hide': 100 },
     });
 
-    validateAllScenes();
+    $('#confirm-schedule-btn').confirmation({
+        title:'Confirm all scheduled scenes?'
+    }).on('click', confirmAllScenes);
 
+    $('.unscheduled-users-btn').on('click', showUnscheduledUsersBtn);
+    $('#unscheduled-users').find('.btn-close').on('click', function(){
+        $('#unscheduled-users').collapse('hide');
+        clearTimeslotHighlight()
+    });
+
+    updateAllSlots();
+    validateAllScenes();
 });
+
+function clearTimeslotHighlight(){
+    $('.timeslot-header').removeClass('text-bg-info');
+    $('.schedule-cell').removeClass('text-bg-info');
+    $('.users-btn').removeClass('active');
+    const sceneIds = JSON.parse($('#unscheduled-users').attr('scenes'));
+    for (const sceneId of sceneIds){
+
+        $(`.scene-item[data-scene-id=${sceneId}]`).find('.scene-details').collapse('hide');
+    }
+}
+
+function updateAllSlots(){
+    $('.schedule-slot').each(function(){
+        updateSlotScenes($(this));
+    });
+}
+
+async function updateSceneDetails($scene){
+    const sceneId = $scene.data('scene-id');
+    const result = await fetch(`/scene/${sceneId}?api=true`);
+    const data = await result.json();
+    $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
+        const $scene = $(this);
+        $scene.find('.scene-details').html(scenedetailsTemplate(data))
+        $scene.find('.scene-details').find('[data-bs-toggle="tooltip"]').tooltip({
+            delay: { 'show': 300, 'hide': 100 },
+        });
+        $scene.find('.confirm-scene-btn').on('click', confirmSceneBtn);
+        $scene.find('.unconfirm-scene-btn').on('click', unconfirmSceneBtn);
+        $scene.find('.unschedule-user-btn').on('click', unscheduleSceneUserBtn);
+        $scene.find('.schedule-user-btn').on('click', scheduleSceneUserBtn);
+    });
+}
 
 async function updateSceneSchedule(event, ui){
     const $slot = $(event.target);
@@ -68,8 +119,8 @@ async function updateSceneSchedule(event, ui){
         $scene.appendTo($slot.parent());
     }
 
-    await updateScenes($slot);
-    await updateScenes($old);
+    await updateSlotScenes($slot);
+    await updateSlotScenes($old);
 
     await recordScheduleUpdate($scene, $slot);
 
@@ -123,12 +174,11 @@ async function recordScheduleUpdate($scene){
             data.timeslot = $slot.data('timeslot-id');
         }
     })
-    const csrf = $('#csrfToken').val();
-    const url = `/event/${eventId}/schedule/${sceneId}`;
+    const url = `/event/${eventId}/scene/${sceneId}`;
     const result = await fetch(url, {
         method:'PUT',
         headers: {
-            'CSRF-Token': csrf,
+            'CSRF-Token': $('#csrfToken').val(),
             'Content-Type': 'application/json'
         },
         body:JSON.stringify({scene:data})
@@ -143,71 +193,198 @@ async function recordScheduleUpdate($scene){
         $('#schedule-alert').find('.alert-text').html(resultObj.error)
         $('#schedule-alert').show();
     }
-
-
 }
 
-async function updateScenes($slot){
+async function confirmSceneBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+
+    $(this).one('hidden.bs.tooltip', async () =>{
+        confirmScene($scene);
+    });
+    $(this).tooltip('hide');
+}
+
+async function unconfirmSceneBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+
+    $(this).one('hidden.bs.tooltip' , async() => {
+        unconfirmScene($scene);
+    });
+    $(this).tooltip('hide');
+}
+
+async function confirmScene($scene){
+    const sceneId = $scene.data('scene-id');
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/scene/${sceneId}/confirm`;
+
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val()
+        }
+    });
+
+    const resultObj = await result.json();
+    if (resultObj.success){
+        updateScene($scene, resultObj.scene.status)
+        const $slot = $(`#${$scene.attr('cell')}`);
+        await updateSceneDetails($scene);
+        updateSlotScenes($slot);
+    } else {
+        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').show();
+    }
+}
+
+async function unconfirmScene($scene){
+    const sceneId = $scene.data('scene-id');
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/scene/${sceneId}/unconfirm`;
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val()
+        }
+    });
+
+    const resultObj = await result.json();
+    if (resultObj.success){
+        updateScene($scene, resultObj.scene.status)
+        const $slot = $(`#${$scene.attr('cell')}`);
+        await updateSceneDetails($scene);
+        updateSlotScenes($slot);
+    } else {
+        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').show();
+    }
+}
+
+async function confirmAllScenes(e){
+    e.preventDefault();
+    $('.scene-item').each(async function() {
+        const $scene = $(this);
+        if ($scene.attr('cell') === 'unscheduled' || $scene.attr('status') !== 'scheduled'){
+            return;
+        }
+        await confirmScene($scene);
+    });
+}
+
+function updateSlotScenes($slot){
 
     const $children = $(`.scene-item[cell=${$slot.attr('id')}`);
+    const xAxisType = $('#xAxisType').val();
 
     let gridY = $slot.data('pos-y');
     let gridX = $slot.data('pos-x')
     let maxRows = 1;
+    let xCounter = 0;
 
-    $children.each(async function(idx){
+    $children.each(function(idx){
         const $scene = $(this);
-        const rows = $scene.data('timeslot-count');
-        let cols = $('#cellsPerSlot').val()
+        const timeslotCount = $scene.data('timeslot-count');
+        let rows = xAxisType==='location'?timeslotCount:$('#cellsPerSlot').val();
+        let cols = xAxisType==='location'?$('#cellsPerSlot').val():timeslotCount
 
         if ($slot.attr('id') === 'unscheduled'){
-            const columnCount = $('#locationColumns').val();
-            $scene.appendTo($slot);
-            const maxCells = Math.floor(columnCount / cols);
-
-            gridX = $slot.data('pos-x') + idx%maxCells * cols
-
             $scene.find('.scene-display').addClass('m-1');
 
-            if ((idx+1) * cols > columnCount){
-                gridY += maxRows;
-                maxRows = 1;
-            }
+            const columnCount = $('#locationColumns').val();
+            $scene.appendTo($slot);
 
-            if (rows > maxRows){
-                maxRows = rows;
+            let maxCells = columnCount
+            if (xAxisType === 'location'){
+                maxCells = Math.floor(columnCount / cols);
+
+                gridX = $slot.data('pos-x') + idx%maxCells * cols
+
+                if ((idx+1) * cols > columnCount){
+                    gridY += maxRows;
+                    maxRows = 1;
+                }
+
+                if (rows > maxRows){
+                    maxRows = rows;
+                }
+            } else {
+                gridX = $slot.data('pos-x') + xCounter;
+                if ((gridX + timeslotCount) > columnCount){
+                    gridX = $slot.data('pos-x');
+                    xCounter = 0;
+                    gridY++
+                }
+                xCounter += timeslotCount;
             }
-            $scene.removeClass('border-success');
-            $scene.removeClass('border-warning');
 
         } else {
             $scene.appendTo($slot.parent());
-            if ($scene.attr('data-status') === 'confirmed'){
-                $scene.addClass('border-success');
-            } else {
-                $scene.addClass('border-warning');
-            }
-            if ($children.length > $slot.data('children-count')){
+            if (xAxisType === 'location'){
+                if ($children.length > $slot.data('children-count')){
 
-                $scene.find('.scene-display').removeClass('m-1');
-                const width = $slot.width();
-                const left = 5 + idx* width / ($children.length * 1.5)
-                const top = 0.25 + idx*0.25
-                const right = ($children.length - idx) * 0.25
+                    $scene.find('.scene-display').removeClass('m-1');
+                    const width = $slot.width();
+                    const left = 5 + idx* width / ($children.length * 1.5)
+                    const top = 0.25 + idx*0.25
+                    const right = ($children.length - idx) * 0.25
 
-                $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
-                gridX =  $slot.data('pos-x')
+                    $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
+                    gridX =  $slot.data('pos-x')
+                } else {
+                    cols = Math.floor(cols / $children.length);
+                    $scene.find('.scene-display').addClass('m-1');
+                    $scene.css('margin', 0);
+                    gridX = $slot.data('pos-x') + idx*cols;
+                }
             } else {
-                cols = Math.floor(cols / $children.length);
-                $scene.find('.scene-display').addClass('m-1');
-                $scene.css('margin', 0);
-                gridX = $slot.data('pos-x') + idx*cols;
+                if ($children.length > $slot.data('children-count')){
+
+                    $scene.find('.scene-display').removeClass('m-1');
+                    const width = $slot.width();
+                    const left = 5 + idx* width / ($children.length * 1.5)
+                    const top = 0.25 + idx*0.25
+                    const right = ($children.length - idx) * 0.25
+
+                    $scene.css('margin', `${top}rem ${right}rem 0.25rem ${ left}px`);
+                    gridX =  $slot.data('pos-x')
+                } else {
+                    rows = Math.floor(rows / $children.length);
+                    $scene.find('.scene-display').addClass('m-1');
+                    $scene.css('margin', 0);
+                    gridY = $slot.data('pos-y') + idx*rows;
+                }
+
             }
         }
         $scene
             .css('grid-row', `${gridY} / span ${rows}`)
             .css('grid-column', `${gridX} / span ${cols}`)
             .removeClass('d-none').addClass('d-flex');
+
+        updateScene($scene);
+    });
+}
+
+function updateScene($scene, status){
+    const sceneId = $scene.data('scene-id');
+    $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
+        const $scene = $(this);
+        if (status){
+            $scene.attr('status', status);
+        }
+        const $slot = $(`#${$scene.attr('cell')}`);
+        if ($slot.attr('id') === 'unscheduled'){
+            $scene.find('.scene-display').removeClass('border-success');
+            $scene.find('.scene-display').removeClass('border-warning');
+        } else if ($scene.attr('status') === 'confirmed'){
+            $scene.find('.scene-display').addClass('border-success');
+            $scene.find('.scene-display').removeClass('border-warning');
+        } else {
+            $scene.find('.scene-display').addClass('border-warning');
+            $scene.find('.scene-display').removeClass('border-success');
+        }
     });
 }
 
@@ -216,7 +393,7 @@ async function validateAllScenes(){
     $('.scene-item').each(function(){
         sceneIds.push($(this).data('scene-id'));
     })
-    const url = `/event/${$('#eventId').val()}/schedule/validate?`
+    const url = `/event/${$('#eventId').val()}/scene/validate?`
 
     const result = await fetch(url + new URLSearchParams({
         scenes: _.uniq(sceneIds)
@@ -243,6 +420,7 @@ async function validateAllScenes(){
             });
         }
     }
+    updateTimeslotUsersCount();
 }
 
 function makeValidationHtml(issues){
@@ -256,9 +434,15 @@ function makeValidationHtml(issues){
 }
 
 function startDragScene($elem){
+    const $details = $elem.find('.scene-details');
+    if ($details.hasClass('show')){
+        const detailsCollapse = bootstrap.Collapse.getInstance($details[0]);
+        detailsCollapse.hide();
+    }
+
     const timeslots = JSON.parse($elem.attr('timeslots'));
     const locations = JSON.parse($elem.attr('locations'));
-    $elem.attr('data-status', 'suggested');
+    $elem.attr('status', 'suggested');
 
     for (const timeslot of timeslots){
         const $header = $(`#timeslot-${timeslot.id}-header`);
@@ -374,4 +558,232 @@ function stopDragScene($elem){
     $('.schedule-cell').removeClass('bg-danger-subtle');
     $('.schedule-cell').removeClass('bg-warning-subtle');
     $('.schedule-cell').removeClass('bg-primary-subtle');
+}
+
+async function showUnscheduledUsersBtn(e){
+    e.preventDefault();
+    const $btn = $(this);
+    const timeslotId = $btn.data('timeslot-id');
+    const type = $btn.data('type')
+    $('.users-btn').removeClass('active');
+    if (Number($('#unscheduled-users').attr('timeslot-id')) !== timeslotId){
+        clearTimeslotHighlight()
+    }
+
+    if (Number($('#unscheduled-users').attr('timeslot-id')) === timeslotId &&
+        $('#unscheduled-users').attr('type') === type &&
+        $('#unscheduled-users').hasClass('show')){
+        clearTimeslotHighlight()
+        $('#unscheduled-users').collapse('hide');
+        return;
+    }
+    $btn.addClass('active');
+    $btn.find('i.fas')
+        .removeClass('fa-user')
+        .removeClass('fa-users')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+    $btn.tooltip('hide');
+    await updateUnscheduledUsersPanel(timeslotId, type);
+    $('#unscheduled-users').collapse('show');
+    $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+    $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+
+    let icon = 'fa-users';
+    if (type === 'player'){icon = 'fa-user'; }
+    if (type === 'all'){icon = 'fa-globe'; }
+
+    $btn.find('i.fas')
+        .removeClass('fa-sync')
+        .removeClass('fa-spin')
+        .addClass(icon)
+}
+
+async function updateUnscheduledUsersPanel(timeslotId, type){
+    $('#unscheduled-users').find('.content').hide();
+    $('#unscheduled-users').find('.loading').show();
+    $('#unscheduled-users').find('.title').text('Loading');
+    if (!timeslotId){
+        timeslotId = $('#unscheduled-users').attr('timeslot-id');
+    }
+    if (!type){
+        type = $('#unscheduled-users').attr('type');
+    }
+    if (type === 'init'){
+        return;
+    }
+    $('#unscheduled-users').attr('type', type);
+    $('#unscheduled-users').attr('timeslot-id', timeslotId);
+    const eventId = $('#eventId').val();
+    const result = await fetch(`/event/${eventId}/timeslot/${timeslotId}?type=${type}`)
+    const data = await result.json();
+    if (data.success){
+        formatUnscheduledUsersData(data, type);
+        $('#unscheduled-users').find('.loading').hide();
+    } else {
+        $('#schedule-alert').find('.alert-text').html(data.error)
+        $('#schedule-alert').show();
+    }
+}
+
+function formatUnscheduledUsersData(data, type){
+    let title = `Unscheduled Players at ${data.timeslot.name}`
+    if (type === 'staff'){
+        title = `Unscheduled Staff at ${data.timeslot.name}`
+    } else if (type === 'all'){
+        title = `All Attendees at ${data.timeslot.name}`
+    }
+    data.capitalize=function capitalize(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+    data.type = type;
+    $('#unscheduled-users').attr('timeslot-id', data.timeslot.id);
+    $('#unscheduled-users').attr('scenes', JSON.stringify(_.pluck(data.scenes, 'id')));
+    $('#unscheduled-users').find('.title').text(title);
+    $('#unscheduled-users').find('.content').html(unscheduledusersTemplate(data)).show();
+
+    for (const scene of data.scenes){
+        $(`.scene-item[data-scene-id=${scene.id}]`).addClass('scene-item-droppable');
+        $(`.scene-item[data-scene-id=${scene.id}]`).find('.scene-details').collapse('show');
+    }
+
+    $('#unscheduled-users').find('.user-item').draggable({
+        snap:'.scene-item-droppable',
+        handle: '.handle',
+        cursor: 'move',
+        zIndex: 9999,
+        snapMode:'inner',
+        revert: true,
+        revertDuration: 0,
+        start: function(event, ui){
+            startDragUser($(this), data);
+        },
+        stop: function (event, ui) {
+            stopDragUser($(this));
+        },
+        containment:'#schedule-container'
+    });
+
+    $('.scene-item-droppable').droppable({
+        accept: '.user-item',
+        tolerance: "pointer",
+        drop: updateSceneUser
+
+    });
+
+}
+
+function startDragUser($user, data){
+    const userId = $user.data('user-id')
+    $('.scene-item').each( function() {
+        const sceneId = $(this).data('scene-id');
+        const scene = _.findWhere(data.scenes, {id:Number(sceneId)});
+        if (scene){
+            const scene_user = _.findWhere(scene.users, {id:userId})
+            if (scene_user){
+                const $sceneDisplay = $(this).find('.scene-display')
+                switch (scene_user.scene_request_status){
+                    case 'requested': $sceneDisplay.addClass('bg-info-subtle'); break;
+                    case 'required': $sceneDisplay.addClass('bg-success-subtle'); break;
+                    case 'rejected': $sceneDisplay.addClass('bg-danger-subtle'); break;
+                }
+            }
+        } else {
+            $(this).addClass('disabled');
+        }
+    });
+
+}
+
+function stopDragUser($user, data){
+    $('.scene-item').removeClass('disabled')
+    $('.scene-display').removeClass('bg-info-subtle');
+    $('.scene-display').removeClass('bg-success-subtle');
+    $('.scene-display').removeClass('bg-danger-subtle');
+}
+
+async function updateSceneUser(event, ui){
+    const $scene = $(event.target);
+    const $user = $(ui.draggable);
+    $scene.find('.scene-details').collapse('show');
+
+    const userId = $user.data('user-id');
+    await assignUserToScene(userId, $scene, 'confirmed');
+}
+
+async function unscheduleSceneUserBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+    const userId = $(this).data('user-id');
+    $(this).tooltip('hide');
+    $(this).on('hidden.bs.tooltip', async function(){
+        await assignUserToScene(userId, $scene, 'unscheduled');
+    });
+}
+
+async function scheduleSceneUserBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+    const userId = $(this).data('user-id');
+    $(this).one('hidden.bs.tooltip', async () =>{
+        await assignUserToScene(userId, $scene, 'confirmed');
+    });
+    $(this).tooltip('hide');
+}
+
+async function assignUserToScene(userId, $scene, status='confirmed'){
+    $('#schedule-alert').hide();
+    const sceneId = $scene.data('scene-id');
+    const eventId = $('#eventId').val();
+    const data = {
+        scene_id: sceneId,
+        status: status
+    };
+    const url = `/event/${eventId}/user/${userId}`;
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val(),
+            'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({user:data})
+    });
+
+    const resultObj = await result.json();
+
+    if (resultObj.success){
+        await updateSceneDetails($scene);
+        await updateUnscheduledUsersPanel();
+        await validateAllScenes();
+    } else {
+        $('#schedule-alert').find('.alert-text').html(resultObj.error)
+        $('#schedule-alert').show();
+    }
+}
+
+async function updateTimeslotUsersCount(){
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/timeslot`;
+    const result = await fetch(url);
+    const data = await result.json();
+    if (data.success){
+        for (const record of data.timeslots){
+            const unassignedPlayers = record.users.filter(user => {return user.type === 'player' && user.schedule_status==='unscheduled'});
+            const unassignedStaff = record.users.filter(user => {return user.type !== 'player' && user.schedule_status==='unscheduled'});
+            $elem = $(`.users-cell[data-timeslot-id=${record.timeslot.id}]`);
+            if (unassignedPlayers.length){
+                $elem.find('.unscheduled-players-btn .user-count').text(unassignedPlayers.length);
+            } else {
+                $elem.find('.unscheduled-players-btn .user-count').text('');
+            }
+            if (unassignedStaff.length){
+                $elem.find('.unscheduled-staff-btn .user-count').text(unassignedStaff.length);
+            } else {
+                $elem.find('.unscheduled-staff-btn .user-count').text('');
+            }
+        }
+    } else {
+        $('#schedule-alert').find('.alert-text').html(data.error)
+        $('#schedule-alert').show();
+    }
 }

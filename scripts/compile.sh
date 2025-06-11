@@ -15,3 +15,6 @@
 
 # Custom Forms
 ./node_modules/pug-cli/index.js -c --name optionDescriptionTemplate -o public/javascripts/templates/custom_form views/character_field/optionDescriptionForm.pug
+
+# Scheduling
+./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/event/ views/event/templates/*.pug

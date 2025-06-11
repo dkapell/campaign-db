@@ -145,7 +145,7 @@ class Model implements IModel{
     async findOne(conditions:Conditions, options:RequestOptions = {}){
         options.limit = 1;
         const indexStr = this.getIndex(conditions);
-        if (indexStr){
+        if (indexStr && !options.noCache){
             const result = await cache.check(this.table, indexStr);
             if (result) { return result;}
         }

@@ -3,7 +3,7 @@ import _ from 'underscore';
 import models from './models';
 import async from 'async';
 
-async function validateScene(scene){
+async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
     const issues = {
         warning: [],
         info: []
@@ -64,8 +64,17 @@ async function validateScene(scene){
     if (timeslots.timeslots.length){
         const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
         const myTimeslotIdx = _.findIndex(allTimeslots, {id: timeslots.timeslots[0].id});
+
         for (const prereq of scene.prereqs){
-            const prereqScene = await models.scene.get(prereq.id);
+            let prereqScene = null;
+            if (typeof prereq === 'string'){
+                continue;
+            } else if (typeof prereq === 'number'){
+                prereqScene = await models.scene.get(prereq);
+            } else {
+                prereqScene = await models.scene.get(prereq.id);
+            }
+
             if (!prereqScene.event_id || prereqScene.status === 'ready'){
                 issues.info.push(`Prereq ${prereqScene.name} is not scheduled`);
             } else if (prereqScene.event_id !== scene.event_id){
@@ -79,13 +88,86 @@ async function validateScene(scene){
             }
         }
     }
+    const userCounts = {
+        players: {
+            confirmed:0,
+            suggested:0,
+            total:0
+        },
+        staff: {
+            confirmed:0,
+            suggested:0,
+            total:0
+        }
+    };
+    const sceneTimeslots = scene.timeslots.filter(timeslot => {return timeslot.scene_schedule_status === 'confirmed' || timeslot.scene_schedule_status === 'suggested'});
 
-    // Check for double-booked people (w for player, i for staff)
+    for (const user of scene.users){
+        if (user.scene_schedule_status === 'confirmed'){
+            if (user.type==='player'){
+                userCounts.players.confirmed++;
+            } else {
+                userCounts.staff.confirmed++;
+            }
+        } else if (user.scene_schedule_status === 'suggested'){
+            if (user.type==='player'){
+                userCounts.players.suggested++;
+            } else {
+                userCounts.staff.suggested++;
+            }
+        }
+        if (user.scene_schedule_status === 'confirmed' || user.scene_schedule_status === 'suggested'){
+            for (const timeslot of sceneTimeslots){
+                const scenes = await getScenesAtTimeslot(scene.event_id, timeslot.id);
+                for (const timeslotScene of scenes){
+                    if (timeslotScene.id === scene.id){
+                        continue;
+                    }
+                    const timeslotSceneUser = _.findWhere(timeslotScene.users, {id:user.id});
+                    if (!timeslotSceneUser){
+                        continue
+                    }
+                    if (timeslotSceneUser.scene_schedule_status === 'confirmed'){
+                        if (user.type === 'player'){
+                            issues.warning.push(`${user.name} is also booked for ${timeslotScene.name}`);
+                        } else {
+                            issues.info.push(`${user.name} is also booked for ${timeslotScene.name}`);
+                        }
+                    }else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
+                        if (user.type === 'player'){
+                            issues.warning.push(`${user.name} is also suggested for ${timeslotScene.name}`);
+                        } else {
+                            issues.info.push(`${user.name} is also suggested for ${timeslotScene.name}`);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    userCounts.players.total = userCounts.players.confirmed + userCounts.players.suggested;
+    userCounts.staff.total = userCounts.staff.confirmed + userCounts.staff.suggested;
+    if (userCounts.players.total < scene.player_count_min){
+        issues.warning.push('Not enough Players');
+    } else if (userCounts.players.total > scene.player_count_max){
+        issues.warning.push('Too many Players');
+    }
+    if (userCounts.players.suggested){
+        issues.info.push('Unconfirmed Players');
+    }
+
+    if (userCounts.staff.total < scene.staff_count_min){
+        issues.warning.push('Not enough Staff');
+    } else if (userCounts.staff.total > scene.staff_count_max){
+        issues.warning.push('Too many Staff');
+    }
+    if (userCounts.staff.suggested){
+        issues.info.push('Unconfirmed Staff');
+    }
+
     return issues;
-
 }
 
-function getSelectedTimeslots(scene){
+function getSelectedTimeslots(scene:SceneModel): {type:string, timeslots:TimeslotModel[]}{
     let timeslots = scene.timeslots.filter(timeslot => {
         return timeslot.scene_schedule_status === 'confirmed'
     });
@@ -101,7 +183,7 @@ function getSelectedTimeslots(scene){
     return {type:'none', timeslots:[]};
 }
 
-function getSelectedLocations(scene){
+function getSelectedLocations(scene:SceneModel): {type:string, locations:LocationModel[]}{
     let locations = scene.locations.filter(location => {
         return location.scene_schedule_status === 'confirmed'
     });
@@ -117,6 +199,220 @@ function getSelectedLocations(scene){
     return {type:'none', locations:[]};
 }
 
+function formatScene(scene:SceneModel): FormattedSceneModel{
+    const output: FormattedSceneModel = {
+        id:scene.id,
+        campaign_id: scene.campaign_id,
+        name: scene.name,
+        player_name:scene.player_name,
+        event_id: scene.event_id,
+        event: scene.event,
+        status: scene.status,
+        description: scene.description,
+        display_to_pc: scene.display_to_pc,
+        player_count_min: scene.player_count_min,
+        player_count_max: scene.player_count_max,
+        staff_count_min: scene.staff_count_min,
+        staff_count_max: scene.staff_count_max,
+        combat_staff_count_min: scene.combat_staff_count_min,
+        combat_staff_count_max: scene.combat_staff_count_max,
+        timeslot_count: scene.timeslot_count,
+        locations_count: scene.locations_count,
+        staff_url: scene.staff_url,
+        player_url: scene.player_url,
+        tags: _.pluck(scene.tags, 'name')
+    };
+
+    if (scene.prereqs && typeof scene.prereqs !== 'string'){
+        output.prereqs = scene.prereqs.map((prereq:SceneModel)=> {
+            if (typeof prereq === 'object'){
+                return {
+                    id: prereq.id,
+                    name: prereq.name,
+                    status: prereq.status,
+                    event: typeof prereq.event === 'object'?prereq.event.name:null,
+                    event_id: prereq.event_id
+                }
+            } else {
+                return prereq;
+            }
+        });
+    }
+    const locations = scene.locations.map(location => {
+        return {
+            id: location.id,
+            name: location.name,
+            tags: _.pluck(location.tags, 'name'),
+            combat: location.combat,
+            multiple: location.multiple,
+            scene_schedule_status: location.scene_schedule_status,
+            scene_request_status: location.scene_request_status,
+        }
+    });
+    output.locations = _.groupBy(locations, 'scene_schedule_status');
+
+    const timeslots = scene.timeslots.map(timeslot => {
+        return {
+            id: timeslot.id,
+            name: timeslot.name,
+            type: timeslot.type,
+            scene_schedule_status: timeslot.scene_schedule_status,
+            scene_request_status: timeslot.scene_request_status,
+        }
+    })
+    output.timeslots = _.groupBy(timeslots, 'scene_schedule_status');
+
+    const sources = scene.sources.map(source => {
+        return {
+            id: source.id,
+            name: source.name,
+            type: source.type.name,
+            scene_schedule_status: source.scene_schedule_status,
+            scene_request_status: source.scene_request_status,
+        };
+
+    });
+    output.sources = _.groupBy(sources, 'scene_schedule_status');
+
+    const players = scene.users.filter(user => {
+        return user.type === 'player';
+    }).map(user => {
+        const doc = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            character: null,
+            type: user.type,
+            tags: _.pluck(user.tags, 'name'),
+            scene_schedule_status: user.scene_schedule_status,
+            scene_request_status: user.scene_request_status,
+        }
+        if (user.character){
+            doc.character = {
+                id: user.character.id,
+                name: user.character.name
+            }
+        }
+        return doc;
+    });
+    output.players = _.groupBy(players, 'scene_schedule_status');
+
+    const staff = scene.users.filter(user => {
+        return user.type !== 'player';
+    }).map(user => {
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            type: user.type,
+            tags: _.pluck(user.tags, 'name'),
+            scene_schedule_status: user.scene_schedule_status,
+            scene_request_status: user.scene_request_status,
+        }
+    });
+    output.staff = _.groupBy(staff, 'scene_schedule_status');
+    output.users = [...players, ...staff];
+    output.usersByStatus = _.groupBy(scene.users, 'scene_schedule_status');
+
+    if (scene.event){
+        if (typeof scene.event !== 'string'){
+            output.event = {
+                id: scene.event_id,
+                name: scene.event.name,
+                start_time: scene.event.start_time,
+                end_time: scene.event.end_time
+            };
+        }
+    }
+    return output;
+}
+
+function formatUser(user){
+    const doc = {
+        id:user.id,
+        name: user.name,
+        character: null,
+        email: user.email,
+        type: user.type,
+        tags: _.pluck(user.tags, 'name'),
+        typeForDisplay: user.typeForDisplay,
+        schedule_status: user.schedule_status
+    };
+    if (user.character){
+        doc.character = {
+            id: user.character.id,
+            name: user.character.name
+        }
+    }
+    return doc;
+}
+
+async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
+    const event = await models.event.get(eventId);
+    const attendances = await models.attendance.find({event_id:eventId, attending:true});
+    return async.map(attendances, async(attendance) => {
+        const user = await models.user.get(event.campaign_id, attendance.user_id);
+        if (user.type === 'player'){
+            user.character = await models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
+        }
+        return user;
+    });
+}
+
+async function getEventScenes(eventId:number): Promise<FormattedSceneModel[]>{
+    const scenes = await models.scene.find({event_id:eventId});
+
+    return scenes.map(formatScene);
+}
+
+async function getScenesAtTimeslot(eventId:number, timeslotId:number): Promise<FormattedSceneModel[]>{
+    const scenes = await getEventScenes(eventId)
+    return async.filter(scenes, async(scene) => {
+        if (_.findWhere(scene.timeslots.confirmed, {id:timeslotId})){
+            return true;
+        } else if (_.findWhere(scene.timeslots.suggested, {id:timeslotId})){
+            return true;
+        }
+        return false;
+    });
+}
+
+async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<CampaignUser[]>{
+    const users = await getEventUsers(eventId);
+    const scenes = await getScenesAtTimeslot(eventId, timeslotId);
+
+    return async.map(users, async(user) => {
+        const statuses = [];
+
+        for (const scene of scenes){
+            if (scene.usersByStatus && _.findWhere(scene.usersByStatus.confirmed, {id:user.id})){
+                const record = _.findWhere(scene.usersByStatus.confirmed, {id:user.id});
+                statuses.push({sceneId:scene.id, status:record.scene_schedule_status});
+            } else if (scene.usersByStatus && _.findWhere(scene.usersByStatus.suggested, {id:user.id})){
+                const record = _.findWhere(scene.usersByStatus.suggested, {id:user.id});
+                statuses.push({sceneId:scene.id, status:record.scene_schedule_status});
+            }
+        }
+
+        if (!statuses.length){
+            user.schedule_status = 'unscheduled';
+        } else if (statuses.length === 1){
+            user.schedule_status = statuses[0].status;
+            user.schedule_scene_id = statuses[0].sceneId;
+        } else {
+            user.schedule_status = 'multi-booked';
+            user.schedule_scene_id = _.pluck(statuses, 'sceneId')
+        }
+        return user;
+    });
+}
+
 export default {
-    validateScene
+    validateScene,
+    formatScene,
+    formatUser,
+    getEventUsers,
+    getEventScenes,
+    getScenesAtTimeslot,
+    getUsersAtTimeslot
 };

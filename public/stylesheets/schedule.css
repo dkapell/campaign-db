@@ -1,20 +1,23 @@
-.timeslot-header, .scene-item {
+.y-header, .scene-item, .user-item {
   font-size: 0.77rem;
-}
-
-.scene-item .handle-icon{
-  font-size: 0.9rem;
 }
 
 #schedule-container, #schedule-legend, #unscheduled{
   display: grid;
   gap: 0px;
 }
-.schedule-cell{
+.schedule-slot, #unscheduled-users{
   z-index: -1;
+  background-color: rgba(var(--bs-light-rgb), 0.75);
 }
 .handle {
-  cursor: grab !important;
+  cursor: grab;
+}
+.user-item{
+  z-index: 20;
+}
+.ui-draggable-dragging a:hover, .ui-draggable-dragging .handle{
+  cursor: move !important;
 }
 .scene-item .scene-warning, .scene-item .scene-info {
   display:none;
@@ -24,12 +27,20 @@
   display:inline;
 }
 
-.scene-item .status-indicator{
+.scene-display .status-indicator{
   display: none;
 }
 
-.scene-item.border-warning .suggested-indicator, .scene-item.border-success .confirmed-indicator {
+.scene-display.border-warning .suggested-indicator,
+.scene-display.border-success .confirmed-indicator {
   display: inline;
+}
+
+.scene-display.border-success .handle{
+  display: none;
+}
+.scene-display.border-success .vertical .scene-detail-header{
+  margin-top: 0.15rem;
 }
 
 .schedule-cell .schedule-drop-indicator {
@@ -38,8 +49,26 @@
 }
 
 .schedule-cell.bg-warning-subtle .schedule-drop-requested, .schedule-cell.bg-info-subtle .schedule-drop-required,
-.schedule-cell.bg-success-subtle .schedule-drop-suggested, .schedule-cell.bg-dark-subtle .schedule-drop-confirmed,
-.schedule-cell.bg-danger-subtle .schedule-drop-rejected {
+.schedule-cell.bg-success-subtle .schedule-drop-suggested, .schedule-cell.bg-danger-subtle .schedule-drop-rejected {
   display:inline;
 }
 
+.scene-display .user-drop-indicator {
+  display:none;
+  font-size:0.77rem;
+}
+
+.scene-display.bg-info-subtle .user-drop-requested,
+.scene-display.bg-success-subtle .user-drop-required,
+.scene-display.bg-danger-subtle .user-drop-rejected{
+  display:inline;
+}
+
+.scene-info-popover {
+  --bs-popover-max-width: 800px;
+}
+
+
+.scene-item.disabled {
+  opacity: 33%
+}

@@ -23,14 +23,18 @@ interface CampaignUser {
    id: number,
    name: string,
    email: string,
-   google_id: string,
-   site_admin: boolean,
+   google_id?: string,
+   site_admin?: boolean,
    type?: 'admin'|'core staff'|'contributing staff'|'event staff'|'player'|'none'
    campaignType?: string,
    notes?: string,
    drive_folder?: string,
    staff_drive_folder?: string,
    sso_name?: string
+   scene_schedule_status?: string
+   scene_request_status?: string
+   tags?: string[] | TagModel[]
+   character?: CharacterData
 }
 
 interface Models {
@@ -100,4 +104,9 @@ interface OrderItem {
    name: string
    cost: number
    quantity?:number
+}
+
+interface SceneWarnings {
+    warning: string[]
+    info: string[]
 }

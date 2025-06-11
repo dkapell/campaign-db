@@ -182,9 +182,45 @@ mixin sceneStatusBadge(status)
         when 'scheduled'
             .badge.text-bg-warning.mx-1 Scheduled
 
+mixin timeslotButtons(timeslot)
+    button.btn.btn-outline-success.users-btn.btn-xs.mx-1.position-relative(
+        role='button'
+        data-bs-toggle='tooltip'
+        title='Ad-hoc scheduled users'
+    )
+        i.fas.fa-user-check.fa-fw
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-success.user-count
+
+    button.btn.btn-outline-dark.unscheduled-players-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+        role='button'
+        data-bs-toggle='tooltip'
+        title='Unscheduled Players'
+        data-timeslot-id=timeslot.id
+        data-type='player'
+    )
+        i.fas.fa-user.fa-fw
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
+    button.btn.btn-outline-dark.unscheduled-staff-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+        role='button'
+        data-bs-toggle='tooltip'
+        title='Unscheduled Staff'
+        data-timeslot-id=timeslot.id
+        data-type='staff'
+    )
+        i.fas.fa-users.fa-fw
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
+    button.btn.btn-outline-info.all-users-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+        role='button'
+        data-bs-toggle='tooltip'
+        title='All Attendees'
+        data-timeslot-id=timeslot.id
+        data-type='all'
+    )
+        i.fas.fa-globe.fa-fw
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-info.user-count
 
 
-mixin sceneScheduleItem(scene)
+mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
     -
         let timeslots = scene.timeslots.filter(timeslot => {
@@ -211,46 +247,96 @@ mixin sceneScheduleItem(scene)
             if (timeslots.length && locationIdx < locations.length){
                 cell = `cell-timeslot-${timeslots[0].id}-location-${locations[locationIdx].id}`
             }
+            let size = `grid-row:span ${scene.timeslot_count}`;
+            if (xAxisType !== 'location'){
+                size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
+            }
+
             // `grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
         .scene-item.d-none(
-            style=`grid-row:span ${scene.timeslot_count}; z-index:10`
-            data-scene-id=scene.id
             id=`scene-${scene.id}-${locationIdx}`
+            style=`${size}; z-index:10`
+            data-scene-id=scene.id
+            data-scene-name=scene.name
+            data-location-idx=locationIdx
+            data-timeslot-count=scene.timeslot_count
             locations=JSON.stringify(scene.locations)
             timeslots=JSON.stringify(scene.timeslots)
-            data-timeslot-count=scene.timeslot_count
             cell=cell
-            data-location-idx=locationIdx
-            data-status=scene.status
-            data-scene-name=scene.name
+            status=scene.status
             class=scene.scene_schedule_status!=='confirmed'?'scene-item-draggable':''
             class=scene.issues&&scene.issues.warning.length?'validation-warning':''
             class=scene.issues&&scene.issues.info.length?'validation-info':''
         )
-            .scene-display.m-1.p-1.bg-white.border.d-block.flex-grow-1
-                i.far.fa-check-circle.float-end.text-success.status-indicator.confirmed-indicator(
-                    title='Confirmed'
-                    data-bs-toggle='tooltip'
-                )
-                i.far.fa-question-circle.float-end.text-warning.status-indicator.suggested-indicator(
-                    title='Suggested'
-                    data-bs-toggle='tooltip'
-                )
-                span(class=scene.status!=='confirmed'?'handle':'').p-1
-                    if scene.status !== 'confirmed'
-                        i.fas.fa-grip-vertical.me-2.handle-icon
-                    i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning(
-                        title='Validation Warning'
-                        data-bs-html='true'
-                        data-bs-toggle='popover'
-                    )
-                    i.fas.fa-info-circle.scene-info.me-1.text-info(
-                        title='Validation Info'
-                        data-bs-html='true'
-                        data-bs-toggle='popover'
-
-                    )
-                    span.scene-name= scene.name
-                    if scene.locations_count > 1
-                        span.scene-location-idx.ms-2 (##{locationIdx+1})
+            .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
+                if xAxisType !== 'location'
+                    .d-flex.h-100
+                        .flex-shrink-1.align-items-center.d-flex.handle
+                            i.fas.fa-grip-lines-vertical.handle-icon.text-info.pe-1
+                        .flex-grow-1
+                            .float-end
+                                i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator.ps-1(
+                                    title='Suggested'
+                                    data-bs-toggle='tooltip'
+                                )
+                            +sceneBody(scene, locationIdx)
+                else
+                    .row.handle.my-0
+                        .col
+                            .float-end
+                                i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator(
+                                    title='Suggested'
+                                    data-bs-toggle='tooltip'
+                                )
+                            .handle.text-center
+                                i.fas.fa-grip-lines.handle-icon.text-info
+                    .vertical
+                        +sceneBody(scene, locationIdx)
         - locationIdx++
+
+mixin sceneBody(scene, locationIdx)
+    .d-flex.scene-detail-header
+        .flex-shrink-1
+            i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning.issue-icon(
+                title='Validation Warning'
+                data-bs-html='true'
+                data-bs-toggle='popover'
+            )
+            i.fas.fa-info-circle.scene-info.me-1.text-info.issue-icon(
+                title='Validation Info'
+                data-bs-html='true'
+                data-bs-toggle='popover'
+
+            )
+        .flex-grow-1
+            a.scene-name.d-block.ms-1.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+                href='#'
+                title=scene.name
+                data-bs-toggle='collapse'
+                data-bs-target=`#scene-details-${scene.id}-${locationIdx}`
+                aria-expanded="false"
+                aria-controls=`scene-details-${scene.id}-${locationIdx}`
+            )
+                = scene.name
+                if scene.locations_count > 1
+                    span.scene-location-idx.ms-2 (##{locationIdx+1})
+                span.ps-2.float-end
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
+                span.float-end.user-drop-indicator.mx-1.text-info.user-drop-requested Requested
+                span.float-end.user-drop-indicator.mx-1.text-success.user-drop-required Required
+                span.float-end.user-drop-indicator.mx-1.text-danger.user-drop-rejected Rejected
+
+
+        .flex-shrink-1
+            i.fas.fa-check-circle.text-success.status-indicator.confirmed-indicator.ps-1(
+                title='Confirmed'
+                data-bs-toggle='tooltip'
+            )
+
+
+    .scene-details.px-1.pb-1.collapse(id=`scene-details-${scene.id}-${locationIdx}`)
+        .text-center.my-1
+            .spinner-border.m-auto(role="status" style="width: 1rem; height: 1rem;")
+                .visually-hidden Loading
+

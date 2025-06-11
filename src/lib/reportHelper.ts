@@ -91,7 +91,7 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
         }
 
         for (const skill of character.provides.skills){
-            for (const tag of skill.tags as TagModel[]){
+            for (const tag of skill.tags as SkillTagModel[]){
                 if (!_.has(output.skills, tag.name)){
                     output.skills[tag.name] = [];
                 }

@@ -332,7 +332,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`(X${skill.count}) `, {continued:true});
             }
 
-            for (const tag of skill.tags as TagModel[]){
+            for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc && tag.on_sheet){
                     doc.fillColor(colors[tag.color?tag.color:'info']);
                     doc.font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
@@ -394,7 +394,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
             doc.font('Header Font Italic').fontSize(12*options.headerScale).text(`${skill.name} `, {continued:true});
 
-            for (const tag of skill.tags as TagModel[]){
+            for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc){
                     const color = colors[tag.color?tag.color:'info'];
                     doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});

@@ -14,7 +14,7 @@ import scene_userModel from './scene_user';
 import sourceModel from './skill_source';
 import scene_sourceModel from './scene_source';
 import eventModel from './event';
-
+import characterModel from './character';
 
 
 const models = {
@@ -27,7 +27,8 @@ const models = {
     scene_user: scene_userModel,
     source: sourceModel,
     scene_source: scene_sourceModel,
-    event: eventModel
+    event: eventModel,
+    character: characterModel
 };
 
 const tableFields = [
@@ -42,7 +43,7 @@ const tableFields = [
     'display_to_pc',
     'prereqs',
     'player_count_min',
-    'player_count_min',
+    'player_count_max',
     'staff_count_min',
     'staff_count_max',
     'combat_staff_count_min',
@@ -68,6 +69,9 @@ async function fill(data: SceneModel){
             let object = null;
             if (table === 'user'){
                 object = await models[table].get(data.campaign_id, record.user_id)
+                if (object.type === 'player'){
+                    object.character = await models.character.findOne({user_id: object.id, active: true, campaign_id:data.campaign_id});
+                }
             } else {
                 object = await models[table].get(record[`${table}_id`]);
             }
@@ -96,11 +100,11 @@ async function fill(data: SceneModel){
     return data;
 }
 
-async function getTags(sceneId: number){
+async function getTags(sceneId: number): Promise<TagModel[]>{
     const query = 'select * from scenes_tags where scene_id = $1';
     const result = await database.query(query, [sceneId]);
-    const tags = await async.map(result.rows, async scene_tag => {
-        return models.tag.get(scene_tag.tag_id);
+    const tags = await async.map(result.rows, async (scene_tag): Promise<TagModel> => {
+        return models.tag.get(scene_tag.tag_id) as Promise<TagModel>;
     });
 
     return _.sortBy(tags, 'name');
@@ -138,7 +142,7 @@ async function postSave(sceneId:number, data:ModelData){
                 if (_.findWhere(data[`${table}s`] as ModelData[], {id:'' + record[`${table}_id`]})){
                     return;
                 }
-                if (record.schedule_status === 'unscheduled'){
+                if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
                     return models[`scene_${table}`].delete(record);
                 }
             });
@@ -152,7 +156,7 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
         scene_id: sceneId
     };
     doc[`${table}_id`] = objectId;
-    let record = await models[`scene_${table}`].findOne(doc);
+    let record = await models[`scene_${table}`].findOne(doc, {noCache:true});
     if (record){
         let changed = false;
         if (record.request_status && _.has(statuses, 'request') && record.request_status !== statuses.request){

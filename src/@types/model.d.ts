@@ -25,6 +25,7 @@ interface RequestOptions {
     order?: string[],
     skipRelations?:boolean
     skipPostSelect?:boolean
+    noCache?:boolean
 }
 
 interface Conditions {
@@ -66,11 +67,17 @@ interface ImageModel extends ModelData{
     display_to_pc?: boolean
 }
 
+interface TagModel extends ModelData{
+    id:number
+    campaign_id:number
+    type:string
+    name:string
+}
 interface SkillProvide{
     type: string //Todo finish
 }
 
-interface TagModel extends ModelData{
+interface SkillTagModel extends ModelData{
     id: number
     campaign_id: number
     name: string
@@ -102,7 +109,7 @@ interface SkillModel extends ModelData{
     source: Record<string, unknown>
     usage: Record<string, unknown>
     status: Record<string, unknown>
-    tags: string[]|TagModel[]
+    tags: string[]|SkillTagModel[]
     count: number
     uses?: number
     users?: number[]|string|string[]
@@ -285,9 +292,64 @@ interface OrderModel extends ModelData{
     user?: UserModel
 }
 
-type scenePrereq = number|ModelData
+
+interface TimeslotModel extends ModelData{
+    id?: number
+    campaign_id?: number
+    day?: string
+    start_hour?: number
+    start_minute?: number
+    length?: number
+    payment_note?: string
+    type?: string
+    name?:string
+    scene_request_status?:string
+    scene_schedule_status?:string
+}
+
+interface LocationModel extends ModelData{
+    id?: number
+    campaign_id?: number
+    name?:string
+    display_order?: number
+    multiple_scenes?: boolean
+    combat?: boolean
+    scene_request_status?:string
+    scene_schedule_status?:string
+}
+
+type scenePrereq = number|SceneModel
 
 interface SceneModel extends ModelData{
+    id?:number
+    campaign_id?:number
+    event_id?:number
+    name?:string
+    player_name?:string
+    status?:string
+    description?:number
+    timeslot_count?:number
+    display_to_pc?:boolean
+    prereqs?:scenePrereq[]|string
+    player_count_min?:number
+    player_count_max?:number
+    staff_count_min?:number
+    staff_count_max?:number
+    combat_staff_count_min?:number
+    combat_staff_count_max?:number
+    locations_count?:number
+    staff_url?:string
+    player_url?:string
+    priority?:string
+    timeslots?:TimeslotModel[]
+    locations?:LocationModel[]
+    users?:CampaignUser[]
+    sources?:SourceModel[]
+    event?:EventData|string
+    tags?:TagModel[]
+}
+
+interface FormattedSceneModel extends ModelData{
     id?:number
     campaign_id?:number
     event_id?:number
@@ -305,4 +367,12 @@ interface SceneModel extends ModelData{
     staff_url?:string
     player_url?:string
     priority?:string
+    timeslots?:Record<string, TimeslotModel[]>
+    locations?:Record<string, LocationModel[]>
+    players?:Record<string, CampaignUser[]>
+    staff?:Record<string, CampaignUser[]>
+    usersByStatus?:Record<string, CampaignUser[]>
+    users?:CampaignUser[]
+    event?:EventData|string
+    tags?:string[]
 }

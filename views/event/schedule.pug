@@ -3,16 +3,45 @@ include ../partials/scene
 
 block content
     -
-        const maxScenesPerSlot = 3;
-        const cellsPerSlot = 6;
-        const headerColumns = 3;
-        const usersColumns = 1;
-        const columns = locations.length*cellsPerSlot + headerColumns + usersColumns;
-        const rowHeight = 45;
+        let xAxis = locations
+        let yAxis = timeslots
+        let xAxisType = 'location'
+        let cellsPerSlot = 6;
+        let maxScenesPerSlot = 3;
+        let rowHeight = 50;
+        if (locations.length > timeslots.length){
+            xAxis = timeslots;
+            yAxis = locations;
+            xAxisType = 'timeslot'
+            rowHeight = rowHeight / cellsPerSlot;
+        }
+
+        const columns = xAxis.length*(xAxisType==='location'?cellsPerSlot:1) + (xAxisType==='location'?2:1);
+        const rows = yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) + (xAxisType!=='location'?2:1);
+
     input#cellsPerSlot(type='hidden' value=cellsPerSlot)
-    input#locationColumns(type='hidden' value=locations.length*cellsPerSlot)
+    input#xAxisType(type='hidden' value=xAxisType)
+    input#locationColumns(type='hidden' value=xAxis.length*(xAxisType==='location'?cellsPerSlot:1) )
+    input#locationRows(type='hidden' value=yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) )
     input#eventId(type='hidden' value=event.id)
     input#csrfToken(type='hidden' value=csrfToken)
+
+    if new Date(event.end_time) < new Date()
+        .container
+            .row
+                .col
+                    .alert.alert-info
+                        i.fa.fa-info-circle.me-2
+                        | This event is in the past
+    .row.my-2
+        .col
+            button.btn.btn-outline-success#confirm-schedule-btn(
+                role=button
+                data-bs-toggle='tooltip'
+                title='Confirm all Scheduled scenes'
+            )
+                i.fa.fa-calendar-check.me-2
+                | Confirm Schedule
 
     .container.my-0
         .row.my-0
@@ -23,41 +52,67 @@ block content
                 button.btn-close(type="button" aria-label="Close")
 
     .row.my-2
-        .col.px-4
+        .col
             #schedule-container(
                 style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
             )
 
-                each location, idx in locations
+                each xItem, idx in xAxis
                     -
-                        const posXstart = (idx * cellsPerSlot) + headerColumns + 1;
+                        const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
+                    if xAxisType === 'location'
+                        div.location-header.text-center.align-bottom.mb-1.schedule-cell(
+                            id=`location-${xItem.id}-header`
+                            data-location-id=xItem.id
+                            style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
+                        )
+                            strong=xItem.name
+                            div.text-start.px-2
+                                +locationTags(xItem)
+                    else
+                        div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
+                            id=`timeslot-${xItem.id}-header`
+                            data-timeslot-id=xItem.id
+                            style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
 
-                    div.location-header.text-center.align-bottom.mb-1.schedule-cell(
-                        id=`location-${location.id}-header`
-                        data-location-id=location.id
-                        style=`grid-row: 1; grid-column: ${posXstart} / span ${cellsPerSlot}`
-                    )
-                        strong=location.name
-                        div.text-start.px-2
-                            +locationTags(location)
+                        )
+                            span.flex-fill.text-center
+                                +timeslotName(xItem)
 
-                div.users-header.d-flex.align-center(
-                    style=`grid-row: 1; grid-column: ${-1 - usersColumns}`)
-                    strong Users
+                if xAxisType === 'location'
+                    div.users-header.text-center(
+                        style=`grid-row: 1; grid-column: -2`)
+                        strong Users
 
-                each timeslot, row in timeslots
-                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center(
-                        id=`timeslot-${timeslot.id}-header`
-                        data-timeslot-id=timeslot.id
-                        style=`grid-row:${row+2}; grid-column: 1 / span ${headerColumns}`
-                    )
-                        span.flex-fill.text-center
-                            +timeslotName(timeslot)
+                each yItem, row in yAxis
+                    -
+                        const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
+                    if xAxisType === 'location'
+                        div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap(
+                            id=`timeslot-${yItem.id}-header`
+                            data-timeslot-id=yItem.id
+                            style=`grid-row:${posY}; grid-column: 1`
+                        )
+                            span.flex-fill.text-center
+                                +timeslotName(yItem)
+                    else
+                        div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
+                            id=`location-${yItem.id}-header`
+                            data-location-id=yItem.id
+                            style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1`
+                        )
+                            strong=yItem.name
+                            div.text-start.px-2
+                                +locationTags(yItem)
 
-                    each location, idx in locations
+
+                    each xItem, idx in xAxis
                         -
-                            const posXstart = (idx * cellsPerSlot) + headerColumns + 1;
-                            const posY = row+2;
+                            const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
+                            const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
+                            const timeslot = xAxisType==='location'?yItem:xItem
+                            const location = xAxisType==='location'?xItem:yItem
+
                         div.schedule-cell.schedule-slot.border.overflow-visible(
                             id=`cell-timeslot-${timeslot.id}-location-${location.id}`
                             data-location-id=location.id
@@ -66,29 +121,38 @@ block content
                             data-pos-y=posY
                             data-location-multiple=location.multiple_scenes?'true':'false'
                             data-children-count=maxScenesPerSlot
-                            style=`grid-row: ${row+2}; grid-column: ${posXstart} / span ${cellsPerSlot}`
-                            )
+                            style=`grid-row: ${posY} /span ${(xAxisType!=='location'?cellsPerSlot:1)}; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)};`
+                        )
                             span.float-end.schedule-drop-indicator.m-1.text-warning.schedule-drop-requested Weak Match
                             span.float-end.schedule-drop-indicator.m-1.text-info.schedule-drop-required Strong Match
                             span.float-end.schedule-drop-indicator.m-1.text-success.schedule-drop-suggested Suggested
-                            span.float-end.schedule-drop-indicator.m-1.text-dark.schedule-drop-confirmed Confirmed
                             span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
-                    div.users-cell.align-items-center.d-flex.text-center(
-                        style=`grid-row: ${row+2}; grid-column: ${-1 - usersColumns}`
-                    )
-                        i.fas.fa-user.mx-1
-                        i.far.fa-user.mx-1
+                    if xAxisType === 'location'
+                        div.users-cell.align-items-center.d-flex.text-center.px-1(
+                            style=`grid-row: ${row+2}; grid-column: -2`
+                            data-timeslot-id=yItem.id
+                        )
+                            +timeslotButtons(yItem)
 
 
-                div(style=`grid-row: ${timeslots.length+2}; grid-column: ${headerColumns+1} / span ${locations.length*cellsPerSlot}`)
+                if xAxisType !== 'location'
+                    each xItem, idx in xAxis
+                        -
+                            const posXstart = (idx) + 2;
+                        div.users-cell.align-items-center.d-flex.text-center.px-1.border-start.border-end.justify-content-center(
+                            style=`grid-row: ${rows} / span ${cellsPerSlot}; grid-column: ${posXstart}`
+                            data-timeslot-id=xItem.id
+                        )
+                            +timeslotButtons(xItem)
+
+                div(style=`grid-row: ${rows + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
                     #schedule-legend.my-2(
                         style=`grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
                     )
                             .bg-warning-subtle.p-2 Weak Match
                             .bg-info-subtle.p-2 Strong Match
                             .bg-success-subtle.p-2 Suggested
-                            //.bg-success-subtle.p-2 Confirmed
                             .bg-danger-subtle.p-2 Rejected
 
                 -
@@ -96,21 +160,43 @@ block content
                         if (scene.status === 'ready') { return scene.timeslot_count; }
                         return 0;
                     });
-                div( style=`grid-row: ${timeslots.length+3}; grid-column: ${headerColumns+1} / span ${locations.length*cellsPerSlot}`)
-                    #unscheduled.schedule-cell.schedule-slot.bg-light.border(
+
+                div( style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
+                    #unscheduled-users.border.my-2.p-1.px-2.collapse(
+                        timeslot-id='none'
+                        type='init'
+                        scenes='[]'
+                    )
+                        .row
+                            .col
+                                span.title.float-start.text-dark(style='z-index:0') Unscheduled Users
+                                div(data-bs-theme='dark')
+                                    button.btn-close.float-end(data-bs-dismiss="collapse" area-label="close" type="button")
+                        .row
+                            .col
+                                .text-center.my-1.loading
+                                    .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
+                                        .visually-hidden Loading
+                        .row
+                            .col
+                                .content(style='display:none')
+
+                    #unscheduled.schedule-cell.schedule-slot.border(
                         data-location-id='none'
                         data-timeslot-id='none'
                         data-pos-x=1
                         data-pos-y=2
-                        style=`grid-template-columns: repeat(${locations.length*cellsPerSlot}, 1fr); grid-template-rows: 30px; grid-auto-rows: ${rowHeight}px; min-height: ${rowHeight}px`
+                        style=`grid-template-columns: repeat(${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: ${rowHeight}px; min-height: ${rowHeight}px`
                     )
-                        div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 2')
-                            span.float-start.text-dark(style='z-index:0') Unscheduled
+                        div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 10')
+                            span.float-start.text-dark(style='z-index:0') Unscheduled Scenes
 
                 each scene in scenes
-                    +sceneScheduleItem(scene)
+                    +sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
     link(rel='stylesheet' href='/stylesheets/schedule.css')
 append scripts
     script(src='https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')
+    script(src='/javascripts/templates/event/sceneDetails.js')
+    script(src='/javascripts/templates/event/unscheduledUsers.js')
     script(src='/javascripts/schedule.js')

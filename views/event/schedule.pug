@@ -162,24 +162,6 @@ block content
                     });
 
                 div( style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
-                    #unscheduled-users.border.my-2.p-1.px-2.collapse(
-                        timeslot-id='none'
-                        type='init'
-                        scenes='[]'
-                    )
-                        .row
-                            .col
-                                span.title.float-start.text-dark(style='z-index:0') Unscheduled Users
-                                div(data-bs-theme='dark')
-                                    button.btn-close.float-end(data-bs-dismiss="collapse" area-label="close" type="button")
-                        .row
-                            .col
-                                .text-center.my-1.loading
-                                    .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
-                                        .visually-hidden Loading
-                        .row
-                            .col
-                                .content(style='display:none')
 
                     #unscheduled.schedule-cell.schedule-slot.border(
                         data-location-id='none'
@@ -193,6 +175,30 @@ block content
 
                 each scene in scenes
                     +sceneScheduleItem(scene, xAxisType, cellsPerSlot)
+
+    #unscheduled-users.offcanvas.offcanvas-bottom(
+        tabindex="-1"
+        timeslot-id='none'
+        type='init'
+        scenes='[]'
+        data-bs-scroll="true"
+        data-bs-backdrop="false"
+    )
+        .offcanvas-header
+            h5.offcanvas-title.title
+            button.btn-close(data-bs-dismiss="offcanvas" area-label="close" type="button")
+        .offcanvas-body
+            .row
+                .col
+                    .text-center.my-1.loading
+                        .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
+                            .visually-hidden Loading
+            .row
+                .col
+                    .content(style='display:none')
+
+
+
 
     link(rel='stylesheet' href='/stylesheets/schedule.css')
 append scripts

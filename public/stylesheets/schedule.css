@@ -6,7 +6,7 @@
   display: grid;
   gap: 0px;
 }
-.schedule-slot, #unscheduled-users{
+.schedule-slot{
   z-index: -1;
   background-color: rgba(var(--bs-light-rgb), 0.75);
 }

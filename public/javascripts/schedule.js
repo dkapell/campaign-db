@@ -53,11 +53,13 @@ $(function(){
     }).on('click', confirmAllScenes);
 
     $('.unscheduled-users-btn').on('click', showUnscheduledUsersBtn);
-    $('#unscheduled-users').find('.btn-close').on('click', function(){
-        $('#unscheduled-users').collapse('hide');
+    /*$('#unscheduled-users').find('.btn-close').on('click', function(){
+        $('#unscheduled-users').offcanvas('hide');
+        clearTimeslotHighlight()
+    });*/
+    $('#unscheduled-users').on('hide.bs.offcanvas', function(){
         clearTimeslotHighlight()
     });
-
     updateAllSlots();
     validateAllScenes();
 });
@@ -573,8 +575,8 @@ async function showUnscheduledUsersBtn(e){
     if (Number($('#unscheduled-users').attr('timeslot-id')) === timeslotId &&
         $('#unscheduled-users').attr('type') === type &&
         $('#unscheduled-users').hasClass('show')){
-        clearTimeslotHighlight()
-        $('#unscheduled-users').collapse('hide');
+        //clearTimeslotHighlight()
+        $('#unscheduled-users').offcanvas('hide');
         return;
     }
     $btn.addClass('active');
@@ -585,7 +587,7 @@ async function showUnscheduledUsersBtn(e){
         .addClass('fa-sync');
     $btn.tooltip('hide');
     await updateUnscheduledUsersPanel(timeslotId, type);
-    $('#unscheduled-users').collapse('show');
+    $('#unscheduled-users').offcanvas('show');
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
     $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
 
@@ -655,13 +657,14 @@ function formatUnscheduledUsersData(data, type){
         snapMode:'inner',
         revert: true,
         revertDuration: 0,
+        appendTo: "body",
+        helper: 'clone',
         start: function(event, ui){
             startDragUser($(this), data);
         },
         stop: function (event, ui) {
             stopDragUser($(this));
         },
-        containment:'#schedule-container'
     });
 
     $('.scene-item-droppable').droppable({
@@ -674,6 +677,7 @@ function formatUnscheduledUsersData(data, type){
 }
 
 function startDragUser($user, data){
+    $user.hide();
     const userId = $user.data('user-id')
     $('.scene-item').each( function() {
         const sceneId = $(this).data('scene-id');
@@ -696,6 +700,7 @@ function startDragUser($user, data){
 }
 
 function stopDragUser($user, data){
+    $user.show();
     $('.scene-item').removeClass('disabled')
     $('.scene-display').removeClass('bg-info-subtle');
     $('.scene-display').removeClass('bg-success-subtle');

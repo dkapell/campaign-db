@@ -57,7 +57,9 @@ $(function(){
 
     $('.users-btn').on('click', showUsersBtn);
 
-    $('.resizer-close').on('click', function(){
+    $('.resizer-close').on('click', function(e){
+        e.preventDefault();
+        e.stopPropagation()
         closePickerArea();
         clearTimeslotHighlight();
     });
@@ -67,9 +69,10 @@ $(function(){
     $('.resizer-restore').on('click', function(){
         splitPickerArea();
     });
-
-    updateAllSlots();
-    validateAllScenes();
+    async.parallel([
+        validateAllScenes,
+        updateAllSlots,
+    ]);
 
     $('.resizer').each(function(){
         resizable($(this)[0]);
@@ -401,37 +404,41 @@ function updateScene($scene, status){
 
 async function validateAllScenes(){
     const sceneIds = [];
-    $('.scene-item').each(function(){
-        sceneIds.push($(this).data('scene-id'));
-    });
-    const url = `/event/${$('#eventId').val()}/scene/validate?`;
-
-    const result = await fetch(url + new URLSearchParams({
-        scenes: _.uniq(sceneIds)
-    }).toString());
-
-    const data = await result.json();
-    if (data.success){
-        for (const scene of data.scenes){
-            const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
-            $scenes.each(function() {
-                const $scene = $(this);
-                if (scene.issues.warning.length){
-                    $scene.addClass('validation-warning');
-                    $scene.find('.scene-warning').attr('content', makeValidationHtml(scene.issues.warning)[0].innerHTML);
-                } else {
-                    $scene.removeClass('validation-warning');
-                }
-                if (scene.issues.info.length){
-                    $scene.addClass('validation-info');
-                    $scene.find('.scene-info').attr('content', makeValidationHtml(scene.issues.info)[0].innerHTML);
-                } else {
-                    $scene.removeClass('validation-info');
-                }
+    async.parallel([
+        async ()=>{
+            $('.scene-item').each(function(){
+                sceneIds.push($(this).data('scene-id'));
             });
-        }
-    }
-    updateTimeslotUsersCount();
+            const url = `/event/${$('#eventId').val()}/scene/validate?`;
+
+            const result = await fetch(url + new URLSearchParams({
+                scenes: _.uniq(sceneIds)
+            }).toString());
+
+            const data = await result.json();
+            if (data.success){
+                for (const scene of data.scenes){
+                    const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
+                    $scenes.each(function() {
+                        const $scene = $(this);
+                        if (scene.issues.warning.length){
+                            $scene.addClass('validation-warning');
+                            $scene.find('.scene-warning').attr('content', makeValidationHtml(scene.issues.warning)[0].innerHTML);
+                        } else {
+                            $scene.removeClass('validation-warning');
+                        }
+                        if (scene.issues.info.length){
+                            $scene.addClass('validation-info');
+                            $scene.find('.scene-info').attr('content', makeValidationHtml(scene.issues.info)[0].innerHTML);
+                        } else {
+                            $scene.removeClass('validation-info');
+                        }
+                    });
+                }
+            }
+        },
+        updateTimeslotUsersCount
+    ]);
 }
 
 function makeValidationHtml(issues){

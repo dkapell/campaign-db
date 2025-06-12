@@ -182,7 +182,7 @@ block content
 
         .content-resizer.d-none.position-absolute.bottom-0.w-100#adjustable-content(
             data-direction="vertical"
-            style='z-index:35'
+            style='z-index:75'
         )
             .resizer.bg-dark(data-direction='vertical')
                 .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
@@ -243,6 +243,7 @@ block content
 
     link(rel='stylesheet' href='/stylesheets/schedule.css')
 append scripts
+    script(src='https://cdn.jsdelivr.net/npm/async@3.2.6/dist/async.min.js')
     script(src='https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')
     script(src='/javascripts/templates/event/sceneDetails.js')
     script(src='/javascripts/templates/event/usersList.js')

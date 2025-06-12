@@ -12,9 +12,9 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
         return issues;
     }
     const allScenes = await models.scene.find({event_id:scene.event_id});
-
     const locations = getSelectedLocations(scene);
     const timeslots = getSelectedTimeslots(scene);
+
     for (const checkScene of allScenes){
         if (checkScene.id === scene.id){
             continue;
@@ -47,7 +47,6 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
                 break;
         }
     }
-
     for (const timeslot of timeslots.timeslots){
         switch (timeslot.scene_request_status){
             case 'rejected':
@@ -100,7 +99,6 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
             total:0
         }
     };
-    const sceneTimeslots = scene.timeslots.filter(timeslot => {return timeslot.scene_schedule_status === 'confirmed' || timeslot.scene_schedule_status === 'suggested'});
 
     for (const user of scene.users){
         if (user.scene_schedule_status === 'confirmed'){
@@ -117,12 +115,20 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
             }
         }
         if (user.scene_schedule_status === 'confirmed' || user.scene_schedule_status === 'suggested'){
-            for (const timeslot of sceneTimeslots){
-                const scenes = await getScenesAtTimeslot(scene.event_id, timeslot.id);
-                for (const timeslotScene of scenes){
-                    if (timeslotScene.id === scene.id){
-                        continue;
+            for (const timeslot of timeslots.timeslots){
+                const concurentScenes = allScenes.filter(checkScene => {
+                    if (checkScene.id === scene.id){
+                        return false
                     }
+                    const checkTimeslots = getSelectedTimeslots(checkScene);
+                    if (_.findWhere(checkTimeslots.timeslots, {id:timeslot.id})){
+                        return true;
+                    }
+                    return false;
+                });
+
+                //const scenes = await getScenesAtTimeslot(scene.event_id, timeslot.id);
+                for (const timeslotScene of concurentScenes){
                     const timeslotSceneUser = _.findWhere(timeslotScene.users, {id:user.id});
                     if (!timeslotSceneUser){
                         continue
@@ -133,7 +139,7 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
                         } else {
                             issues.info.push(`${user.name} is also booked for ${timeslotScene.name}`);
                         }
-                    }else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
+                    } else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
                         if (user.type === 'player'){
                             issues.warning.push(`${user.name} is also suggested for ${timeslotScene.name}`);
                         } else {
@@ -168,7 +174,6 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
     if (userCounts.staff.suggested){
         issues.info.push('Unconfirmed Staff');
     }
-
     return issues;
 }
 

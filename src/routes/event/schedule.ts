@@ -204,7 +204,7 @@ async function validateScenes(req, res){
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
-        const scenes = await async.map(sceneIds, async(sceneId) => {
+        const scenes = await async.mapSeries(sceneIds, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {

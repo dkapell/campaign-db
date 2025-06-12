@@ -580,10 +580,9 @@ async function showUnscheduledUsersBtn(e){
 
     if (Number($('#unscheduled-users').attr('timeslot-id')) === timeslotId &&
         $('#unscheduled-users').attr('type') === type &&
-        $('#unscheduled-users').hasClass('show')){
+        $('#adjustable-content').hasClass('show')){
         clearTimeslotHighlight();
         closePickerArea();
-        //$('#unscheduled-users').offcanvas('hide');
         return;
     }
     $btn.addClass('active');
@@ -594,10 +593,10 @@ async function showUnscheduledUsersBtn(e){
         .addClass('fa-sync');
     $btn.tooltip('hide');
     await updateUnscheduledUsersPanel(timeslotId, type);
-    if (!$('#unscheduled-users').hasClass('show')){
+    if (!$('#adjustable-content').hasClass('show')){
         halfPickerArea();
     }
-    //$('#unscheduled-users').offcanvas('show');
+
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
     $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
 
@@ -805,24 +804,21 @@ async function updateTimeslotUsersCount(){
 }
 
 function closePickerArea(){
-    if (!$('#unscheduled-users').hasClass('show')){
+    if (!$('#adjustable-content').hasClass('show')){
         return;
     }
+
     $('#schedule-container')
         .removeClass('d-none')
         .addClass('d-flex')
         .css({overflow:'hidden'})
         .animate({height:'100%'}, 200);
-    $('#unscheduled-users')
+
+    $('#adjustable-content')
         .addClass('d-none')
         .removeClass('show')
         .css({overflow:'hidden'})
-        .animate({height:'0'}, 200, function(){
-            $('#content-adjust')
-                .removeClass('d-flex')
-                .addClass('d-none');
-        });
-
+        .animate({height:'0'}, 200);
 }
 
 function fullPickerArea(hideAdjust, hideClose = false){
@@ -836,64 +832,60 @@ function fullPickerArea(hideAdjust, hideClose = false){
         .css({overflow:'scroll'})
         .animate({height:`${minSize}%`}, 200);
     if(hideAdjust){
-        $('#content-adjust').addClass('d-none');
+        $('#adjustable-content').addClass('d-none');
     } else {
-        $('#content-adjust').removeClass('d-none');
+        $('#adjustable-content').removeClass('d-none');
     }
 
     if (hideClose){
-        $('#content-adjust >> .resizer-close').addClass('d-none');
+        $('#adjustable-content >> .resizer-close').addClass('d-none');
     } else {
-        $('#content-adjust >> .resizer-close').removeClass('d-none');
+        $('#adjustable-content >> .resizer-close').removeClass('d-none');
     }
-
-    $('#unscheduled-users')
+    $('#adjustable-content')
         .removeClass('d-none')
         .addClass('show')
+        .css({overflow:'visible'})
         .animate({height:`${100-minSize}%`}, 200);
-    $('#content-adjust >> .resizer-expand').hide();
-    $('#content-adjust >> .resizer-restore').show();
+    $('#adjustable-content .resizer-expand').hide();
+    $('#adjustable-content .resizer-restore').show();
 }
 
-function halfPickerArea(hideAdjust, hideClose = false){
-
-    if(hideAdjust){
-        $('#content-adjust').addClass('d-none');
-    } else {
-        $('#content-adjust').removeClass('d-none');
-    }
+function halfPickerArea(hideClose = false){
 
     if (hideClose){
-        $('#content-adjust >> .resizer-close').addClass('d-none');
+        $('#adjustable-content .resizer-close').addClass('d-none');
     } else {
-        $('#content-adjust >> .resizer-close').removeClass('d-none');
+        $('#adjustable-content .resizer-close').removeClass('d-none');
     }
 
-    $('#content-adjust >> .resizer-expand').show();
-    $('#content-adjust >> .resizer-restore').hide();
-
+    $('#adjustable-content .resizer-expand').show();
+    $('#adjustable-content .resizer-restore').hide();
     $('#schedule-container')
         .removeClass('d-none')
         .addClass('d-flex')
         .show()
         .css({overflow:'scroll'})
         .animate({height:'60%'}, 200);
-    $('#unscheduled-users')
+    $('#adjustable-content')
         .removeClass('d-none')
         .addClass('show')
-        .css({height:'0%'})
-        .show()
-        .animate({height:'40%'}, 200);
+        .css({overflow:'visible'})
+        .show();
 
-    $('#content-adjust >> .resizer-expand').show();
-    $('#content-adjust >> .resizer-restore').hide();
+    if(!$('#adjustable-content').hasClass('show')){
+        $('#adjustable-content').css({height:'0%'});
+    }
+    $('#adjustable-content').animate({height:'40%'}, 200);
+    $('#adjustable-content .resizer-expand').show();
+    $('#adjustable-content .resizer-restore').hide();
 }
 
 
 function resizable(resizer) {
     const direction = resizer.getAttribute('data-direction') || 'horizontal';
-    const prevSibling = resizer.previousElementSibling;
-    const nextSibling = resizer.nextElementSibling;
+    const prevSibling = resizer.parentElement.previousElementSibling;
+    const nextSibling = resizer.parentElement;
     const minSize = Number(prevSibling.getAttribute('min-size'));
     // The current position of mouse
     let x = 0;
@@ -921,12 +913,14 @@ function resizable(resizer) {
         const dx = e.clientX - x;
         const dy = e.clientY - y;
 
+
         switch (direction) {
             case 'vertical':{
-                let h = (prevSiblingHeight + dy) * 100 / resizer.parentNode.getBoundingClientRect().height;
+                let h = (prevSiblingHeight + dy) * 100 / prevSibling.parentNode.getBoundingClientRect().height;
                 if (minSize && h < minSize){
                     h = minSize;
                 }
+
                 prevSibling.style.height = `${h}%`;
                 nextSibling.style.height = `${100-h}%`;
                 break;

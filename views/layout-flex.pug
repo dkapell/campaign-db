@@ -1,47 +1,28 @@
 doctype html
-html(lang="en").h-100
+html(lang="en").vh-100
     include ./partials/layout/head
 
     body.h-100
-        nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
-            include ./partials/layout/menu
-        .d-flex.flex-column.h-100.overflow-hidden
+        .d-flex.flex-column.vh-100.overflow-y-auto
+            nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
+                include ./partials/layout/menu
             .flex-grow-1.pt-3#main-content
-
-                if breadcrumbs
-                    if wideMain
-                        .container-fluid
-                            include ./partials/layout/breadcrumbs
-                    else
-                        .container
-                            include ./partials/layout/breadcrumbs
-
-                if (pageTitle)
-                    .container(role="page_title")
-                        if (typeof pageTitle === 'string')
-                            h2=pageTitle
-                        else
-                            if (pageTitle.h1)
-                                h1=pageTitle.h1
-                            if (pageTitle.h2)
-                                h2=pageTitle.h2
-                            if (pageTitle.h3)
-                                h3=pageTitle.h3
-                            if (pageTitle.h4)
-                                h4=pageTitle.h4
-
-
-                include ./partials/layout/messages
 
                 if wideMain
                     main.container-fluid.h-100.px-0(role="main")
+                        include ./partials/layout/breadcrumbs
+                        include ./partials/layout/messages
                         block content
 
                 else if fullHeightMain
                     main.container.h-100.px-0(role="main")
+                        include ./partials/layout/breadcrumbs
+                        include ./partials/layout/messages
                         block content
                 else
                     main.container.overflow-hidden.h-100.px-0(role="main")
-                    block content
+                        include ./partials/layout/breadcrumbs
+                        include ./partials/layout/messages
+                        block content
 
         include ./partials/layout/footer

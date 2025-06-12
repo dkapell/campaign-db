@@ -76,7 +76,7 @@
   opacity: 0
 }
 
-.screen-container{
+.screen-container, #unscheduled-users{
     overflow: scroll;
     height:100%;
 }

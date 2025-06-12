@@ -39,11 +39,11 @@ block content
                                 i.fa.fa-info-circle.me-2
                                 | This event is in the past
             .row.mb-2
-                .col
-                    button.btn.btn-outline-success#confirm-schedule-btn(
+                .col.px-4
+                    button.btn.btn-sm.btn-outline-success#confirm-schedule-btn(
                         role=button
                         data-bs-toggle='tooltip'
-                        title='Confirm all Scheduled scenes'
+                        title='Confirm all Scheduled Scenes'
                     )
                         i.fa.fa-calendar-check.me-2
                         | Confirm Schedule
@@ -172,7 +172,7 @@ block content
                             data-timeslot-id='none'
                             data-pos-x=1
                             data-pos-y=2
-                            style=`grid-template-columns: repeat(${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: ${rowHeight}px; min-height: ${rowHeight}px`
+                            style=`grid-template-columns: repeat(${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: minmax(${rowHeight}px, auto); min-height: ${rowHeight}px`
                         )
                             div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 10')
                                 span.float-start.text-dark(style='z-index:0') Unscheduled Scenes
@@ -180,61 +180,65 @@ block content
                     each scene in scenes
                         +sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
-        .resizer.content-resizer.d-none.bg-dark#content-adjust(data-direction="vertical")
-            .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
-                .badge.rounded-pill.text-bg-danger.me-2.resizer-close(
-                    style="cursor:pointer;"
-                    data-toggle="tooltip"
-                    data-delay={ "show": 500, "hide": 100 }
-                    title="Close"
-                )
-                    .fa.fas.fa-fw.fa-times
-                .badge.rounded-pill.text-bg-warning.me-2.resizer-move(
-                    data-toggle="tooltip"
-                    data-delay={ "show": 500, "hide": 100 }
-                    title="Drag to Resize"
-                )
-                    .fa.fas.fa-fw.fa-arrows-alt-v
-
-                .badge.rounded-pill.text-bg-success.me-2.resizer-expand(
-                    style="cursor:pointer;"
-                    data-toggle="tooltip"
-                    data-delay={ "show": 500, "hide": 100 }
-                    title="Expand"
-                )
-                    .fa.fas.fa-fw.fa-expand-alt
-
-                .badge.rounded-pill.text-bg-success.me-2.resizer-restore(
-                    style="cursor:pointer;"
-                    data-toggle="tooltip"
-                    data-delay={ "show": 500, "hide": 100 }
-                    title="Restore"
-                )
-                    .fa.fas.fa-fw.fa-compress-alt
-
-        #unscheduled-users.py-3.px-4.d-none.bg-white(
-            tabindex="-1"
-            timeslot-id='none'
-            type='init'
-            scenes='[]'
-            data-bs-scroll="true"
-            data-bs-backdrop="false"
+        .content-resizer.d-none.position-absolute.bottom-0.w-100#adjustable-content(
+            data-direction="vertical"
+            style='z-index:35'
         )
-            div(data-bs-theme="dark")
-                button.float-end.btn-close.resizer-close(area-label="close" type="button")
-            .row.py-2
-                .col
-                    h5.offcanvas-title.title
-            .row.loading
-                .col
-                    .text-center.my-1
-                        .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
-                            .visually-hidden Loading
-            .row.py-2
-                .col
-                    .content(style='display:none')
+            .resizer.bg-dark(data-direction='vertical')
+                .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
+                    .badge.rounded-pill.text-bg-danger.me-2.resizer-close(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Close"
+                    )
+                        .fa.fas.fa-fw.fa-times
+                    .badge.rounded-pill.text-bg-warning.me-2.resizer-move(
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Drag to Resize"
+                    )
+                        .fa.fas.fa-fw.fa-arrows-alt-v
 
+                    .badge.rounded-pill.text-bg-success.me-2.resizer-expand(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Expand"
+                    )
+                        .fa.fas.fa-fw.fa-expand-alt
 
+                    .badge.rounded-pill.text-bg-success.me-2.resizer-restore(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Restore"
+                    )
+                        .fa.fas.fa-fw.fa-compress-alt
+
+            #unscheduled-users.py-3.px-4.bg-white.h-100(
+                tabindex="-1"
+                timeslot-id='none'
+                type='init'
+                scenes='[]'
+                data-bs-scroll="true"
+                data-bs-backdrop="false"
+            )
+
+                .d-block
+                    div(data-bs-theme="dark")
+                        button.float-end.btn-close.resizer-close(area-label="close" type="button")
+                    .row.py-2
+                        .col
+                            h5.offcanvas-title.title
+                    .row.loading
+                        .col
+                            .text-center.my-1
+                                .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
+                                    .visually-hidden Loading
+                    .row.py-2
+                        .col
+                            .content(style='display:none')
 
 
     link(rel='stylesheet' href='/stylesheets/schedule.css')

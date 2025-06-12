@@ -21,7 +21,10 @@ $(function(){
     $('.schedule-slot').droppable({
         accept: '.scene-item',
         tolerance: 'pointer',
-        drop: updateSceneSchedule
+        drop: updateSceneSchedule,
+        classes: {
+            'ui-droppable-hover': 'border-success'
+        }
 
     });
 
@@ -62,7 +65,7 @@ $(function(){
         fullPickerArea();
     });
     $('.resizer-restore').on('click', function(){
-        halfPickerArea();
+        splitPickerArea();
     });
 
     updateAllSlots();
@@ -77,6 +80,7 @@ function clearTimeslotHighlight(){
     $('.timeslot-header').removeClass('text-bg-info');
     $('.schedule-cell').removeClass('text-bg-info');
     $('.users-btn').removeClass('active');
+    $('.scene-item').removeClass('scene-item-droppable');
     const sceneIds = JSON.parse($('#unscheduled-users').attr('scenes'));
     for (const sceneId of sceneIds){
 
@@ -594,8 +598,9 @@ async function showUnscheduledUsersBtn(e){
     $btn.tooltip('hide');
     await updateUnscheduledUsersPanel(timeslotId, type);
     if (!$('#adjustable-content').hasClass('show')){
-        halfPickerArea();
+        await splitPickerArea();
     }
+    scrollToTimeslot(timeslotId);
 
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
     $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
@@ -654,9 +659,11 @@ function formatUnscheduledUsersData(data, type){
     $('#unscheduled-users').find('.content').html(unscheduledusersTemplate(data)).show();
 
     for (const scene of data.scenes){
+        console.log(scene.name);
         $(`.scene-item[data-scene-id=${scene.id}]`).addClass('scene-item-droppable');
         $(`.scene-item[data-scene-id=${scene.id}]`).find('.scene-details').collapse('show');
     }
+
 
     $('#unscheduled-users').find('.user-item').draggable({
         snap:'.scene-item-droppable',
@@ -679,7 +686,10 @@ function formatUnscheduledUsersData(data, type){
     $('.scene-item-droppable').droppable({
         accept: '.user-item',
         tolerance: 'pointer',
-        drop: updateSceneUser
+        drop: updateSceneUser,
+        classes: {
+            'ui-droppable-hover': 'scene-item-droppable-hover'
+        }
 
     });
 
@@ -803,82 +813,91 @@ async function updateTimeslotUsersCount(){
     }
 }
 
-function closePickerArea(){
-    if (!$('#adjustable-content').hasClass('show')){
-        return;
-    }
+async function closePickerArea(){
+    new Promise((resolve, reject) => {
+        if (!$('#adjustable-content').hasClass('show')){
+            return;
+        }
 
-    $('#schedule-container')
-        .removeClass('d-none')
-        .addClass('d-flex')
-        .css({overflow:'hidden'})
-        .animate({height:'100%'}, 200);
+        $('#schedule-container')
+            .removeClass('d-none')
+            .addClass('d-flex')
+            .css({overflow:'hidden'})
+            .animate({height:'100%'}, 200);
 
-    $('#adjustable-content')
-        .addClass('d-none')
-        .removeClass('show')
-        .css({overflow:'hidden'})
-        .animate({height:'0'}, 200);
+        $('#adjustable-content')
+            .addClass('d-none')
+            .removeClass('show')
+            .css({overflow:'hidden'})
+            .animate({height:'0'}, 200, ()=>{
+                resolve();
+            });
+    });
 }
 
-function fullPickerArea(hideAdjust, hideClose = false){
-    let minSize = 0;
-    if ($('#schedule-container').attr('min-size')){
-        minSize = $('#schedule-container').attr('min-size');
-    }
-    $('#schedule-container')
-        .removeClass('d-none')
-        .addClass('d-flex')
-        .css({overflow:'scroll'})
-        .animate({height:`${minSize}%`}, 200);
-    if(hideAdjust){
-        $('#adjustable-content').addClass('d-none');
-    } else {
-        $('#adjustable-content').removeClass('d-none');
-    }
+async function fullPickerArea(hideAdjust, hideClose = false){
+    new Promise((resolve, reject)=>{
+        let minSize = 0;
+        if ($('#schedule-container').attr('min-size')){
+            minSize = $('#schedule-container').attr('min-size');
+        }
+        $('#schedule-container')
+            .removeClass('d-none')
+            .addClass('d-flex')
+            .animate({height:`${minSize}%`}, 200);
+        if(hideAdjust){
+            $('#adjustable-content').addClass('d-none');
+        } else {
+            $('#adjustable-content').removeClass('d-none');
+        }
 
-    if (hideClose){
-        $('#adjustable-content >> .resizer-close').addClass('d-none');
-    } else {
-        $('#adjustable-content >> .resizer-close').removeClass('d-none');
-    }
-    $('#adjustable-content')
-        .removeClass('d-none')
-        .addClass('show')
-        .css({overflow:'visible'})
-        .animate({height:`${100-minSize}%`}, 200);
-    $('#adjustable-content .resizer-expand').hide();
-    $('#adjustable-content .resizer-restore').show();
+        if (hideClose){
+            $('#adjustable-content >> .resizer-close').addClass('d-none');
+        } else {
+            $('#adjustable-content >> .resizer-close').removeClass('d-none');
+        }
+        $('#adjustable-content .resizer-expand').hide();
+        $('#adjustable-content .resizer-restore').show();
+        $('#adjustable-content')
+            .removeClass('d-none')
+            .addClass('show')
+            .css({overflow:'visible'})
+            .animate({height:`${100-minSize}%`}, 200, ()=>{
+                resolve();
+            });
+    });
 }
 
-function halfPickerArea(hideClose = false){
+async function splitPickerArea(hideClose = false){
+    new Promise((resolve, reject) => {
+        if (hideClose){
+            $('#adjustable-content .resizer-close').addClass('d-none');
+        } else {
+            $('#adjustable-content .resizer-close').removeClass('d-none');
+        }
 
-    if (hideClose){
-        $('#adjustable-content .resizer-close').addClass('d-none');
-    } else {
-        $('#adjustable-content .resizer-close').removeClass('d-none');
-    }
+        $('#adjustable-content .resizer-expand').show();
+        $('#adjustable-content .resizer-restore').hide();
+        $('#schedule-container')
+            .removeClass('d-none')
+            .addClass('d-flex')
+            .show()
+            .animate({height:'60%'}, 200);
+        $('#adjustable-content')
+            .removeClass('d-none')
+            .addClass('show')
+            .css({overflow:'visible'})
+            .show();
 
-    $('#adjustable-content .resizer-expand').show();
-    $('#adjustable-content .resizer-restore').hide();
-    $('#schedule-container')
-        .removeClass('d-none')
-        .addClass('d-flex')
-        .show()
-        .css({overflow:'scroll'})
-        .animate({height:'60%'}, 200);
-    $('#adjustable-content')
-        .removeClass('d-none')
-        .addClass('show')
-        .css({overflow:'visible'})
-        .show();
-
-    if(!$('#adjustable-content').hasClass('show')){
-        $('#adjustable-content').css({height:'0%'});
-    }
-    $('#adjustable-content').animate({height:'40%'}, 200);
-    $('#adjustable-content .resizer-expand').show();
-    $('#adjustable-content .resizer-restore').hide();
+        if(!$('#adjustable-content').hasClass('show')){
+            $('#adjustable-content').css({height:'0%'});
+        }
+        $('#adjustable-content .resizer-expand').show();
+        $('#adjustable-content .resizer-restore').hide();
+        $('#adjustable-content').animate({height:'40%'}, 200, () => {
+            resolve();
+        });
+    });
 }
 
 
@@ -981,10 +1000,21 @@ function resizable(resizer) {
     resizer.addEventListener('dblclick', function(){
         const height = parseInt($('#schedule-container')[0].style.height);
         if ( height < (minSize+5)){
-            halfPickerArea();
+            splitPickerArea();
 
         } else {
             fullPickerArea();
         }
     });
+}
+
+function scrollToTimeslot(timeslotId){
+    const $header = $(`.timeslot-header[data-timeslot-id=${timeslotId}]`);
+    if ($($header).length){
+        const $container= $('#schedule-container');
+        $container.animate({
+            scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - 50
+
+        }, 100);
+    }
 }

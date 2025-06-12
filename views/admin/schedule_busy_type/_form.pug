@@ -1,0 +1,27 @@
+.row.my-2
+    .col
+
+        label.control-label(for="schedule_busy_type_name") Name
+        input.form-control(type="text",placeholder="Name",name="schedule_busy_type[name]",value=schedule_busy_type.name,id='schedule_busy_type_name',required)
+        .invalid-feedback Please choose a valid name
+
+.row.my-2
+    .col
+       .form-check.form-switch
+            input.form-check-input#schedule_busy_type_display_to_player(type="checkbox" name="schedule_busy_type[display_to_player]" checked=schedule_busy_type.display_to_player)
+            label.form-check-label(for="schedule_busy_type_display_to_player") Display to Player?
+    .col
+       .form-check.form-switch
+            input.form-check-input#schedule_busy_type_available_to_player(type="checkbox" name="schedule_busy_type[available_to_player]" checked=schedule_busy_type.available_to_player)
+            label.form-check-label(for="schedule_busy_type_available_to_player") Available to Players?
+    .col
+       .form-check.form-switch
+            input.form-check-input#schedule_busy_type_available_to_staff(type="checkbox" name="schedule_busy_type[available_to_staff]" checked=schedule_busy_type.available_to_staff)
+            label.form-check-label(for="schedule_busy_type_available_to_staff") Available to Staff?
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= schedule_busy_type.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/schedule_busy_type") Cancel
+
+

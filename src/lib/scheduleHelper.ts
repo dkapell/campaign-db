@@ -141,6 +141,11 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
                         }
                     }
                 }
+
+                const schedule_busys = await models.schedule_busy.find({event_id:scene.event_id, user_id:user.id, timeslot_id:timeslot.id});
+                if (schedule_busys.length){
+                    issues.warning.push(`${user.name} is also busy with ${(_.pluck(schedule_busys, 'name')).join(', ')}`);
+                }
             }
         }
     }
@@ -336,7 +341,9 @@ function formatUser(user){
         type: user.type,
         tags: _.pluck(user.tags, 'name'),
         typeForDisplay: user.typeForDisplay,
-        schedule_status: user.schedule_status
+        schedule_status: user.schedule_status,
+        schedule_scene_id: user.schedule_scene_id,
+        busy: user.busy
     };
     if (user.character){
         doc.character = {
@@ -387,21 +394,38 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
         for (const scene of scenes){
             if (scene.usersByStatus && _.findWhere(scene.usersByStatus.confirmed, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.confirmed, {id:user.id});
-                statuses.push({sceneId:scene.id, status:record.scene_schedule_status});
+                statuses.push({type:'scene', sceneId:scene.id, status:record.scene_schedule_status});
             } else if (scene.usersByStatus && _.findWhere(scene.usersByStatus.suggested, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.suggested, {id:user.id});
-                statuses.push({sceneId:scene.id, status:record.scene_schedule_status});
+                statuses.push({type: 'scene', sceneId:scene.id, status:record.scene_schedule_status});
             }
+        }
+
+        const schedule_busys = await models.schedule_busy.find({
+            event_id: eventId,
+            user_id: user.id,
+            timeslot_id: timeslotId
+        })
+
+        for (const schedule_busy of schedule_busys){
+            statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled'})
         }
 
         if (!statuses.length){
             user.schedule_status = 'unscheduled';
         } else if (statuses.length === 1){
             user.schedule_status = statuses[0].status;
-            user.schedule_scene_id = statuses[0].sceneId;
+            if (statuses[0].type === 'scene'){
+                user.schedule_scene_id = [statuses[0].sceneId];
+                user.busy = [];
+            } else {
+                user.schedule_scene_id = null;
+                user.busy = [statuses[0].name];
+            }
         } else {
             user.schedule_status = 'multi-booked';
-            user.schedule_scene_id = _.pluck(statuses, 'sceneId')
+            user.schedule_scene_id = _.pluck(_.where(statuses, {type:'scene'}), 'sceneId')
+            user.busy = _.pluck(_.where(statuses, {type:'busy'}), 'name')
         }
         return user;
     });

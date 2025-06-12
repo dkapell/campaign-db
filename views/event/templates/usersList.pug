@@ -1,0 +1,61 @@
+-
+    const fileredUsers = users.filter(user => {
+        return type === 'all' || user.schedule_status === 'unscheduled'
+    })
+
+if fileredUsers.length
+
+    if schedule_busy_types.length
+        .row.mb-2
+            .col
+                ul.list-inline.mb-0#schedule-filler-types-list
+                    each schedule_busy_type in schedule_busy_types
+                        if type === 'all' || schedule_busy_type.available_to_player && type==='player' || schedule_busy_type.available_to_staff && type==='staff'
+                            li.schedule-filler-type-item.border.list-inline-item.py-2.px-4.align-top.bg-white.m-1(
+                                data-schedule-filler-type-id=schedule_busy_type.id
+                                data-available-to-player=schedule_busy_type.available_to_player?'true':'false'
+                                data-available-to-staff=schedule_busy_type.available_to_staff?'true':'false'
+                                data-timeslot-id=timeslot.id
+                            )= schedule_busy_type.name
+
+    .row
+        .col
+            ul.list-inline.mb-0#users-panel-list
+                each user in fileredUsers
+
+                    li.user-item.m-1.border.list-inline-item.rounded.px-1.pb-1.align-top.bg-white(
+                        data-user-id=user.id
+                        data-user-type=user.type==='player'?'player':'staff'
+                    )
+                        .row.handle.my-0
+                            .col.handle.text-center
+                                i.fas.fa-grip-lines.handle-icon.text-info
+                        .row
+                            .col
+                                a(href=`/user/${user.id}` target='_blank')
+                                    i.fas.fa-user.me-1
+                                    span.user-name.me-1=user.name
+                                if user.type !== 'player'
+                                    .badge.text-bg-primary.mx-1.float-end=capitalize(user.typeForDisplay)
+
+                                if user.type === 'player' && user.tags.length < 4
+                                    .float-end
+                                        each tag in user.tags
+                                            .badge.text-bg-info.mx-1=tag
+                        if user.type !== 'player' || user.tags.length >= 4
+                            .row
+                                .col
+                                    each tag in user.tags
+                                        .badge.text-bg-info.me-1=tag
+                        if user.type === 'player' && user.character
+                            .row
+                                .col
+                                    a.character(href=`/character/${user.character.id}` target='_blank')
+                                        i.far.fa-user.me-1
+                                        | #{user.character.name}
+
+else
+    .row
+        .col
+            .fs-5.text-center.my-1
+                i.m-auto No Matching Attendees

@@ -189,24 +189,43 @@ create table campaign_users_tags(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-create table schedule_downtime(
+create table schedule_busy_types(
+    id serial,
+    campaign_id int not null,
+    name varchar(80) not null,
+    description text,
+    display_to_player boolean,
+    available_to_player boolean,
+    available_to_staff boolean,
+    primary key (id),
+    unique(campaign_id, name),
+    CONSTRAINT schedule_busy_types_campaign_fk FOREIGN KEY (campaign_id)
+        REFERENCES "campaigns" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+create table schedule_busies(
     id serial,
     campaign_id int not null,
     timeslot_id int not null,
     user_id int not null,
     event_id int not null,
-    unique(user_id, event_id, timeslot_id),
+    type_id int not null,
+    unique(user_id, event_id, timeslot_id, type_id),
     primary key (id),
-    CONSTRAINT schedule_downtime_campaign_fk FOREIGN KEY (campaign_id)
+    CONSTRAINT schedule_busies_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
-    CONSTRAINT schedule_downtime_timeslot_fk FOREIGN KEY (timeslot_id)
+    CONSTRAINT schedule_busies_timeslot_fk FOREIGN KEY (timeslot_id)
         REFERENCES "timeslots" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
-    CONSTRAINT schedule_downtime_user_fk FOREIGN KEY (campaign_id)
+    CONSTRAINT schedule_busies_user_fk FOREIGN KEY (campaign_id)
         REFERENCES "users" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
-    CONSTRAINT schedule_downtime_event_fk FOREIGN KEY (campaign_id)
+    CONSTRAINT schedule_busies_event_fk FOREIGN KEY (campaign_id)
         REFERENCES "events" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT schedule_busies_type_fk FOREIGN KEY (type_id)
+        REFERENCES "schedule_busy_types" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );

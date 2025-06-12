@@ -115,14 +115,14 @@ block content
                 dt.col-sm-3 Players
                 dd.col-sm-9
                     = (_.pluck(playersByScheduleStatus.confirmed, 'name')).join(', ')
-                    if scene.player_count - playersByScheduleStatus.confirmed.length !== 0
-                        span.ms-2 (+#{scene.player_count - playersByScheduleStatus.confirmed.length}, #{scene.player_count} Requested)
+                    if scene.player_count_max - playersByScheduleStatus.confirmed.length !== 0
+                        span.ms-2 (+#{scene.player_count_max - playersByScheduleStatus.confirmed.length}, #{scene.player_count_min} - #{scene.player_count_max} Requested)
 
             else if playersByScheduleStatus.suggested
                 dt.col-sm-3 Players Suggested
                 dd.col-sm-9
                     = (_.pluck(playersByScheduleStatus.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.player_count - playersByScheduleStatus.confirmed.length}, #{scene.player_count} Requested)
+                    span.ms-2 (+#{scene.player_count_max - playersByScheduleStatus.confirmed.length}, #{scene.player_count_min} - #{scene.player_count_max} Requested)
 
             else
                 dt.col-sm-3 Player Count
@@ -146,14 +146,14 @@ block content
                 dt.col-sm-3 Staff
                 dd.col-sm-9
                     = (_.pluck(staffByScheduleStatus.confirmed, 'name')).join(', ')
-                    if scene.staff_count - staffByScheduleStatus.confirmed.length !== 0
-                        span.ms-2 (+#{scene.staff_count - staffByScheduleStatus.confirmed.length}, #{scene.staff_count} Requested)
+                    if scene.staff_count_max - staffByScheduleStatus.confirmed.length !== 0
+                        span.ms-2 (+#{scene.staff_count_max - staffByScheduleStatus.confirmed.length}, #{scene.staff_count_min} - #{scene.staff_count_max} Requested)
 
             else if staffByScheduleStatus.suggested
                 dt.col-sm-3 Staff Suggested
                 dd.col-sm-9
                     = (_.pluck(staffByScheduleStatus.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.staff_count - staffByScheduleStatus.confirmed.length}, #{scene.staff_count} Requested)
+                    span.ms-2 (+#{scene.staff_count_max - staffByScheduleStatus.confirmed.length}, #{scene.staff_count_min} - #{scene.staff_count_max} Requested)
 
             else
                 dt.col-sm-3 Staff Count

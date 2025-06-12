@@ -1,0 +1,38 @@
+.row
+    .col
+        if users.length
+            ul.list-inline.mb-0#users-panel-list
+                each user in users
+                    li.list-inline-item.align-top.busy-user-item.m-1(
+                        data-user-id=user.id
+                        data-user-type=user.type==='player'?'player':'staff'
+                        data-schedule-busy-id=user.busy_id
+                    )
+                        .card
+                            .card-header
+                                button.btn.btn-xs.btn-outline-danger.float-end.unschedule-busy-btn(
+                                    role='button'
+                                    data-user-id=user.id
+                                    data-schedule-busy-id=user.busy_id
+                                    data-bs-toggle='tooltip'
+                                    title=`Remove ${user.busy_name} from Attendee`
+                                )
+                                    i.fas.fa-trash
+                                strong= user.busy_name
+                            .card-body
+                                a(href=`/user/${user.id}` target='_blank')
+                                    i.fas.fa-user.me-1
+                                    span.user-name.me-1=user.name
+                                if user.type !== 'player'
+                                    .badge.text-bg-primary.mx-1.float-end=capitalize(user.typeForDisplay)
+
+                                if user.type === 'player' && user.character
+                                    .row
+                                        .col
+                                            a.character(href=`/character/${user.character.id}` target='_blank')
+                                                i.far.fa-user.me-1
+                                                | #{user.character.name}
+        else
+            .fs-5.text-center.my-1
+                i.m-auto No Busy Attendees
+

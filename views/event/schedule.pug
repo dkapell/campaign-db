@@ -216,7 +216,7 @@ block content
                     )
                         .fa.fas.fa-fw.fa-compress-alt
 
-            #unscheduled-users.py-3.px-4.bg-white.h-100(
+            #users-panel.py-3.px-4.bg-white.h-100(
                 tabindex="-1"
                 timeslot-id='none'
                 type='init'
@@ -245,5 +245,6 @@ block content
 append scripts
     script(src='https://code.jquery.com/ui/1.13.2/jquery-ui.min.js')
     script(src='/javascripts/templates/event/sceneDetails.js')
-    script(src='/javascripts/templates/event/unscheduledUsers.js')
+    script(src='/javascripts/templates/event/usersList.js')
+    script(src='/javascripts/templates/event/busyUsersList.js')
     script(src='/javascripts/schedule.js')

@@ -183,10 +183,13 @@ mixin sceneStatusBadge(status)
             .badge.text-bg-warning.mx-1 Scheduled
 
 mixin timeslotButtons(timeslot)
-    button.btn.btn-outline-success.users-btn.btn-xs.mx-1.position-relative(
+    button.btn.btn-outline-success.users-btn.btn-xs.mx-1.position-relative.busy-users-btn(
         role='button'
         data-bs-toggle='tooltip'
-        title='Ad-hoc scheduled users'
+        title='Busy Attendees'
+        data-panel-type='busy'
+        data-type='busy-all'
+        data-timeslot-id=timeslot.id
     )
         i.fas.fa-user-check.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-success.user-count
@@ -197,6 +200,8 @@ mixin timeslotButtons(timeslot)
         title='Unscheduled Players'
         data-timeslot-id=timeslot.id
         data-type='player'
+        data-panel-type='list'
+
     )
         i.fas.fa-user.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
@@ -206,6 +211,7 @@ mixin timeslotButtons(timeslot)
         title='Unscheduled Staff'
         data-timeslot-id=timeslot.id
         data-type='staff'
+        data-panel-type='list'
     )
         i.fas.fa-users.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
@@ -215,6 +221,7 @@ mixin timeslotButtons(timeslot)
         title='All Attendees'
         data-timeslot-id=timeslot.id
         data-type='all'
+        data-panel-type='list'
     )
         i.fas.fa-globe.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-info.user-count

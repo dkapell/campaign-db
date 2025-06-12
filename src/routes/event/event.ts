@@ -591,6 +591,7 @@ router.get('/:id/schedule', csrf(), permission('gm'), scheduleRoutes.showSchedul
 router.get('/:id/scene/validate', permission('gm'), scheduleRoutes.validateScenes);
 router.get('/:id/timeslot', permission('gm'), scheduleRoutes.getUsersPerTimeslot);
 router.get('/:id/timeslot/:timeslotId', permission('gm'), scheduleRoutes.getUsersAtTimeslot);
+router.get('/:id/timeslot/:timeslotId/busy', permission('gm'), scheduleRoutes.getBusyUsersAtTimeslot);
 router.put('/:id/scene/:sceneId', csrf(), permission('gm'), scheduleRoutes.updateScene);
 router.put('/:id/scene/:sceneId/confirm', csrf(), permission('gm'), scheduleRoutes.confirmScene);
 router.put('/:id/scene/:sceneId/unconfirm', csrf(), permission('gm'), scheduleRoutes.unconfirmScene);

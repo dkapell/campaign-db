@@ -69,14 +69,14 @@
 }
 
 
-.scene-item.disabled {
+.scene-item.disabled, .schedule-filler-type-item.disabled{
   opacity: 33%
 }
 .user-item.disabled {
   opacity: 0
 }
 
-.screen-container, #unscheduled-users{
+.screen-container, #users-panel{
     overflow: scroll;
     height:100%;
 }

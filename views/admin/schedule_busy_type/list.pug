@@ -1,0 +1,69 @@
+extends ../../layout
+
+block content
+    a.btn.btn-outline-success.my-2(href='/admin/schedule_busy_type/new')
+        span(class="fa fa-plus")
+        |  New Schedule Filler Type
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center#tableLoading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            data-csrf=csrfToken
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Display to Player?
+                    th Available to Player?
+                    th Available to Staff?
+                    if checkPermission('admin')
+                        th
+
+            tbody
+                for schedule_busy_type in schedule_busy_types
+                    tr(class='clickable-row', data-click-object='admin/schedule_busy_type' data-click-id=schedule_busy_type.id)
+                        td.dtr-control
+                        td= schedule_busy_type.name
+                        td
+                            if schedule_busy_type.display_to_player
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-danger No
+                        td
+                            if schedule_busy_type.available_to_player
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-danger No
+                        td
+                            if schedule_busy_type.available_to_staff
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-danger No
+                        if checkPermission('admin')
+                            td.text-end
+                                a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
+                                    title='Delete Schedule Filler Type'
+                                    data-bs-toggle='tooltip'
+                                    role="button",
+                                    url=`/schedule_busy_type/${schedule_busy_type.id}`,
+                                    data-back='/schedule_busy_type'
+                                )
+                                    i.fas.fa-trash.fa-fw
+
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 500, 'hide': 100 },
+                placement:'auto'
+            });
+        });
+
+

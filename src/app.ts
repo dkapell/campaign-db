@@ -72,6 +72,7 @@ import adminStripeRouter from './routes/admin/stripe';
 import adminTimeslotRouter from './routes/admin/timeslot';
 import adminLocationRouter from './routes/admin/location';
 import adminTagRouter from './routes/admin/tag';
+import adminScheduleBusyTypeRouter from './routes/admin/schedule_busy_type';
 
 const app = express();
 
@@ -352,6 +353,7 @@ app.use('/admin/stripe', adminStripeRouter);
 app.use('/admin/timeslot', adminTimeslotRouter);
 app.use('/admin/location', adminLocationRouter);
 app.use('/admin/tag', adminTagRouter);
+app.use('/admin/schedule_busy_type', adminScheduleBusyTypeRouter);
 
 
 // catch 404 and forward to error handler

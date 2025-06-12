@@ -230,7 +230,7 @@ async function getUsersAtTimeslot(req, res){
 
         const timeslot = await req.models.timeslot.get(timeslotId);
         if (!timeslot || timeslot.campaign_id !== req.campaign.id){
-            throw new Error('Invalid Event');
+            throw new Error('Invalid Timeslot');
         }
         let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id);
         if (req.query.type && req.query.type.match(/^(player|staff)$/)){
@@ -245,8 +245,58 @@ async function getUsersAtTimeslot(req, res){
         users = users.map(scheduleHelper.formatUser);
 
         const scenes = await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id);
+        const schedule_busy_types = await req.models.schedule_busy_type.find({campaign_id:req.campaign.id});
+        res.json({
+            success: true,
+            users: users,
+            timeslot: timeslot,
+            scenes: scenes,
+            schedule_busy_types: schedule_busy_types
+        });
+    } catch(err) {
+        console.trace(err);
+        res.json({success:false, error:err.message});
+    }
+}
 
-        res.json({success:true, users:users, timeslot:timeslot, scenes: scenes});
+async function getBusyUsersAtTimeslot(req, res){
+    const eventId = req.params.id;
+    const timeslotId = req.params.timeslotId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const timeslot = await req.models.timeslot.get(timeslotId);
+        if (!timeslot || timeslot.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const schedule_busys = await req.models.schedule_busy.find({
+            event_id: eventId,
+            timeslot_id: timeslot.id
+        });
+
+        const users = await async.map(schedule_busys, async (schedule_busy)=> {
+            let user = await req.models.user.get(req.campaign.id, schedule_busy.user_id);
+            if (user.type === 'player'){
+                user.character = await req.models.character.findOne({campaign_id: req.campaign.id, active:true, user_id:user.id});
+            }
+            user = scheduleHelper.formatUser(user);
+            user.busy_id = schedule_busy.id;
+            user.busy_name = schedule_busy.type.name;
+            return user;
+        });
+        const schedule_busy_types = await req.models.schedule_busy_type.find({campaign_id:req.campaign.id});
+        res.json({
+            success:true,
+            users:users,
+            timeslot: timeslot,
+            scenes: [],
+            schedule_busy_types: schedule_busy_types
+        });
     } catch(err) {
         console.trace(err);
         res.json({success:false, error:err.message});
@@ -305,8 +355,10 @@ async function updateUser(req, res){
         if (!user){
             throw new Error('Invalid User');
         }
-
-        if (_.has(userData, 'scene_id')){
+        if (userData.type === 'scene'){
+            if (!_.has(userData, 'scene_id')){
+                throw new Error('Scene Id must be provided');
+            }
             const scene = await req.models.scene.get(userData.scene_id);
             if (!scene || scene.campaign_id !== req.campaign.id){
                 throw new Error('Invalid Scene');
@@ -329,6 +381,44 @@ async function updateUser(req, res){
                     request_status:'none'
                 });
             }
+
+        } else if (userData.type === 'schedule_busy'){
+            if (!_.has(userData, 'schedule_busy_type_id')){
+                throw new Error('Schedule Busy Type Id must be provided');
+            }
+            if (!_.has(userData, 'timeslot_id')){
+                throw new Error('Timeslot Id must be provided');
+            }
+            const timeslot = await req.models.timeslot.get(userData.timeslot_id);
+            if (!timeslot || timeslot.campaign_id !== req.campaign.id){
+                throw new Error('Invalid Timeslot');
+            }
+            const schedule_busy = await req.models.schedule_busy.findOne({
+                event_id:event.id,
+                user_id:user.id,
+                timeslot_id:userData.timeslot_id
+            });
+            if (schedule_busy){
+                if (schedule_busy.type_id !== Number(userData.schedule_busy_type_id)){
+                    throw new Error(`User is already scheduled for ${schedule_busy.type.name} in this Timeslot`);
+                }
+            } else {
+                await req.models.schedule_busy.create({
+                    event_id:event.id,
+                    user_id:user.id,
+                    timeslot_id:userData.timeslot_id,
+                    type_id: userData.schedule_busy_type_id
+                });
+            }
+        } else if (userData.type === 'unschedule_busy'){
+            if (!_.has(userData, 'schedule_busy_id')){
+                throw new Error('Schedule Busy Id must be provided');
+            }
+
+            const schedule_busy = await req.models.schedule_busy.get(userData.schedule_busy_id);
+            if (schedule_busy){
+                await req.models.schedule_busy.delete(schedule_busy.id);
+            }
         }
         res.json({success:true});
     } catch (err){
@@ -345,5 +435,6 @@ export default {
     confirmScene,
     unconfirmScene,
     getUsersAtTimeslot,
-    getUsersPerTimeslot
+    getUsersPerTimeslot,
+    getBusyUsersAtTimeslot
 };

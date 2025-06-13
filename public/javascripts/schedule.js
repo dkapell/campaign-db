@@ -1,4 +1,4 @@
-/* globals _ scenedetailsTemplate userslistTemplate busyuserslistTemplate */
+/* globals _ scenedetailsTemplate userslistTemplate busyuserslistTemplate async */
 $(function(){
     $('.scene-item-draggable').draggable({
         snap:'.schedule-slot',
@@ -59,7 +59,7 @@ $(function(){
 
     $('.resizer-close').on('click', function(e){
         e.preventDefault();
-        e.stopPropagation()
+        e.stopPropagation();
         closeDetailPanel();
         clearTimeslotHighlight();
     });
@@ -765,9 +765,9 @@ function startDragUser($user, data){
 
 function stopDragUser($user, data){
     $user.removeClass('disabled');
-    $('.schedule-filler-type-item.ui-droppable').droppable("destroy")
-    $('.schedule-filler-type-item').removeClass('disabled')
-    $('.scene-item.ui-droppable').droppable("destroy")
+    $('.schedule-filler-type-item.ui-droppable').droppable('destroy');
+    $('.schedule-filler-type-item').removeClass('disabled');
+    $('.scene-item.ui-droppable').droppable('destroy');
     $('.scene-item').removeClass('disabled');
     $('.scene-display').removeClass('bg-info-subtle');
     $('.scene-display').removeClass('bg-success-subtle');

@@ -33,6 +33,7 @@ const tableFields = [
     'post_event_survey_deadline',
     'pre_event_survey_id',
     'post_event_survey_id',
+    'schedule_status'
 ];
 
 const Event = new Model('events', tableFields, {

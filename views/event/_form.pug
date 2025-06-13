@@ -7,7 +7,12 @@ if (backto)
         input.form-control#event_name(type="text" placeholder="Name" name="event[name]" value=event.name required)
         div.invalid-feedback Please choose a valid name
 
-
+    if currentCampaign.display_schedule
+        .col-md-3
+            label.control-label(for="event_schedule_status") Schedule Status
+            select.form-select.select2#event_schedule_status(name="event[schedule_status]" required)
+                for status in ['private', 'staff only', 'player visible']
+                    option(value=status selected=status===event.schedule_status)=capitalize(status)
 
 .row.my-2
     .col-md

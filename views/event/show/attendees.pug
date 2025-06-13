@@ -1,0 +1,76 @@
+if checkPermission('contrib') || !event.hide_attendees
+    .row.my-2.mt-4
+        .col
+            if checkPermission('contrib') && event.hide_attendees
+                .fs-5.d-inline.float-end
+                    span.badge.text-bg-danger Staff-only Attendee List
+
+            h4.d-inline.mt-3 Attendees
+            if checkPermission('gm')
+                a.btn.btn-outline-success.btn-sm.ms-2(href=`/event/${event.id}/register`)
+                    span.fa.fa-calendar-check.me-2
+                    | Create Registration
+            if checkPermission('contrib')
+                .btn-group.ms-2
+                    a.btn.btn-outline-info.btn-sm(role="button" href=`/event/${event.id}/pdf`)
+                        i.fas.fa-file-alt
+                        |  Download PDFs
+
+                    a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                        .visually-hidden Toggle Dropdown
+                    ul.dropdown-menu.py-1
+                        li
+                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
+                                i.fas.fa-file
+                                |  With Game Rules
+                        li
+                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
+                                i.fas.fa-file
+                                |  With Skill Descriptions
+    .row.my-2
+        .col
+            if checkPermission('contrib') || checkPermission('registration view')
+                ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
+
+                    li.nav-item(role="presentation")
+                        a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
+
+                    li.nav-item(role="presentation")
+                        a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
+
+                    li.nav-item(role="presentation")
+                        a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
+
+                    li.nav-item(role="presentation")
+                        a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
+
+
+
+                .tab-content#eventTabContent
+                    .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
+                        - const players = event.players.filter(player => {return player.attending});
+                        +attendeeListDisplay(players, 'player')
+
+
+                    .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
+                        - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
+                        +attendeeListDisplay(staff)
+                    .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
+                        - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
+                        +attendeeListDisplay(nonAttending, 'not attending')
+
+                    .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
+                        -
+                            const noResponse = users.filter(user => {
+                                return !_.findWhere(event.attendees, {user_id: user.id});
+                            }).map(user => {
+                                return {
+                                    user_id: user.id,
+                                    user: user
+                                };
+                            });
+
+                        +attendeeListDisplay(noResponse, 'no response')
+            else
+                - const attendees = event.attendees.filter(attendee => { return attendee.attending });
+                +attendeeListDisplay(attendees)

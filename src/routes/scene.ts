@@ -365,6 +365,10 @@ const router = express.Router();
 
 router.use(permission('gm'));
 router.use(function(req, res, next){
+    if (!req.campaign.display_schedule){
+        req.flash('error', 'Event Schedules are not active on this campaign')
+        return res.redirect('/');
+    }
     res.locals.siteSection='event';
     next();
 });

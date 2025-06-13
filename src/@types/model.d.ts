@@ -376,3 +376,24 @@ interface FormattedSceneModel extends ModelData{
     event?:EventData|string
     tags?:string[]
 }
+
+interface SceneUserModel extends ModelData{
+    scene_id: number
+    user_id: number
+    schedule_status?: string
+    request_status?:string
+}
+
+interface SceneLocationModel extends ModelData{
+    scene_id: number
+    location_id: number
+    schedule_status?: string
+    request_status?:string
+}
+
+interface SceneTimeslotModel extends ModelData{
+    scene_id: number
+    timeslot_id: number
+    schedule_status?: string
+    request_status?:string
+}

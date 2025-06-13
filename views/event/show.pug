@@ -5,6 +5,7 @@ include ../partials/attendee
 include ../partials/survey
 include ../partials/post_event_survey
 include ../partials/image
+include ../partials/schedule
 
 block content
     - const attendee = _.findWhere(event.attendees, {user_id: activeUser.id});
@@ -32,12 +33,12 @@ block content
                         )
                             i.fas.fa-hat-wizard.recalc-icon
                             |  Grant Event #{currentCampaign.renames.cp.singular}
-                    if checkPermission('gm') && new Date(event.start_time) > new Date()
+                    if checkPermission('gm') && new Date(event.start_time) > new Date() && currentCampaign.display_schedule
                         a.btn.btn-sm.btn-outline-primary.my-2.ms-2(
                             href=`/event/${event.id}/schedule`
                         )
                             i.fas.fa-calendar
-                            |  Event Schedule
+                            |  Event Scheduler
                 .col-md.text-md-end
                     h4.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
@@ -48,6 +49,10 @@ block content
 
                     li.nav-item(role="presentation")
                         a.nav-link.active#event-registration-tab(href="#event-registration" data-bs-toggle="tab" role="tab" aria-controls="event-registration" aria-selected="true") My Registration
+
+                    if currentCampaign.display_schedule && ((checkPermission('event') && event.schedule_status !== 'private') || (checkPermission('player') && event.schedule_status === 'player visible'))
+                        li.nav-item(role="presentation")
+                            a.nav-link#event-schedule-tab(href="#event-schedule" data-bs-toggle="tab" role="tab" aria-controls="event-schedule" aria-selected="false") Schedule
 
                     li.nav-item(role="presentation")
                         a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
@@ -63,347 +68,18 @@ block content
 
                 .tab-content#eventTabContent
                     .tab-pane.fade.show.active#event-registration(role="tabpanel" aria-labelledby="event-registration-tab")
-                        .row.mb-2
-                            .col-md
-                                .fs-5
-                                    a(target='_blank' href=`https://www.google.com/maps/search/?api=1&query=${encodeURI(event.location)}`)
-                                        i.fas.fa-map-marked-alt.me-1
-                                        =event.location
-                            .col-md-4.text-md-end
-                                h4.d-inline.align-bottom
-                                    if event.registration_open && new Date(event.end_time) > new Date()
-                                        span.badge.text-bg-success Registration Open
-                                    else
-                                        span.badge.text-bg-danger Registration Closed
+                        include show/my_registration
 
-
-                        .row.my-2
-                            .col-lg
-                                -
-                                    const futureEvent = new Date(event.end_time) > new Date();
-                                    const regOpen = event.registration_open && futureEvent;
-
-                                if !attendee || !attendee.attending
-                                    -
-                                        let text = 'Register as';
-                                        if (activeUser.type === 'player'){
-                                            text += ' a Player';
-                                        } else if (activeUser.type.match(/^(admin|core staff)/)){
-                                            text += ' Staff';
-                                        } else {
-                                            text += ' an NPC';
-                                        }
-                                        if (!event.registration_open) {
-                                            text = 'Registration not Open';
-
-                                        } else if (!futureEvent){
-                                            text = 'Event is in the Past'
-                                        }
-
-                                    a.btn.btn-outline-success.btn-sm.me-2(
-                                        href=regOpen?`/event/${event.id}/register`:''
-                                        disabled=!regOpen
-                                        class=!regOpen?'disabled':''
-                                        tab-index=!regOpen?'-1':''
-                                        aria-disabled=regOpen?'false':'true'
-                                    )
-                                        span.fa.fa-calendar-check.me-2
-                                        span.me-1= text
-
-                                if !attendee
-                                    a.btn.btn-outline-secondary.btn-sm#not-attending-btn-show(
-                                        url=regOpen?`/event/${event.id}/not_attending`:''
-                                        disabled=!regOpen
-                                        class=!regOpen?'disabled':''
-                                        tab-index=!regOpen?'-1':''
-                                        aria-disabled=regOpen?'false':'true'
-                                        data-csrf=csrfToken
-                                    )
-                                        span.fa.fa-calendar-times.me-2
-                                        span.me-1 Not Planning to Attend
-
-                                else if attendee
-                                    if attendee.attending
-                                        a.btn.btn-outline-info.btn-sm.me-2(href=`/event/${event.id}/register/${attendee.id}`)
-                                            span.fa.fa-edit.me-2
-                                            | Edit Registration
-                                    if new Date(event.end_time) > new Date()
-                                        if attendee.attending
-                                            if !(attendee.paid || attendee.addons.filter(addon => { return addon.paid}).length)
-                                                a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
-                                                    role="button"
-                                                    url=`/event/${event.id}/register/${attendee.id}`
-                                                    data-csrf=csrfToken
-                                                )
-                                                    span.fa.fa-calendar-times.me-2
-                                                    | Unregister
-
-                                        else
-                                            a.btn.btn-outline-danger.btn-sm#event-clear-not-attending-btn(
-                                                role="button"
-                                                url=`/event/${event.id}/register/${attendee.id}`
-                                                data-csrf=csrfToken
-                                            )
-                                                span.fa.fa-calendar-times.me-2
-                                                | Clear Not Attending
-
-                            if activeUser.type.match(/^(player|admin|core staff)$/)
-                                .col-md-4.text-lg-center
-                                    span.fs-5
-                                        span.me-1 Cost:
-                                        if event.cost
-                                            | $#{event.cost}
-                                        else
-                                            | Free
-                                        -
-                                            let owed = 0;
-                                            if (attendee && attendee.user){
-                                                if (event.cost && !attendee.paid && attendee.user.type === 'player'){
-                                                    owed += event.cost
-                                                }
-                                                for ( const addon of attendee.addons ){
-                                                    const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                                                    if (!addon.paid){
-                                                        if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
-                                                            owed += event_addon.cost;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        if owed
-                                            span.ms-2 Owed: $#{owed}
-                                            if currentCampaign.stripe_account_ready
-                                                a.btn.btn-sm.btn-outline-primary.ms-1#event-payment-btn(
-                                                    href=`/event/${event.id}/checkout`
-                                                )
-                                                    i.fa.fa-shopping-cart.me-1
-                                                    | Pay Now
-
-                            .col-lg-3.text-lg-end
-
-                                .fs-5.d-inline.my-0
-                                    if attendee
-                                        if attendee.attending
-                                            if activeUser.type === 'player'
-                                                span.me-2= attendee.character.name
-                                                if attendee.paid
-                                                    span.badge.text-bg-success Paid
-                                                else if event.cost
-                                                    span.badge.text-bg-warning Unpaid
-                                                else
-                                                    span.badge.text-bg-success Registered
-                                            else
-                                                span.badge.text-bg-success Registered
-                                        else
-                                            span.badge.text-bg-secondary Not Attending
-                                    else
-                                        span.badge.text-bg-danger Unregistered
-
-                        if attendee
-                            .row.my-2
-
-
-                                if attendee.addons.length
-                                    .col-lg.order-lg-2
-                                        h4 Addons
-
-                                        ul.list-group
-                                            each addon of attendee.addons
-                                                - const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                                                li.list-group-item
-                                                    strong #{event_addon.name}
-                                                    if event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'
-
-                                                        if addon.paid
-                                                            .badge.text-bg-success.float-end Paid
-                                                        else
-                                                            .badge.text-bg-warning.float-end Unpaid
-                                                        span.me-2.float-end $#{event_addon.cost}
-
-                                .col-lg
-                                    if event.pre_event_survey
-                                        .row.my-2
-                                            .col
-                                                h4 Registration Questions
-                                                each customField in event.pre_event_survey.definition
-                                                    if attendee
-                                                        if _.has(attendee.pre_event_data, customField.id) && attendee.pre_event_data[customField.id].data
-                                                            +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.id].data)
-                                                        else if _.has(attendee.pre_event_data, customField.name) && attendee.pre_event_data[customField.name]
-                                                            +attendeeCustomFieldDisplay(customField, attendee.pre_event_data[customField.name])
-
-                                    if attendee.notes
-                                        .row.my-2
-                                            .col
-                                                +attendeeCustomFieldDisplay({name:'Notes', type:'longtext'}, attendee.notes)
-
-
-                        if event.description
-                            .row.my-2
-                                .col
-                                    .card
-                                        .card-body!=marked.parseInline(event.description, {breaks: true})
-
-
+                    if currentCampaign.display_schedule && ((checkPermission('event') && event.schedule_status !== 'private') || (checkPermission('player') && event.schedule_status === 'player visible'))
+                        .tab-pane.fade#event-schedule(role="tabpanel" aria-labelledby="event-schedule-tab")
+                            include show/schedule.pug
 
                     .tab-pane.fade#event-attendees(role="tabpanel" aria-labelledby="event-attendees-tab")
+                        include show/attendees.pug
 
-                        if checkPermission('contrib') || !event.hide_attendees
-                            .row.my-2.mt-4
-                                .col
-                                    if checkPermission('contrib') && event.hide_attendees
-                                        .fs-5.d-inline.float-end
-                                            span.badge.text-bg-danger Staff-only Attendee List
-
-                                    h4.d-inline.mt-3 Attendees
-                                    if checkPermission('gm')
-                                        a.btn.btn-outline-success.btn-sm.ms-2(href=`/event/${event.id}/register`)
-                                            span.fa.fa-calendar-check.me-2
-                                            | Create Registration
-                                    if checkPermission('contrib')
-                                        .btn-group.ms-2
-                                            a.btn.btn-outline-info.btn-sm(role="button" href=`/event/${event.id}/pdf`)
-                                                i.fas.fa-file-alt
-                                                |  Download PDFs
-
-                                            a.btn.btn-outline-info.btn-sm.dropdown-toggle.dropdown-toggle-split(type="button" data-bs-toggle="dropdown" aria-expanded="false")
-                                                .visually-hidden Toggle Dropdown
-                                            ul.dropdown-menu.py-1
-                                                li
-                                                    a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
-                                                        i.fas.fa-file
-                                                        |  With Game Rules
-                                                li
-                                                    a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
-                                                        i.fas.fa-file
-                                                        |  With Skill Descriptions
-                            .row.my-2
-                                .col
-                                    if checkPermission('contrib') || checkPermission('registration view')
-                                        ul.nav.nav-tabs.my-2#attendeesTabs(role="tablist")
-
-                                            li.nav-item(role="presentation")
-                                                a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
-
-                                            li.nav-item(role="presentation")
-                                                a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
-
-                                            li.nav-item(role="presentation")
-                                                a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
-
-                                            li.nav-item(role="presentation")
-                                                a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
-
-
-
-                                        .tab-content#eventTabContent
-                                            .tab-pane.fade.show.active#attendees-players(role="tabpanel" aria-labelledby="attendees-players-tab")
-                                                - const players = event.players.filter(player => {return player.attending});
-                                                +attendeeListDisplay(players, 'player')
-
-
-                                            .tab-pane.fade#attendees-staff(role="tabpanel" aria-labelledby="attendees-staff-tab")
-                                                - const staff = event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending});
-                                                +attendeeListDisplay(staff)
-                                            .tab-pane.fade#attendees-non-attending(role="tabpanel" aria-labelledby="attendees-non-attending-tab")
-                                                - const nonAttending = event.attendees.filter(attendee => { return !attendee.attending });
-                                                +attendeeListDisplay(nonAttending, 'not attending')
-
-                                            .tab-pane.fade#attendees-no-response(role="tabpanel" aria-labelledby="attendees-no-response-tab")
-                                                -
-                                                    const noResponse = users.filter(user => {
-                                                        return !_.findWhere(event.attendees, {user_id: user.id});
-                                                    }).map(user => {
-                                                        return {
-                                                            user_id: user.id,
-                                                            user: user
-                                                        };
-                                                    });
-
-                                                +attendeeListDisplay(noResponse, 'no response')
-                                    else
-                                        - const attendees = event.attendees.filter(attendee => { return attendee.attending });
-                                        +attendeeListDisplay(attendees)
                     if checkPermission('gm, orders view')
                          .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
-                            .row.my-2
-                                .col
-                                    .table-responsive
-                                        table.table.table-sm
-                                            thead
-                                                tr
-                                                    th Item
-                                                    th Price
-                                                    th Quantity
-                                                    th Paid
-                                                        i.far.fa-question-circle.ms-1(
-                                                            data-bs-title='Total from all attendees marked Paid'
-                                                            data-bs-toggle='popover'
-                                                            )
-                                                    if currentCampaign.stripe_account_ready
-                                                        th Orders
-                                                            i.far.fa-question-circle.ms-1(
-                                                                data-bs-title='Total collected via payment processing'
-                                                                data-bs-content='Does not account for credit card processing fees'
-                                                                data-bs-toggle='popover'
-                                                                )
-                                                    th Outstanding
-                                                        i.far.fa-question-circle.ms-1(
-                                                            data-bs-title='Total yet to be collected'
-                                                            data-bs-content='Based on unpaid registrations'
-                                                            data-bs-toggle='popover'
-                                                            )
-                                                    th Total
-                                                        i.far.fa-question-circle.ms-1(
-                                                            data-bs-title='Expected Final Total'
-                                                            data-bs-content='Paid and Unpaid, does not account for credit card processing fees.'
-                                                            data-bs-toggle='popover'
-                                                            )
-
-                                            tbody.table-group-divider
-                                                tr
-                                                    td Event
-                                                    td $#{income.event.price}
-                                                    td= income.event.count
-                                                    td $#{income.event.raw}
-                                                    if currentCampaign.stripe_account_ready
-                                                        td $#{income.event.orders}
-                                                    td $#{income.event.outstanding}
-                                                    td $#{income.event.raw + income.event.outstanding}
-                                                each value, name in income.addons.addons
-                                                    tr
-                                                        td Addon: #{name}
-                                                        td $#{value.price}
-                                                        td= value.count
-
-                                                        td $#{value.raw}
-                                                        if currentCampaign.stripe_account_ready
-
-                                                            td $#{value.orders}
-                                                        td $#{value.outstanding}
-                                                        td $#{value.raw + value.outstanding}
-                                            tfoot.table-group-divider
-                                                tr
-                                                    td All Addons
-                                                    td
-                                                    td
-                                                    td $#{income.addons.total.raw}
-                                                    if currentCampaign.stripe_account_ready
-                                                        td $#{income.addons.total.orders}
-                                                    td $#{income.addons.total.outstanding}
-                                                    td $#{income.addons.total.raw + income.addons.total.outstanding}
-
-
-                                                tr
-                                                    th Total
-                                                    td
-                                                    td
-                                                    th $#{income.event.raw + income.addons.total.raw}
-                                                    if currentCampaign.stripe_account_ready
-                                                        th $#{income.event.orders + income.addons.total.orders}
-                                                    th $#{income.event.outstanding + income.addons.total.outstanding}
-                                                    th $#{income.event.raw + income.event.outstanding + income.addons.total.raw + income.addons.total.outstanding}
-
+                            include show/income.pug
 
                     if checkPermission('contrib') && post_event_surveys.length
                         .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")

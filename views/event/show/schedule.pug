@@ -1,0 +1,185 @@
+include ../../partials/scene
+if checkPermission('event')
+    .row.my-2
+        .col
+            button.btn.btn-sm.btn-outline-info.me-2#schedule-staff-export-btn(
+                    data-export=`/event/${event.id}/export?type=${type}`
+                )
+                    i.fa.fa-download.me-1
+                    | Export Staff CSV
+            if (checkPermission('gm') || event.schedule_status === 'player visible')
+                button.btn.btn-sm.btn-outline-info#schedule-player-export-btn(
+                        data-export=`/event/${event.id}/export?type=${type}`
+                    )
+                        i.fa.fa-download.me-1
+                        | Export Player CSV
+.row.my-2
+    .col-md-5
+        .table-responsive
+            table.table.table-striped
+                thead
+                    tr
+                        th Timeslot
+                        th Scene
+                tbody(role='tablist')
+                    each timeslot in schedule
+                        tr
+                            td
+                                = timeslot.name
+                                if timeslot.type === 'meal'
+                                    i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)
+                            td
+                                ul.list-inline.my-0
+                                    if timeslot.schedule_busy
+                                        li.list-inline-item.me-2
+                                            = timeslot.schedule_busy.name
+                                            if timeslot.scenes.length
+                                                span.ms-0 ,
+                                    each scene, idx in timeslot.scenes
+                                        if checkPermission('event') || scene.display_to_pc
+                                            li.list-inline-item.me-2
+
+                                                a.scene-name.me-1(
+                                                    href='#'
+                                                    id=`scene-${scene.id}-tab`
+                                                    data-bs-toggle="tab"
+                                                    data-bs-target=`#scene-${scene.id}-pane`
+                                                    aria-controls=`scene-${scene.id}-pane`
+                                                    aria-selected="false"
+                                                    role="tab"
+                                                    type="button"
+                                                )
+
+                                                    if checkPermission('event')
+                                                        = scene.name
+                                                    else if scene.player_name
+                                                        = scene.player_name
+                                                    else
+                                                        = scene.name
+
+                                                if scene.locations.confirmed
+                                                    span.scene.location(style='font-size:.77rem')
+                                                        span (
+                                                        each location, lidx in scene.locations.confirmed
+
+                                                            = location.name
+                                                            if lidx < scene.locations.confirmed.length-1
+                                                                span.ms-0.me-1 ,
+                                                        span )
+                                                if idx < timeslot.scenes.length-1
+                                                    span.ms-0 ,
+    .col
+        .tab-content
+            - const scenes = [];
+            each timeslot in schedule
+                each scene in timeslot.scenes
+                    if checkPermission('event') || scene.display_to_pc
+                        if _.indexOf(scenes, scene.id) === -1
+                            -
+                                scenes.push(scene.id)
+                                const start = scene.timeslots.confirmed[0].name
+                                let duration = scene.timeslots.confirmed[0].length;
+                                for (const timeslot of scene.timeslots.confirmed){
+                                    duration += timeslot.length;
+                                }
+
+                            .tab-pane.fade(
+                                role="tabpanel"
+                                id=`scene-${scene.id}-pane`
+                                aria-labelledby=`scene-${scene.id}-tab`
+                                tabindex="0"
+                                data-bs-parent='#scene-list'
+                            )
+                                .card
+                                    .card-header
+                                        h5.d-inline
+                                            if checkPermission('event')
+                                                = scene.name
+                                            else if scene.player_name
+                                                = scene.player_name
+                                            else
+                                                = scene.name
+                                        span.float-end
+                                            = start
+                                            if scene.timeslots.confirmed.length > 1
+                                                span.ms-1 +#{duration/60}h
+
+                                    .card-body
+                                        if checkPermission('event') && scene.tags.length
+                                            .row.my-1
+                                                .col
+                                                    each tag in scene.tags
+                                                        .badge.text-bg-info=tag
+
+                                        if scene.locations.confirmed
+                                            .row.my-1
+                                                .col
+                                                    strong.me-2 Locations:
+                                                    each location, lidx in scene.locations.confirmed
+                                                        = location.name
+                                                        if lidx < scene.locations.confirmed.length-1
+                                                            span.ms-0.me-1 ,
+                                        if checkPermission('event') && scene.player_url
+                                            .row.my-1
+                                                .col
+                                                    strong.me-2 Player-facing Scene Name:
+                                                    = scene.player_name
+
+
+
+                                        .row.my-1
+                                            if scene.players.confirmed
+                                                .col-md-8
+                                                    h5 Characters
+                                                    ul.list-unstyled
+                                                        each user in scene.players.confirmed
+                                                            li
+                                                                if checkPermission('contrib')
+                                                                    if (user.character)
+                                                                        a.me-2(href=`character/${user.character.id}`)
+                                                                            i.far.fa-user.me-1
+                                                                            = user.character.name
+                                                                    span.me-0 (
+                                                                    a(href=`/user/${user.id}`)
+                                                                        i.fa.fas.fa-user.me-1
+                                                                        = user.name
+                                                                    span.ms-0 )
+
+                                                                else
+                                                                    if user.character
+                                                                        i.far.fa-user.me-1
+                                                                        span.me-2= user.character.name
+                                                                    if !user.character || checkPermission('event')
+                                                                        span.me-0 (
+                                                                        i.fas.fa-user.me-1
+                                                                        =user.name
+                                                                        span.ms-0 )
+
+                                            if checkPermission('event') && scene.staff.confirmed
+                                                .col
+                                                    h5 Staff
+                                                    ul.list-unstyled
+                                                        each user in scene.staff.confirmed
+                                                            li
+                                                                if checkPermission('contrib')
+                                                                    a(href=`/user/${user.id}`)
+                                                                        i.fas.fa-users.me-1
+                                                                        = user.name
+                                                                else
+                                                                    i.fas.fa-users.me-1
+                                                                    = user.name
+
+                                    if (checkPermission('event') && scene.staff_url) || scene.player_url
+                                        .card-footer
+                                            if checkPermission('event') && scene.staff_url
+                                                a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
+                                                    | Staff Writeup
+                                                    i.fa.fa-external-link.ms-1
+                                            if scene.player_url
+                                                a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
+                                                    | Player Writeup
+                                                    i.fa.fa-external-link.ms-1
+
+
+
+

@@ -22,6 +22,8 @@ mixin eventListDisplay(events, showPast=false)
                         th Staff/NPCs
                     th Attending
                     if checkPermission('gm')
+                        if currentCampaign.display_schedule
+                            th Schedule
                         th Actions
 
             tbody
@@ -71,6 +73,8 @@ mixin eventListDisplay(events, showPast=false)
                                     else
                                         | Not Attending
                         if checkPermission('gm')
+                            if currentCampaign.display_schedule
+                                td=capitalize(event.schedule_status)
                             td.text-right
                                 a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                                     role="button",

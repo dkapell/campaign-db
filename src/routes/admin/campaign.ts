@@ -45,6 +45,7 @@ async function showNew(req, res){
         display_cp: false,
         display_translations: false,
         display_gallery: false,
+        display_schedule: true,
         default_site:false,
         body_font: 'Lato',
         header_font: 'Montserrat',
@@ -74,6 +75,8 @@ async function showNew(req, res){
         character_sheet_title_font_scale: 1,
         translation_scale: 1,
         player_gallery: false,
+        schedule_users: true,
+
 
     };
     res.locals.fonts = [];
@@ -148,7 +151,9 @@ async function create(req, res){
         'cp_requests',
         'display_translations',
         'display_gallery',
-        'player_gallery'
+        'display_schedule',
+        'player_gallery',
+        'schedule_users'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
@@ -181,7 +186,9 @@ async function update(req, res){
         'cp_requests',
         'display_translations',
         'display_gallery',
-        'player_gallery'
+        'display_schedule',
+        'player_gallery',
+        'schedule_users'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;

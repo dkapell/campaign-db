@@ -8,6 +8,7 @@ import characterRenderer from '../../lib/renderer/character';
 import campaignHelper from '../../lib/campaignHelper';
 import surveyHelper from '../../lib/surveyHelper';
 import orderHelper from '../../lib/orderHelper';
+import scheduleHelper from '../../lib/scheduleHelper';
 
 import postEventSurveyRoutes from './post_event_survey';
 import attendanceRoutes from './attendance';
@@ -49,6 +50,11 @@ async function show(req, res, next){
         let users = await async.map(campaign_users, async (campaign_user) => {
             return req.models.user.get(req.campaign.id, campaign_user.user_id);
         });
+
+        if ((req.checkPermission('event') && event.schedule_status !== 'private') ||
+            (req.checkPermission('player') && event.schedule_status === 'player visible')){
+            res.locals.schedule = await scheduleHelper.getUserSchedule(event.id, req.session.activeUser.id);
+        }
 
         if (req.checkPermission('contrib')){
 
@@ -187,7 +193,8 @@ async function showNew(req, res, next){
                 post_event_survey_deadline_hour: 0,
                 pre_event_survey_id: null,
                 post_event_survey_id: null,
-                addons: []
+                addons: [],
+                schedule_status: 'private'
             };
 
             const preEventSurvey = await req.models.survey.findOne({ campaign_id: req.campaign.id, type: 'registration', default: true });
@@ -586,6 +593,14 @@ router.put('/:id/post_event/:attendanceId', csrf(), postEventSurveyRoutes.submit
 router.put('/:id/post_event/:attendanceId/api', csrf(), postEventSurveyRoutes.saveApi);
 router.put('/:id/post_event/:attendanceId/addendum', csrf(), postEventSurveyRoutes.submitAddendum);
 router.put('/:id/post_event/:attendanceId/addendum/api', csrf(), postEventSurveyRoutes.saveAddendumApi);
+
+router.use(function(req, res, next){
+    if (!req.campaign.display_schedule){
+        req.flash('error', 'Event Schedules are not active on this campaign')
+        return res.redirect('/');
+    }
+    next();
+});
 
 router.get('/:id/schedule', csrf(), permission('gm'), scheduleRoutes.showSchedule);
 router.get('/:id/scene/validate', permission('gm'), scheduleRoutes.validateScenes);

@@ -40,6 +40,7 @@ create table campaigns (
     display_map function_status default 'disabled',
     display_glossary function_status default 'private',
     display_gallery boolean default false,
+    display_schedule boolean default true,
     staff_drive_folder varchar(255),
     npc_drive_folder varchar(255),
     player_drive_folder varchar(255),
@@ -77,7 +78,8 @@ create table campaigns (
     character_sheet_title_font_scale float default 1,
     player_gallery boolean default false,
     stripe_account_id varchar(80),
-    stripe_account_ready boolean default false
+    stripe_account_ready boolean default false,
+    schedule_users boolean default true
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -650,6 +652,12 @@ create table surveys (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type event_schedule_status as ENUM(
+    'private',
+    'staff',
+    'public'
+);
+
 create table events (
     id serial,
     campaign_id int not null,
@@ -666,6 +674,7 @@ create table events (
     post_event_survey_id int,
     hide_attendees boolean default false,
     post_event_survey_deadline timestamp with time zone,
+    schedule_status event_schedule_status default 'private',
     primary key (id),
     CONSTRAINT events_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

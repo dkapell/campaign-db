@@ -45,6 +45,7 @@ const tableFields = [
     'google_client_secret',
     'display_glossary',
     'display_gallery',
+    'display_schedule',
     'body_font',
     'header_font',
     'menu_dark',
@@ -74,7 +75,8 @@ const tableFields = [
     'translation_scale',
     'player_gallery',
     'stripe_account_id',
-    'stripe_account_ready'
+    'stripe_account_ready',
+    'schedule_users'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

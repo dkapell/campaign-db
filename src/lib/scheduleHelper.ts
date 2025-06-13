@@ -268,6 +268,7 @@ function formatScene(scene:SceneModel): FormattedSceneModel{
             type: timeslot.type,
             scene_schedule_status: timeslot.scene_schedule_status,
             scene_request_status: timeslot.scene_request_status,
+            length: timeslot.length
         }
     })
     output.timeslots = _.groupBy(timeslots, 'scene_schedule_status');
@@ -436,6 +437,37 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
     });
 }
 
+async function getUserSchedule(eventId:number, userId:number): Promise<SceneModel[]> {
+    const event = await models.event.get(eventId);
+    if (!event) { throw new Error('Invalid Event'); }
+    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+
+    let scene_users: SceneUserModel[] = await models.scene_user.find({user_id:userId, schedule_status:'confirmed'});
+
+    scene_users = await async.filter(scene_users, async(scene_user) => {
+        const scene = await models.scene.get(scene_user.scene_id, {postSelect:async (data)=>{return data}});
+
+        return scene.event_id === eventId && scene.status === 'confirmed';
+
+    });
+    return async.mapSeries(timeslots, async (timeslot)=>{
+        timeslot.scenes = [];
+        let scene_timeslots: SceneTimeslotModel[] = await models.scene_timeslot.find({timeslot_id:timeslot.id, schedule_status:'confirmed'});
+        scene_timeslots = await async.filter(scene_timeslots, async(scene_timeslot) => {
+            const scene = await models.scene.get(scene_timeslot.scene_id, {postSelect:async (data)=>{return data}});
+            return scene.event_id === eventId && scene.status === 'confirmed';
+        });
+        for (const scene_timeslot of scene_timeslots){
+            if (_.findWhere(scene_users, {scene_id: scene_timeslot.scene_id})){
+                const scene = await models.scene.get(scene_timeslot.scene_id);
+                timeslot.scenes.push(formatScene(scene));
+            }
+        }
+        timeslot.schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});
+        return timeslot;
+    });
+}
+
 export default {
     validateScene,
     formatScene,
@@ -443,5 +475,6 @@ export default {
     getEventUsers,
     getEventScenes,
     getScenesAtTimeslot,
-    getUsersAtTimeslot
+    getUsersAtTimeslot,
+    getUserSchedule
 };

@@ -229,3 +229,13 @@ create table schedule_busies(
         REFERENCES "schedule_busy_types" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+create type event_schedule_status as ENUM(
+    'private',
+    'staff only',
+    'player visible'
+);
+
+alter table events add column schedule_status event_schedule_status default 'private';
+alter table campaigns add column display_schedule boolean default true;
+alter table campaigns add column schedule_users boolean default true;

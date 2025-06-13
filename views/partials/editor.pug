@@ -58,11 +58,11 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
             small.form-text.text-muted.d-inline Supports
                 a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                     i.fas.fa-external-link-alt.ms-1
-            if options.maxlength
-                .float-end
-                    span.length-indicator
-                        span.me-1(id=`${id}-length`)= contents?contents.length:0
-                        | of #{options.maxlength}
+        if options.maxlength
+            small.form-text.float-end
+                span.length-indicator
+                    span.me-1(id=`${id}-length`)= contents?contents.length:0
+                    | of #{options.maxlength}
     else
         //- Editor with Preview Panel
         ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")

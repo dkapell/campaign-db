@@ -82,8 +82,8 @@ block content
                                 i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
                                 if locationsSuggested.length !== scene.locations_count
                                     span.ms-1 (#{scene.locations_count} Requested)
-                        td #{scene.player_count} (#{players.length})
-                        td #{scene.staff_count} (#{staff.length})
+                        td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
+                        td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
                                 href=`/scene/${scene.id}/edit?backto=list`

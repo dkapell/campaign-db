@@ -60,14 +60,14 @@ $(function(){
     $('.resizer-close').on('click', function(e){
         e.preventDefault();
         e.stopPropagation()
-        closePickerArea();
+        closeDetailPanel();
         clearTimeslotHighlight();
     });
     $('.resizer-expand').on('click', function(){
-        fullPickerArea();
+        fullDetailPanel();
     });
     $('.resizer-restore').on('click', function(){
-        splitPickerArea();
+        splitDetailPanel();
     });
     async.parallel([
         validateAllScenes,
@@ -587,9 +587,9 @@ async function showUsersBtn(e){
 
     if (Number($('#users-panel').attr('timeslot-id')) === timeslotId &&
         $('#users-panel').attr('type') === type &&
-        $('#adjustable-content').hasClass('show')){
+        $('#detail-container').hasClass('show')){
         clearTimeslotHighlight();
-        closePickerArea();
+        closeDetailPanel();
         return;
     }
     $btn.addClass('active');
@@ -602,8 +602,8 @@ async function showUsersBtn(e){
 
     await updateUsersPanel(timeslotId, type);
 
-    if (!$('#adjustable-content').hasClass('show')){
-        await splitPickerArea();
+    if (!$('#detail-container').hasClass('show')){
+        await splitDetailPanel();
     }
     scrollToTimeslot(timeslotId);
 
@@ -765,7 +765,9 @@ function startDragUser($user, data){
 
 function stopDragUser($user, data){
     $user.removeClass('disabled');
-    $('.schedule-filler-type-item').removeClass('disabled');
+    $('.schedule-filler-type-item.ui-droppable').droppable("destroy")
+    $('.schedule-filler-type-item').removeClass('disabled')
+    $('.scene-item.ui-droppable').droppable("destroy")
     $('.scene-item').removeClass('disabled');
     $('.scene-display').removeClass('bg-info-subtle');
     $('.scene-display').removeClass('bg-success-subtle');
@@ -937,9 +939,9 @@ async function updateTimeslotUsersCount(){
     }
 }
 
-async function closePickerArea(){
+async function closeDetailPanel(){
     new Promise((resolve, reject) => {
-        if (!$('#adjustable-content').hasClass('show')){
+        if (!$('#detail-container').hasClass('show')){
             return;
         }
 
@@ -948,7 +950,7 @@ async function closePickerArea(){
             .addClass('d-flex')
             .animate({height:'100%'}, 200);
 
-        $('#adjustable-content')
+        $('#detail-container')
             .addClass('d-none')
             .removeClass('show')
             .css({overflow:'hidden'})
@@ -958,7 +960,7 @@ async function closePickerArea(){
     });
 }
 
-async function fullPickerArea(hideAdjust, hideClose = false){
+async function fullDetailPanel(hideAdjust, hideClose = false){
     new Promise((resolve, reject)=>{
         let minSize = 0;
         if ($('#schedule-container').attr('min-size')){
@@ -969,19 +971,19 @@ async function fullPickerArea(hideAdjust, hideClose = false){
             .addClass('d-flex')
             .animate({height:`${minSize}%`}, 200);
         if(hideAdjust){
-            $('#adjustable-content').addClass('d-none');
+            $('#detail-container').addClass('d-none');
         } else {
-            $('#adjustable-content').removeClass('d-none');
+            $('#detail-container').removeClass('d-none');
         }
 
         if (hideClose){
-            $('#adjustable-content >> .resizer-close').addClass('d-none');
+            $('#detail-container >> .resizer-close').addClass('d-none');
         } else {
-            $('#adjustable-content >> .resizer-close').removeClass('d-none');
+            $('#detail-container >> .resizer-close').removeClass('d-none');
         }
-        $('#adjustable-content .resizer-expand').hide();
-        $('#adjustable-content .resizer-restore').show();
-        $('#adjustable-content')
+        $('#detail-container .resizer-expand').hide();
+        $('#detail-container .resizer-restore').show();
+        $('#detail-container')
             .removeClass('d-none')
             .addClass('show')
             .css({overflow:'visible'})
@@ -991,34 +993,34 @@ async function fullPickerArea(hideAdjust, hideClose = false){
     });
 }
 
-async function splitPickerArea(hideClose = false){
+async function splitDetailPanel(hideClose = false){
     new Promise((resolve, reject) => {
         if (hideClose){
-            $('#adjustable-content .resizer-close').addClass('d-none');
+            $('#detail-container .resizer-close').addClass('d-none');
         } else {
-            $('#adjustable-content .resizer-close').removeClass('d-none');
+            $('#detail-container .resizer-close').removeClass('d-none');
         }
 
-        $('#adjustable-content .resizer-expand').show();
-        $('#adjustable-content .resizer-restore').hide();
+        $('#detail-container .resizer-expand').show();
+        $('#detail-container .resizer-restore').hide();
         $('#schedule-container')
             .removeClass('d-none')
             .addClass('d-flex')
             .show()
             .animate({height:'60%'}, 200);
 
-        $('#adjustable-content')
+        $('#detail-container')
             .removeClass('d-none')
             .addClass('show')
             .css({overflow:'visible'})
             .show();
 
-        if(!$('#adjustable-content').hasClass('show')){
-            $('#adjustable-content').css({height:'0%'});
+        if(!$('#detail-container').hasClass('show')){
+            $('#detail-container').css({height:'0%'});
         }
-        $('#adjustable-content .resizer-expand').show();
-        $('#adjustable-content .resizer-restore').hide();
-        $('#adjustable-content').animate({height:'40%'}, 200, () => {
+        $('#detail-container .resizer-expand').show();
+        $('#detail-container .resizer-restore').hide();
+        $('#detail-container').animate({height:'40%'}, 200, () => {
             resolve();
         });
     });
@@ -1113,7 +1115,7 @@ function resizable(resizer) {
         document.removeEventListener('mousemove', mouseMoveHandler);
         document.removeEventListener('mouseup', mouseUpHandler);
         if (parseInt(nextSibling.style.height) < 10){
-            closePickerArea();
+            closeDetailPanel();
             clearTimeslotHighlight();
         }
     };
@@ -1124,10 +1126,10 @@ function resizable(resizer) {
     resizer.addEventListener('dblclick', function(){
         const height = parseInt($('#schedule-container')[0].style.height);
         if ( height < (minSize+5)){
-            splitPickerArea();
+            splitDetailPanel();
 
         } else {
-            fullPickerArea();
+            fullDetailPanel();
         }
     });
 }

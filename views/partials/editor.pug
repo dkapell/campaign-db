@@ -42,27 +42,27 @@ mixin markdownEditor(label, id, name, rows, size, contents, showPreview, options
             )
                 = contents
             if options.saveIndicator
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.save-pending-indicator(
+                .badge.position-absolute.bottom-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.save-pending-indicator(
                     style='display:none'
                 ) Changed
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.saving-indicator(
+                .badge.position-absolute.bottom-0.end-0.mt-1.me-1.text-dark.bg-light.opacity-50.saving-indicator(
                     style='display:none'
                 ) Saving
                 .badge.position-absolute.bottom-0.end-0.mb-1.me-1.text-dark.bg-light.opacity-50.saved-indicator(
                     style='display:none'
                 ) Saved
-                .badge.position-absolute.top-0.end-0.mt-1.me-1.text-bg-danger.opacity-50.error-indicator(
+                .badge.position-absolute.bottom-0.end-0.mt-1.me-1.text-bg-danger.opacity-50.error-indicator(
                     style='display:none'
                 ) Error
         if options.description && !options.hideMarkdown
             small.form-text.text-muted.d-inline Supports
                 a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                     i.fas.fa-external-link-alt.ms-1
-            if options.maxlength
-                .float-end
-                    span.length-indicator
-                        span.me-1(id=`${id}-length`)= contents?contents.length:0
-                        | of #{options.maxlength}
+        if options.maxlength
+            small.form-text.float-end
+                span.length-indicator
+                    span.me-1(id=`${id}-length`)= contents?contents.length:0
+                    | of #{options.maxlength}
     else
         //- Editor with Preview Panel
         ul.nav.nav-tabs.editor-tabs(id=`${id}-edit-tabs` role="tablist")

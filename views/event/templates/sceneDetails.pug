@@ -3,23 +3,23 @@ if scene.tags
         .col
             each tag in scene.tags
                 span.badge.text-bg-info.me-1=tag
+if scheduleType === 'edit'
+    .row.my-1
+        .col
+            if (scene.locations.suggested  || scene.locations.confirmed) && (scene.timeslots.suggested || scene.timeslots.confirmed)
+                if scene.status === 'confirmed'
+                    button.btn.btn-outline-success.btn-xs.unconfirm-scene-btn(
+                        role=button
+                        data-bs-toggle='tooltip'
+                        title='Unconfirm Time/Location'
+                    ) Unconfirm
 
-.row.my-1
-    .col
-        if (scene.locations.suggested  || scene.locations.confirmed) && (scene.timeslots.suggested || scene.timeslots.confirmed)
-            if scene.status === 'confirmed'
-                button.btn.btn-outline-success.btn-xs.unconfirm-scene-btn(
-                    role=button
-                    data-bs-toggle='tooltip'
-                    title='Unconfirm Time/Location'
-                ) Unconfirm
-
-            else
-                button.btn.btn-outline-success.btn-xs.confirm-scene-btn(
-                    role=button
-                    data-bs-toggle='tooltip'
-                    title='Confirm Time/Location'
-                ) Confirm
+                else
+                    button.btn.btn-outline-success.btn-xs.confirm-scene-btn(
+                        role=button
+                        data-bs-toggle='tooltip'
+                        title='Confirm Time/Location'
+                    ) Confirm
 .row.my-1
     .col
         -
@@ -27,27 +27,31 @@ if scene.tags
             const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
             const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
         span.me-1 Players
-        if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
-            span.text-danger.me-1=currentPlayerCount
-        else
-            span.me-1=currentPlayerCount
-        span of (#{scene.player_count_min}-#{scene.player_count_max})
+        if _.has(scene, 'player_count_min')
+            if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
+                span.text-danger.me-1=currentPlayerCount
+            else
+                span.me-1=currentPlayerCount
+            span of (#{scene.player_count_min}-#{scene.player_count_max})
         ul.list-group
             if scene.players.confirmed
                 each player in scene.players.confirmed
                     li.list-group-item.my-0.p-1
-                        a(href=`/user/${player.id}` target='_blank')
-                            i.fas.fa-user.me-1.text-success
+                        if scheduleType === 'edit'
+                            a(href=`/user/${player.id}` target='_blank')
+                                i.fas.fa-user.me-1.text-success
+                                = player.name
+                        else
                             = player.name
-
-                        button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
-                            role='button'
-                            data-user-id=player.id
-                            data-bs-toggle='tooltip'
-                            title=`Remove ${player.name} from Scene`
-                        )
-                            i.fas.fa-user-times
-                        .badge.text-bg-success.float-end Confirmed
+                        if scheduleType === 'edit'
+                            button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
+                                role='button'
+                                data-user-id=player.id
+                                data-bs-toggle='tooltip'
+                                title=`Remove ${player.name} from Scene`
+                            )
+                                i.fas.fa-user-times
+                            .badge.text-bg-success.float-end Confirmed
             if scene.players.suggested
                 each player in scene.players.suggested
                     li.list-group-item.my-0.p-1
@@ -71,58 +75,62 @@ if scene.tags
                                 i.fas.fa-user-times
                         .badge.text-bg-warning.float-end Suggested
 
-.row.my-1
-    .col
-        -
-            const confirmedStaffCount = scene.staff.confirmed?scene.staff.confirmed.length:0;
-            const suggestedStaffCount = scene.staff.suggested?scene.staff.suggested.length:0;
-            const currentStaffCount = suggestedStaffCount + confirmedStaffCount;
-        span.me-1 Staff/NPCs
-        if currentStaffCount < scene.staff_count_min || currentStaffCount > scene.staff_count_max
-            span.text-danger.me-1=currentStaffCount
-        else
-            span.me-1=currentStaffCount
-        span of (#{scene.staff_count_min}-#{scene.staff_count_max})
+if scene.staff
+    .row.my-1
+        .col
+            -
+                const confirmedStaffCount = scene.staff.confirmed?scene.staff.confirmed.length:0;
+                const suggestedStaffCount = scene.staff.suggested?scene.staff.suggested.length:0;
+                const currentStaffCount = suggestedStaffCount + confirmedStaffCount;
+            span.me-1 Staff/NPCs
+            if currentStaffCount < scene.staff_count_min || currentStaffCount > scene.staff_count_max
+                span.text-danger.me-1=currentStaffCount
+            else
+                span.me-1=currentStaffCount
+            span of (#{scene.staff_count_min}-#{scene.staff_count_max})
 
-        if scene.combat_staff_count_min
-            span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
+            if scene.combat_staff_count_min
+                span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
 
-        ul.list-group
-            if scene.staff.confirmed
-                each staff in scene.staff.confirmed
-                    li.list-group-item.my-0.p-1
-                        a(href=`/user/${staff.id}` target='_blank')
-                            i.fas.fa-user.me-1.text-success
-                            = staff.name
-
-                        button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
-                            role='button'
-                            data-user-id=staff.id
-                            data-bs-toggle='tooltip'
-                            title=`Remove ${staff.name} from Scene`
-                        )
-                            i.fas.fa-user-times
-                        .badge.text-bg-success.float-end Confirmed
-            if scene.staff.suggested
-                each staff in scene.staff.suggested
-                    li.list-group-item.my-0.p-1
-                        a(href=`/user/${player.id}` target='_blank')
-                            i.fas.fa-user.me-1.text-success
-                            = staff.name
-                        .btn-group.float-end.ms-1(role='group')
-                            button.btn.btn-xs.btn-outline-success.schedule-user-btn(
-                                role='button'
-                                data-user-id=staff.id
-                                data-bs-toggle='tooltip'
-                                title=`Accept Suggestion`
-                            )
-                                i.fas.fa-user-plus
-                            button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
-                                role='button'
-                                data-user-id=staff.id
-                                data-bs-toggle='tooltip'
-                                title=`Remove ${staff.name} from Scene`
-                            )
-                                i.fas.fa-user-times
-                        .badge.text-bg-warning.float-end Suggested
+            ul.list-group
+                if scene.staff.confirmed
+                    each staff in scene.staff.confirmed
+                        li.list-group-item.my-0.p-1
+                            if scheduleType === 'edit'
+                                a(href=`/user/${staff.id}` target='_blank')
+                                    i.fas.fa-user.me-1.text-success
+                                    = staff.name
+                            else
+                                = staff.name
+                            if scheduleType === 'edit'
+                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
+                                    role='button'
+                                    data-user-id=staff.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Remove ${staff.name} from Scene`
+                                )
+                                    i.fas.fa-user-times
+                                .badge.text-bg-success.float-end Confirmed
+                if scene.staff.suggested
+                    each staff in scene.staff.suggested
+                        li.list-group-item.my-0.p-1
+                            a(href=`/user/${player.id}` target='_blank')
+                                i.fas.fa-user.me-1.text-success
+                                = staff.name
+                            .btn-group.float-end.ms-1(role='group')
+                                button.btn.btn-xs.btn-outline-success.schedule-user-btn(
+                                    role='button'
+                                    data-user-id=staff.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Accept Suggestion`
+                                )
+                                    i.fas.fa-user-plus
+                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
+                                    role='button'
+                                    data-user-id=staff.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Remove ${staff.name} from Scene`
+                                )
+                                    i.fas.fa-user-times
+                            .badge.text-bg-warning.float-end Suggested
 

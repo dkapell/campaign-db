@@ -35,7 +35,7 @@ block content
                             |  Grant Event #{currentCampaign.renames.cp.singular}
                     if checkPermission('gm') && new Date(event.start_time) > new Date() && currentCampaign.display_schedule
                         a.btn.btn-sm.btn-outline-primary.my-2.ms-2(
-                            href=`/event/${event.id}/schedule`
+                            href=`/event/${event.id}/scheduler`
                         )
                             i.fas.fa-calendar
                             |  Event Scheduler

@@ -10,7 +10,7 @@ mixin attendeeList(attendees, type)
     if checkPermission('contrib, registration view')
         .row
             .col
-                button.btn.btn-sm.btn-outline-info.my-2#attendee-export-btn(
+                button.btn.btn-sm.btn-outline-info.my-2.event-export.btn#attendee-export-btn(
                     data-export=`/event/${event.id}/export?type=${type}`
                 )
                     i.fa.fa-download.me-1

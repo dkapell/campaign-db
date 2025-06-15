@@ -1,18 +1,24 @@
 include ../../partials/scene
-if checkPermission('event')
-    .row.my-2
-        .col
-            button.btn.btn-sm.btn-outline-info.me-2#schedule-staff-export-btn(
-                    data-export=`/event/${event.id}/export?type=${type}`
-                )
-                    i.fa.fa-download.me-1
-                    | Export Staff CSV
-            if (checkPermission('gm') || event.schedule_status === 'player visible')
-                button.btn.btn-sm.btn-outline-info#schedule-player-export-btn(
-                        data-export=`/event/${event.id}/export?type=${type}`
-                    )
-                        i.fa.fa-download.me-1
-                        | Export Player CSV
+.row.my-2
+    .col
+        if checkPermission('event')
+            button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-staff-export-btn(
+                data-export=`/event/${event.id}/schedule/export?type=staff`
+            )
+                i.fa.fa-download.me-1
+                | Export Staff CSV
+        - console.log(event.schedule_status)
+        if checkPermission('event') || event.schedule_status === 'player visible'
+            button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-player-export-btn(
+                data-export=`/event/${event.id}/schedule/export?type=player`
+            )
+                i.fa.fa-download.me-1
+                | Export Player CSV
+            a.btn.btn-sm.btn-outline-info(
+                href=`/event/${event.id}/schedule`
+            )
+               i.fa.fa-calendar.me-1
+               | Schedule
 .row.my-2
     .col-md-5
         .table-responsive
@@ -105,7 +111,7 @@ if checkPermission('event')
                                                 span.ms-1 +#{duration/60}h
 
                                     .card-body
-                                        if checkPermission('event') && scene.tags.length
+                                        if checkPermission('event') && scene.tags && scene.tags.length
                                             .row.my-1
                                                 .col
                                                     each tag in scene.tags

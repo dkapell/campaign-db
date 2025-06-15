@@ -42,6 +42,44 @@ mixin timeslotButtons(timeslot)
         i.fas.fa-globe.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-info.user-count
 
+mixin sceneItem(scene, xAxisType, cellsPerSlot)
+
+    -
+        let timeslots = scene.timeslots.filter(timeslot => {
+            return timeslot.scene_schedule_status === 'confirmed'
+        });
+        let locations = scene.locations.filter(location => {
+            return location.scene_schedule_status === 'confirmed';
+        });
+
+        let locationIdx = 0
+    while locationIdx < scene.locations_count
+        -
+            let cell = 'unscheduled'
+            if (timeslots.length && locationIdx < locations.length){
+                cell = `cell-timeslot-${timeslots[0].id}-location-${locations[locationIdx].id}`
+            }
+            let size = `grid-row:span ${scene.timeslot_count}`;
+            if (xAxisType !== 'location'){
+                size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
+            }
+
+        .scene-item.d-none(
+            id=`scene-${scene.id}-${locationIdx}`
+            style=`${size}; z-index:10`
+            data-scene-id=scene.id
+            data-scene-name=scene.name
+            data-location-idx=locationIdx
+            data-timeslot-count=scene.timeslot_count
+            cell=cell
+            status=scene.status
+            class=scene.issues&&scene.issues.warning.length?'validation-warning':''
+            class=scene.issues&&scene.issues.info.length?'validation-info':''
+            data-scheduler="false"
+        )
+            .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
+                +sceneBody(scene, locationIdx, false)
+        - locationIdx++
 
 mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
@@ -90,6 +128,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             class=scene.scene_schedule_status!=='confirmed'?'scene-item-draggable':''
             class=scene.issues&&scene.issues.warning.length?'validation-warning':''
             class=scene.issues&&scene.issues.info.length?'validation-info':''
+            data-scheduler="true"
         )
             .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
                 if xAxisType !== 'location'
@@ -102,7 +141,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
                                     title='Suggested'
                                     data-bs-toggle='tooltip'
                                 )
-                            +sceneBody(scene, locationIdx)
+                            +sceneBody(scene, locationIdx, true)
                 else
                     .row.handle.my-0
                         .col
@@ -114,23 +153,24 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
                             .handle.text-center
                                 i.fas.fa-grip-lines.handle-icon.text-info
                     .vertical
-                        +sceneBody(scene, locationIdx)
+                        +sceneBody(scene, locationIdx, true)
         - locationIdx++
 
-mixin sceneBody(scene, locationIdx)
+mixin sceneBody(scene, locationIdx, forScheduler)
     .d-flex.scene-detail-header
-        .flex-shrink-1
-            i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning.issue-icon(
-                title='Validation Warning'
-                data-bs-html='true'
-                data-bs-toggle='popover'
-            )
-            i.fas.fa-info-circle.scene-info.me-1.text-info.issue-icon(
-                title='Validation Info'
-                data-bs-html='true'
-                data-bs-toggle='popover'
+        if checkPermission('contrib')
+            .flex-shrink-1
+                i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning.issue-icon(
+                    title='Validation Warning'
+                    data-bs-html='true'
+                    data-bs-toggle='popover'
+                )
+                i.fas.fa-info-circle.scene-info.me-1.text-info.issue-icon(
+                    title='Validation Info'
+                    data-bs-html='true'
+                    data-bs-toggle='popover'
 
-            )
+                )
         .flex-grow-1
             a.scene-name.d-block.ms-1.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
                 href='#'
@@ -140,25 +180,47 @@ mixin sceneBody(scene, locationIdx)
                 aria-expanded="false"
                 aria-controls=`scene-details-${scene.id}-${locationIdx}`
             )
-                = scene.name
+                if checkPermission('event') || !scene.player_name
+                    = scene.name
+                else
+                    = scene.player_name
                 if scene.locations_count > 1
                     span.scene-location-idx.ms-2 (##{locationIdx+1})
                 span.ps-2.float-end
                     i.fa.fa-chevron-up
                     i.fa.fa-chevron-down
-                span.float-end.user-drop-indicator.mx-1.text-info.user-drop-requested Requested
-                span.float-end.user-drop-indicator.mx-1.text-success.user-drop-required Required
-                span.float-end.user-drop-indicator.mx-1.text-danger.user-drop-rejected Rejected
+                if forScheduler
+                    span.float-end.user-drop-indicator.mx-1.text-info.user-drop-requested Requested
+                    span.float-end.user-drop-indicator.mx-1.text-success.user-drop-required Required
+                    span.float-end.user-drop-indicator.mx-1.text-danger.user-drop-rejected Rejected
 
-
-        .flex-shrink-1
-            i.fas.fa-check-circle.text-success.status-indicator.confirmed-indicator.ps-1(
-                title='Confirmed'
-                data-bs-toggle='tooltip'
-            )
+        if forScheduler
+            .flex-shrink-1
+                i.fas.fa-check-circle.text-success.status-indicator.confirmed-indicator.ps-1(
+                    title='Confirmed'
+                    data-bs-toggle='tooltip'
+                )
 
 
     .scene-details.px-1.pb-1.collapse(id=`scene-details-${scene.id}-${locationIdx}`)
         .text-center.my-1
             .spinner-border.m-auto(role="status" style="width: 1rem; height: 1rem;")
                 .visually-hidden Loading
+
+mixin nullBusyItem(xAxisType, cellsPerSlot)
+
+    -
+        let cell = 'unused'
+        let size = `grid-row:span 1`;
+        if (xAxisType !== 'location'){
+            size = `grid-column: span ${cellsPerSlot}`
+        }
+
+    .d-none#null-busy-item(
+        style=`${size}; z-index:10`
+        cell=cell
+        data-scheduler="false"
+        data-busy="true"
+    )
+        .scene-display.m-1.px-1.pb-0.bg-white.border.border-info.d-block.flex-grow-1
+            strong.text-dark.title

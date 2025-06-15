@@ -2,6 +2,7 @@
 import _ from 'underscore';
 import models from './models';
 import async from 'async';
+import stringify from 'csv-stringify-as-promised';
 
 async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
     const issues = {
@@ -209,31 +210,39 @@ function getSelectedLocations(scene:SceneModel): {type:string, locations:Locatio
     return {type:'none', locations:[]};
 }
 
-function formatScene(scene:SceneModel): FormattedSceneModel{
+function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
+    if (forPlayer && !scene.display_to_pc){
+        return {};
+    }
     const output: FormattedSceneModel = {
         id:scene.id,
         campaign_id: scene.campaign_id,
-        name: scene.name,
-        player_name:scene.player_name,
         event_id: scene.event_id,
         event: scene.event,
         status: scene.status,
-        description: scene.description,
         display_to_pc: scene.display_to_pc,
-        player_count_min: scene.player_count_min,
-        player_count_max: scene.player_count_max,
-        staff_count_min: scene.staff_count_min,
-        staff_count_max: scene.staff_count_max,
-        combat_staff_count_min: scene.combat_staff_count_min,
-        combat_staff_count_max: scene.combat_staff_count_max,
         timeslot_count: scene.timeslot_count,
         locations_count: scene.locations_count,
-        staff_url: scene.staff_url,
         player_url: scene.player_url,
-        tags: _.pluck(scene.tags, 'name')
-    };
 
-    if (scene.prereqs && typeof scene.prereqs !== 'string'){
+    };
+    if (forPlayer){
+        output.name = scene.player_name?scene.player_name:scene.name;
+    } else {
+        output.name = scene.name;
+        output.player_name = scene.player_name;
+        output.description = scene.description;
+        output.player_count_min = scene.player_count_min;
+        output.player_count_max = scene.player_count_max;
+        output.staff_count_min = scene.staff_count_min;
+        output.staff_count_max = scene.staff_count_max;
+        output.combat_staff_count_min = scene.combat_staff_count_min;
+        output.combat_staff_count_max = scene.combat_staff_count_max;
+        output.staff_url = scene.staff_url;
+        output.tags = _.pluck(scene.tags, 'name')
+    }
+
+    if (!forPlayer && scene.prereqs && typeof scene.prereqs !== 'string'){
         output.prereqs = scene.prereqs.map((prereq:SceneModel)=> {
             if (typeof prereq === 'object'){
                 return {
@@ -259,7 +268,17 @@ function formatScene(scene:SceneModel): FormattedSceneModel{
             scene_request_status: location.scene_request_status,
         }
     });
+
     output.locations = _.groupBy(locations, 'scene_schedule_status');
+    if (forPlayer){
+        if (output.locations.confirmed){
+            output.locations = {
+                confirmed: output.locations.confirmed
+            }
+        } else {
+            output.locations = { confirmed: [] };
+        }
+    }
 
     const timeslots = scene.timeslots.map(timeslot => {
         return {
@@ -272,31 +291,46 @@ function formatScene(scene:SceneModel): FormattedSceneModel{
         }
     })
     output.timeslots = _.groupBy(timeslots, 'scene_schedule_status');
+    if (forPlayer){
+        if (output.timeslots.confirmed){
+            output.timeslots = {
+                confirmed: output.timeslots.confirmed
+            }
+        }
+        else {
+            output.timeslots = { confirmed: [] };
+        }
+    }
 
-    const sources = scene.sources.map(source => {
-        return {
-            id: source.id,
-            name: source.name,
-            type: source.type.name,
-            scene_schedule_status: source.scene_schedule_status,
-            scene_request_status: source.scene_request_status,
-        };
+    if (!forPlayer){
+        const sources = scene.sources.map(source => {
+            return {
+                id: source.id,
+                name: source.name,
+                type: source.type.name,
+                scene_schedule_status: source.scene_schedule_status,
+                scene_request_status: source.scene_request_status,
+            };
 
-    });
-    output.sources = _.groupBy(sources, 'scene_schedule_status');
+        });
+
+        output.sources = _.groupBy(sources, 'scene_schedule_status');
+    }
 
     const players = scene.users.filter(user => {
         return user.type === 'player';
     }).map(user => {
-        const doc = {
+        const doc: CampaignUser = {
             id: user.id,
             name: user.name,
-            email: user.email,
             character: null,
             type: user.type,
-            tags: _.pluck(user.tags, 'name'),
-            scene_schedule_status: user.scene_schedule_status,
-            scene_request_status: user.scene_request_status,
+            scene_schedule_status: user.scene_schedule_status
+        }
+        if (!forPlayer){
+            doc.tags = _.pluck(user.tags, 'name');
+            doc.scene_request_status = user.scene_request_status;
+            doc.email = user.email;
         }
         if (user.character){
             doc.character = {
@@ -304,26 +338,42 @@ function formatScene(scene:SceneModel): FormattedSceneModel{
                 name: user.character.name
             }
         }
+        if (doc.character && forPlayer){
+            doc.name = doc.character.name
+        }
         return doc;
     });
     output.players = _.groupBy(players, 'scene_schedule_status');
-
-    const staff = scene.users.filter(user => {
-        return user.type !== 'player';
-    }).map(user => {
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            type: user.type,
-            tags: _.pluck(user.tags, 'name'),
-            scene_schedule_status: user.scene_schedule_status,
-            scene_request_status: user.scene_request_status,
+    if (forPlayer){
+        if (output.players.confirmed){
+            output.players = {
+                confirmed: output.players.confirmed
+            }
+        } else {
+            output.players = { confirmed: [] };
         }
-    });
-    output.staff = _.groupBy(staff, 'scene_schedule_status');
-    output.users = [...players, ...staff];
-    output.usersByStatus = _.groupBy(scene.users, 'scene_schedule_status');
+    }
+    if (!forPlayer){
+        const staff = scene.users.filter(user => {
+            return user.type !== 'player';
+        }).map(user => {
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                type: user.type,
+                tags: _.pluck(user.tags, 'name'),
+                scene_schedule_status: user.scene_schedule_status,
+                scene_request_status: user.scene_request_status,
+            }
+        });
+        output.staff = _.groupBy(staff, 'scene_schedule_status');
+        output.users = [...players, ...staff];
+        output.usersByStatus = _.groupBy(scene.users, 'scene_schedule_status');
+    } else {
+        output.users = [...players].filter(user => { return user.scene_schedule_status === 'confirmed'});
+        output.usersByStatus = output.players;
+    }
 
     if (scene.event){
         if (typeof scene.event !== 'string'){
@@ -375,7 +425,7 @@ async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
 async function getEventScenes(eventId:number): Promise<FormattedSceneModel[]>{
     const scenes = await models.scene.find({event_id:eventId});
 
-    return scenes.map(formatScene);
+    return scenes.map(scene=> {return formatScene(scene); });
 }
 
 async function getScenesAtTimeslot(eventId:number, timeslotId:number): Promise<FormattedSceneModel[]>{
@@ -437,7 +487,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
     });
 }
 
-async function getUserSchedule(eventId:number, userId:number): Promise<SceneModel[]> {
+async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotModel[]> {
     const event = await models.event.get(eventId);
     if (!event) { throw new Error('Invalid Event'); }
     const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
@@ -450,7 +500,7 @@ async function getUserSchedule(eventId:number, userId:number): Promise<SceneMode
         return scene.event_id === eventId && scene.status === 'confirmed';
 
     });
-    return async.mapSeries(timeslots, async (timeslot)=>{
+    return async.mapSeries(timeslots, async (timeslot: TimeslotModel)=>{
         timeslot.scenes = [];
         let scene_timeslots: SceneTimeslotModel[] = await models.scene_timeslot.find({timeslot_id:timeslot.id, schedule_status:'confirmed'});
         scene_timeslots = await async.filter(scene_timeslots, async(scene_timeslot) => {
@@ -468,6 +518,112 @@ async function getUserSchedule(eventId:number, userId:number): Promise<SceneMode
     });
 }
 
+async function getCsv(eventId:number, csvType:string):Promise<string>{
+    const event = await models.event.get(eventId);
+
+    let scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
+    scenes = scenes.map(scene=> {return formatScene(scene); });
+    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+    const locations = await models.location.find({campaign_id:event.campaign_id});
+    const output = [];
+    const header = ['Location', 'Attendee'];
+    for (const timeslot of timeslots){
+        header.push(timeslot.name)
+    }
+    output.push(header);
+    for(const location of locations){
+        const row = [location.name];
+        const locationScenes = scenes.filter(scene => {
+            return !!(scene.locations.confirmed && _.findWhere(scene.locations.confirmed, {id:location.id}));
+        });
+        for (const timeslot of timeslots){
+
+            const slotScenes = locationScenes.filter(scene => {
+                return !!(scene.timeslots.confirmed && _.findWhere(scene.timeslots.confirmed, {id:timeslot.id}));
+            });
+            const sceneNames = [];
+            for (const scene of slotScenes){
+                if (csvType === 'staff'){
+                    let sceneName = scene.name;
+                    if (scene.player_name){
+                        sceneName += ` (${scene.player_name})`
+                    }
+                    sceneNames.push(sceneName);
+                } else if (scene.display_to_pc){
+                    if (scene.player_name){
+                        sceneNames.push(scene.player_name);
+                    } else {
+                        sceneNames.push(scene.name)
+                    }
+                }
+            }
+            row.push(sceneNames.join(', '))
+        }
+        output.push(row);
+    }
+
+    if (csvType === 'staff'){
+        const staffHeader = ['Staff List', null];
+        for (let idx = 0; idx < timeslots.length; idx++){
+            staffHeader.push(null)
+        }
+        output.push(staffHeader);
+        for (const attendance of event.attendees){
+            if (!attendance.attending){ continue; }
+            if (attendance.user.type === 'player') { continue; }
+            const schedule = await getUserSchedule(event.id, attendance.user_id);
+            const row = [attendance.user.name, null];
+            for (const timeslot of schedule){
+                const userScenes = [];
+                if (timeslot.schedule_busy){
+                    userScenes.push(timeslot.schedule_busy.name)
+                }
+                for (const scene of timeslot.scenes){
+                    userScenes.push(scene.name);
+                }
+                row.push(userScenes.join(', '))
+            }
+            output.push(row);
+        }
+    }
+
+    const playerHeader = ['Player List'];
+    for (let idx = 0; idx < timeslots.length; idx++){
+        playerHeader.push(null)
+    }
+    output.push(playerHeader);
+    for (const attendance of event.attendees){
+        if (!attendance.attending){ continue; }
+        if (attendance.user.type !== 'player') { continue; }
+        const schedule = await getUserSchedule(event.id, attendance.user_id);
+
+        const character = await models.character.findOne({campaign_id:event.campaign_id, user_id:attendance.user_id, active:true});
+        const row = [character?character.name:attendance.user.name, attendance.user.name];
+        for (const timeslot of schedule){
+            const userScenes = [];
+            if (timeslot.schedule_busy){
+                userScenes.push(timeslot.schedule_busy.name)
+            }
+            for (const scene of timeslot.scenes){
+                if (csvType === 'player'){
+                    if (!scene.display_to_pc) { continue; }
+                    if (scene.player_name){
+                        userScenes.push(scene.player_name);
+                    } else {
+                        userScenes.push(scene.name)
+                    }
+                } else {
+                    userScenes.push(scene.name);
+                }
+            }
+            row.push(userScenes.join(', '))
+        }
+        output.push(row);
+    }
+
+    return stringify(output, {});
+}
+
 export default {
     validateScene,
     formatScene,
@@ -476,5 +632,6 @@ export default {
     getEventScenes,
     getScenesAtTimeslot,
     getUsersAtTimeslot,
-    getUserSchedule
+    getUserSchedule,
+    getCsv
 };

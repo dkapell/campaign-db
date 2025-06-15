@@ -1,4 +1,4 @@
-.y-header, .scene-item, .user-item {
+.y-header, .scene-item, .user-item, .busy-item{
   font-size: 0.77rem;
 }
 
@@ -69,7 +69,7 @@
 }
 
 
-.scene-item.disabled, .schedule-filler-type-item.disabled{
+.scene-item.disabled, .schedule-busy-type-item.disabled{
   opacity: 33%
 }
 .user-item.disabled {

@@ -64,7 +64,7 @@ $(function(){
     }).on('click', deleteAttendance);
 
 
-    $('#attendee-export-btn').on('click', exportAttendeeCsv);
+    $('.event-export-btn').on('click', exportCsvBtn);
     $('#not-attending-btn-show').confirmation({
         title: 'Mark that you are not attending this event?'
     }).on('click', markNotAttending);
@@ -130,7 +130,7 @@ function addEventAddon(e){
 
 }
 
-function exportAttendeeCsv(e){
+function exportCsvBtn(e){
     e.preventDefault();
     const url = $(this).data('export');
     window.open(url, '_self');

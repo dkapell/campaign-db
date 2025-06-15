@@ -28,10 +28,11 @@ mixin sceneLocationInput(location, request_status, schedule_status)
 
 
 mixin locationTags(location)
-    if location.combat
-        .badge.text-bg-primary.me-1 Combat
-    else
-        .badge.text-bg-primary.me-1 Non-Combat
+    if location.id !== 'busy'
+        if location.combat
+            .badge.text-bg-primary.me-1 Combat
+        else
+            .badge.text-bg-primary.me-1 Non-Combat
 
     if location.multiple_scenes
         .badge.text-bg-primary.mx-1 Multiple

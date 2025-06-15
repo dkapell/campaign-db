@@ -77,6 +77,29 @@ $(function(){
     $('.resizer').each(function(){
         resizable($(this)[0]);
     });
+
+    $('.complex-select2').each(function(e){
+        const $select = $(this);
+        $select.select2({
+            theme:'bootstrap-5',
+            minimumResultsForSearch: 6,
+            width:'resolve',
+            escapeMarkup: function(markup) {
+                return markup;
+            },
+            templateResult: function(data) {
+                return $(data.element).data('html');
+            },
+            templateSelection: function(data) {
+                if (data.id === '') {
+                    return $select.data('placeholder');
+                }
+                return $(data.element).data('text');
+            }
+        });
+    });
+
+    $('#schedule-user-picker').on('change', highlightUserSchedule);
 });
 
 function clearTimeslotHighlight(){
@@ -101,6 +124,7 @@ async function updateSceneDetails($scene){
     const sceneId = $scene.data('scene-id');
     const result = await fetch(`/scene/${sceneId}?api=true`);
     const data = await result.json();
+    data.scheduleType = $('#scheduleType').val();
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
         $scene.find('.scene-details').html(scenedetailsTemplate(data));
@@ -389,25 +413,34 @@ function updateScene($scene, status){
             $scene.attr('status', status);
         }
         const $slot = $(`#${$scene.attr('cell')}`);
-        if ($slot.attr('id') === 'unscheduled'){
-            $scene.find('.scene-display').removeClass('border-success');
-            $scene.find('.scene-display').removeClass('border-warning');
-        } else if ($scene.attr('status') === 'confirmed'){
-            $scene.find('.scene-display').addClass('border-success');
-            $scene.find('.scene-display').removeClass('border-warning');
+        if ($scene.data('scheduler')){
+            if ($slot.attr('id') === 'unscheduled'){
+                $scene.find('.scene-display').removeClass('border-success');
+                $scene.find('.scene-display').removeClass('border-warning');
+            } else if ($scene.attr('status') === 'confirmed'){
+                $scene.find('.scene-display').addClass('border-success');
+                $scene.find('.scene-display').removeClass('border-warning');
+            } else {
+                $scene.find('.scene-display').addClass('border-warning');
+                $scene.find('.scene-display').removeClass('border-success');
+            }
         } else {
-            $scene.find('.scene-display').addClass('border-warning');
-            $scene.find('.scene-display').removeClass('border-success');
+            $scene.find('.scene-display').addClass('border-info');
         }
     });
 }
 
 async function validateAllScenes(){
+    if ($('#userType').val() === 'player'){
+        return;
+    }
     const sceneIds = [];
     async.parallel([
         async ()=>{
             $('.scene-item').each(function(){
-                sceneIds.push($(this).data('scene-id'));
+                if (!$(this).data('busy')){
+                    sceneIds.push($(this).data('scene-id'));
+                }
             });
             const url = `/event/${$('#eventId').val()}/scene/validate?`;
 
@@ -435,6 +468,8 @@ async function validateAllScenes(){
                         }
                     });
                 }
+            } else {
+                showError('Scene Validation Failed');
             }
         },
         updateTimeslotUsersCount
@@ -621,6 +656,9 @@ async function showUsersBtn(e){
 }
 
 async function updateUsersPanel(timeslotId, type){
+    if ($('#scheduleType').val() !== 'edit'){
+        return;
+    }
     if (!timeslotId){
         timeslotId = $('#users-panel').attr('timeslot-id');
     }
@@ -743,7 +781,7 @@ function startDragUser($user, data){
         }
     });
 
-    $('.schedule-filler-type-item').each(function(){
+    $('.schedule-busy-type-item').each(function(){
         const $elem = $(this);
         const type = $user.data('user-type');
         if (type === 'player' && !$elem.data('available-to-player')) {
@@ -754,7 +792,7 @@ function startDragUser($user, data){
             $elem.droppable({
                 accept: '.user-item',
                 tolerance: 'pointer',
-                drop: updateScheduleFillerUser,
+                drop: updateScheduleBusyUser,
                 classes: {
                     'ui-droppable-hover': 'bg-success-subtle border-success'
                 }
@@ -765,12 +803,12 @@ function startDragUser($user, data){
 
 function stopDragUser($user, data){
     $user.removeClass('disabled');
-    $('.schedule-filler-type-item.ui-droppable').droppable('destroy');
-    $('.schedule-filler-type-item').removeClass('disabled');
+    $('.schedule-busy-type-item.ui-droppable').droppable('destroy');
+    $('.schedule-busy-type-item').removeClass('disabled');
     $('.scene-item.ui-droppable').droppable('destroy');
     $('.scene-item').removeClass('disabled');
     $('.scene-display').removeClass('bg-info-subtle');
-    $('.scene-display').removeClass('bg-success-subtle');
+    $('.scene-display').removeClass('bg-success-subtle');f
     $('.scene-display').removeClass('bg-danger-subtle');
 }
 
@@ -783,13 +821,13 @@ async function updateSceneUser(event, ui){
     await assignUserToScene(userId, $scene, 'confirmed');
 }
 
-async function updateScheduleFillerUser(event, ui){
-    const $scheduleFillerType = $(event.target);
+async function updateScheduleBusyUser(event, ui){
+    const $scheduleBusyType = $(event.target);
     const $user = $(ui.draggable);
-    const scheduleFillerTypeId = $scheduleFillerType.data('schedule-filler-type-id');
+    const scheduleBusyTypeId = $scheduleBusyType.data('schedule-busy-type-id');
     const userId = $user.data('user-id');
-    const timeslotId = $scheduleFillerType.data('timeslot-id');
-    await assignUserToBusy(userId, scheduleFillerTypeId, timeslotId);
+    const timeslotId = $scheduleBusyType.data('timeslot-id');
+    await assignUserToBusy(userId, scheduleBusyTypeId, timeslotId);
 }
 
 async function unscheduleSceneUserBtn(e){
@@ -842,12 +880,12 @@ async function assignUserToScene(userId, $scene, status='confirmed'){
     }
 }
 
-async function assignUserToBusy(userId, scheduleFillerTypeId, timeslotId){
+async function assignUserToBusy(userId, scheduleBusyTypeId, timeslotId){
     hideError();
     const eventId = $('#eventId').val();
     const data = {
         type: 'schedule_busy',
-        schedule_busy_type_id: scheduleFillerTypeId,
+        schedule_busy_type_id: scheduleBusyTypeId,
         timeslot_id: timeslotId
     };
     const url = `/event/${eventId}/user/${userId}`;
@@ -1163,3 +1201,54 @@ function scrollToTimeslot(timeslotId){
     }
 }
 
+async function highlightUserSchedule(){
+    const userId = $(this).val();
+    $('.scene-name').removeClass('fw-bold');
+    $('.busy-item').remove();
+
+    if (!userId){
+        $('.scene-item').removeClass('disabled');
+    } else {
+        const eventId = $('#eventId').val();
+        const url = `/event/${eventId}/user/${userId}/schedule`;
+        const result = await fetch(url);
+        const data = await result.json();
+        $('.scene-item').addClass('disabled');
+
+        if (data.success){
+            for (const timeslot of data.schedule){
+
+                for (const scene of timeslot.scenes){
+                    $(`.scene-item[data-scene-id=${scene.id}]`).removeClass('disabled');
+                    $(`.scene-item[data-scene-id=${scene.id}]`).find('.scene-name').addClass('fw-bold');
+                }
+                if (timeslot.schedule_busy){
+                    addScheduleBusy(timeslot.schedule_busy.name, timeslot.id);
+                }
+            }
+        } else {
+            showError(data.error);
+        }
+    }
+}
+
+function addScheduleBusy(text, timeslotId){
+    const xAxisType = $('#xAxisType').val();
+    const $slot = $(`.schedule-slot[data-timeslot-id=${timeslotId}][data-location-id=busy]`);
+    const gridY = $slot.data('pos-y');
+    const gridX = $slot.data('pos-x');
+    const rows = xAxisType==='location'?1:$('#cellsPerSlot').val();
+    const cols = xAxisType==='location'?$('#cellsPerSlot').val():1;
+
+    const $busyScene = $('#null-busy-item').clone();
+    $busyScene.addClass('busy-item')
+        .attr('id', `busy-timeslot-${timeslotId}`)
+        .find('.title').text(text);
+
+    $busyScene
+        .css('grid-row', `${gridY} / span ${rows}`)
+        .css('grid-column', `${gridX} / span ${cols}`)
+        .removeClass('d-none').addClass('d-flex');
+
+    $('#schedule-container-grid').append($busyScene);
+}

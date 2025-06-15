@@ -2,7 +2,7 @@ import _ from 'underscore';
 import async from 'async';
 import scheduleHelper from '../../lib/scheduleHelper';
 
-async function showSchedule(req, res, next){
+async function showScheduler(req, res, next){
     const id = req.params.id;
     res.locals.csrfToken = req.csrfToken();
     try {
@@ -23,6 +23,49 @@ async function showSchedule(req, res, next){
             }
             return true;
         });
+        res.locals.scenes = await async.map(scenes, async (scene) => {
+            scene.issues = await scheduleHelper.validateScene(scene);
+            return scene;
+        });
+        res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
+        res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        res.locals.event = event;
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/event', name: 'Events'},
+                { url: `/event/${event.id}`, name: event.name}
+            ],
+            current: 'Scheduler'
+        };
+        res.locals.wideMain = true;
+        res.locals.title += ` ${event.name} - Scheduler`;
+        res.render('event/scheduler');
+
+    } catch (err){
+        return next(err);
+    }
+}
+
+async function showSchedule(req, res, next){
+    const id = req.params.id;
+    res.locals.csrfToken = req.csrfToken();
+    try {
+        const event = await req.models.event.get(id);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.schedule_status === 'private'){
+            req.flash('error', 'The schedule for this event is not available');
+            return res.redirect(`/event/${event.id}`);
+        } else if (req.checkPermission('player') && event.schedule_status !== 'player visible'){
+            req.flash('error', 'The schedule for this event is not available');
+            return res.redirect(`/event/${event.id}`);
+        }
+
+        const scenes = await req.models.scene.find({campaign_id:req.campaign.id, event_id:event.id, status:'confirmed'})
         res.locals.scenes = await async.map(scenes, async (scene) => {
             scene.issues = await scheduleHelper.validateScene(scene);
             return scene;
@@ -427,7 +470,66 @@ async function updateUser(req, res){
     }
 }
 
+async function exportSchedule(req, res, next){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        let exportType = req.query.type;
+        if (!exportType) {
+            exportType = 'staff';
+        }
+        switch (event.schedule_status){
+            case 'private':
+                return res.status(403).json({success:false, error: 'Schedule is not live'});
+                break;
+            case 'staff only':
+                if (req.checkPermision('player')){
+                    return res.status(403).json({success:false, error: 'Schedule is not live'});
+                }
+                break;
+            case 'player':
+                if (req.checkPermision('player')){
+                    exportType = 'player';
+                }
+                break;
+        }
+        const output = await scheduleHelper.getCsv(eventId, exportType);
+        res.attachment(`${event.name} - schedule - ${exportType}.csv`);
+        res.end(output);
+    } catch (err){
+        next(err);
+    }
+}
+
+async function getUserSchedule(req, res){
+    const eventId = req.params.id;
+    const userId = req.params.userId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, userId);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const schedule = await scheduleHelper.getUserSchedule(event.id, user.id);
+        res.json({success:true, schedule:schedule});
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+
+
 export default {
+    showScheduler,
     showSchedule,
     updateScene,
     updateUser,
@@ -436,5 +538,7 @@ export default {
     unconfirmScene,
     getUsersAtTimeslot,
     getUsersPerTimeslot,
-    getBusyUsersAtTimeslot
+    getBusyUsersAtTimeslot,
+    exportSchedule,
+    getUserSchedule
 };

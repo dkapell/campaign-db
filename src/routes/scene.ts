@@ -33,8 +33,22 @@ async function show(req, res, next){
             throw new Error('Invalid Scene');
         }
         if (req.query.api){
-
-            return res.json({scene:scheduleHelper.formatScene(scene)});
+            if (req.checkPermission('gm')){
+                return res.json({scene:scheduleHelper.formatScene(scene)});
+            } else if (scene.status === 'confirmed'){
+                if (req.checkPermission('event')){
+                    return res.json({scene:scheduleHelper.formatScene(scene)});
+                } else {
+                    return res.json({scene:scheduleHelper.formatScene(scene, true)});
+                }
+            } else {
+                return res.json({});
+            }
+        } else {
+            if (!req.checkPermission('gm')){
+                req.flash('error', 'Permission Denied');
+                return res.redirect('/');
+            }
         }
         res.locals.breadcrumbs = {
             path: [
@@ -363,7 +377,6 @@ async function remove(req, res, next){
 
 const router = express.Router();
 
-router.use(permission('gm'));
 router.use(function(req, res, next){
     if (!req.campaign.display_schedule){
         req.flash('error', 'Event Schedules are not active on this campaign')
@@ -373,13 +386,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), show);
-router.get('/:id/validate', validate);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
-router.delete('/:id', remove);
+router.get('/', csrf(), permission('gm'), list);
+router.get('/new', csrf(), permission('gm'), showNew);
+router.get('/:id', csrf(), permission('player'), show);
+router.get('/:id/validate', permission('gm'), validate);
+router.get('/:id/edit', csrf(),permission('gm'), showEdit);
+router.post('/', csrf(), permission('gm'), create);
+router.put('/:id', csrf(), permission('gm'), update);
+router.delete('/:id', permission('gm'), remove);
 
 export default router;

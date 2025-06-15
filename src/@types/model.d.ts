@@ -305,6 +305,8 @@ interface TimeslotModel extends ModelData{
     name?:string
     scene_request_status?:string
     scene_schedule_status?:string
+    scenes?: FormattedSceneModel[]
+    schedule_busy?:ScheduleBusyModel
 }
 
 interface LocationModel extends ModelData{
@@ -396,4 +398,13 @@ interface SceneTimeslotModel extends ModelData{
     timeslot_id: number
     schedule_status?: string
     request_status?:string
+}
+
+interface ScheduleBusyModel extends ModelData{
+    id: number
+    timeslot_id: number
+    user_id: number
+    event_id: number
+    type_id: number
+    name?: string
 }

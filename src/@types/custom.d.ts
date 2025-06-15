@@ -22,7 +22,7 @@ interface Session extends SessionData {
 interface CampaignUser {
    id: number,
    name: string,
-   email: string,
+   email?: string,
    google_id?: string,
    site_admin?: boolean,
    type?: 'admin'|'core staff'|'contributing staff'|'event staff'|'player'|'none'

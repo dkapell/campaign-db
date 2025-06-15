@@ -601,12 +601,14 @@ router.use(function(req, res, next){
     }
     next();
 });
-
-router.get('/:id/schedule', csrf(), permission('gm'), scheduleRoutes.showSchedule);
-router.get('/:id/scene/validate', permission('gm'), scheduleRoutes.validateScenes);
-router.get('/:id/timeslot', permission('gm'), scheduleRoutes.getUsersPerTimeslot);
-router.get('/:id/timeslot/:timeslotId', permission('gm'), scheduleRoutes.getUsersAtTimeslot);
-router.get('/:id/timeslot/:timeslotId/busy', permission('gm'), scheduleRoutes.getBusyUsersAtTimeslot);
+router.get('/:id/scheduler', csrf(), permission('gm'), scheduleRoutes.showScheduler);
+router.get('/:id/schedule', csrf(), permission('player'), scheduleRoutes.showSchedule);
+router.get('/:id/schedule/export', csrf(), permission('player'), scheduleRoutes.exportSchedule);
+router.get('/:id/scene/validate', permission('contrib'), scheduleRoutes.validateScenes);
+router.get('/:id/timeslot', permission('contrib'), scheduleRoutes.getUsersPerTimeslot);
+router.get('/:id/timeslot/:timeslotId', permission('contrib'), scheduleRoutes.getUsersAtTimeslot);
+router.get('/:id/timeslot/:timeslotId/busy', permission('contrib'), scheduleRoutes.getBusyUsersAtTimeslot);
+router.get('/:id/user/:userId/schedule', permission('contrib'), scheduleRoutes.getUserSchedule);
 router.put('/:id/scene/:sceneId', csrf(), permission('gm'), scheduleRoutes.updateScene);
 router.put('/:id/scene/:sceneId/confirm', csrf(), permission('gm'), scheduleRoutes.confirmScene);
 router.put('/:id/scene/:sceneId/unconfirm', csrf(), permission('gm'), scheduleRoutes.unconfirmScene);

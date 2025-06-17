@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
 import permission from '../lib/permission';
@@ -15,7 +14,6 @@ async function list(req, res, next){
         current: 'Scenes'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Scenes';
         res.render('scene/list', { pageTitle: 'Scenes' });
@@ -157,8 +155,6 @@ async function showNew(req, res, next){
             return skill.status.purchasable;
         });
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'sceneData')){
             res.locals.scene = await prepForm(req);
         }
@@ -171,7 +167,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const scene = await req.models.scene.get(id);
@@ -407,13 +402,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), permission('gm'), list);
-router.get('/new', csrf(), permission('gm'), showNew);
-router.get('/:id', csrf(), permission('player'), show);
+router.get('/', permission('gm'), list);
+router.get('/new', permission('gm'), showNew);
+router.get('/:id', permission('player'), show);
 router.get('/:id/validate', permission('gm'), validate);
-router.get('/:id/edit', csrf(),permission('gm'), showEdit);
-router.post('/', csrf(), permission('gm'), create);
-router.put('/:id', csrf(), permission('gm'), update);
+router.get('/:id/edit', permission('gm'), showEdit);
+router.post('/', permission('gm'), create);
+router.put('/:id', permission('gm'), update);
 router.delete('/:id', permission('gm'), remove);
 
 export default router;

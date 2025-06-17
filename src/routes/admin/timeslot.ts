@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 
@@ -15,7 +14,6 @@ async function list(req, res, next){
     try {
 
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Timeslots';
         res.render('admin/timeslot/list', { pageTitle: 'Timeslots' });
     } catch (err){
@@ -69,8 +67,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'timeslotData')){
             res.locals.timeslot = req.session.timeslotData;
             delete req.session.timeslotData;
@@ -84,7 +80,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const timeslot = await req.models.timeslot.get(id);
@@ -176,12 +171,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/:id', update);
 router.delete('/:id', remove);
 
 export default router;

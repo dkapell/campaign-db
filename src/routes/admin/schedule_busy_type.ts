@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 
@@ -15,7 +14,6 @@ async function list(req, res, next){
     try {
 
         res.locals.schedule_busy_types = await req.models.schedule_busy_type.find({campaign_id:req.campaign.id});
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Schedule Busy Types';
         res.render('admin/schedule_busy_type/list', { pageTitle: 'Schedule Busy Types' });
     } catch (err){
@@ -69,8 +67,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'schedule_busy_typeData')){
             res.locals.schedule_busy_type = req.session.schedule_busy_typeData;
             delete req.session.schedule_busy_typeData;
@@ -84,7 +80,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const schedule_busy_type = await req.models.schedule_busy_type.get(id);
@@ -188,12 +183,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/:id', update);
 router.delete('/:id', remove);
 
 export default router;

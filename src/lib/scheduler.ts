@@ -84,7 +84,7 @@ function findSlot(scene, schedule){
 function scheduleScene(schedule, scene, data){
 
     for (const timeslot of schedule){
-        const currentScene =
+        //const currentScene =
     }
 }
 

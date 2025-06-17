@@ -970,26 +970,26 @@ router.get('/:id/cp', checkAllowedView, showCp);
 router.get('/:id/data', checkAllowedView, showData);
 router.get('/:id/audit', checkAllowedView, showAudits);
 router.get('/:id/pdf', checkAllowedView, showPdf);
-router.get('/:id/edit', checkAllowed, showEdit);
+router.get('/:id/edit', checkAllowedEdit, showEdit);
 router.post('/', create);
 router.post('/:id/clone', checkAllowedView, clone);
-router.put('/:id', checkAllowed, update);
+router.put('/:id', checkAllowedEdit, update);
 router.put('/:id/recalculate', permission('gm'), recalculate);
-router.delete('/:id', checkAllowed, remove);
+router.delete('/:id', checkAllowedEdit, remove);
 
 router.get('/:id/skill', checkAllowedView, showSkills);
-router.get('/:id/skill/add', checkAllowed, showAddSkillApi);
-router.get('/:id/skill/:skill_id/edit', checkAllowed, showEditSkillApi);
+router.get('/:id/skill/add', checkAllowedEdit, showAddSkillApi);
+router.get('/:id/skill/:skill_id/edit', checkAllowedEdit, showEditSkillApi);
 router.get('/:id/skill/:skill_id', checkAllowedView, showSkill);
-router.post('/:id/skill/', checkAllowed, addSkill);
-router.put('/:id/skill/:skill_id', checkAllowed, editSkill);
-router.delete('/:id/skill/:skill_id', checkAllowed, removeSkill);
+router.post('/:id/skill/', checkAllowedEdit, addSkill);
+router.put('/:id/skill/:skill_id', checkAllowedEdit, editSkill);
+router.delete('/:id/skill/:skill_id', checkAllowedEdit, removeSkill);
 
 router.get('/:id/source', checkAllowedView, showSources);
-router.get('/:id/source/add', checkAllowed, showAddSourceApi);
+router.get('/:id/source/add', checkAllowedEdit, showAddSourceApi);
 router.get('/:id/source/:source_id', checkAllowedView, showSource);
-router.post('/:id/source/', checkAllowed, addSource);
-router.delete('/:id/source/:source_id', checkAllowed, removeSource);
+router.post('/:id/source/', checkAllowedEdit, addSource);
+router.delete('/:id/source/:source_id', checkAllowedEdit, removeSource);
 
 router.put('/rebuild/:id');
 export default router;

@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 
@@ -63,8 +62,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'skill_tagData')){
             res.locals.skill_tag = req.session.skill_tagData;
             delete req.session.skill_tagData;
@@ -78,7 +75,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const skill_tag = await req.models.skill_tag.get(id);
@@ -183,11 +179,11 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/:id', update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

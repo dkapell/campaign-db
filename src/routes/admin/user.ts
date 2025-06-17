@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
 import permission from '../../lib/permission';
@@ -58,7 +57,6 @@ async function list(req, res, next){
 
 async function show(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
     try{
 
         const user = await req.models.user.get(req.campaign.id, id);
@@ -115,7 +113,6 @@ function showNew(req, res){
         current: 'New'
     };
 
-    res.locals.csrfToken = req.csrfToken();
     if (_.has(req.session, 'userData')){
         res.locals.user = req.session.userData;
         delete req.session.userData;
@@ -126,7 +123,6 @@ function showNew(req, res){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try {
         const user = await req.models.user.get(req.campaign.id, id);
@@ -475,17 +471,17 @@ router.use(function(req, res, next){
 
 router.get('/', permission('gm, documentation edit'), list);
 router.get('/gallery', permission('player'), gallery);
-router.get('/new', permission('admin'), csrf(), showNew);
+router.get('/new', permission('admin'), showNew);
 router.get('/revert', revert);
-router.get('/sign-s3', csrf(), signS3UserImage);
-router.get('/profile', permission('player'), csrf(), showEditProfile);
-router.get('/:id', permission('gm, documentation edit'), csrf(), show);
-router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
+router.get('/sign-s3', signS3UserImage);
+router.get('/profile', permission('player'), showEditProfile);
+router.get('/:id', permission('gm, documentation edit'), show);
+router.get('/:id/edit', permission('gm, documentation edit'), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
 router.get('/:id/characters', permission('gm'), getCharacterListApi);
-router.post('/', permission('admin'), csrf(), create);
-router.put('/profile', permission('player'), csrf(), updateProfile);
-router.put('/:id', permission('gm, documentation edit'), csrf(), update);
+router.post('/', permission('admin'), create);
+router.put('/profile', permission('player'), updateProfile);
+router.put('/:id', permission('gm, documentation edit'), update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
 import permission from '../../lib/permission';
@@ -245,7 +244,6 @@ async function showNew(req, res, next){
             res.locals.title += ' - New Skill';
         }
 
-        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id: req.campaign.id});
         res.locals.skill_usages = await req.models.skill_usage.find({campaign_id: req.campaign.id});
         res.locals.skill_tags = await req.models.skill_tag.find({campaign_id: req.campaign.id});
@@ -275,7 +273,6 @@ async function showNewApi(req, res, next){
     try{
 
         const doc = {
-            csrfToken: req.csrfToken(),
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),
@@ -329,7 +326,6 @@ async function showNewApi(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const skill = await req.models.skill.get(id);
@@ -381,7 +377,7 @@ async function showEditApi(req, res, next){
         }
         skill.users = _.pluck(await req.models.skill_user.find({skill_id: id}), 'user_id');
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             skill: skill,
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
@@ -802,16 +798,16 @@ router.use(function(req, res, next){
 
 router.get('/', permission('contrib'), list);
 router.get('/doc', listDoc);
-router.get('/new', permission('gm'), csrf(), showNew);
-router.get('/review', permission('gm'), csrf(), showReview);
-router.get('/validate', permission('gm'), csrf(), showValidate);
-router.get('/new/api',  permission('gm'), csrf(), showNewApi);
-router.get('/:id', permission('contrib'), csrf(), show);
-router.get('/:id/edit', permission('contrib'), csrf(),showEdit);
-router.get('/:id/edit/api',permission('contrib'),  csrf(),  showEditApi);
-router.post('/', permission('gm'), csrf(), create);
+router.get('/new', permission('gm'), showNew);
+router.get('/review', permission('gm'), showReview);
+router.get('/validate', permission('gm'), showValidate);
+router.get('/new/api',  permission('gm'), showNewApi);
+router.get('/:id', permission('contrib'), show);
+router.get('/:id/edit', permission('contrib'), showEdit);
+router.get('/:id/edit/api',permission('contrib'),   showEditApi);
+router.post('/', permission('gm'), create);
 router.post('/:id/review', permission('gm'), postReview);
-router.put('/:id', permission('contrib'), csrf(), update);
+router.put('/:id', permission('contrib'), update);
 router.put('/:id/advance', permission('admin'), advance);
 router.delete('/:id', permission('admin'), remove);
 

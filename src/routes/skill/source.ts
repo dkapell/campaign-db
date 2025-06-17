@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
 import permission from '../../lib/permission';
@@ -174,7 +173,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id:req.campaign.id});
         res.locals.skill_sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.providesTypes = skillHelper.getProvidesTypes('source');
@@ -201,7 +199,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const skill_source = await req.models.skill_source.get(id);
@@ -402,12 +399,12 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/new',  permission('gm'), csrf(), showNew);
-router.get('/:id', csrf(), show);
-router.get('/:id/doc', csrf(), showDoc);
-router.get('/:id/edit',  permission('gm'), csrf(),showEdit);
-router.post('/',  permission('gm'), csrf(), create);
-router.put('/:id',  permission('gm'), csrf(), update);
+router.get('/new',  permission('gm'), showNew);
+router.get('/:id', show);
+router.get('/:id/doc', showDoc);
+router.get('/:id/edit',  permission('gm'), showEdit);
+router.post('/',  permission('gm'), create);
+router.put('/:id',  permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

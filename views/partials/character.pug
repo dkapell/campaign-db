@@ -356,6 +356,7 @@ mixin characterTable(characters, type, forPlayer, showActive=false)
                                     role="button",
                                     title="Delete Character"
                                     data-bs-toggle="tooltip"
+                                    data-csrf=csrfToken
                                     url=`/character/${character.id}`
                                 )
                                     i.fas.fa-trash.fa-fw

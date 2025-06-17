@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import mapHelper from '../lib/mapHelper';
@@ -107,8 +106,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'mapData')){
             res.locals.map = req.session.mapData;
             delete req.session.mapData;
@@ -123,8 +120,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
-
     try{
         const map = await req.models.map.get(id);
         if (!map || map.campaign_id !== req.campaign.id){
@@ -247,11 +242,11 @@ router.use(function(req, res, next){
 
 router.get('/', showCampaignMaps);
 router.get('/list', permission('contrib'), list);
-router.get('/new', permission('gm'), csrf(), showNew);
+router.get('/new', permission('gm'), showNew);
 router.get('/:id', show);
-router.get('/:id/edit', permission('gm'), csrf(),showEdit);
-router.post('/', permission('gm'), csrf(), create);
-router.put('/:id', permission('gm'), csrf(), update);
+router.get('/:id/edit', permission('gm'), showEdit);
+router.post('/', permission('gm'), create);
+router.put('/:id', permission('gm'), update);
 router.delete('/:id', permission('gm'), remove);
 
 export default router;

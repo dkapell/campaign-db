@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
 import permission from '../lib/permission';
@@ -14,7 +13,6 @@ async function list(req, res, next){
         current: req.campaign.renames.post_event_survey.plural
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ` - ${req.campaign.renames.post_event_survey.plural}`;
         const events:EventData[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         const pastEvents = events.filter( (event) => { return event.end_time <= new Date(); })
@@ -122,8 +120,8 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/:id', csrf(), permission('contrib'), show);
+router.get('/', list);
+router.get('/:id', permission('contrib'), show);
 
 
 export default router;

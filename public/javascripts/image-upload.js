@@ -124,10 +124,13 @@ function hideProgressBar($container){
     $container.find('.progress-bar-label').text('');
 }
 
-async function markFileUploaded(url){
+async function markFileUploaded(data){
     try {
-        const request = await fetch(url, {
-            method:'PUT'
+        const request = await fetch(data.url, {
+            method:'PUT',
+            headers:{
+                'CSRF-Token': data.csrf
+            }
         });
         return request.json();
     } catch (err){

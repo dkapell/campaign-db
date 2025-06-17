@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import async from 'async';
@@ -18,7 +17,6 @@ async function list(req, res, next){
         return res.redirect('/');
     }
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ` - ${req.campaign.renames.character_point.plural}`;
 
         const user = req.session.activeUser;
@@ -71,7 +69,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
         const users = await req.models.user.find(req.campaign.id);
         res.locals.users = users.filter((user) => {
             return user.type === 'player';
@@ -98,7 +95,6 @@ async function showEdit(req, res, next){
         return res.redirect('/');
     }
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const grant = await req.models.cp_grant.get(id);
@@ -265,14 +261,14 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id',  permission('gm, cp grant'), csrf(), showEdit);
-router.get('/:id/edit', permission('gm, cp grant'), csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', permission('gm, cp grant'), csrf(), update);
-router.put('/:id/approve', permission('gm, cp grant'), csrf(), approveGrant);
-router.put('/:id/deny', permission('gm, cp grant'), csrf(), denyGrant);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id',  permission('gm, cp grant'), showEdit);
+router.get('/:id/edit', permission('gm, cp grant'), showEdit);
+router.post('/', create);
+router.put('/:id', permission('gm, cp grant'), update);
+router.put('/:id/approve', permission('gm, cp grant'), approveGrant);
+router.put('/:id/deny', permission('gm, cp grant'), denyGrant);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

@@ -17,7 +17,7 @@
     "config": "^3.3.9",
     "connect-redis": "7.1",
     "cookie-parser": "^1.4.6",
-    "csurf": "^1.11.0",
+    "csrf-sync": "^4.2.1",
     "csv": "^6.3.6",
     "csv-stringify-as-promised": "^3.0.1",
     "debug": "^4.3.4",

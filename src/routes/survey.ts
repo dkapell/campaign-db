@@ -1,6 +1,5 @@
 import async from 'async';
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import surveyHelper from '../lib/surveyHelper';
@@ -14,7 +13,6 @@ async function list(req, res, next){
         current: 'Surveys'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.surveys = await req.models.survey.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Surveys';
         res.render('survey/list', { pageTitle: 'Surveys' });
@@ -82,8 +80,6 @@ async function showNew(req, res, next){
             };
         }
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'surveyData')){
             res.locals.survey = req.session.surveyData;
             delete req.session.surveyData;
@@ -97,8 +93,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
-
     try{
         const survey = await req.models.survey.get(id);
         if (!survey || survey.campaign_id !== req.campaign.id){
@@ -224,12 +218,12 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), show);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', show);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/:id', update);
 router.delete('/:id', remove);
 
 export default router;

@@ -53,9 +53,10 @@ block content
 
                         td.text-end
                             a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
-                                role="button",
-                                url=`/documentation/${documentation.id}`,
+                                role="button"
+                                url=`/documentation/${documentation.id}`
                                 data-back='/documentation'
+                                data-csrf=csrfToken
                             )
                                 i.fas.fa-trash.fa-fw
 

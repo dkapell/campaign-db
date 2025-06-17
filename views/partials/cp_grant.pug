@@ -116,5 +116,6 @@ mixin staffGrants(grants)
                                     title='Delete'
                                     url=`/cp_grant/${grant.id}`,
                                     data-back='/cp_grant'
+                                    data-csrf=csrfToken
                                 )
                                     i.fas.fa-trash.fa-fw

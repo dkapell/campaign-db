@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import moment from 'moment';
 import permission from '../../lib/permission';
@@ -193,7 +192,7 @@ router.use(function(req, res, next){
 router.get('/', list);
 router.get('/skill', listSkillAudits);
 router.get('/query', query);
-router.get('/:id', csrf(), show);
+router.get('/:id', show);
 
 
 export default router;

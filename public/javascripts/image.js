@@ -16,7 +16,13 @@ async function deleteImage(e){
     e.stopPropagation();
     const $this = $(this);
     const url = $this.attr('url');
-    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
+    const result = await fetch(url, {
+        method:'DELETE',
+        headers: {
+            'CSRF-Token': $this.data('csrf')
+        },
+        redirect:'manual'
+    });
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     }

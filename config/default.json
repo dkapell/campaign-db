@@ -88,5 +88,11 @@
         "secretKey": null,
         "publishableKey": null,
         "endpointSecret": null
+    },
+    "csrf":{
+        "noProtection": [
+            "/order/create-checkout-session"
+        ]
     }
+
 }

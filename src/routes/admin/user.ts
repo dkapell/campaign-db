@@ -153,8 +153,6 @@ async function showEdit(req, res, next){
 }
 
 async function showEditProfile(req, res, next){
-    res.locals.csrfToken = req.csrfToken();
-
     try {
         const user = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
         user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
@@ -391,7 +389,10 @@ async function signS3UserImage(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/admin/upload/${image.upload.id}/uploaded`
+                postUpload: {
+                    url: `/admin/upload/${image.upload.id}/uploaded`,
+                    csrfToken: res.locals.csrfToken
+
             },
         });
     }

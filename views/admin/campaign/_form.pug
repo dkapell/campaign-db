@@ -504,11 +504,13 @@ fieldset.mb-2.border.p-2.rounded
 
                     button.btn.btn-outline-primary#stripe-signup-btn(
                         data-url='/admin/stripe/account'
+                        data-csrf=csrfToken
                         style=campaign.stripe_account_id?'display:none':''
                     ) Create Stripe Account
 
                     button.btn.btn-outline-primary#stripe-add-info-btn(
                         data-url='/admin/stripe/account_link'
+                        data-csrf=csrfToken
                         style=campaign.stripe_account_id && !campaign.stripe_account_ready?'':"display:none"
                     ) Enter Stripe Info
 

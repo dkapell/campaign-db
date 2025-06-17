@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
 import permission from '../../lib/permission';
@@ -144,7 +143,6 @@ async function show(req, res, next){
 
         users = users.filter(user => {return user.type !== 'none'});
         res.locals.users = _.sortBy(users, 'typeForDisplay');
-        res.locals.csrfToken = req.csrfToken();
         res.locals.event = event;
         res.locals.title += ` - Event - ${event.name}`;
         res.render('event/show');
@@ -215,8 +213,6 @@ async function showNew(req, res, next){
             };
         }
 
-        res.locals.csrfToken = req.csrfToken();
-
         res.locals.surveys = await async.parallel({
             pre: async function(){
                 return req.models.survey.find({campaign_id:req.campaign.id, type:'registration'});
@@ -241,7 +237,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         let event = await req.models.event.get(id);
@@ -513,7 +508,6 @@ async function checkoutEvent(req, res){
         await orderHelper.emptyOrder(req.campaign.id, req.session.activeUser.id);
         await orderHelper.addItemsToOrder(req.campaign.id, req.session.activeUser.id, items);
         res.redirect(`/order/checkout?back=/event/${id}`);
-        //res.redirect(await orderHelper.checkout(order.id, `/event/${id}`));
     } catch (err){
         console.trace(err)
         req.flash('error', 'Payment Error: ' + err.message);
@@ -563,36 +557,36 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/new', csrf(), permission('gm'), showNew);
-router.get('/:id', csrf(), show);
-router.get('/:id/edit', csrf(), permission('gm'), showEdit);
-router.get('/:id/export', csrf(), permission('contrib, registration view'), attendanceRoutes.export);
-router.get('/:id/export_survey', csrf(), permission('contrib'), postEventSurveyRoutes.export);
-router.get('/:id/pdf', csrf(), permission('contrib'), exportPlayerPdfs);
+router.get('/new', permission('gm'), showNew);
+router.get('/:id', show);
+router.get('/:id/edit', permission('gm'), showEdit);
+router.get('/:id/export', permission('contrib, registration view'), attendanceRoutes.export);
+router.get('/:id/export_survey', permission('contrib'), postEventSurveyRoutes.export);
+router.get('/:id/pdf', permission('contrib'), exportPlayerPdfs);
 router.get('/:id/checkout', checkoutEvent);
-router.post('/', csrf(), permission('gm'), create);
-router.put('/:id', csrf(), permission('gm'), update);
+router.post('/', permission('gm'), create);
+router.put('/:id', permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);
-router.put('/:id/grant_cp', csrf(), permission('gm'), grantAttendanceCp);
+router.put('/:id/grant_cp', permission('gm'), grantAttendanceCp);
 
-router.get('/:id/checkin', csrf(), permission('contrib, registration view'), checkinRoutes.show);
-router.post('/:id/checkin/:attendanceId', csrf(), permission('contrib, checkin edit'), checkinRoutes.checkin);
-router.post('/:id/uncheckin/:attendanceId', csrf(), permission('contrib, checkin edit'), checkinRoutes.uncheckin);
+router.get('/:id/checkin', permission('contrib, registration view'), checkinRoutes.show);
+router.post('/:id/checkin/:attendanceId', permission('contrib, checkin edit'), checkinRoutes.checkin);
+router.post('/:id/uncheckin/:attendanceId', permission('contrib, checkin edit'), checkinRoutes.uncheckin);
 
-router.get('/:id/register', csrf(), attendanceRoutes.showNew);
-router.post('/:id/register', csrf(), attendanceRoutes.create);
-router.post('/:id/not_attending', csrf(), attendanceRoutes.createNot);
-router.get('/:id/register/:attendanceId', csrf(), attendanceRoutes.showEdit);
-router.put('/:id/register/:attendanceId', csrf(), attendanceRoutes.update);
-router.delete('/:id/register/:attendanceId', csrf(), attendanceRoutes.remove);
+router.get('/:id/register', attendanceRoutes.showNew);
+router.post('/:id/register', attendanceRoutes.create);
+router.post('/:id/not_attending', attendanceRoutes.createNot);
+router.get('/:id/register/:attendanceId', attendanceRoutes.showEdit);
+router.put('/:id/register/:attendanceId', attendanceRoutes.update);
+router.delete('/:id/register/:attendanceId', attendanceRoutes.remove);
 
-router.get('/:id/post_event/', csrf(), postEventSurveyRoutes.show);
-router.get('/:id/post_event/:attendanceId', csrf(), postEventSurveyRoutes.show);
-router.get('/:id/post_event/:attendanceId/addendum', csrf(), postEventSurveyRoutes.showAddendum);
-router.put('/:id/post_event/:attendanceId', csrf(), postEventSurveyRoutes.submit);
-router.put('/:id/post_event/:attendanceId/api', csrf(), postEventSurveyRoutes.saveApi);
-router.put('/:id/post_event/:attendanceId/addendum', csrf(), postEventSurveyRoutes.submitAddendum);
-router.put('/:id/post_event/:attendanceId/addendum/api', csrf(), postEventSurveyRoutes.saveAddendumApi);
+router.get('/:id/post_event/', postEventSurveyRoutes.show);
+router.get('/:id/post_event/:attendanceId', postEventSurveyRoutes.show);
+router.get('/:id/post_event/:attendanceId/addendum', postEventSurveyRoutes.showAddendum);
+router.put('/:id/post_event/:attendanceId', postEventSurveyRoutes.submit);
+router.put('/:id/post_event/:attendanceId/api', postEventSurveyRoutes.saveApi);
+router.put('/:id/post_event/:attendanceId/addendum', postEventSurveyRoutes.submitAddendum);
+router.put('/:id/post_event/:attendanceId/addendum/api', postEventSurveyRoutes.saveAddendumApi);
 
 router.use(function(req, res, next){
     if (!req.campaign.display_schedule){

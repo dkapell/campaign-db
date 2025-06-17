@@ -20,6 +20,9 @@ async function stripeSignup(e){
     const url = $(this).data('url');
     const response = await fetch(url, {
         method: 'POST',
+        headers: {
+            'CSRF-Token': $(this).data('csrf')
+        },
     });
     const json = await response.json();
 
@@ -52,6 +55,7 @@ async function stripeCreateAccountLinkaAndRedirect(e){
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'CSRF-Token': $(this).data('csrf')
         },
         body: JSON.stringify({
             account: $('#stripe-account-id').val(),

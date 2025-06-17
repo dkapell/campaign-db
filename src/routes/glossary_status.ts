@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 
@@ -13,7 +12,6 @@ async function list(req, res, next){
         current: 'Statuses'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Glossary Statuses';
         res.render('glossary_status/list', { pageTitle: 'Glossary Statuses' });
@@ -66,8 +64,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'glossary_statusData')){
             res.locals.glossary_status = req.session.glossary_statusData;
             delete req.session.glossary_statusData;
@@ -81,7 +77,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const glossary_status = await req.models.glossary_status.get(id);
@@ -202,13 +197,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/order', csrf(), reorder);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/order', reorder);
+router.put('/:id', update);
 router.delete('/:id', remove);
 
 export default router;

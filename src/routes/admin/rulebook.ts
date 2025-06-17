@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import config from 'config';
 import moment from 'moment';
@@ -76,8 +75,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'rulebookData')){
             res.locals.rulebook = req.session.rulebookData;
             delete req.session.rulebookData;
@@ -92,8 +89,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
-
     try{
         const rulebook = await req.models.rulebook.get(id);
         if (!rulebook || rulebook.campaign_id !== req.campaign.id){
@@ -233,14 +228,14 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/order', csrf(), reorder);
-router.put('/:id', csrf(), update);
-router.put('/:id/rebuild', csrf(), rebuild);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/order', reorder);
+router.put('/:id', update);
+router.put('/:id/rebuild', rebuild);
 router.delete('/:id', remove);
 
 export default router;

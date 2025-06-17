@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 import uploadHelper from '../../lib/uploadHelper';
@@ -15,7 +14,6 @@ async function list(req, res, next){
     };
     try {
         res.locals.fonts = await req.models.font.find({campaign_id: req.campaign.id});
-        res.locals.csrfToken = req.csrfToken();
         res.render('admin/font/list', { pageTitle: 'Fonts' });
     } catch (err){
         next(err);
@@ -54,7 +52,6 @@ async function showNew(req, res, next){
             ],
             current: 'New'
         };
-        res.locals.csrfToken = req.csrfToken();
         if (_.has(req.session, 'fontData')){
             res.locals.font = req.session.fontData;
             delete req.session.fontData;
@@ -67,8 +64,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
-
     try{
         const font = await req.models.font.get(id);
         if (!font || font.campaign_id !== req.campaign.id){
@@ -161,9 +156,13 @@ async function remove(req, res, next){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not delete record from different campaign');
         }
-        await req.models.upload.delete(current.upload_id);
-        const bucket = uploadHelper.getBucket(current.upload);
-        await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload));
+
+        if (current.type === 'user'){
+            await req.models.upload.delete(current.upload_id);
+            const bucket = uploadHelper.getBucket(current.upload);
+            await uploadHelper.remove(bucket, uploadHelper.getKey(current.upload));
+        }
+        await req.models.font.delete(id);
         req.flash('success', 'Removed Font');
         res.redirect('/admin/font');
     } catch(err) {
@@ -199,7 +198,10 @@ async function signS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(font.upload),
                 objectId: font.id,
-                postUpload: `/admin/upload/${font.upload.id}/uploaded`
+                postUpload: {
+                    url: `/admin/upload/${font.upload.id}/uploaded`,
+                    csrf: res.locals.csrfToken
+                }
             },
         });
     }
@@ -216,14 +218,14 @@ router.use(function(req, res, next){
 });
 
 router.use(permission('gm'));
-router.get('/', csrf(), list);
+router.get('/', list);
 router.get('/list', listApi);
-router.get('/new', csrf(), showNew);
-router.get('/sign-s3', csrf(), signS3);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(), showEdit);
-router.post('/', csrf(), create);
-router.put('/:id', csrf(), update);
+router.get('/new', showNew);
+router.get('/sign-s3', signS3);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/:id', update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

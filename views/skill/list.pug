@@ -4,6 +4,7 @@ include ../partials/skills
 include ../partials/editor
 
 block content
+    input#csrfToken(type='hidden' value=csrfToken)
     .row.my-2
         .col-auto
             h3.d-inline.me-5.align-middle Skills

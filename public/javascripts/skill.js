@@ -351,7 +351,11 @@ async function deleteItem(e){
     e.stopPropagation();
     const $this = $(this);
     const url = $this.attr('url');
-    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
+    const headers = {};
+    if ($this.data('csrf')){
+        headers['CSRF-Token'] = $this.data('csrf');
+    }
+    const result = await fetch(url, {method:'DELETE', redirect:'manual', headers:headers});
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     } else {
@@ -390,6 +394,7 @@ async function editSkill(id){
         if (type === 'gm') { return isGM; }
         return false;
     };
+    data.csrfToken = $('#csrfToken').val();
 
     $modal.find('.modal-title').text(`Edit Skill: ${data.skill.name}`);
     $modal.find('.modal-body').html(editFormTemplate(data));
@@ -435,6 +440,7 @@ async function newSkill(e){
         if (type === 'gm') { return isGM; }
         return false;
     };
+    data.csrfToken = $('#csrfToken').val();
 
     $modal.find('.modal-title').text('New Skill');
     $modal.find('.modal-body').html(newFormTemplate(data));
@@ -487,8 +493,7 @@ async function submitModal(e) {
     for (const pair of new FormData(form)) {
         data.append(pair[0], pair[1]);
     }
-
-    const request = await fetch(form.action,{method:form.method, body: data});
+    const request = await fetch(form.action, {method: form.method, body: data });
     const result = await request.json();
 
     if (!result.success){
@@ -729,6 +734,7 @@ function prepSkillForm($form){
     if (!$form.length) {
         return;
     }
+
     $form.find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,

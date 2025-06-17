@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
 import createError from 'http-errors';
@@ -17,7 +16,6 @@ async function list(req, res, next){
         current: 'Characters'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Characters';
 
         const user = req.session.activeUser;
@@ -221,7 +219,6 @@ async function showNew(req, res, next){
         res.locals.users = (await req.models.user.find(req.campaign.id)).filter(user => {
             return user.type !== 'none';
         });
-        res.locals.csrfToken = req.csrfToken();
 
         if (_.has(req.session, 'characterData')){
             res.locals.character = req.session.characterData;
@@ -238,7 +235,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const character = await req.models.character.get(id);
@@ -468,7 +464,7 @@ async function showSources(req, res, next){
         }
 
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             sources: await character.sources(),
             character_id: characterId,
             renames: req.campaign.renames
@@ -490,7 +486,7 @@ async function showSkills(req, res, next){
         }
 
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             skills: await character.skills(true),
             character_id: characterId,
             renames: req.campaign.renames
@@ -512,7 +508,7 @@ async function showAddSkillApi(req, res, next){
         }
 
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             possibleSkills: await character.possibleSkills(req.session.activeUser.id),
             character_skill:null,
             renames: req.campaign.renames
@@ -557,7 +553,7 @@ async function showEditSkillApi(req, res, next){
         character_skill.provides_data = await character.skillProvides(skillId);
 
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             possibleSkills: [],
             character_skill: character_skill,
             renames: req.campaign.renames
@@ -782,7 +778,7 @@ async function showAddSourceApi(req, res, next){
         }
 
         const doc = {
-            csrfToken: req.csrfToken(),
+            csrfToken: res.locals.csrfToken,
             possibleSources: await character.possibleSources(req.session.activeUser.id),
             character_skill_source: null,
             renames: req.campaign.renames
@@ -965,35 +961,35 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/',csrf(), list);
-router.get('/new', csrf(), showNew);
-router.put('/recalculate', csrf(), permission('gm'), recalculateAll);
-router.get('/active', csrf(), showCurrent);
-router.get('/:id', csrf(), checkAllowedView, show);
-router.get('/:id/cp', csrf(), checkAllowedView, showCp);
-router.get('/:id/data', csrf(), checkAllowedView, showData);
-router.get('/:id/audit', csrf(), checkAllowedView, showAudits);
-router.get('/:id/pdf', csrf(), checkAllowedView, showPdf);
-router.get('/:id/edit', csrf(), checkAllowedEdit, showEdit);
-router.post('/', csrf(), create);
-router.post('/:id/clone', checkAllowedView, csrf(), clone);
-router.put('/:id', csrf(), checkAllowedEdit, update);
-router.put('/:id/recalculate', csrf(), permission('gm'), recalculate);
-router.delete('/:id', checkAllowedEdit, remove);
+router.get('/',list);
+router.get('/new', showNew);
+router.put('/recalculate', permission('gm'), recalculateAll);
+router.get('/active', showCurrent);
+router.get('/:id', checkAllowedView, show);
+router.get('/:id/cp', checkAllowedView, showCp);
+router.get('/:id/data', checkAllowedView, showData);
+router.get('/:id/audit', checkAllowedView, showAudits);
+router.get('/:id/pdf', checkAllowedView, showPdf);
+router.get('/:id/edit', checkAllowed, showEdit);
+router.post('/', create);
+router.post('/:id/clone', checkAllowedView, clone);
+router.put('/:id', checkAllowed, update);
+router.put('/:id/recalculate', permission('gm'), recalculate);
+router.delete('/:id', checkAllowed, remove);
 
-router.get('/:id/skill', csrf(), checkAllowedView, showSkills);
-router.get('/:id/skill/add', csrf(), checkAllowedEdit, showAddSkillApi);
-router.get('/:id/skill/:skill_id/edit', csrf(), checkAllowedEdit, showEditSkillApi);
-router.get('/:id/skill/:skill_id', csrf(), checkAllowedView, showSkill);
-router.post('/:id/skill/', csrf(), checkAllowedEdit, addSkill);
-router.put('/:id/skill/:skill_id', csrf(), checkAllowedEdit, editSkill);
-router.delete('/:id/skill/:skill_id', csrf(), checkAllowedEdit, removeSkill);
+router.get('/:id/skill', checkAllowedView, showSkills);
+router.get('/:id/skill/add', checkAllowed, showAddSkillApi);
+router.get('/:id/skill/:skill_id/edit', checkAllowed, showEditSkillApi);
+router.get('/:id/skill/:skill_id', checkAllowedView, showSkill);
+router.post('/:id/skill/', checkAllowed, addSkill);
+router.put('/:id/skill/:skill_id', checkAllowed, editSkill);
+router.delete('/:id/skill/:skill_id', checkAllowed, removeSkill);
 
-router.get('/:id/source', csrf(), checkAllowedView, showSources);
-router.get('/:id/source/add', csrf(), checkAllowedEdit, showAddSourceApi);
-router.get('/:id/source/:source_id', csrf(), checkAllowedView, showSource);
-router.post('/:id/source/', csrf(), checkAllowedEdit, addSource);
-router.delete('/:id/source/:source_id', csrf(), checkAllowedEdit, removeSource);
+router.get('/:id/source', checkAllowedView, showSources);
+router.get('/:id/source/add', checkAllowed, showAddSourceApi);
+router.get('/:id/source/:source_id', checkAllowedView, showSource);
+router.post('/:id/source/', checkAllowed, addSource);
+router.delete('/:id/source/:source_id', checkAllowed, removeSource);
 
 router.put('/rebuild/:id');
 export default router;

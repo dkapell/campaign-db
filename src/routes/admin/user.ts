@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import _ from 'underscore';
 import permission from '../../lib/permission';
@@ -58,7 +57,6 @@ async function list(req, res, next){
 
 async function show(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
     try{
 
         const user = await req.models.user.get(req.campaign.id, id);
@@ -116,7 +114,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
         if (_.has(req.session, 'userData')){
             res.locals.user = req.session.userData;
             delete req.session.userData;
@@ -131,7 +128,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try {
         const user = await req.models.user.get(req.campaign.id, id);
@@ -163,8 +159,6 @@ async function showEdit(req, res, next){
 }
 
 async function showEditProfile(req, res, next){
-    res.locals.csrfToken = req.csrfToken();
-
     try {
         const user = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
         user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
@@ -425,7 +419,10 @@ async function signS3UserImage(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/admin/upload/${image.upload.id}/uploaded`
+                postUpload: {
+                    url: `/admin/upload/${image.upload.id}/uploaded`,
+                    csrf: res.locals.csrfToken
+                }
             },
         });
     }
@@ -505,17 +502,17 @@ router.use(function(req, res, next){
 
 router.get('/', permission('gm, documentation edit'), list);
 router.get('/gallery', permission('player'), gallery);
-router.get('/new', permission('admin'), csrf(), showNew);
+router.get('/new', permission('admin'), showNew);
 router.get('/revert', revert);
-router.get('/sign-s3', csrf(), signS3UserImage);
-router.get('/profile', permission('player'), csrf(), showEditProfile);
-router.get('/:id', permission('gm, documentation edit'), csrf(), show);
-router.get('/:id/edit', permission('gm, documentation edit'), csrf(), showEdit);
+router.get('/sign-s3', signS3UserImage);
+router.get('/profile', permission('player'), showEditProfile);
+router.get('/:id', permission('gm, documentation edit'), show);
+router.get('/:id/edit', permission('gm, documentation edit'), showEdit);
 router.get('/:id/assume', permission('gm'), assume);
 router.get('/:id/characters', permission('gm'), getCharacterListApi);
-router.post('/', permission('admin'), csrf(), create);
-router.put('/profile', permission('player'), csrf(), updateProfile);
-router.put('/:id', permission('gm, documentation edit'), csrf(), update);
+router.post('/', permission('admin'), create);
+router.put('/profile', permission('player'), updateProfile);
+router.put('/:id', permission('gm, documentation edit'), update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

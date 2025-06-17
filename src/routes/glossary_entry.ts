@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import querystring from 'querystring';
@@ -223,7 +222,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
         res.locals.glossary_statuses = await req.models.glossary_status.find({campaign_id:req.campaign.id});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'glossary'});
 
@@ -240,7 +238,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const glossary_entry = await req.models.glossary_entry.get(id);
@@ -385,16 +382,16 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/new', permission('gm'), csrf(), showNew);
-router.get('/search', csrf(), search);
-router.get('/review', permission('contrib'), csrf(), listReview);
-router.get('/tag/:id*', csrf(), listTag);
-router.get('/status/:status', permission('contrib'), csrf(), listStatus);
-router.get('/:id/edit', permission('gm'), csrf(),showEdit);
-router.get('/:id*', csrf(), show);
-router.post('/', permission('gm'), csrf(), create);
+router.get('/new', permission('gm'), showNew);
+router.get('/search', search);
+router.get('/review', permission('contrib'), listReview);
+router.get('/tag/:id*', listTag);
+router.get('/status/:status', permission('contrib'), listStatus);
+router.get('/:id/edit', permission('gm'), showEdit);
+router.get('/:id*', show);
+router.post('/', permission('gm'), create);
 router.post('/preview', permission('gm'), renderPreview);
-router.put('/:id', permission('gm'), csrf(), update);
+router.put('/:id', permission('gm'), update);
 router.delete('/:id', permission('gm'), remove);
 
 export default router;

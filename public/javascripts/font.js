@@ -86,10 +86,13 @@ async function uploadFile(file, signedRequest){
     }
 }
 
-async function markFileUploaded(url){
+async function markFileUploaded(data){
     try {
-        await fetch(url, {
+        await fetch(data.url, {
             method:'PUT',
+            headers:{
+                'CSRF-Token': data.csrf
+            }
         });
         return true;
     } catch (err){

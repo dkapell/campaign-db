@@ -229,12 +229,14 @@ mixin skillList(skills, showSource, backto)
                                                 style="display:none"
                                                 role="button",
                                                 url=`/skill/${skill.id}/advance`
+                                                data-csrf=csrfToken
                                             )
                                                 i.fas.fa-arrow-right.fa-fw
                                         a.btn.btn-outline-danger.btn-xs.delete-btn.ms-1(
                                             style="display:none"
                                             role="button",
                                             url=`/skill/${skill.id}`
+                                            data-csrf=csrfToken
                                         )
                                             i.fas.fa-trash.fa-fw
 

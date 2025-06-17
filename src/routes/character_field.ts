@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 
@@ -12,7 +11,6 @@ async function list(req, res, next){
         current: 'Character Fields'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.custom_fields = await req.models.custom_field.find({campaign_id:req.campaign.id, location:'character'});
         res.locals.title += ' - Character Fields';
         res.render('character_field/list', { pageTitle: 'Character Fields' });
@@ -60,8 +58,6 @@ async function showNew(req, res, next){
             res.locals.title += ' - New Character Field';
         }
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'character_fieldData')){
             res.locals.custom_field = req.session.character_fieldData;
             delete req.session.character_fieldData;
@@ -75,7 +71,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const custom_field = await req.models.custom_field.get(id);
@@ -244,13 +239,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/order', csrf(), reorder);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/order', reorder);
+router.put('/:id', update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

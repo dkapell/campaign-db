@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import permission from '../../lib/permission';
 import uploadHelper from '../../lib/uploadHelper';
@@ -14,7 +13,6 @@ async function list(req, res, next){
         current: 'Uploads'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         const uploads = await req.models.upload.find({campaign_id: req.campaign.id});
         res.locals.uploads = await async.map(uploads, async (upload) => {
             if (upload.user_id){
@@ -85,7 +83,10 @@ async function signImageS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/admin/upload/${image.upload.id}/uploaded`
+                postUpload: {
+                    url: `/admin/upload/${image.upload.id}/uploaded`,
+                    csrf: res.locals.csrfToken
+                }
             },
         });
     }
@@ -188,7 +189,7 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), permission('admin'), list);
+router.get('/', permission('admin'), list);
 router.get('/sign-image', signImageS3);
 router.get('/:id', getUpload);
 router.put('/:id/uploaded', markUploadedApi)

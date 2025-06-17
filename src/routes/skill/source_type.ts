@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 
@@ -13,7 +12,6 @@ async function list(req, res, next){
         current: 'Source Types'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.skill_source_types = await req.models.skill_source_type.find({campaign_id: req.campaign.id});
         res.locals.title += ' - Skill Source Types';
         res.render('skill_source_type/list', { pageTitle: 'Skill Source Types' });
@@ -65,8 +63,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'skill_source_typeData')){
             res.locals.skill_source_type = req.session.skill_source_typeData;
             delete req.session.skill_source_typeData;
@@ -80,7 +76,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const skill_source_type = await req.models.skill_source_type.get(id);
@@ -204,13 +199,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(), list);
-router.get('/new', csrf(), showNew);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.post('/', csrf(), create);
-router.put('/order', csrf(), reorder);
-router.put('/:id', csrf(), update);
+router.get('/', list);
+router.get('/new', showNew);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.post('/', create);
+router.put('/order', reorder);
+router.put('/:id', update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

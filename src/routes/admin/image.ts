@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../../lib/permission';
 import uploadHelper from '../../lib/uploadHelper';
@@ -53,7 +52,6 @@ function showNew(req, res){
         ],
         current: 'New'
     };
-    res.locals.csrfToken = req.csrfToken();
     if (_.has(req.session, 'imageData')){
         res.locals.image = req.session.imageData;
         delete req.session.imageData;
@@ -63,7 +61,6 @@ function showNew(req, res){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const image = await req.models.image.get(id);
@@ -175,7 +172,10 @@ async function signS3(req, res, next){
                 signedRequest: signedRequest,
                 url: uploadHelper.getUrl(image.upload),
                 objectId: image.id,
-                postUpload: `/admin/upload/${image.upload.id}/uploaded`
+                postUpload: {
+                    url: `/admin/upload/${image.upload.id}/uploaded`,
+                    csrf: res.locals.csrfToken
+                }
             },
         });
     }
@@ -194,10 +194,10 @@ router.use(function(req, res, next){
 router.use(permission('gm'));
 router.get('/', list);
 router.get('/list', listApi);
-router.get('/new', csrf(), showNew);
+router.get('/new', showNew);
 router.get('/sign-s3', signS3);
-router.get('/:id', csrf(), showEdit);
-router.put('/:id', csrf(), update);
+router.get('/:id', showEdit);
+router.put('/:id', update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

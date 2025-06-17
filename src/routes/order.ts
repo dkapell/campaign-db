@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import permission from '../lib/permission';
 import orderHelper from '../lib/orderHelper';
@@ -93,7 +92,6 @@ async function show(req, res, next){
             };
         }
         res.locals.title += ` - Order #${order.id}`;
-        res.locals.csrfToken = req.csrfToken();
         res.render('order/show');
 
     } catch (err){
@@ -177,9 +175,9 @@ router.use(function(req, res, next){
 router.get('/', list);
 router.get('/all', permission('gm, orders view'), listAll);
 router.get('/checkout', checkout);
-router.get('/:id', csrf(), show);
+router.get('/:id', show);
 router.post('/create-checkout-session', createCheckoutSession);
-router.delete('/:id', csrf(), permission('admin'), deleteOrder);
+router.delete('/:id', permission('admin'), deleteOrder);
 
 
 export default router;

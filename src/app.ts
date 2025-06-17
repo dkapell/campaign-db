@@ -16,6 +16,7 @@ import moment from 'moment-timezone';
 import { marked } from 'marked';
 import methodOverride from 'method-override';
 import {OAuth2Strategy} from 'passport-google-oauth';
+import {csrfSync} from 'csrf-sync';
 
 import models from './lib/models';
 import permission from './lib/permission';
@@ -69,6 +70,7 @@ import adminFontRouter from './routes/admin/font';
 import adminAuditRouter from './routes/admin/audit';
 import adminImageRouter from './routes/admin/image';
 import adminStripeRouter from './routes/admin/stripe';
+
 import adminTimeslotRouter from './routes/admin/timeslot';
 import adminLocationRouter from './routes/admin/location';
 import adminTagRouter from './routes/admin/tag';
@@ -165,6 +167,34 @@ if (config.get('app.sessionType') === 'redis'){
 
 app.use(session(sessionConfig));
 app.use(flash());
+
+
+const {
+    generateToken,
+    csrfSynchronisedProtection,
+} = csrfSync({
+    skipCsrfProtection: (req) => {
+        const urls: string[] = config.get('csrf.noProtection');
+        return (_.indexOf(urls, req.originalUrl) !== -1);
+    },
+    getTokenFromRequest: (req) => {
+    // If the incoming request is a multipart content type
+    // then get the token from the body.
+        if (req.body && _.has(req.body, '_csrf')){
+            return req.body._csrf;
+        }
+
+        if (req.body && _.has(req.body, 'csrf-token')){
+            return req.body['csrf-token'];
+        }
+        // Otherwise use the header for all other request types
+        if (_.has(req.headers, 'x-csrf-token')){
+            return req.headers['x-csrf-token'];
+        }
+        return req.header('CSRF-token');
+    },
+});
+
 
 app.use(function(req, res, next){
     req.models = models;
@@ -290,6 +320,7 @@ app.use(async function(req, res, next){
     res.locals._ = _;
     res.locals.moment = moment;
     res.locals.marked = marked;
+    res.locals.csrfToken = generateToken(req);
     res.locals.capitalize = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
@@ -315,6 +346,7 @@ app.use(async function(req, res, next){
     next();
 });
 
+app.use(csrfSynchronisedProtection)
 app.use(uploadHelper.middleware());
 
 app.use('/', indexRouter);

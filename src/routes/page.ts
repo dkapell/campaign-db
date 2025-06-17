@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 
@@ -13,7 +12,6 @@ async function list(req, res, next){
         current: 'Pages'
     };
     try {
-        res.locals.csrfToken = req.csrfToken();
         res.locals.pages = await req.models.page.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Pages';
         res.render('page/list', { pageTitle: 'Pages' });
@@ -52,7 +50,6 @@ async function show(req, res, next){
         if (page.menu){
             res.locals.siteSection=page.menu;
         }
-        res.locals.csrfToken = req.csrfToken();
         res.locals.page = page;
         res.locals.title += ` - ${page.name}`;
         res.render('page/show');
@@ -105,8 +102,6 @@ async function showNew(req, res, next){
             current: 'New'
         };
 
-        res.locals.csrfToken = req.csrfToken();
-
         if (_.has(req.session, 'pageData')){
             res.locals.page = req.session.pageData;
             delete req.session.pageData;
@@ -120,8 +115,6 @@ async function showNew(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
-
     try{
         const page = await req.models.page.get(id);
         if (!page || page.campaign_id !== req.campaign.id){
@@ -237,14 +230,13 @@ router.use(function(req, res, next){
 });
 
 
-
-router.get('/', csrf(), permission('gm'), list);
-router.get('/new', csrf(), permission('gm'), showNew);
-router.get('/:id/edit', csrf(), permission('gm'), showEdit);
-router.get('/:path(*)', csrf(), checkPagePermission, show);
-router.post('/', csrf(), permission('gm'), create);
-router.post('/:path(*)', csrf(), codeEnter);
-router.put('/:id', csrf(), permission('gm'), update);
+router.get('/', permission('gm'), list);
+router.get('/new', permission('gm'), showNew);
+router.get('/:id/edit', permission('gm'), showEdit);
+router.get('/:path(*)', checkPagePermission, show);
+router.post('/', permission('gm'), create);
+router.post('/:path(*)', codeEnter);
+router.put('/:id', permission('gm'), update);
 router.delete('/:id', permission('admin'), remove);
 
 export default router;

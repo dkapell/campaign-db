@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import async from 'async';
 import permission from '../lib/permission';
@@ -247,13 +246,13 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/',csrf(), list);
-router.get('/group', csrf(), showGroupReport);
-router.get('/group/data', csrf(), getGroupReportData);
-router.get('/skill', csrf(), showSkillReport);
-router.get('/skill/skills', csrf(), getSkillReportSkills);
-router.get('/skill/data', csrf(), getSkillReportData);
-router.get('/custom_field', csrf(), showCustomFieldReport);
-router.get('/source', csrf(), showSourceReport);
+router.get('/',list);
+router.get('/group', showGroupReport);
+router.get('/group/data', getGroupReportData);
+router.get('/skill', showSkillReport);
+router.get('/skill/skills', getSkillReportSkills);
+router.get('/skill/data', getSkillReportData);
+router.get('/custom_field', showCustomFieldReport);
+router.get('/source', showSourceReport);
 
 export default router;

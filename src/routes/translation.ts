@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import Drive from '../lib/Drive';
@@ -43,7 +42,6 @@ async function list(req, res, next){
                 return req.models.translation.get(id);
             }
         });
-        res.locals.csrfToken = req.csrfToken();
         res.locals.title += ' - Translations';
         res.render('translation/list', { pageTitle: 'Translations' });
     } catch (err){
@@ -53,7 +51,6 @@ async function list(req, res, next){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const translation = await req.models.translation.get(id);
@@ -141,10 +138,10 @@ router.use(function(req, res, next){
     next();
 });
 
-router.get('/', csrf(),list);
-router.get('/:id', csrf(), showEdit);
-router.get('/:id/edit', csrf(),showEdit);
-router.put('/:id', csrf(), update);
-router.put('/:id/render', csrf(), renderFile);
+router.get('/', list);
+router.get('/:id', showEdit);
+router.get('/:id/edit', showEdit);
+router.put('/:id', update);
+router.put('/:id/render', renderFile);
 
 export default router;

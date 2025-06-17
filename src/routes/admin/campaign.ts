@@ -1,5 +1,4 @@
 import express from 'express';
-import csrf from 'csurf';
 import async from 'async';
 import config from 'config';
 import _ from 'underscore';
@@ -89,7 +88,6 @@ async function showNew(req, res){
         current: 'New'
     };
     res.locals.themes = _.keys(config.get('themes'));
-    res.locals.csrfToken = req.csrfToken();
     if (_.has(req.session, 'campaignData')){
         res.locals.campaign = req.session.campaignData;
         delete req.session.campaignData;
@@ -99,7 +97,6 @@ async function showNew(req, res){
 
 async function showEdit(req, res, next){
     const id = req.params.id;
-    res.locals.csrfToken = req.csrfToken();
 
     try{
         const campaign = await req.models.campaign.get(id);
@@ -265,10 +262,10 @@ router.use(function(req, res, next){
 });
 
 router.get('/', list);
-router.get('/new', csrf(), permission('site_admin'), showNew);
-router.get('/:id', csrf(), checkPermission, showEdit);
-router.post('/', csrf(), permission('site_admin'), create);
-router.put('/:id', csrf(), checkPermission, update);
+router.get('/new', permission('site_admin'), showNew);
+router.get('/:id', checkPermission, showEdit);
+router.post('/', permission('site_admin'), create);
+router.put('/:id', checkPermission, update);
 router.delete('/:id', checkPermission, remove);
 
 export default router;

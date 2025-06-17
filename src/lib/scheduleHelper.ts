@@ -503,7 +503,7 @@ async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotM
         return scene.event_id === eventId && scene.status === 'confirmed';
 
     });
-    return async.mapSeries(timeslots, async (timeslot: TimeslotModel)=>{
+    return async.map(timeslots, async (timeslot: TimeslotModel)=>{
         timeslot.scenes = [];
         let scene_timeslots: SceneTimeslotModel[] = await models.scene_timeslot.find({timeslot_id:timeslot.id, schedule_status:'confirmed'});
         scene_timeslots = await async.filter(scene_timeslots, async(scene_timeslot) => {
@@ -520,7 +520,15 @@ async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotM
         return timeslot;
     });
 }
-
+async function getEventSchedule(eventId:number): Promise<TimeslotModel>{
+    const event = await models.event.get(eventId);
+    if (!event) { throw new Error('Invalid Event'); }
+    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+    return async.map(timeslots, async(timeslot) => {
+        timeslot.scenes = await getScenesAtTimeslot(eventId, timeslot.id);
+        return timeslot;
+    });
+}
 async function getCsv(eventId:number, csvType:string):Promise<string>{
     const event = await models.event.get(eventId);
 
@@ -633,6 +641,7 @@ export default {
     formatUser,
     getEventUsers,
     getEventScenes,
+    getEventSchedule,
     getScenesAtTimeslot,
     getUsersAtTimeslot,
     getUserSchedule,

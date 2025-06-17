@@ -4,7 +4,7 @@ import async from 'async';
 import models from './models';
 import scheduleHelper from './scheduleHelper';
 
-async function scoreScenes(scenes){
+function scoreScenes(scenes){
     scenes = scenes.map(scoreScene)
         .map(scene => {
             for (const prereq of scene.prereqs){
@@ -46,6 +46,49 @@ function scoreScene(scene){
     return scene;
 }
 
+async function runScheduler(eventId, scenes){
+    const event = await models.event.get(eventId);
+    scenes = scoreScenes(scenes);
+    const schedule = await scheduleHelper.getEventSchedule(eventId);
+    for (const scene of scenes){
+        findSlot(scene, schedule);
+    }
+    return schedule;
+}
+
+function findSlot(scene, schedule){
+    let found = false;
+    if (scene.timeslots.suggested){
+
+    }
+    if (!found && scene.timeslots.required){
+        for (const timeslot of scene.timeslots.required){
+            const location = checkSlotLocation(timeslot.id, schedule);
+            if (location){
+                found = true;
+                scheduleScene(schedule, scene, {timeslot: timeslot.id, location: location.id});
+            }
+        }
+
+    }
+    if (!found && scene.timeslots.requested){
+
+    }
+
+    if (!found){
+        console.log(`${scene.name} has no timeslots`);
+        return;
+    }
+}
+
+function scheduleScene(schedule, scene, data){
+
+    for (const timeslot of schedule){
+        const currentScene =
+    }
+}
+
 export default {
-    scoreScenes
+    scoreScenes,
+    run: runScheduler
 };

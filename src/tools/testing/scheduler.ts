@@ -13,13 +13,13 @@ const eventId = 3;
 
 (async function main() {
     const event = await models.event.get(eventId);
-    let scenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
+    const scenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
         return !scene.event_id || scene.event_id === eventId;
     });
-    scenes = await scheduler.scoreScenes(scenes);
+    const schedule = await scheduler.run(eventId, scenes);
 
-    for (const scene of scenes){
-        console.log(`${scene.name}: ${scene.score}`)
+    for (const timeslot of schedule){
+        console.log(`${timeslot.name}: ${_.pluck(timeslot.scenes, 'name').join(', ')}`)
     }
 
 

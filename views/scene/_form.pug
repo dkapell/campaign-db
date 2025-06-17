@@ -9,9 +9,15 @@ if (backto)
     label.col-form-label.col-md-1(for="scene_request_status") Status
         span.ms-1.text-danger *
     .col-md-2
-        select.form-select.complex-select2#scene_request_status(name="scene[status]" data-placeholder='Status' required)
+        select.form-select.complex-select2#scene_request_status(
+            name="scene[status]"
+            data-placeholder='Status'
+            disabled=(scene.status==='confirmed'||scene.status==='scheduled') && !checkPermission('admin')
+            required
+        )
             option
             each status in ['new', 'ready', 'scheduled', 'confirmed', 'postponed']
+
                 -
                     let badgeClass = 'dark';
                     switch (status){
@@ -20,11 +26,15 @@ if (backto)
                         case 'confirmed': badgeClass = 'success'; break;
                         case 'postponed': badgeClass = 'danger'; break;
                     }
+                    if ((status === 'scheduled' || status === 'confirmed') && !checkPermission('admin')){
+                        badgeClass += ' disabled'
+                    }
                 option(
                     value=status
                     selected=status===scene.status
                     data-text=`<span class="badge text-bg-${badgeClass}">${capitalize(status)}</span>`
                     data-html=`<span class="text-${badgeClass}">${capitalize(status)}</span>`
+                    disabled=(status === 'scheduled' || status === 'confirmed' ) && !checkPermission('admin')
                 )= capitalize(status)
 
 

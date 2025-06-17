@@ -11,6 +11,10 @@ body, .popover {
 .form-control:focus {
   color: #2c3e50;
 }
+
+.select2-results__option .disabled{
+  opacity: 0.5;
+}
 .lead, h1, h2, h3, h4, h5, .blockquote, .navbar{
     font-family:  'Montserrat', sans-serif;
 }

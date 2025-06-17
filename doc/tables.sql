@@ -1054,7 +1054,7 @@ create type scene_element_schedule_status as enum(
 create table scenes_locations(
     scene_id int not null,
     location_id int not null,
-    request_status scene_element_request_status not null default 'requested',
+    request_status scene_element_request_status not null default 'none',
     schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, location_id),
     CONSTRAINT scenes_locations_scene_fk FOREIGN KEY (scene_id)
@@ -1068,7 +1068,7 @@ create table scenes_locations(
 create table scenes_timeslots(
     scene_id int not null,
     timeslot_id int not null,
-    request_status scene_element_request_status not null default 'requested',
+    request_status scene_element_request_status not null default 'none',
     schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, timeslot_id),
     CONSTRAINT scenes_timeslots_scene_fk FOREIGN KEY (scene_id)
@@ -1082,7 +1082,7 @@ create table scenes_timeslots(
 create table scenes_users(
     scene_id int not null,
     user_id int not null,
-    request_status scene_element_request_status not null default 'requested',
+    request_status scene_element_request_status not null default 'none',
     schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, user_id),
     CONSTRAINT scenes_users_scene_fk FOREIGN KEY (scene_id)
@@ -1096,14 +1096,28 @@ create table scenes_users(
 create table scenes_sources(
     scene_id int not null,
     source_id int not null,
-    request_status scene_element_request_status not null default 'requested',
+    request_status scene_element_request_status not null default 'none',
     schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, source_id),
-    CONSTRAINT scenes_users_scene_fk FOREIGN KEY (scene_id)
+    CONSTRAINT scenes_sources_scene_fk FOREIGN KEY (scene_id)
         REFERENCES "scenes" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT scenes_sources_source_fk FOREIGN KEY (source_id)
         REFERENCES "skill_sources" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+create table scenes_skills(
+    scene_id int not null,
+    skill_id int not null,
+    request_status scene_element_request_status not null default 'none',
+    schedule_status scene_element_schedule_status not null default 'unscheduled',
+    primary key(scene_id, skill_id),
+    CONSTRAINT scenes_skill_scene_fk FOREIGN KEY (scene_id)
+        REFERENCES "scenes" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT scenes_skills_source_fk FOREIGN KEY (skill_id)
+        REFERENCES "skills" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 

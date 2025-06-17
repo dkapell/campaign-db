@@ -6,101 +6,35 @@ block content
         span(class="fa fa-plus")
         |  New Scene
 
-    .table-responsive
-        .col-sm-6.offset-sm-3.text-center#tableLoading
-            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100(
-            style="display: none"
-            )
-            thead
-                tr
-                    th
-                    th Event
-                    th(data-priority="1") Name
-                    th Status
-                    th Timeslot
-                    th Location
-                    th Players
-                    th Staff
-                    th
+    -
+        const futureScenes = scenes.filter(scene => {
+            if (!scene.event_id) { return true; }
+            if (new Date(scene.event.end_time) > new Date()){
+                return true;
+            }
+            return false;
+        });
+
+        const pastScenes = scenes.filter(scene => {
+            if (scene.event_id && new Date(scene.event.end_time) < new Date()){
+                return true;
+            }
+            return false;
+        });
+
+    ul.nav.nav-tabs.w-100.my-2#sceneTabs(role="tablist")
+        li.nav-item(role="presentation")
+            a.nav-link.active#future-scenes-tab(href="#future-scenes" data-bs-toggle="tab" role="tab" aria-controls="future-scenes" aria-selected="true") Future Scenes
+
+        li.nav-item(role="presentation")
+            a.nav-link#past-scenes-tab(href="#past-scenes" data-bs-toggle="tab" role="tab" aria-controls="past-scenes" aria-selected="false") Past Scenes
 
 
-            tbody
-                for scene in scenes
-                    -
-                        const timeslotsConfirmed = scene.timeslots.filter(timeslot => {
-                            return timeslot.scene_schedule_status === 'confirmed'
-                        });
-                        const timeslotsSuggested = scene.timeslots.filter(timeslot => {
-                            return timeslot.scene_schedule_status === 'suggested'
-                        });
-                        const locationsConfirmed = scene.locations.filter(location => {
-                            return location.scene_schedule_status === 'confirmed'
-                        });
-                        const locationsSuggested = scene.locations.filter(location => {
-                            return location.scene_schedule_status === 'suggested'
-                        });
-                        const players = scene.users.filter(user => {
-                            return user.scene_schedule_status === 'confirmed' && user.type === 'player'
-                        });
-                        const staff = scene.users.filter(user => {
-                            return user.scene_schedule_status === 'confirmed' && user.type !== 'player'
-                        });
-                    tr(class='clickable-row', data-click-object='scene' data-click-id=scene.id)
-                        td.dtr-control
-                        td
-                            if scene.event
-                                a.action-btn(href=`/event/${scene.event.id}`)
-                                    i.far.fa-calendar.me-1
-                                    = scene.event.name
-                            else 
-                                i Unassigned
-                        td= scene.name
-                        td
-                            +sceneStatusBadge(scene.status)
-                        td
-                            if timeslotsConfirmed.length
-                                = (_.pluck(timeslotsConfirmed, 'name')).join(', ')
-                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
-                                if timeslotsConfirmed.length !== scene.timeslot_count
-                                    span.ms-1 (#{scene.timeslot_count} Requested)
-                            else if timeslotsSuggested.length
-                                = (_.pluck(timeslotsSuggested, 'name')).join(', ')
-                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
-                                if timeslotsSuggested.length !== scene.timeslot_count
-                                    span.ms-1 (#{scene.timeslot_count} Requested)
-
-                        td
-                            if locationsConfirmed.length
-                                = (_.pluck(locationsConfirmed, 'name')).join(', ')
-                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
-                                if locationsConfirmed.length !== scene.locations_count
-                                    span.ms-1 (#{scene.locations_count} Requested)
-                            else if locationsSuggested.length
-                                = (_.pluck(locationsSuggested, 'name')).join(', ')
-                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
-                                if locationsSuggested.length !== scene.locations_count
-                                    span.ms-1 (#{scene.locations_count} Requested)
-                        td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
-                        td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
-                        td.text-end
-                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
-                                href=`/scene/${scene.id}/edit?backto=list`
-                                title='Edit Scene'
-                                data-bs-toggle='tooltip'
-                            )
-                                i.fas.fa-edit.fa-fw
-
-                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
-                                role="button",
-                                url=`/scene/${scene.id}`,
-                                data-back='/scene'
-                                title='Delete Scene'
-                                data-bs-toggle='tooltip'
-                            )
-                                i.fas.fa-trash.fa-fw
-
+    .tab-content#sceneTabContent
+        .tab-pane.fade.show.active#future-scenes(role="tabpanel" aria-labelledby="future-scenes-tab")
+            +sceneTable(futureScenes)
+        .tab-pane.fade#past-scenes(role="tabpanel" aria-labelledby="past-scenes-tab")
+            +sceneTable(pastScenes)
 
 
 append scripts

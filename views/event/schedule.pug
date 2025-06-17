@@ -27,7 +27,7 @@ block content
     input#locationRows(type='hidden' value=yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) )
     input#eventId(type='hidden' value=event.id)
     input#scheduleType(type='hidden' value='display')
-    inpiy#userType(type='hidden' value=checkPermission('event')?'staff':'player')
+    input#userType(type='hidden' value=checkPermission('event')?'staff':'player')
 
     .d-flex.flex-column.h-100.p-0
         .screen-container.d-flex.flex-column#schedule-container.px-2.mb-4(
@@ -40,6 +40,13 @@ block content
 
                         span.alert-text
                         button.btn-close(type="button" aria-label="Close")
+            if !checkPermission('contrib')
+                .container
+                    .row-my-2
+                        .col
+                            .form-check.form-switch
+                                input.form-check-input#highlight-user-scenes(type="checkbox")
+                                label.form-check-label(for="highlight-user-scenes") Highlight my Scenes
 
             .row.my-2
                 #schedule-container-grid.d-grid.col(
@@ -136,6 +143,7 @@ block content
                                             data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                                             data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                                         ) #{capitalize(attendance.user.name)} (#{type})
+
 
         .content-resizer.d-none.position-absolute.bottom-0.w-100#detail-container(
             data-direction="vertical"

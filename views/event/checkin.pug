@@ -35,7 +35,7 @@ block content
                         .col-sm-6.offset-sm-3.text-center.table-loading
                             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                                 .visually-hidden Table is Loading
-                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100.checkin-table(
                             style="display: none"
                         )
                             thead
@@ -58,7 +58,7 @@ block content
                                     tr
                                         td.dtr-control
                                         td(data-priority=1)
-                                            span.badge.text-bg-success.event-uncheckin-btn(
+                                            span.badge.text-bg-success.event-uncheckin-btn.action-confirmation-btn(
                                                 id=`event-checkedin-${attendee.id}`
                                                 data-attendee_id=attendee.id
                                                 data-csrf=csrfToken
@@ -126,7 +126,7 @@ block content
                         .col-sm-6.offset-sm-3.text-center.table-loading
                             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                                 .visually-hidden Table is Loading
-                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+                        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100.checkin-table(
                             style="display: none"
                         )
                             thead
@@ -147,7 +147,7 @@ block content
                                     tr
                                         td.dtr-control
                                         td(data-priority=1)
-                                            span.badge.text-bg-success.event-uncheckin-btn(
+                                            span.badge.text-bg-success.event-uncheckin-btn.action-confirmation-btn(
                                                 id=`event-checkedin-${attendee.id}`
                                                 data-attendee_id=attendee.id
                                                 data-csrf=csrfToken

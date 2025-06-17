@@ -55,6 +55,10 @@ $(function(){
         title:'Confirm all scheduled scenes?'
     }).on('click', confirmAllScenes);
 
+    $('#clear-schedule-btn').confirmation({
+        title:'Clear all non-confirmed scenes?'
+    }).on('click', clearUnconfirmedScenes);
+
     $('.users-btn').on('click', showUsersBtn);
 
     $('.resizer-close').on('click', function(e){
@@ -99,7 +103,9 @@ $(function(){
         });
     });
 
-    $('#schedule-user-picker').on('change', highlightUserSchedule);
+    $('#schedule-user-picker').on('change', userPickerSelect);
+    $('#highlight-user-scenes').on('change', highlightUserScenesToggle);
+
 });
 
 function clearTimeslotHighlight(){
@@ -195,7 +201,7 @@ function validateMove($scene, $slot){
             });
         }
     }
-    return reasons;
+    return _.uniq(reasons);
 }
 
 async function recordScheduleUpdate($scene){
@@ -311,6 +317,23 @@ async function confirmAllScenes(e){
     });
 }
 
+async function clearUnconfirmedScenes(e){
+    e.preventDefault();
+    const $slot = $('#unscheduled');
+
+    $('.scene-item').each(async function() {
+        const $scene = $(this);
+        if ($scene.attr('status') !== 'scheduled'){
+            return;
+        }
+        $scene.attr('cell', $slot.attr('id'));
+        $scene.appendTo($slot);
+        await recordScheduleUpdate($scene, $slot);
+    });
+    await updateAllSlots();
+    await validateAllScenes();
+}
+
 function updateSlotScenes($slot){
 
     const $children = $(`.scene-item[cell=${$slot.attr('id')}`);
@@ -321,7 +344,9 @@ function updateSlotScenes($slot){
     let maxRows = 1;
     let xCounter = 0;
 
-    $children.each(function(idx){
+    $children.sort((a, b) => {
+        return $(a).data('scene-name').localeCompare($(b).data('scene-name'))
+    }).each(function(idx){
         const $scene = $(this);
         const timeslotCount = $scene.data('timeslot-count');
         let rows = xAxisType==='location'?timeslotCount:$('#cellsPerSlot').val();
@@ -333,20 +358,20 @@ function updateSlotScenes($slot){
             const columnCount = $('#locationColumns').val();
             $scene.appendTo($slot);
 
-            let maxCells = columnCount;
             if (xAxisType === 'location'){
-                maxCells = Math.floor(columnCount / cols);
+                gridX = $slot.data('pos-x') + xCounter;
 
-                gridX = $slot.data('pos-x') + idx%maxCells * cols;
-
-                if ((idx+1) * cols > columnCount){
+                if (gridX >= columnCount){
                     gridY += maxRows;
+                    gridX = $slot.data('pos-x')
+                    xCounter = 0;
                     maxRows = 1;
                 }
 
                 if (rows > maxRows){
                     maxRows = rows;
                 }
+                xCounter += Number(cols);
             } else {
                 gridX = $slot.data('pos-x') + xCounter;
                 if ((gridX + timeslotCount) > columnCount){
@@ -501,11 +526,6 @@ function startDragScene($elem){
             case 'required': $header.addClass('bg-info-subtle'); break;
             case 'rejected': $header.addClass('bg-danger-subtle'); break;
         }
-        /*switch (timeslot.scene_schedule_status){
-            case 'suggested': $header.addClass(`bg-warning-subtle`); break;
-            case 'confirmed': $header.addClass(`bg-success-subtle`); break;
-            case 'rejected': $header.addClass(`bg-danger-subtle`); break;
-        }*/
     }
     for (const location of locations){
         const $header = $(`#location-${location.id}-header`);
@@ -514,11 +534,6 @@ function startDragScene($elem){
             case 'required': $header.addClass('bg-info-subtle'); break;
             case 'rejected': $header.addClass('bg-danger-subtle'); break;
         }
-        /*switch (location.scene_schedule_status){
-            case 'suggested': $header.addClass(`bg-warning-subtle`); break;
-            case 'confirmed': $header.addClass(`bg-success-subtle`); break;
-            case 'rejected': $header.addClass(`bg-danger-subtle`); break;
-        }*/
     }
 
     $('.schedule-slot').each(function(){
@@ -538,59 +553,18 @@ function startDragScene($elem){
                         case 'required': cellClass = 'info'; break;
                         case 'rejected': cellClass = 'danger'; break;
                     }
-                    /*switch (sceneLocationData.scene_schedule_status){
-                        case 'suggested': cellClass = 'warning'; break;
-                        case 'confirmed': cellClass = 'success'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }*/
                     break;
                 case 'required':
                     switch (sceneLocationData.scene_request_status){
                         case 'requested': cellClass = 'info'; break;
                         case 'required': cellClass = 'success'; break;
                         case 'rejected': cellClass = 'danger'; break;
-                    }/*
-                    switch (sceneLocationData.scene_schedule_status){
-                        case 'suggested': cellClass = 'warning'; break;
-                        case 'confirmed': cellClass = 'success'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }*/
+                    }
                     break;
                 case 'rejected':
                     cellClass = 'danger';
                     break;
-            }/*
-            switch (sceneTimeslotData.scene_schedule_status){
-                case 'suggested':
-                    switch (sceneLocationData.scene_request_status){
-                        case 'requested': cellClass = 'info'; break;
-                        case 'required': cellClass = 'warning'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }
-                    switch (sceneLocationData.scene_schedule_status){
-                        case 'suggested': cellClass = 'warning'; break;
-                        case 'confirmed': cellClass = 'success'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }
-                    break;
-                case 'confirmed':
-                    switch (sceneLocationData.scene_request_status){
-                        case 'requested': cellClass = 'success'; break;
-                        case 'required': cellClass = 'success'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }
-                    switch (sceneLocationData.scene_schedule_status){
-                        case 'suggested': cellClass = 'success'; break;
-                        case 'confirmed': cellClass = 'success'; break;
-                        case 'rejected': cellClass = 'danger'; break;
-                    }
-
-                    break
-                case 'rejected':
-                    cellClass = 'danger';
-                    break;
-
-            }*/
+            }
         }
 
         const reasons = validateMove($elem, $(this));
@@ -1200,11 +1174,20 @@ function scrollToTimeslot(timeslotId){
         }, 100);
     }
 }
-
-async function highlightUserSchedule(){
+function userPickerSelect(){
     const userId = $(this).val();
+    highlightUserSchedule(userId);
+}
+
+function highlightUserScenesToggle(){
+    const userId = $(this).is(':checked')?'player':null;
+    highlightUserSchedule(userId);
+}
+
+async function highlightUserSchedule(userId){
     $('.scene-name').removeClass('fw-bold');
     $('.busy-item').remove();
+    console.log('here')
 
     if (!userId){
         $('.scene-item').removeClass('disabled');

@@ -130,6 +130,33 @@ mixin sceneSourceInput(source, request_status, schedule_status)
                     .float-end
                         +sceneItemScheduleBadge(schedule_status)
 
+mixin sceneSkillInput(skill, request_status, schedule_status)
+    li.list-group-item.scene-skill(id=`scene-skill-${skill.id}`)
+        .row
+            .col-md-7
+                -
+                    let iconClass = '';
+                    if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
+                    if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
+                i.fas.fa-scroll.me-1.align-middle(class=iconClass)
+                strong.align-middle.skill-name= skill.name
+                .badge.text-bg-primary.ms-2.skill-source=skill.source.name
+
+            .col.px-1
+                if !schedule_status || schedule_status=== 'unscheduled'
+                    select.form-select.form-select-sm.scene-status-select(
+                        class=skill.id!=='new'?'complex-select2':''
+                        name=`scene[skills][id-${skill.id}]`
+                        id=`scene-skills-${skill.id}`
+                    )
+                        +sceneStatusRequestOptions(request_status)
+                else
+                    input(type='hidden' name=`scene[skills][id-${skill.id}]` value=request_status)
+
+                    +sceneItemRequestText(request_status)
+                    .float-end
+                        +sceneItemScheduleBadge(schedule_status)
+
 mixin sceneItemRequestText(request_status)
     case request_status
         when 'requested'
@@ -180,5 +207,110 @@ mixin sceneStatusBadge(status)
             .badge.text-bg-danger.mx-1 Rejected
         when 'scheduled'
             .badge.text-bg-warning.mx-1 Scheduled
+        when 'ready'
+            .badge.text-bg-info.mx-1 Ready
+        when 'new'
+            .badge.text-bg-dark.mx-1 New
+        when 'postponed'
+            .badge.text-bg-danger.mx-1 Postponed
+
+mixin sceneTable(scenes)
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.scene-table(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th Event
+                    th(data-priority="1") Name
+                    th Status
+                    th Timeslot
+                    th Location
+                    th Players
+                    th Staff
+                    th
 
 
+            tbody
+                for scene in scenes
+                    -
+                        const timeslotsConfirmed = scene.timeslots.filter(timeslot => {
+                            return timeslot.scene_schedule_status === 'confirmed'
+                        });
+                        const timeslotsSuggested = scene.timeslots.filter(timeslot => {
+                            return timeslot.scene_schedule_status === 'suggested'
+                        });
+                        const locationsConfirmed = scene.locations.filter(location => {
+                            return location.scene_schedule_status === 'confirmed'
+                        });
+                        const locationsSuggested = scene.locations.filter(location => {
+                            return location.scene_schedule_status === 'suggested'
+                        });
+                        const players = scene.users.filter(user => {
+                            return user.scene_schedule_status === 'confirmed' && user.type === 'player'
+                        });
+                        const staff = scene.users.filter(user => {
+                            return user.scene_schedule_status === 'confirmed' && user.type !== 'player'
+                        });
+                    tr(class='clickable-row', data-click-object='scene' data-click-id=scene.id)
+                        td.dtr-control
+                        td
+                            if scene.event
+                                a.action-btn(href=`/event/${scene.event.id}`)
+                                    i.far.fa-calendar.me-1
+                                    = scene.event.name
+                            else
+                                i Unassigned
+                        td= scene.name
+                        td
+                            +sceneStatusBadge(scene.status)
+                        td
+                            if timeslotsConfirmed.length
+                                = (_.pluck(timeslotsConfirmed, 'name')).join(', ')
+                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
+                                if timeslotsConfirmed.length !== scene.timeslot_count
+                                    span.ms-1 (#{scene.timeslot_count} Requested)
+                            else if timeslotsSuggested.length
+                                = (_.pluck(timeslotsSuggested, 'name')).join(', ')
+                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
+                                if timeslotsSuggested.length !== scene.timeslot_count
+                                    span.ms-1 (#{scene.timeslot_count} Requested)
+                            else
+                                | #{scene.timeslot_count} Requested
+
+                        td
+                            if locationsConfirmed.length
+                                = (_.pluck(locationsConfirmed, 'name')).join(', ')
+                                i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
+                                if locationsConfirmed.length !== scene.locations_count
+                                    span.ms-1 (#{scene.locations_count} Requested)
+                            else if locationsSuggested.length
+                                = (_.pluck(locationsSuggested, 'name')).join(', ')
+                                i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
+                                if locationsSuggested.length !== scene.locations_count
+                                    span.ms-1 (#{scene.locations_count} Requested)
+                            else
+                                | #{scene.locations_count} Requested
+                        td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
+                        td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
+                        td.text-end
+                            a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
+                                href=`/scene/${scene.id}/edit?backto=list`
+                                title='Edit Scene'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-edit.fa-fw
+
+                            a.btn.btn-outline-danger.btn-xs.delete-btn.mx-1(
+                                role="button",
+                                url=`/scene/${scene.id}`,
+                                data-back='/scene'
+                                title='Delete Scene'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-trash.fa-fw

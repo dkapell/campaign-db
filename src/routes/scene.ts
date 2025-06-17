@@ -110,8 +110,8 @@ async function showNew(req, res, next){
                 player_count_max: 8,
                 staff_count_min:1,
                 staff_count_max:4,
-                combat_staff_count_min:0,
-                combat_staff_count_max:0,
+                combat_staff_count_min:null,
+                combat_staff_count_max:null,
                 timeslot_count: 1,
                 locations_count: 1,
                 staff_url:null,
@@ -150,7 +150,12 @@ async function showNew(req, res, next){
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
-        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id}, {postSelect:async (data)=>{return data;}});
+        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}});
+
+        const skills = await req.models.skill.find({campaign_id:req.campaign.id});
+        res.locals.skills = skills.filter(skill => {
+            return skill.status.purchasable;
+        });
 
         res.locals.csrfToken = req.csrfToken();
 
@@ -204,7 +209,12 @@ async function showEdit(req, res, next){
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
-        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id}, {postSelect:async (data)=>{return data;}});
+        res.locals.events = (await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}})).reverse();
+
+        const skills = await req.models.skill.find({campaign_id:req.campaign.id});
+        res.locals.skills = skills.filter(skill => {
+            return skill.status.purchasable;
+        });
 
         if (req.query.backto && ['list', 'scene'].indexOf(req.query.backto) !== -1){
             res.locals.backto = req.query.backto;
@@ -244,6 +254,12 @@ async function prepForm(req){
         record.scene_schedule_status = item.scene_schedule_status;
         return record;
     });
+    scene.sources = await async.map(scene.skills, async (item) => {
+        const record = await req.models.skill.get(item.id);
+        record.scene_request_status = item.scene_request_status;
+        record.scene_schedule_status = item.scene_schedule_status;
+        return record;
+    });
     return scene;
 }
 
@@ -277,6 +293,7 @@ async function update(req, res){
             throw new Error('Can not edit record from different campaign');
         }
         await checkPrereqs(req, scene);
+        console.log(scene)
         await req.models.scene.update(id, scene);
         await req.audit('scene', id, 'update', {old: current, new:scene});
         delete req.session.sceneData;
@@ -300,6 +317,12 @@ async function prepSceneData(req): Promise<ModelData>{
             scene[field] = false;
         }
     }
+    for (const field of ['combat_staff_count_min', 'combat_staff_count_max']){
+        if (!_.has(scene, field) || scene[field] === ''){
+            scene[field] = null;
+        }
+    }
+
     for (const field of ['tags', 'prereqs']){
         if (!scene[field]){
             scene[field] = [];
@@ -319,12 +342,9 @@ async function prepSceneData(req): Promise<ModelData>{
         scene.event_id = null;
     }
 
-    for (const field of ['locations', 'timeslots', 'sources', 'users']){
+    for (const field of ['locations', 'timeslots', 'sources', 'skills', 'users']){
         const records = [];
         for (const item in scene[field]){
-            /*if (scene[field][item] === 'none'){
-                continue;
-            }*/
             const itemId = item.replace(/^id-/, '');
             if (itemId === 'new'){
                 continue;
@@ -336,6 +356,7 @@ async function prepSceneData(req): Promise<ModelData>{
         }
         scene[field] = records;
     }
+
 
     return scene;
 }

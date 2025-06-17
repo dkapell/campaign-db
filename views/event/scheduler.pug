@@ -42,13 +42,20 @@ block content
                                 | This event is in the past
             .row.mb-2
                 .col.px-4
-                    button.btn.btn-sm.btn-outline-success#confirm-schedule-btn(
+                    button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
                         role=button
                         data-bs-toggle='tooltip'
                         title='Confirm all Scheduled Scenes'
                     )
                         i.fa.fa-calendar-check.me-2
                         | Confirm Schedule
+                    button.btn.btn-sm.btn-outline-warning#clear-schedule-btn(
+                        role=button
+                        data-bs-toggle='tooltip'
+                        title='Clear all non-confirmed Scenes'
+                    )
+                        i.fa.fa-calendar-times.me-2
+                        | Clear Schedule
 
             .container.my-0
                 .row.my-0
@@ -156,10 +163,26 @@ block content
                         #schedule-legend.my-2(
                             style=`grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
                         )
-                                .bg-warning-subtle.p-2 Weak Match
-                                .bg-info-subtle.p-2 Strong Match
-                                .bg-success-subtle.p-2 Suggested
-                                .bg-danger-subtle.p-2 Rejected
+                                .bg-warning-subtle.px-2.py-1.border Weak Match
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 AND
+                                        span Timeslot Requested
+                                .bg-info-subtle.px-2.py-1.border Strong Match
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 OR
+                                        span Timeslot Required
+                                .bg-success-subtle.px-2.py-1.border Suggested
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 AND
+                                        span Timeslot Required
+                                .bg-danger-subtle.px-2.py-1.border Rejected
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 OR
+                                        span Timeslot Rejected
 
                     -
                         const maxHeight = _.max(scenes, scene => {

@@ -45,6 +45,8 @@ function prepDataTable(){
             $table.find('.delete-btn').confirmation({
                 title: 'Delete this item?'
             }).on('click', deleteItem);
+            console.log('he')
+            $table.find('.action-confirmation-btn').confirmation({});
         }
     };
 

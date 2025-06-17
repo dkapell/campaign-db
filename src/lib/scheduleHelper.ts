@@ -175,6 +175,8 @@ async function validateScene(scene:SceneModel): Promise<SceneWarnings> {
     if (userCounts.staff.suggested){
         issues.info.push('Unconfirmed Staff');
     }
+    issues.warning = _.uniq(issues.warning);
+    issues.info = _.uniq(issues.info);
     return issues;
 }
 
@@ -239,7 +241,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.combat_staff_count_min = scene.combat_staff_count_min;
         output.combat_staff_count_max = scene.combat_staff_count_max;
         output.staff_url = scene.staff_url;
-        output.tags = _.pluck(scene.tags, 'name')
+        output.tags = _.pluck(scene.tags, 'name');
+        output.score = scene.score;
     }
 
     if (!forPlayer && scene.prereqs && typeof scene.prereqs !== 'string'){

@@ -129,30 +129,37 @@ async function updateScene(req, res){
         }
 
         const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id})
+
         const startTimeslotIdx  = _.findIndex(timeslots, timeslot => {return timeslot.id === sceneData.timeslot});
 
-        if (sceneData.timeslot !== 'none'){
-            scheduled = true;
-        }
-        for (let idx = 0; idx < timeslots.length; idx++ ){
-            const timeslot = timeslots[idx];
-            const timeslotData = _.findWhere(scene.timeslots, {id: timeslot.id});
-            if (idx >= startTimeslotIdx && idx < startTimeslotIdx + scene.timeslot_count){
-
-                if (timeslotData){
-                     timeslotData.scene_schedule_status = 'suggested';
-                } else {
-                    scene.timeslots.push({
-                        id: timeslot.id,
-                        scene_schedule_status: 'suggested'
-                    });
-                }
-            } else if (timeslotData){
-                timeslotData.scene_schedule_status = 'unscheduled';
+        if (sceneData.timeslot === 'none'){
+            for (const timeslot of scene.timeslots){
+                timeslot.scene_schedule_status = 'unscheduled';
             }
+        } else {
+            scheduled = true;
+            const startTimeslotIdx  = _.findIndex(timeslots, timeslot => {return timeslot.id === sceneData.timeslot});
 
+
+            for (let idx = 0; idx < timeslots.length; idx++ ){
+                const timeslot = timeslots[idx];
+                const timeslotData = _.findWhere(scene.timeslots, {id: timeslot.id});
+                if (idx >= startTimeslotIdx && idx < startTimeslotIdx + scene.timeslot_count){
+
+                    if (timeslotData){
+                         timeslotData.scene_schedule_status = 'suggested';
+                    } else {
+                        scene.timeslots.push({
+                            id: timeslot.id,
+                            scene_schedule_status: 'suggested'
+                        });
+                    }
+                } else if (timeslotData){
+                    timeslotData.scene_schedule_status = 'unscheduled';
+                }
+
+            }
         }
-
         if (scheduled){
             scene.event_id = eventId;
             scene.status = 'scheduled';
@@ -507,12 +514,16 @@ async function exportSchedule(req, res, next){
 
 async function getUserSchedule(req, res){
     const eventId = req.params.id;
-    const userId = req.params.userId;
+    let userId = req.params.userId;
     try{
         const event = await req.models.event.get(eventId);
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        if (!req.checkPermission('contrib')){
+            userId = req.session.activeUser.id
         }
 
         const user = await req.models.user.get(event.campaign_id, userId);

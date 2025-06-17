@@ -15,6 +15,8 @@ import sourceModel from './skill_source';
 import scene_sourceModel from './scene_source';
 import eventModel from './event';
 import characterModel from './character';
+import skillModel from './skill';
+import scene_skillModel from './scene_skill';
 
 
 const models = {
@@ -28,8 +30,11 @@ const models = {
     source: sourceModel,
     scene_source: scene_sourceModel,
     event: eventModel,
-    character: characterModel
+    character: characterModel,
+    skill: skillModel,
+    scene_skill: scene_skillModel
 };
+
 
 const tableFields = [
     'id',
@@ -63,7 +68,7 @@ const Scene = new Model('scenes', tableFields, {
 
 async function fill(data: SceneModel){
     data.tags = await getTags(data.id as number);
-    for (const table of ['location', 'timeslot', 'source', 'user']){
+    for (const table of ['location', 'timeslot', 'source', 'skill', 'user']){
         const records = await models[`scene_${table}`].find({scene_id:data.id});
         data[`${table}s`] = await async.map(records, async(record) => {
             let object = null;
@@ -122,7 +127,7 @@ interface sceneElementStatuses{
 }
 async function postSave(sceneId:number, data:ModelData){
     await saveTags(sceneId, data);
-    for (const table of ['location', 'timeslot', 'source', 'user']){
+    for (const table of ['location', 'timeslot', 'source', 'user', 'skill']){
         if (_.has(data, `${table}s`)){
             const currentRecords = await models[`scene_${table}`].find({scene_id:sceneId});
 
@@ -143,6 +148,7 @@ async function postSave(sceneId:number, data:ModelData){
                     return;
                 }
                 if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
+                    console.log(`removing ${table} ${JSON.stringify(record)}`)
                     return models[`scene_${table}`].delete(record);
                 }
             });
@@ -167,12 +173,18 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
             record.schedule_status = statuses.schedule;
             changed = true;
         }
+        if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
+            console.log(`removeing ${table} ${JSON.stringify(doc)}`)
+            return models[`scene_${table}`].delete(doc);
+        }
         if (changed){
             return models[`scene_${table}`].update(doc, record);
         }
     } else {
         record = {
             scene_id: sceneId,
+            schedule_status: 'unscheduled',
+            request_status: 'none'
         }
         if (statuses.request){
             record.request_status = statuses.request;
@@ -181,6 +193,10 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
             record.schedule_status = statuses.schedule;
         }
         record[`${table}_id`] = objectId;
+        if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
+            return;
+        }
+        console.log(`creating ${table} ${JSON.stringify(record)}`)
         return models[`scene_${table}`].create(record);
     }
 }

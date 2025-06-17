@@ -214,7 +214,7 @@ fieldset.my-2.border.p-2.rounded
                                     data-html=`${user.name}${characterString}${tagString}`
                                     data-search=`${user.name} ${characterString} ${_.pluck(user.tags, 'name').join(' ')}`
                                 ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
-                    button.btn.btn-outline-dark.add-user-btn Add
+                    button.btn.btn-outline-dark.add-user-btn Request
         .row.mb-3
             .col.scene-user-picker-container
                 h5 Staff
@@ -253,21 +253,24 @@ fieldset.my-2.border.p-2.rounded
                                     data-type=type
                                     data-user=user
                                     title=user.name
-                                    data-text=`${user.name} (${type})`
-                                    data-html=`<span class="text-danger"><strong>${type}</strong>:</span> ${user.name}${tagString}`
+                                    data-text=`${user.name} <span class="badge text-bg-primary ms-1">${type}</span>`
+                                    data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${user.name}${tagString}`
                                     data-search=`${user.name} ${type} ${_.pluck(user.tags, 'name').join(' ')}`
                                 ) #{capitalize(user.name)} (#{type})
-                    button.btn.btn-outline-dark.add-user-btn Add
+                    button.btn.btn-outline-dark.add-user-btn Request
 
 
         .row.mb-3
             .col
-                h5 Sources
+                h5 Sources &amp; Skills
 
                 ul.my-1#scene-source-list.list-group
                     each source in scene.sources
                         +sceneSourceInput(source, source.scene_request_status, source.scene_schedule_status)
+                    each skill in scene.skills
+                        +sceneSkillInput(skill, skill.scene_request_status, skill.scene_schedule_status)
                 +sceneSourceInput({id:'new', type:{name:'placeholder'}}, 'requested', 'unscheduled')
+                +sceneSkillInput({id:'new', source:{name:'placeholder'}}, 'requested', 'unscheduled')
                 .input-group
                     select.form-select.complex-select2#scene-source-picker(data-placeholder='Source')
                         option
@@ -279,11 +282,24 @@ fieldset.my-2.border.p-2.rounded
                                     data-type=type
                                     data-source=source
                                     title=source.name
-                                    data-text=`${source.name} (${type})`
-                                    data-html=`<span class="text-danger"><strong>${type}</strong>:</span> ${source.name}`
+                                    data-text=`${source.name} <span class="badge text-bg-primary ms-1">${type}</span>`
+                                    data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${source.name}`
                                 ) #{capitalize(source.name)} (#{type})
-                    button.btn.btn-outline-dark#add-source-btn Add
-
+                    button.btn.btn-outline-dark#add-source-btn Request
+                .input-group.mt-1
+                    select.form-select.complex-select2#scene-skill-picker(data-placeholder='Skill')
+                        option
+                        each skill in skills
+                            if !skill.required
+                                option(
+                                    value=skill.id
+                                    data-skill=skill
+                                    data-source=skill.source.name
+                                    title=skill.name
+                                    data-text=`${skill.name} <span class="badge text-bg-primary ms-1">${skill.source.name}</span>`
+                                    data-html=`<span class="text-primary"><strong>${skill.source.name}</strong>:</span> ${skill.name}`
+                                ) #{skill.name} (#{skill.source.name})
+                    button.btn.btn-outline-dark#add-skill-btn Request
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= scene.id?'Update':'Create'

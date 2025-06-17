@@ -80,8 +80,11 @@ $(function(){
 
     $('#scene-user-new').hide();
     $('#scene-source-new').hide();
+    $('#scene-skill-new').hide();
     $('.add-user-btn').on('click', addSceneUser);
     $('#add-source-btn').on('click', addSceneSource);
+    $('#add-skill-btn').on('click', addSceneSkill);
+
     $('#scene_player_name').on('input', updatePlayerNameBadge).trigger('input');
     $('#scene_display_to_pc').on('change', updateDisplayToPc).trigger('change');
 });
@@ -275,7 +278,19 @@ function addSceneSource(e){
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width:'resolve',
-        dropdownParent: $(this).closest('form')
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        templateResult: function(data) {
+            return $(data.element).data('html');
+        },
+        templateSelection: function(data) {
+            if (data.id === '') {
+                return $(data.element).data('placeholder');
+            }
+            return $(data.element).data('text');
+        },
+        dropdownParent: $('#scene-source-list').closest('form')
     });
     $new.find('.scene-status-select').on('change', updateSceneSource);
     $new.appendTo($('#scene-source-list'));
@@ -288,5 +303,56 @@ function updateSceneSource(e){
         $(this).closest('.scene-source').remove();
     }
 }
+
+function addSceneSkill(e){
+    e.preventDefault();
+    const $skillPicker = $('#scene-skill-picker');
+    const skill = $skillPicker.find('option:selected').data('skill');
+    console.log(skill)
+    const source = $skillPicker.find('option:selected').data('source');
+    if (!skill) { return; }
+    if ($(`#scene-skill-${skill.id}`).length){
+        return;
+    }
+    const $new = $('#scene-skill-new').clone();
+    $new.attr('id', `scene-skill-${skill.id}`);
+    $new.find('.skill-name').text(skill.name);
+    $new.find('.skill-source').text(source);
+
+    $new.find('.form-select').each(function(e) {
+        const $input = $(this);
+        $input.attr('name', `scene[skills][${skill.id}]`);
+        $input.attr('id', `scene-skills-${skill.id}`);
+    });
+    $new.find('.scene-status-select').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve',
+        escapeMarkup: function(markup) {
+            return markup;
+        },
+        templateResult: function(data) {
+            return $(data.element).data('html');
+        },
+        templateSelection: function(data) {
+            if (data.id === '') {
+                return $(data.element).data('placeholder');
+            }
+            return $(data.element).data('text');
+        },
+        dropdownParent: $('#scene-source-list').closest('form')
+    });
+    $new.find('.scene-status-select').on('change', updateSceneSkill);
+    $new.appendTo($('#scene-source-list'));
+    $new.show();
+    $skillPicker.val(null).trigger('change');
+}
+
+function updateSceneSkill(e){
+    if ($(this).val() === 'none'){
+        $(this).closest('.scene-skill').remove();
+    }
+}
+
 
 

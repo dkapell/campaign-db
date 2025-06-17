@@ -71,12 +71,8 @@ $(function(){
     $('#not-attending-btn-form').on('click', markNotAttending);
 
     prepEventAddons();
-
-    $('.event-checkin-btn').on('click', eventCheckin);
-    $('.event-uncheckin-btn').confirmation({
-        title:'Uncheck in from this event?'
-    }).on('click', eventCheckin);
-
+    $('.checkin-table').on('click', '.event-checkin-btn', eventCheckin);
+    $('.checkin-table').on('click', '.event-uncheckin-btn', eventCheckin);
     $('#grantEventCPBtn').on('click', assignEventCP);
 });
 

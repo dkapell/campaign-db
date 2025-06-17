@@ -377,6 +377,7 @@ interface FormattedSceneModel extends ModelData{
     users?:CampaignUser[]
     event?:EventData|string
     tags?:string[]
+    score?:number
 }
 
 interface SceneUserModel extends ModelData{

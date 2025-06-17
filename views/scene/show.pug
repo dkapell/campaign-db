@@ -104,7 +104,7 @@ block content
                         dt.col-sm-3 Location(s) #{capitalize(status)}
                         dd.col-sm-9= (_.pluck(locationsByRequest[status], 'name')).join(', ')
 
-        if scene.users.length
+        if scene.users
             -
                 let playersByScheduleStatus = scene.users.filter(user => {
                     return user.type === 'player'
@@ -126,7 +126,7 @@ block content
 
             else
                 dt.col-sm-3 Player Count
-                dd.col-sm-9= scene.player_count
+                dd.col-sm-9 #{scene.player_count_min} - #{scene.player_count_max}
                 for scheduleStatus in ['unscheduled', 'rejected']
                     if playersByScheduleStatus[scheduleStatus]
                         - let playersByRequestStatus = _.groupBy(playersByScheduleStatus[scheduleStatus], 'scene_request_status')
@@ -134,7 +134,7 @@ block content
                             dt.col-sm-3 Players #{capitalize(requestStatus)}
                             dd.col-sm-9= (_.pluck(playersByRequestStatus[requestStatus], 'name')).join(', ')
 
-        if scene.users.length
+        if scene.users
             -
 
                 let staffByScheduleStatus = scene.users.filter(user => {
@@ -157,9 +157,10 @@ block content
 
             else
                 dt.col-sm-3 Staff Count
-                dd.col-sm-9= scene.staff_count
-                    if scene.combat_staff_count
-                        span.ms-1 (#{scene.combat_staff_count} as Combat Staff)
+                dd.col-sm-9 #{scene.staff_count_min} - #{scene.staff_count_max}
+                    if scene.combat_staff_count_min
+                        span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
+
                 for scheduleStatus in ['unscheduled', 'rejected']
                     if staffByScheduleStatus[scheduleStatus]
                         - let staffByRequestStatus = _.groupBy(staffByScheduleStatus[scheduleStatus], 'scene_request_status')
@@ -187,4 +188,25 @@ block content
                         each requestStatus in _.keys(sourcesByRequestStatus)
                             dt.col-sm-3 Sources #{capitalize(requestStatus)}
                             dd.col-sm-9= (_.pluck(sourcesByRequestStatus[requestStatus], 'name')).join(', ')
+
+        if scene.skills.length
+            - const skillsByScheduleStatus = _.groupBy(scene.skills, 'scene_schedule_status');
+
+            if skillsByScheduleStatus.confirmed
+                dt.col-sm-3 Skills
+                dd.col-sm-9
+                    = (_.pluck(skillsByScheduleStatus.confirmed, 'name')).join(', ')
+
+            else if skillsByScheduleStatus.suggested
+                dt.col-sm-3 Skills Suggested
+                dd.col-sm-9
+                    = (_.pluck(skillsByScheduleStatus.suggested, 'name')).join(', ')
+
+            else
+                for scheduleStatus in ['unscheduled', 'rejected']
+                    if skillsByScheduleStatus[scheduleStatus]
+                        - let skillsByRequestStatus = _.groupBy(skillsByScheduleStatus[scheduleStatus], 'scene_request_status')
+                        each requestStatus in _.keys(skillsByRequestStatus)
+                            dt.col-sm-3 Skills #{capitalize(requestStatus)}
+                            dd.col-sm-9= (_.pluck(skillsByRequestStatus[requestStatus], 'name')).join(', ')
 

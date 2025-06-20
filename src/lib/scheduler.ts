@@ -59,7 +59,7 @@ interface SchedulerOutput{
     happiness?: Record<string,number>
 }
 
-async function runScheduler(eventId:number): Promise<SchedulerOutput>{
+async function runScheduler(eventId:number, options:SchedulerOptions={}): Promise<SchedulerOutput>{
     const event = await models.event.get(eventId);
     const eventScenes = await models.scene.find({event_id:eventId});
 
@@ -78,10 +78,12 @@ async function runScheduler(eventId:number): Promise<SchedulerOutput>{
         return sceneObj.clear();
     });
     const scenes = await models.scene.find({event_id:eventId});
-    const runs = config.get('scheduler.runs') as number;
+
+    const runs = (options.runs && options.runs <= 100)?options.runs:config.get('scheduler.runs') as number;
+    const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:5;
     const attempts = [];
 
-    await async.timesLimit(runs, 5, async function(idx): Promise<SchedulerResult>{
+    await async.timesLimit(runs, concurrency, async function(idx): Promise<SchedulerResult>{
         const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
         const schedule = new Schedule(eventId, scenes, cache);
         attempts.push(await schedule.scheduleScenes(scenesToPlace));

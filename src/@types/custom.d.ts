@@ -117,3 +117,8 @@ interface SchedulerResult{
     scenesProcessed: number
     happiness: number
 }
+
+interface ScheduleOptions{
+   runs?:number
+   concurrency?: number
+}

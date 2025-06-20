@@ -21,7 +21,7 @@ interface Session extends SessionData {
 
 interface CampaignUser {
    id: number,
-   name: string,
+   name?: string,
    email?: string,
    google_id?: string,
    site_admin?: boolean,
@@ -109,4 +109,11 @@ interface OrderItem {
 interface SceneWarnings {
     warning: string[]
     info: string[]
+}
+
+interface SchedulerResult{
+    unscheduled: number
+    schedule: Schedule
+    scenesProcessed: number
+    happiness: number
 }

@@ -288,7 +288,6 @@ async function update(req, res){
             throw new Error('Can not edit record from different campaign');
         }
         await checkPrereqs(req, scene);
-        console.log(scene)
         await req.models.scene.update(id, scene);
         await req.audit('scene', id, 'update', {old: current, new:scene});
         delete req.session.sceneData;

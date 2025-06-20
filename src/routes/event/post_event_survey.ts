@@ -49,9 +49,9 @@ async function showPostEventSurvey(req, res, next){
         }
         res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
 
-        if (_.has(req.session, 'postEventData')){
-            res.locals.attendance.post_event_data = req.session.postEventData.post_event_data;
-            delete req.session.postEventData;
+        if (_.has(req.session, 'postEventModel')){
+            res.locals.attendance.post_event_data = req.session.postEventModel.post_event_data;
+            delete req.session.postEventModel;
         }
 
         if (req.query.backto === 'list'){
@@ -72,7 +72,7 @@ async function submitPostEventSurvey(req, res){
     const eventId = req.params.id;
     const attendanceId = req.params.attendanceId;
     const attendance = req.body.attendance;
-    req.session.postEventData = attendance;
+    req.session.postEventModel = attendance;
     const action = req.body.action ||= 'save';
 
     try {
@@ -165,7 +165,7 @@ async function submitPostEventSurvey(req, res){
             const surveyResponseId = await req.models.survey_response.create(surveyResult);
             await req.models.attendance.update(current.id, {post_event_survey_response_id:surveyResponseId});
         }
-        delete req.session.postEventData;
+        delete req.session.postEventModel;
 
         switch (action){
             case 'hide':
@@ -295,7 +295,7 @@ async function exportPostEventSurveys(req, res, next){
                 }
                 return true;
             }).map((attendance) => {
-                const doc = surveyHelper.formatPostEventData(attendance, event);
+                const doc = surveyHelper.formatPostEventModel(attendance, event);
                 doc.data = attendance.post_event_data
                 return doc;
             });

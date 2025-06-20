@@ -59,6 +59,10 @@ $(function(){
         title:'Clear all non-confirmed scenes?'
     }).on('click', clearUnconfirmedScenes);
 
+    $('#run-scheduler-btn').confirmation({
+        title:'Run Scheduler for all non-confirmed Scenes?'
+    }).on('click', runSchedulerBtn);
+
     $('.users-btn').on('click', showUsersBtn);
 
     $('.resizer-close').on('click', function(e){
@@ -275,7 +279,7 @@ async function confirmScene($scene){
 
     const resultObj = await result.json();
     if (resultObj.success){
-        updateScene($scene, resultObj.scene.status);
+        updateSceneStatus($scene, resultObj.scene.status);
         const $slot = $(`#${$scene.attr('cell')}`);
         await updateSceneDetails($scene);
         updateSlotScenes($slot);
@@ -297,7 +301,7 @@ async function unconfirmScene($scene){
 
     const resultObj = await result.json();
     if (resultObj.success){
-        updateScene($scene, resultObj.scene.status);
+        updateSceneStatus($scene, resultObj.scene.status);
         const $slot = $(`#${$scene.attr('cell')}`);
         await updateSceneDetails($scene);
         updateSlotScenes($slot);
@@ -317,22 +321,7 @@ async function confirmAllScenes(e){
     });
 }
 
-async function clearUnconfirmedScenes(e){
-    e.preventDefault();
-    const $slot = $('#unscheduled');
 
-    $('.scene-item').each(async function() {
-        const $scene = $(this);
-        if ($scene.attr('status') !== 'scheduled'){
-            return;
-        }
-        $scene.attr('cell', $slot.attr('id'));
-        $scene.appendTo($slot);
-        await recordScheduleUpdate($scene, $slot);
-    });
-    await updateAllSlots();
-    await validateAllScenes();
-}
 
 function updateSlotScenes($slot){
 
@@ -426,11 +415,11 @@ function updateSlotScenes($slot){
             .css('grid-column', `${gridX} / span ${cols}`)
             .removeClass('d-none').addClass('d-flex');
 
-        updateScene($scene);
+        updateSceneStatus($scene);
     });
 }
 
-function updateScene($scene, status){
+function updateSceneStatus($scene, status){
     const sceneId = $scene.data('scene-id');
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
@@ -1159,7 +1148,20 @@ function showError(message){
 function hideError(){
     $('#schedule-alert').removeClass('show');
     $('#schedule-alert').hide();
+    $('#schedule-success').removeClass('show');
+    $('#schedule-success').hide();
 }
+
+function showSuccess(message){
+    $('#schedule-success').find('.alert-text').html(message);
+    $('#schedule-success').show();
+    $('#schedule-success').addClass('show');
+    const $container= $('#schedule-container');
+    $container.animate({
+        scrollTop:  $container.scrollTop() + ($('#schedule-success').position().top - $container.position().top)
+    }, 100);
+}
+
 
 function scrollToTimeslot(timeslotId){
     if($('#schedule-alert').hasClass('show')){
@@ -1234,4 +1236,81 @@ function addScheduleBusy(text, timeslotId){
         .removeClass('d-none').addClass('d-flex');
 
     $('#schedule-container-grid').append($busyScene);
+}
+
+async function clearUnconfirmedScenes(e){
+    e.preventDefault();
+    hideError();
+    $(this).find('i.fa')
+        .removeClass('fa-calendar-times')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+    const url = $(this).data('url');
+    const result = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'CSRF-Token': $(this).data('csrf')
+        }
+    });
+    const data = await result.json();
+    if (data.success){
+        showSuccess(`Cleared all unconfirmed Scenes.`);
+        data.scenes.forEach(updateSceneLocation);
+        await updateAllSlots();
+        await validateAllScenes();
+        $(this).find('i.fa')
+            .addClass('fa-calendar-times')
+            .removeClass('fa-spin')
+            .removeClass('fa-sync');
+    } else {
+        showError(data.error);
+    }
+}
+
+async function runSchedulerBtn(e){
+    e.preventDefault();
+    hideError();
+    $(this).find('i.fa')
+        .removeClass('fa-calendar')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+    showSuccess('Running Scheduler, please wait...')
+    const url = $(this).data('url');
+    const result = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'CSRF-Token': $(this).data('csrf')
+        }
+    });
+    const data = await result.json();
+    if (data.success){
+        showSuccess(`Ran Scheduler ${data.attempts} time(s), resulting in ${data.unscheduled} unscheduled Scenes.`);
+        data.scenes.forEach(updateSceneLocation);
+        await updateAllSlots();
+        await validateAllScenes();
+        $(this).find('i.fa')
+            .addClass('fa-calendar')
+            .removeClass('fa-spin')
+            .removeClass('fa-sync');
+    } else {
+        showError(data.error);
+    }
+}
+
+function updateSceneLocation(scene){
+    if (scene.status === 'scheduled' || scene.status === 'confirmed'){
+        const timeslotId = scene.timeslots[0];
+
+        for (let idx = 0; idx < scene.locations.length; idx++){
+            const $scene = $(`#scene-${scene.id}-${idx}`);
+            $scene.attr('cell', `cell-timeslot-${timeslotId}-location-${scene.locations[idx]}`);
+            updateSceneStatus($scene, scene.status);
+        }
+    } else {
+        $(`.scene-item[data-scene-id=${scene.id}]`).each(function(){
+
+            $(this).attr('cell', 'unscheduled');
+            updateSceneStatus($(this), scene.status);
+        });
+    }
 }

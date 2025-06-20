@@ -127,7 +127,7 @@ interface sceneElementStatuses{
 }
 async function postSave(sceneId:number, data:ModelData){
     await saveTags(sceneId, data);
-    for (const table of ['location', 'timeslot', 'source', 'user', 'skill']){
+    await async.each(['location', 'timeslot', 'source', 'user', 'skill'], async (table) => {
         if (_.has(data, `${table}s`)){
             const currentRecords = await models[`scene_${table}`].find({scene_id:sceneId});
 
@@ -140,7 +140,7 @@ async function postSave(sceneId:number, data:ModelData){
                     statuses.schedule = record.scene_schedule_status as string;
                 }
 
-               saveRecord(sceneId, table, record.id as number, statuses);
+               return saveRecord(sceneId, table, record.id as number, statuses);
             })
 
             await async.each(currentRecords as ModelData[], async (record:ModelData) => {
@@ -148,12 +148,11 @@ async function postSave(sceneId:number, data:ModelData){
                     return;
                 }
                 if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
-                    console.log(`removing ${table} ${JSON.stringify(record)}`)
                     return models[`scene_${table}`].delete(record);
                 }
             });
         }
-    }
+    });
 
 }
 
@@ -174,7 +173,6 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
             changed = true;
         }
         if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
-            console.log(`removeing ${table} ${JSON.stringify(doc)}`)
             return models[`scene_${table}`].delete(doc);
         }
         if (changed){
@@ -196,7 +194,7 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
         if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
             return;
         }
-        console.log(`creating ${table} ${JSON.stringify(record)}`)
+
         return models[`scene_${table}`].create(record);
     }
 }

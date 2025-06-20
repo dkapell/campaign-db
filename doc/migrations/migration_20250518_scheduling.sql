@@ -26,7 +26,7 @@ create table locations(
     multiple_scenes boolean default false,
     combat boolean default false,
     primary key(id),
-    CONSTRAINT scene_locations_campaign_fk FOREIGN KEY (campaign_id)
+    CONSTRAINT locations_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );

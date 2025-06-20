@@ -215,7 +215,7 @@ async function createAttendance(req, res){
         attendance.addons = parseAttendeeAddons(attendance.addons, req.checkPermission('gm'));
         attendance.addons = await filterAttendeeAddons(req, attendance.addons);
 
-        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(null, attendance);
+        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventModel(null, attendance);
 
         const id = await req.models.attendance.create(attendance);
 
@@ -353,7 +353,7 @@ async function updateAttendance(req, res){
 
         attendance.addons = parseAttendeeAddons(attendance.addons, req.checkPermission('gm'));
         attendance.addons = await filterAttendeeAddons(req, attendance.addons);
-        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventData(current.pre_event_survey_response_id, attendance);
+        attendance.pre_event_survey_response_id = await surveyHelper.savePreEventModel(current.pre_event_survey_response_id, attendance);
         attendance.campaign_id = current.campaign_id;
         req.session.attendanceData = attendance;
         await req.models.attendance.update(attendanceId, attendance);

@@ -3,7 +3,7 @@ import _ from 'underscore';
 import { v4 as uuidv4 } from 'uuid';
 import models from './models';
 
-function parseSurveyData(data, survey, current, userType){
+function parseSurveyModel(data, survey, current, userType){
     data ||= {};
     const post_event_data = {};
     if (survey){
@@ -119,7 +119,7 @@ function parseSurveyFields(input){
     return output;
 }
 
-function formatPostEventData(attendance, event){
+function formatPostEventModel(attendance, event){
     return {
         attendanceId: attendance.id,
         eventId: event.id,
@@ -235,7 +235,7 @@ async function fillAttendance(attendance, event){
 
 
 
-async function savePreEventSurveyData(responseId, attendance){
+async function savePreEventSurveyModel(responseId, attendance){
     if (!_.has(attendance, 'pre_event_data')){
         return null;
     }
@@ -284,7 +284,7 @@ async function savePreEventSurveyData(responseId, attendance){
 async function getPostEventSurveys(campaignId:number, userId?:number){
     const responses = [];
     const surveys = await models.survey.find({campaign_id: campaignId, type:'post event'});
-    const events:EventData[] = await models.event.find({campaign_id:campaignId, deleted:false});
+    const events:EventModel[] = await models.event.find({campaign_id:campaignId, deleted:false});
     const campaign = await models.campaign.get(campaignId);
     for (const survey of surveys){
         interface SurveyQuery {
@@ -317,11 +317,11 @@ async function getPostEventSurveys(campaignId:number, userId?:number){
 }
 
 export default {
-    parseData: parseSurveyData,
+    parseData: parseSurveyModel,
     parseFields: parseSurveyFields,
-    formatPostEventData: formatPostEventData,
+    formatPostEventModel: formatPostEventModel,
     formatPostEventResponses: formatPostEventResponses,
     fillAttendance: fillAttendance,
-    savePreEventData: savePreEventSurveyData,
+    savePreEventModel: savePreEventSurveyModel,
     getPostEventSurveys: getPostEventSurveys
 }

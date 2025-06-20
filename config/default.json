@@ -93,6 +93,10 @@
         "noProtection": [
             "/order/create-checkout-session"
         ]
+    },
+    "scheduler":{
+        "runs": 20,
+        "maxScenesPerRun": 1000
     }
 
 }

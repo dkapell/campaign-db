@@ -122,7 +122,7 @@ block content
                 dt.col-sm-3 Players Suggested
                 dd.col-sm-9
                     = (_.pluck(playersByScheduleStatus.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.player_count_max - playersByScheduleStatus.confirmed.length}, #{scene.player_count_min} - #{scene.player_count_max} Requested)
+                    span.ms-2 (+#{scene.player_count_max - playersByScheduleStatus.suggested.length}, #{scene.player_count_min} - #{scene.player_count_max} Requested)
 
             else
                 dt.col-sm-3 Player Count
@@ -153,7 +153,7 @@ block content
                 dt.col-sm-3 Staff Suggested
                 dd.col-sm-9
                     = (_.pluck(staffByScheduleStatus.suggested, 'name')).join(', ')
-                    span.ms-2 (+#{scene.staff_count_max - staffByScheduleStatus.confirmed.length}, #{scene.staff_count_min} - #{scene.staff_count_max} Requested)
+                    span.ms-2 (+#{scene.staff_count_max - staffByScheduleStatus.suggested.length}, #{scene.staff_count_min} - #{scene.staff_count_max} Requested)
 
             else
                 dt.col-sm-3 Staff Count

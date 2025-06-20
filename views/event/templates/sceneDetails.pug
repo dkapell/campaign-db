@@ -114,7 +114,7 @@ if scene.staff
                 if scene.staff.suggested
                     each staff in scene.staff.suggested
                         li.list-group-item.my-0.p-1
-                            a(href=`/user/${player.id}` target='_blank')
+                            a(href=`/user/${staff.id}` target='_blank')
                                 i.fas.fa-user.me-1.text-success
                                 = staff.name
                             .btn-group.float-end.ms-1(role='group')

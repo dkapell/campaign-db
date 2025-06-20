@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import async from 'async';
 import scheduleHelper from '../../lib/scheduleHelper';
+import scheduler from '../../lib/scheduler';
 
 async function showScheduler(req, res, next){
     const id = req.params.id;
@@ -129,8 +130,6 @@ async function updateScene(req, res){
         }
 
         const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id})
-
-        const startTimeslotIdx  = _.findIndex(timeslots, timeslot => {return timeslot.id === sceneData.timeslot});
 
         if (sceneData.timeslot === 'none'){
             for (const timeslot of scene.timeslots){
@@ -538,6 +537,45 @@ async function getUserSchedule(req, res){
     }
 }
 
+async function runScheduler(req, res){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const schedulerData = await scheduler.run(eventId);
+        res.json({
+            success:true,
+            attempts:schedulerData.attempts,
+            unscheduled: schedulerData.unscheduled,
+            scenes: await schedulerData.schedule.getScenes(),
+            happiness: schedulerData.happiness
+        });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function clearSchedule(req, res){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const schedulerData = await scheduler.clear(eventId);
+        res.json({
+            success:true,
+            scenes: await schedulerData.schedule.getScenes()
+        });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+
 
 export default {
     showScheduler,
@@ -551,5 +589,7 @@ export default {
     getUsersPerTimeslot,
     getBusyUsersAtTimeslot,
     exportSchedule,
-    getUserSchedule
+    getUserSchedule,
+    runScheduler,
+    clearSchedule
 };

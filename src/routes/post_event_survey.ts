@@ -14,7 +14,7 @@ async function list(req, res, next){
     };
     try {
         res.locals.title += ` - ${req.campaign.renames.post_event_survey.plural}`;
-        const events:EventData[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
+        const events:EventModel[] = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         const pastEvents = events.filter( (event) => { return event.end_time <= new Date(); })
         res.locals.events = pastEvents;
         const user = req.session.activeUser;

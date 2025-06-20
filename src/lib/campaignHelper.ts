@@ -256,11 +256,11 @@ async function splitTime(campaignId:number, time:Date){
 
 async function getPostEventSurveys(userId: number, events:ModelData[]){
     const postEventSurveys = [];
-    for (const event of events as EventData[]){
+    for (const event of events as EventModel[]){
         if (!event.post_event_survey_id){ continue; }
-        const attendance: AttendanceData = _.findWhere(event.attendees as ModelData[], {user_id: userId});
+        const attendance: AttendanceModel = _.findWhere(event.attendees as ModelData[], {user_id: userId});
         if (!attendance || !attendance.attending ){ continue; }
-        postEventSurveys.push(surveyHelper.formatPostEventData(attendance, event));
+        postEventSurveys.push(surveyHelper.formatPostEventModel(attendance, event));
     }
 
     return postEventSurveys.sort((a, b) => {

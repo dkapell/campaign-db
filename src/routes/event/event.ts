@@ -68,7 +68,7 @@ async function show(req, res, next){
                 }
                 return true;
             }).map((attendance) => {
-                return surveyHelper.formatPostEventData(attendance, event);
+                return surveyHelper.formatPostEventModel(attendance, event);
             });
         } else {
             res.locals.post_event_surveys = [];
@@ -603,6 +603,8 @@ router.get('/:id/timeslot', permission('contrib'), scheduleRoutes.getUsersPerTim
 router.get('/:id/timeslot/:timeslotId', permission('contrib'), scheduleRoutes.getUsersAtTimeslot);
 router.get('/:id/timeslot/:timeslotId/busy', permission('contrib'), scheduleRoutes.getBusyUsersAtTimeslot);
 router.get('/:id/user/:userId/schedule', scheduleRoutes.getUserSchedule);
+router.put('/:id/scheduler', permission('gm'), scheduleRoutes.runScheduler);
+router.put('/:id/scheduler/clear', permission('gm'), scheduleRoutes.clearSchedule);
 router.put('/:id/scene/:sceneId', permission('gm'), scheduleRoutes.updateScene);
 router.put('/:id/scene/:sceneId/confirm', permission('gm'), scheduleRoutes.confirmScene);
 router.put('/:id/scene/:sceneId/unconfirm', permission('gm'), scheduleRoutes.unconfirmScene);

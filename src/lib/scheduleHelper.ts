@@ -242,7 +242,10 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.combat_staff_count_max = scene.combat_staff_count_max;
         output.staff_url = scene.staff_url;
         output.tags = _.pluck(scene.tags, 'name');
-        output.score = scene.score;
+    }
+
+    if (scene.score){
+        output.score = scene.score
     }
 
     if (!forPlayer && scene.prereqs && typeof scene.prereqs !== 'string'){
@@ -520,15 +523,7 @@ async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotM
         return timeslot;
     });
 }
-async function getEventSchedule(eventId:number): Promise<TimeslotModel>{
-    const event = await models.event.get(eventId);
-    if (!event) { throw new Error('Invalid Event'); }
-    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
-    return async.map(timeslots, async(timeslot) => {
-        timeslot.scenes = await getScenesAtTimeslot(eventId, timeslot.id);
-        return timeslot;
-    });
-}
+
 async function getCsv(eventId:number, csvType:string):Promise<string>{
     const event = await models.event.get(eventId);
 
@@ -641,7 +636,6 @@ export default {
     formatUser,
     getEventUsers,
     getEventScenes,
-    getEventSchedule,
     getScenesAtTimeslot,
     getUsersAtTimeslot,
     getUserSchedule,

@@ -1,11 +1,9 @@
 import _ from 'underscore';
-import async from 'async';
-const corpora = require('corpora-project');
+import corpora from 'corpora-project';
 
 import userModel from '../../models/user';
 import eventModel from '../../models/event';
 import attendanceModel from '../../models/attendance';
-import characterModel from '../../models/character';
 import sceneModel from '../../models/scene';
 import tagModel from '../../models/tag';
 import locationModel from '../../models/location';
@@ -23,14 +21,12 @@ const models = {
     event: eventModel,
     character: characterModel,
     skill: skillModel,
-    event: eventModel,
     attendance: attendanceModel,
-    character: characterModel,
     scene: sceneModel
 };
 
 const eventId = 3;
-const sceneCount = 13;
+const sceneCount = 5;
 
 const data = {
     request: {
@@ -157,13 +153,13 @@ async function createRandomScene(event){
         status: 'ready',
         timeslot_count: getTimeslotCount(),
         locations_count: getLocationCount(),
-        player_count_min: getPlayerCount(),
-        staff_count_min: getStaffCount(),
+        player_count_min: getPlayerCount(2),
+        staff_count_min: getStaffCount(1),
         description: 'Created by script',
         timeslots: await getTimeslots(event.campaign_id),
         locations: await getLocations(event.campaign_id),
-        sources: await getSources(event.campaign_id),
-        skills: await getSkills(event.campaign_id)
+        sources: await getSources(),
+        skills: await getSkills()
     }
     scene.player_count_max = getPlayerCount(scene.player_count_min);
     scene.staff_count_max = getStaffCount(scene.staff_count_min);
@@ -326,7 +322,7 @@ function getAttendees(attendees, attendeeCount){
     return output;
 }
 
-async function getSources(campaignId){
+async function getSources(){
 
     const sourceIds = [];
     const sourceCount = weightedPick(data.source);
@@ -344,7 +340,7 @@ async function getSources(campaignId){
         return doc;
     });
 }
-async function getSkills(campaignId){
+async function getSkills(){
 
 
     const skillIds = [];
@@ -385,8 +381,7 @@ function pick(list, value){
 
 function weightedPick(list){
     const val = Math.floor(Math.random() * 100)+1;
-    let keys = _.keys(list);
-    keys = keys.map(function(e) { return Number(e)});
+    const keys = (_.keys(list)).map(function(e) { return Number(e)});
     for (let i = 0; i < keys.length; i++){
         if (Number(keys[i]) >= val){
             return list[keys[i]];

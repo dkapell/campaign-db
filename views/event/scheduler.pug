@@ -49,18 +49,36 @@ block content
                     )
                         i.fa.fa-calendar-check.me-2
                         | Confirm Schedule
-                    button.btn.btn-sm.btn-outline-warning#clear-schedule-btn(
+                    button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn(
                         role=button
                         data-bs-toggle='tooltip'
                         title='Clear all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler/clear`
+                        data-csrf=csrfToken
                     )
                         i.fa.fa-calendar-times.me-2
                         | Clear Schedule
+
+                    button.btn.btn-sm.btn-outline-warning#run-scheduler-btn(
+                        role=button
+                        data-bs-toggle='tooltip'
+                        title='Run Scheduler for all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler`
+                        data-csrf=csrfToken
+                    )
+                        i.fa.fa-calendar-alt.me-2
+                        | Run Scheduler
 
             .container.my-0
                 .row.my-0
                     .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
                         i.fa.fa-exclamation-triangle.me-2
+
+                        span.alert-text
+                        button.btn-close(type="button" aria-label="Close")
+                .row.my-0
+                    .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
+                        i.fas.fa-info.me-2
 
                         span.alert-text
                         button.btn-close(type="button" aria-label="Close")

@@ -2,7 +2,6 @@ import _ from 'underscore';
 import eventModel from '../../models/event';
 import sceneModel from '../../models/scene';
 import scheduler from '../../lib/scheduler';
-import scheduleHelper from '../../lib/scheduleHelper';
 
 const models = {
     event: eventModel,
@@ -12,16 +11,14 @@ const models = {
 const eventId = 3;
 
 (async function main() {
-    const event = await models.event.get(eventId);
-    const scenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
-        return !scene.event_id || scene.event_id === eventId;
-    });
-    const schedule = await scheduler.run(eventId, scenes);
-
-    for (const timeslot of schedule){
-        console.log(`${timeslot.name}: ${_.pluck(timeslot.scenes, 'name').join(', ')}`)
+    await wait(100);
+    await models.event.get(eventId);
+    const schedulerData = await scheduler.run(eventId);
+    console.log(`Took ${schedulerData.attempts} attempts, with a winning happiness of ${schedulerData.happiness.max} points and left ${schedulerData.unscheduled} scenes unscheduled`);
+    for (const scene of schedulerData.schedule.scenes){
+        console.log(`${scene.name}: T:[${scene.currentTimeslots.join(', ')}] L:[${scene.currentLocations.join(', ')}] S:${scene.score}`);
+        console.log(`    Staff:[${scene.currentStaff.join(', ')}], Players:[${scene.currentPlayers.join(', ')}]`)
     }
-
 
     process.exit(0);
 
@@ -30,7 +27,6 @@ const eventId = 3;
     console.trace(error);
 });
 
-
-function getChance(chance){
-    return Math.random() < chance;
+function wait(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }

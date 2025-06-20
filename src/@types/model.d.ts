@@ -91,26 +91,26 @@ interface SkillTagModel extends ModelData{
 
 interface SkillModel extends ModelData{
     id: number
-    campaign_id: number
-    name: string
-    summary: string
-    description: string
-    notes: string
-    cost: string
-    source_id: number
-    usage_id: number
-    status_id: number
-    provides: Provides
-    requires: SkillModel[]
-    require_num: number
-    conflicts: SkillModel[]
-    updated: Date
-    required: boolean
-    source: Record<string, unknown>
-    usage: Record<string, unknown>
-    status: Record<string, unknown>
-    tags: string[]|SkillTagModel[]
-    count: number
+    campaign_id?: number
+    name?: string
+    summary?: string
+    description?: string
+    notes?: string
+    cost?: string
+    source_id?: number
+    usage_id?: number
+    status_id?: number
+    provides?: Provides
+    requires?: SkillModel[]
+    require_num?: number
+    conflicts?: SkillModel[]
+    updated?: Date
+    required?: boolean
+    source?: Record<string, unknown>
+    usage?: Record<string, unknown>
+    status?: Record<string, unknown>
+    tags?: string[]|SkillTagModel[]
+    count?: number
     uses?: number
     users?: number[]|string|string[]
     details?: {
@@ -143,20 +143,20 @@ interface SourceTypeModel extends ModelData{
 
 interface SourceModel extends ModelData{
     id: number
-    campaign_id: number
-    name: string
-    description: string
-    notes: string
-    type_id: number
-    cost: number
-    provides: Provides
-    requires: SourceModel[]|number[]
-    require_num: number
-    conflicts: SourceModel[]|number[]
-    required: boolean
-    display_to_pc: boolean
-    type: SourceTypeModel
-    max_skills: number
+    campaign_id?: number
+    name?: string
+    description?: string
+    notes?: string
+    type_id?: number
+    cost?: number
+    provides?: Provides
+    requires?: SourceModel[]|number[]
+    require_num?: number
+    conflicts?: SourceModel[]|number[]
+    required?: boolean
+    display_to_pc?: boolean
+    type?: SourceTypeModel
+    max_skills?: number
     users?: number[]|string|string[]
 }
 
@@ -188,7 +188,7 @@ interface CharacterData extends ModelData {
     user?:CampaignUser
 }
 
-interface SurveyData extends ModelData {
+interface SurveyModel extends ModelData {
     id?: number
     campaign_id?: number
     name?: string
@@ -199,7 +199,7 @@ interface SurveyData extends ModelData {
 
 }
 
-interface EventData extends ModelData {
+interface EventModel extends ModelData {
     id?: number
     campaign_id?: number
     name?: string
@@ -213,12 +213,13 @@ interface EventData extends ModelData {
     hide_attendees?: boolean
     post_event_survey_deadline?: Date
     post_event_survey_id?: number
-    post_event_survey?: SurveyData
+    post_event_survey?: SurveyModel
     pre_event_survey_id?: number
-    pre_event_survey?: SurveyData
+    pre_event_survey?: SurveyModel
+    attendees?:AttendanceModel[]
 }
 
-interface AttendanceData extends ModelData {
+interface AttendanceModel extends ModelData {
     id?: number
     campaign_id?: number
     event_id?: number
@@ -235,6 +236,7 @@ interface AttendanceData extends ModelData {
     attendance_cp_granted?: boolean
     post_event_cp_granted?: boolean
     post_event_hidden?: boolean
+    user?:CampaignUser
 }
 
 interface AttributeRecord {
@@ -329,7 +331,7 @@ interface SceneModel extends ModelData{
     name?:string
     player_name?:string
     status?:string
-    description?:number
+    description?:string
     timeslot_count?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string
@@ -347,8 +349,10 @@ interface SceneModel extends ModelData{
     locations?:LocationModel[]
     users?:CampaignUser[]
     sources?:SourceModel[]
-    event?:EventData|string
+    skills?:SkillModel[]
+    event?:EventModel|string
     tags?:TagModel[]
+    score?:number
 }
 
 interface FormattedSceneModel extends ModelData{
@@ -358,7 +362,7 @@ interface FormattedSceneModel extends ModelData{
     name?:string
     player_name?:string
     status?:string
-    description?:number
+    description?:string
     timeslot_count?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string
@@ -375,7 +379,7 @@ interface FormattedSceneModel extends ModelData{
     staff?:Record<string, CampaignUser[]>
     usersByStatus?:Record<string, CampaignUser[]>
     users?:CampaignUser[]
-    event?:EventData|string
+    event?:EventModel|string
     tags?:string[]
     score?:number
 }

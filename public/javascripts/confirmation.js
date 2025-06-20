@@ -20,6 +20,10 @@
         this.off('click.confirmation').on('click.confirmation', confirmAction);
 
         async function confirmAction(e){
+            if ($(this).attr('click-confirmation-confirmed') === 'true'){
+                $(this).attr('click-confirmation-confirmed', 'false')
+                return true;
+            }
             const copy = $.extend(true, {}, e);
             e.preventDefault();
             e.stopPropagation();
@@ -38,8 +42,10 @@
             (async () => {
                 const result = await runConfirm();
                 if (result){
-                    $(copy.currentTarget).off('click.confirmation').trigger(copy);
-                    $(copy.currentTarget).on('click.confirmation', confirmAction);
+                    $(this).attr('click-confirmation-confirmed', 'true')
+                    $(copy.currentTarget).trigger(copy);
+                    //$(copy.currentTarget).off('click.confirmation').trigger(copy);
+                    //$(copy.currentTarget).on('click.confirmation', confirmAction);
                 }
                 return result;
             })();

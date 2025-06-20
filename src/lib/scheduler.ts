@@ -81,7 +81,7 @@ async function runScheduler(eventId:number): Promise<SchedulerOutput>{
     const runs = config.get('scheduler.runs') as number;
     const attempts = [];
 
-    await async.timesLimit(runs, 2, async function(idx): Promise<SchedulerResult>{
+    await async.timesLimit(runs, 5, async function(idx): Promise<SchedulerResult>{
         const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
         const schedule = new Schedule(eventId, scenes, cache);
         attempts.push(await schedule.scheduleScenes(scenesToPlace));

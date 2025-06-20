@@ -165,6 +165,11 @@ async function updateScene(req, res){
         } else {
             scene.event_id = null;
             scene.status = 'ready'
+            for (const user of scene.users){
+                if (user.scene_schedule_status === 'suggested'){
+                    user.scene_schedule_status = 'unscheduled';
+                }
+            }
         }
         await req.models.scene.update(sceneId, scene);
 
@@ -199,6 +204,93 @@ async function confirmScene(req, res){
                     item.scene_schedule_status = 'confirmed';
                 }
             }
+        }
+        await req.models.scene.update(sceneId, scene);
+        return res.json({success:true, scene:scene});
+
+    } catch (err){
+        return res.json({success:false, error:err.message});
+    }
+}
+
+async function confirmSceneUsers(req, res){
+    const eventId = req.params.id;
+    const sceneId = req.params.sceneId;
+    const type = req.params.type;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Scene');
+        }
+        if (scene.status !== 'scheduled'){
+            throw new Error('Scene is not Scheduled');
+        }
+        if(!type.match(/^(player|staff)$/)){
+            throw new Error('Invalid Type');
+        }
+
+        for (const user of scene.users){
+            if (user.scene_schedule_status !== 'suggested'){
+                continue;
+            }
+            if (type === 'player' && user.type !== 'player'){
+                continue;
+            }
+            if (type === 'staff' && user.type === 'player'){
+                continue;
+            }
+            user.scene_schedule_status = 'confirmed';
+        }
+        await req.models.scene.update(sceneId, scene);
+        return res.json({success:true, scene:scene});
+
+    } catch (err){
+        return res.json({success:false, error:err.message});
+    }
+}
+
+async function unconfirmSceneUsers(req, res){
+    const eventId = req.params.id;
+    const sceneId = req.params.sceneId;
+    const type = req.params.type;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Scene');
+        }
+        if (scene.status !== 'scheduled'){
+            throw new Error('Scene is not Scheduled');
+        }
+        if(!type.match(/^(player|staff)$/)){
+            throw new Error('Invalid Type');
+        }
+        if (scene.status === 'confirmed'){
+            return res.json({success:true, scene:scene});
+        }
+
+        for (const user of scene.users){
+            if (user.scene_schedule_status !== 'confirmed'){
+                continue;
+            }
+            if (type === 'player' && user.type !== 'player'){
+                continue;
+            }
+            if (type === 'staff' && user.type === 'player'){
+                continue;
+            }
+            user.scene_schedule_status = 'suggested';
         }
         await req.models.scene.update(sceneId, scene);
         return res.json({success:true, scene:scene});
@@ -585,6 +677,8 @@ export default {
     validateScenes,
     confirmScene,
     unconfirmScene,
+    confirmSceneUsers,
+    unconfirmSceneUsers,
     getUsersAtTimeslot,
     getUsersPerTimeslot,
     getBusyUsersAtTimeslot,

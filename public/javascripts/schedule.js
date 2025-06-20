@@ -145,6 +145,8 @@ async function updateSceneDetails($scene){
         $scene.find('.unconfirm-scene-btn').on('click', unconfirmSceneBtn);
         $scene.find('.unschedule-user-btn').on('click', unscheduleSceneUserBtn);
         $scene.find('.schedule-user-btn').on('click', scheduleSceneUserBtn);
+        $scene.find('.confirm-all-scene-users-btn').on('click', confirmAllSceneUsersBtn);
+        $scene.find('.unconfirm-all-scene-users-btn').on('click', unconfirmAllSceneUsersBtn);
     });
 }
 
@@ -265,6 +267,25 @@ async function unconfirmSceneBtn(e){
     $(this).tooltip('hide');
 }
 
+async function confirmAllSceneUsersBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+    const type = $(this).data('type');
+    $(this).one('hidden.bs.tooltip', async () =>{
+        confirmAllSceneUsers($scene, type);
+    });
+    $(this).tooltip('hide');
+}
+async function unconfirmAllSceneUsersBtn(e){
+    e.preventDefault();
+    const $scene = $(this).closest('.scene-item');
+    const type = $(this).data('type');
+    $(this).one('hidden.bs.tooltip', async () =>{
+        unconfirmAllSceneUsers($scene, type);
+    });
+    $(this).tooltip('hide');
+}
+
 async function confirmScene($scene){
     const sceneId = $scene.data('scene-id');
     const eventId = $('#eventId').val();
@@ -310,6 +331,52 @@ async function unconfirmScene($scene){
     }
 }
 
+async function confirmAllSceneUsers($scene, type){
+    const sceneId = $scene.data('scene-id');
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/scene/${sceneId}/users/confirm/${type}`;
+
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val()
+        }
+    });
+
+    const resultObj = await result.json();
+    if (resultObj.success){
+        updateSceneStatus($scene, resultObj.scene.status);
+        const $slot = $(`#${$scene.attr('cell')}`);
+        await updateSceneDetails($scene);
+        await updateSlotScenes($slot);
+        validateScenes([sceneId]);
+    } else {
+        showError(resultObj.error);
+    }
+}
+async function unconfirmAllSceneUsers($scene, type){
+    const sceneId = $scene.data('scene-id');
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/scene/${sceneId}/users/unconfirm/${type}`;
+
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val()
+        }
+    });
+
+    const resultObj = await result.json();
+    if (resultObj.success){
+        updateSceneStatus($scene, resultObj.scene.status);
+        const $slot = $(`#${$scene.attr('cell')}`);
+        await updateSceneDetails($scene);
+        await updateSlotScenes($slot);
+        validateScenes([sceneId]);
+    } else {
+        showError(resultObj.error);
+    }
+}
 async function confirmAllScenes(e){
     e.preventDefault();
     $('.scene-item').each(async function() {
@@ -320,8 +387,6 @@ async function confirmAllScenes(e){
         await confirmScene($scene);
     });
 }
-
-
 
 function updateSlotScenes($slot){
 
@@ -334,7 +399,7 @@ function updateSlotScenes($slot){
     let xCounter = 0;
 
     $children.sort((a, b) => {
-        return $(a).data('scene-name').localeCompare($(b).data('scene-name'))
+        return $(a).data('scene-name').localeCompare($(b).data('scene-name'));
     }).each(function(idx){
         const $scene = $(this);
         const timeslotCount = $scene.data('timeslot-count');
@@ -352,7 +417,7 @@ function updateSlotScenes($slot){
 
                 if (gridX >= columnCount){
                     gridY += maxRows;
-                    gridX = $slot.data('pos-x')
+                    gridX = $slot.data('pos-x');
                     xCounter = 0;
                     maxRows = 1;
                 }
@@ -456,38 +521,43 @@ async function validateAllScenes(){
                     sceneIds.push($(this).data('scene-id'));
                 }
             });
-            const url = `/event/${$('#eventId').val()}/scene/validate?`;
-
-            const result = await fetch(url + new URLSearchParams({
-                scenes: _.uniq(sceneIds)
-            }).toString());
-
-            const data = await result.json();
-            if (data.success){
-                for (const scene of data.scenes){
-                    const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
-                    $scenes.each(function() {
-                        const $scene = $(this);
-                        if (scene.issues.warning.length){
-                            $scene.addClass('validation-warning');
-                            $scene.find('.scene-warning').attr('content', makeValidationHtml(scene.issues.warning)[0].innerHTML);
-                        } else {
-                            $scene.removeClass('validation-warning');
-                        }
-                        if (scene.issues.info.length){
-                            $scene.addClass('validation-info');
-                            $scene.find('.scene-info').attr('content', makeValidationHtml(scene.issues.info)[0].innerHTML);
-                        } else {
-                            $scene.removeClass('validation-info');
-                        }
-                    });
-                }
-            } else {
-                showError('Scene Validation Failed');
-            }
+            return validateScenes(sceneIds);
         },
         updateTimeslotUsersCount
     ]);
+}
+
+async function validateScenes(sceneIds){
+    const url = `/event/${$('#eventId').val()}/scene/validate?`;
+
+    const result = await fetch(url + new URLSearchParams({
+        scenes: _.uniq(sceneIds)
+    }).toString());
+
+    const data = await result.json();
+    if (data.success){
+        for (const scene of data.scenes){
+            const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
+            $scenes.each(function() {
+                const $scene = $(this);
+                if (scene.issues.warning.length){
+                    $scene.addClass('validation-warning');
+                    $scene.find('.scene-warning').attr('content', makeValidationHtml(scene.issues.warning)[0].innerHTML);
+                } else {
+                    $scene.removeClass('validation-warning');
+                }
+                if (scene.issues.info.length){
+                    $scene.addClass('validation-info');
+                    $scene.find('.scene-info').attr('content', makeValidationHtml(scene.issues.info)[0].innerHTML);
+                } else {
+                    $scene.removeClass('validation-info');
+                }
+            });
+        }
+    } else {
+        showError('Scene Validation Failed');
+    }
+    return;
 }
 
 function makeValidationHtml(issues){
@@ -771,7 +841,7 @@ function stopDragUser($user, data){
     $('.scene-item.ui-droppable').droppable('destroy');
     $('.scene-item').removeClass('disabled');
     $('.scene-display').removeClass('bg-info-subtle');
-    $('.scene-display').removeClass('bg-success-subtle');f
+    $('.scene-display').removeClass('bg-success-subtle');
     $('.scene-display').removeClass('bg-danger-subtle');
 }
 
@@ -1189,7 +1259,7 @@ function highlightUserScenesToggle(){
 async function highlightUserSchedule(userId){
     $('.scene-name').removeClass('fw-bold');
     $('.busy-item').remove();
-    console.log('here')
+    console.log('here');
 
     if (!userId){
         $('.scene-item').removeClass('disabled');
@@ -1254,7 +1324,7 @@ async function clearUnconfirmedScenes(e){
     });
     const data = await result.json();
     if (data.success){
-        showSuccess(`Cleared all unconfirmed Scenes.`);
+        showSuccess('Cleared all unconfirmed Scenes.');
         data.scenes.forEach(updateSceneLocation);
         await updateAllSlots();
         await validateAllScenes();
@@ -1274,7 +1344,7 @@ async function runSchedulerBtn(e){
         .removeClass('fa-calendar')
         .addClass('fa-spin')
         .addClass('fa-sync');
-    showSuccess('Running Scheduler, please wait...')
+    showSuccess('Running Scheduler, please wait...');
     const url = $(this).data('url');
     const result = await fetch(url, {
         method: 'PUT',

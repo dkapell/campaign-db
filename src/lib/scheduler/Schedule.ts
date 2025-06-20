@@ -292,7 +292,7 @@ class Schedule {
                     } else {
                         unscheduled++;
                     }
-                    console.log(`n ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    //console.log(`n ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                     break;
                 }
                 case 'slotted':

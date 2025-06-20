@@ -607,6 +607,8 @@ router.put('/:id/scheduler', permission('gm'), scheduleRoutes.runScheduler);
 router.put('/:id/scheduler/clear', permission('gm'), scheduleRoutes.clearSchedule);
 router.put('/:id/scene/:sceneId', permission('gm'), scheduleRoutes.updateScene);
 router.put('/:id/scene/:sceneId/confirm', permission('gm'), scheduleRoutes.confirmScene);
+router.put('/:id/scene/:sceneId/users/confirm/:type', permission('gm'), scheduleRoutes.confirmSceneUsers);
+router.put('/:id/scene/:sceneId/users/unconfirm/:type', permission('gm'), scheduleRoutes.unconfirmSceneUsers);
 router.put('/:id/scene/:sceneId/unconfirm', permission('gm'), scheduleRoutes.unconfirmScene);
 router.put('/:id/user/:userId', permission('gm'), scheduleRoutes.updateUser);
 

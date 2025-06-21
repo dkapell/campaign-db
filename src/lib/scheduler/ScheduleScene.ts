@@ -296,14 +296,18 @@ class ScheduleScene  {
     async write(){
         for (const timeslot of this.data.timeslots){
             if (_.indexOf(this.currentTimeslots, timeslot.id) !== -1){
-                timeslot.scene_schedule_status = 'suggested';
+                if (timeslot.scene_schedule_status !== 'confirmed'){
+                    timeslot.scene_schedule_status = 'suggested';
+                }
             } else {
                 timeslot.scene_schedule_status = 'unscheduled';
             }
         }
         for (const location of this.data.locations){
             if (_.indexOf(this.currentLocations, location.id) !== -1){
-                location.scene_schedule_status = 'suggested';
+                if (location.scene_schedule_status !== 'confirmed'){
+                    location.scene_schedule_status = 'suggested';
+                }
             } else {
                 location.scene_schedule_status = 'unscheduled';
             }
@@ -311,9 +315,13 @@ class ScheduleScene  {
         for (const user of this.data.users){
             if (user.scene_schedule_status !== 'confirmed'){
                 if (_.indexOf(this.currentPlayers, user.id) !== -1){
-                    user.scene_schedule_status = 'suggested';
+                    if (user.scene_schedule_status !== 'confirmed'){
+                        user.scene_schedule_status = 'suggested';
+                    }
                 } else if (_.indexOf(this.currentStaff, user.id) !== -1){
-                    user.scene_schedule_status = 'suggested';
+                    if (user.scene_schedule_status !== 'confirmed'){
+                        user.scene_schedule_status = 'suggested';
+                    }
                 } else {
                     user.scene_schedule_status = 'unscheduled';
                 }
@@ -333,15 +341,15 @@ class ScheduleScene  {
         if (this.status !== 'confirmed'){
             this.data.status = 'ready';
             this.data.event_id = null;
-            for (const timeslot of this.data.timeslots){
-                if (timeslot.scene_schedule_status === 'suggested'){
-                    timeslot.scene_schedule_status = 'unscheduled';
-                }
+        }
+        for (const timeslot of this.data.timeslots){
+            if (timeslot.scene_schedule_status === 'suggested'){
+                timeslot.scene_schedule_status = 'unscheduled';
             }
-            for (const location of this.data.locations){
-                if (location.scene_schedule_status === 'suggested'){
-                   location.scene_schedule_status = 'unscheduled';
-                }
+        }
+        for (const location of this.data.locations){
+            if (location.scene_schedule_status === 'suggested'){
+               location.scene_schedule_status = 'unscheduled';
             }
         }
         for (const user of this.data.users){

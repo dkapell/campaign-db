@@ -230,7 +230,7 @@ async function confirmSceneUsers(req, res){
         if (!scene || scene.campaign_id !== req.campaign.id){
             throw new Error('Invalid Scene');
         }
-        if (scene.status !== 'scheduled'){
+        if (!scene.status.match(/^(scheduled|confirmed)$/)){
             throw new Error('Scene is not Scheduled');
         }
         if(!type.match(/^(player|staff)$/)){
@@ -272,7 +272,7 @@ async function unconfirmSceneUsers(req, res){
         if (!scene || scene.campaign_id !== req.campaign.id){
             throw new Error('Invalid Scene');
         }
-        if (scene.status !== 'scheduled'){
+        if (!scene.status.match(/^(scheduled|confirmed)$/)){
             throw new Error('Scene is not Scheduled');
         }
         if(!type.match(/^(player|staff)$/)){

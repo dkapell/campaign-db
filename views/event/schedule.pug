@@ -1,8 +1,8 @@
-extends ../layout-flex
+extends ../layout-panel
 include ../partials/scene
 include ../partials/schedule
 
-block content
+block intro
     -
         locations.push({id:'busy', name:'Special', tags:[]})
         let xAxis = locations
@@ -28,182 +28,122 @@ block content
     input#eventId(type='hidden' value=event.id)
     input#scheduleType(type='hidden' value='display')
     input#userType(type='hidden' value=checkPermission('event')?'staff':'player')
+    input#csrfToken(type='hidden' value=csrfToken)
 
-    .d-flex.flex-column.h-100.p-0
-        .screen-container.d-flex.flex-column#schedule-container.px-2.mb-4(
-            min-size=30
+block maincontent
+    .container.my-0
+        .row.my-0
+            .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
+                i.fa.fa-exclamation-triangle.me-2
+
+                span.alert-text
+                button.btn-close(type="button" aria-label="Close")
+    if !checkPermission('contrib')
+        .container
+            .row-my-2
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#highlight-user-scenes(type="checkbox")
+                        label.form-check-label(for="highlight-user-scenes") Highlight my Scenes
+
+    .row.my-2
+        #schedule-container-grid.d-grid.col(
+            style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
         )
-            .container.my-0
-                .row.my-0
-                    .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
-                        i.fa.fa-exclamation-triangle.me-2
+            each xItem, idx in xAxis
+                -
+                    const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
+                if xAxisType === 'location'
+                    div.location-header.text-center.align-bottom.mb-1.schedule-cell(
+                        id=`location-${xItem.id}-header`
+                        data-location-id=xItem.id
+                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
+                    )
+                        strong=xItem.name
+                        if checkPermission('event')
+                            div.text-start.px-2
+                                +locationTags(xItem)
+                else
+                    div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
+                        id=`timeslot-${xItem.id}-header`
+                        data-timeslot-id=xItem.id
+                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
 
-                        span.alert-text
-                        button.btn-close(type="button" aria-label="Close")
-            if !checkPermission('contrib')
-                .container
-                    .row-my-2
-                        .col
-                            .form-check.form-switch
-                                input.form-check-input#highlight-user-scenes(type="checkbox")
-                                label.form-check-label(for="highlight-user-scenes") Highlight my Scenes
+                    )
+                        span.flex-fill.text-center
+                            +timeslotName(xItem)
 
+            each yItem, row in yAxis
+                -
+                    const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
+                if xAxisType === 'location'
+                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap(
+                        id=`timeslot-${yItem.id}-header`
+                        data-timeslot-id=yItem.id
+                        style=`grid-row:${posY}; grid-column: 1`
+                    )
+                        span.flex-fill.text-center
+                            +timeslotName(yItem)
+                else
+                    div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
+                        id=`location-${yItem.id}-header`
+                        data-location-id=yItem.id
+                        style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1`
+                    )
+                        strong=yItem.name
+                        if checkPermission('event')
+                            div.text-start.px-2
+                                +locationTags(yItem)
+
+
+                each xItem, idx in xAxis
+                    -
+                        const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
+                        const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
+                        const timeslot = xAxisType==='location'?yItem:xItem
+                        const location = xAxisType==='location'?xItem:yItem
+
+                    div.schedule-cell.schedule-slot.border.overflow-visible(
+                        id=`cell-timeslot-${timeslot.id}-location-${location.id}`
+                        data-location-id=location.id
+                        data-timeslot-id=timeslot.id
+                        data-pos-x=posXstart
+                        data-pos-y=posY
+                        data-location-multiple=location.multiple_scenes?'true':'false'
+                        data-children-count=maxScenesPerSlot
+                        style=`grid-row: ${posY} /span ${(xAxisType!=='location'?cellsPerSlot:1)}; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)};`
+                    )
+                        span.float-end.schedule-drop-indicator.m-1.text-warning.schedule-drop-requested Weak Match
+                        span.float-end.schedule-drop-indicator.m-1.text-info.schedule-drop-required Strong Match
+                        span.float-end.schedule-drop-indicator.m-1.text-success.schedule-drop-suggested Suggested
+                        span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
+
+            each scene in scenes
+                if checkPermission('event') || scene.display_to_pc
+                    +sceneItem(scene, xAxisType, cellsPerSlot)
+
+            +nullBusyItem(xAxisType, cellsPerSlot)
+    if checkPermission('contrib')
+        .container
             .row.my-2
-                #schedule-container-grid.d-grid.col(
-                    style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
-                )
-                    each xItem, idx in xAxis
-                        -
-                            const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
-                        if xAxisType === 'location'
-                            div.location-header.text-center.align-bottom.mb-1.schedule-cell(
-                                id=`location-${xItem.id}-header`
-                                data-location-id=xItem.id
-                                style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
-                            )
-                                strong=xItem.name
-                                if checkPermission('event')
-                                    div.text-start.px-2
-                                        +locationTags(xItem)
-                        else
-                            div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
-                                id=`timeslot-${xItem.id}-header`
-                                data-timeslot-id=xItem.id
-                                style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
-
-                            )
-                                span.flex-fill.text-center
-                                    +timeslotName(xItem)
-
-                    each yItem, row in yAxis
-                        -
-                            const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
-                        if xAxisType === 'location'
-                            div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap(
-                                id=`timeslot-${yItem.id}-header`
-                                data-timeslot-id=yItem.id
-                                style=`grid-row:${posY}; grid-column: 1`
-                            )
-                                span.flex-fill.text-center
-                                    +timeslotName(yItem)
-                        else
-                            div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
-                                id=`location-${yItem.id}-header`
-                                data-location-id=yItem.id
-                                style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1`
-                            )
-                                strong=yItem.name
-                                if checkPermission('event')
-                                    div.text-start.px-2
-                                        +locationTags(yItem)
-
-
-                        each xItem, idx in xAxis
-                            -
-                                const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
-                                const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
-                                const timeslot = xAxisType==='location'?yItem:xItem
-                                const location = xAxisType==='location'?xItem:yItem
-
-                            div.schedule-cell.schedule-slot.border.overflow-visible(
-                                id=`cell-timeslot-${timeslot.id}-location-${location.id}`
-                                data-location-id=location.id
-                                data-timeslot-id=timeslot.id
-                                data-pos-x=posXstart
-                                data-pos-y=posY
-                                data-location-multiple=location.multiple_scenes?'true':'false'
-                                data-children-count=maxScenesPerSlot
-                                style=`grid-row: ${posY} /span ${(xAxisType!=='location'?cellsPerSlot:1)}; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)};`
-                            )
-                                span.float-end.schedule-drop-indicator.m-1.text-warning.schedule-drop-requested Weak Match
-                                span.float-end.schedule-drop-indicator.m-1.text-info.schedule-drop-required Strong Match
-                                span.float-end.schedule-drop-indicator.m-1.text-success.schedule-drop-suggested Suggested
-                                span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
-
-                    each scene in scenes
-                        if checkPermission('event') || scene.display_to_pc
-                            +sceneItem(scene, xAxisType, cellsPerSlot)
-
-                    +nullBusyItem(xAxisType, cellsPerSlot)
-            if checkPermission('contrib')
-                .container
-                    .row.my-2
-                        .col
-                            select.form-select.complex-select2#schedule-user-picker(
-                                data-allow-clear="true"
-                                data-placeholder='Attendee'
-                            )
-                                option
-                                for attendance in event.attendees
-                                    if attendance.attending
-                                        - const type = capitalize(attendance.user.typeForDisplay)
-                                        option(
-                                            value=attendance.user.id
-                                            title=attendance.user.name
-                                            data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                            data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                        ) #{capitalize(attendance.user.name)} (#{type})
-
-
-        .content-resizer.d-none.position-absolute.bottom-0.w-100#detail-container(
-            data-direction="vertical"
-            style='z-index:75'
-        )
-            .resizer.bg-dark(data-direction='vertical')
-                .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
-                    .badge.rounded-pill.text-bg-danger.me-2.resizer-close(
-                        style="cursor:pointer;"
-                        data-bs-toggle="tooltip"
-                        data-delay={ "show": 500, "hide": 100 }
-                        title="Close"
+                .col
+                    select.form-select.complex-select2#schedule-user-picker(
+                        data-allow-clear="true"
+                        data-placeholder='Attendee'
                     )
-                        .fa.fas.fa-fw.fa-times
-                    .badge.rounded-pill.text-bg-warning.me-2.resizer-move(
-                        data-bs-toggle="tooltip"
-                        data-delay={ "show": 500, "hide": 100 }
-                        title="Drag to Resize"
-                    )
-                        .fa.fas.fa-fw.fa-arrows-alt-v
+                        option
+                        for attendance in event.attendees
+                            if attendance.attending
+                                - const type = capitalize(attendance.user.typeForDisplay)
+                                option(
+                                    value=attendance.user.id
+                                    title=attendance.user.name
+                                    data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                    data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                ) #{capitalize(attendance.user.name)} (#{type})
 
-                    .badge.rounded-pill.text-bg-success.me-2.resizer-expand(
-                        style="cursor:pointer;"
-                        data-bs-toggle="tooltip"
-                        data-delay={ "show": 500, "hide": 100 }
-                        title="Expand"
-                    )
-                        .fa.fas.fa-fw.fa-expand-alt
 
-                    .badge.rounded-pill.text-bg-success.me-2.resizer-restore(
-                        style="cursor:pointer;"
-                        data-bs-toggle="tooltip"
-                        data-delay={ "show": 500, "hide": 100 }
-                        title="Restore"
-                    )
-                        .fa.fas.fa-fw.fa-compress-alt
 
-            #users-panel.py-3.px-4.bg-white.h-100(
-                tabindex="-1"
-                timeslot-id='none'
-                type='init'
-                scenes='[]'
-                data-bs-scroll="true"
-                data-bs-backdrop="false"
-            )
-
-                .d-block
-                    div(data-bs-theme="dark")
-                        button.float-end.btn-close.resizer-close(area-label="close" type="button")
-                    .row.py-2
-                        .col
-                            h5.offcanvas-title.title
-                    .row.loading
-                        .col
-                            .text-center.my-1
-                                .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
-                                    .visually-hidden Loading
-                    .row.py-2
-                        .col
-                            .content(style='display:none')
 
 append styles
     link(rel='stylesheet' href='/stylesheets/schedule.css')
@@ -213,4 +153,4 @@ append scripts
     script(src='/javascripts/templates/event/sceneDetails.js')
     script(src='/javascripts/templates/event/usersList.js')
     script(src='/javascripts/templates/event/busyUsersList.js')
-    script(src='/javascripts/schedule.js')
+    script(src='/javascripts/schedule/schedule.js')

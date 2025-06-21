@@ -6,19 +6,8 @@ $(function(){
         $.fn.dataTable.tables( {visible: true, api: true} ).columns.adjust();
     });
 
-    $('.data-table  tbody').on('click', '.clickable-row', clickRow);
-
     $('#exportCSV').click(exportCSV);
 
-    /*$('.delete-btn').confirmation({
-        title: 'Delete this item'
-    }).on('click', deleteItem);
-    */
-    $('.data-table tbody').on('click', '.action-btn', function(e){
-        e.stopPropagation();
-        const $this = $(this);
-        $this.tooltip('hide');
-    });
 });
 
 function prepDataTable(){
@@ -46,6 +35,12 @@ function prepDataTable(){
                 title: 'Delete this item?'
             }).on('click', deleteItem);
             $table.find('.action-confirmation-btn').confirmation({});
+            $table.find('tbody').on('click', '.action-btn', function(e){
+                e.stopPropagation();
+                const $this = $(this);
+                $this.tooltip('hide');
+            });
+            $table.find('tbody').on('click', '.clickable-row', clickRow);
         }
     };
 

@@ -46,7 +46,7 @@ if scene.tags
                 span.me-1=currentPlayerCount
             span of (#{scene.player_count_min}-#{scene.player_count_max})
         ul.list-group
-            if scheduleType === 'edit' && ((scene.players.confirmed && scene.status !== 'confirmed' ) || (scene.players.suggested && scene.players.suggested.length > 1))
+            if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
                 li.list-group-item.my-0.p-1
 
                     if scene.players.suggested && scene.players.suggested.length > 1
@@ -58,7 +58,8 @@ if scene.tags
                         )
                             i.fas.fa-check-circle.me-1
                             | Confirm
-                    if scene.players.confirmed && scene.status !== 'confirmed'
+
+                    if scheduleType === 'edit' && scene.players.confirmed && scene.status !== 'confirmed'
                         button.btn.btn-xs.btn-outline-warning.unconfirm-all-scene-users-btn.me-1(
                             role='button'
                             data-bs-toggle='tooltip'
@@ -132,7 +133,7 @@ if scene.staff
                 span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
 
             ul.list-group
-                if scheduleType === 'edit' && ((scene.staff.confirmed && scene.status !== 'confirmed' ) || (scene.staff.suggested && scene.staff.suggested.length > 1))
+                if (scene.staff.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.staff.suggested && scene.staff.suggested.length > 1)
                     li.list-group-item.my-0.p-1
 
                         if scene.staff.suggested && scene.staff.suggested.length > 1

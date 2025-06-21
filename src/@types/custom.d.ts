@@ -107,8 +107,8 @@ interface OrderItem {
 }
 
 interface SceneWarnings {
-    warning: string[]
-    info: string[]
+    warning: SceneIssueModel[]
+    info: SceneIssueModel[]
 }
 
 interface SchedulerResult{
@@ -118,7 +118,7 @@ interface SchedulerResult{
     happiness: number
 }
 
-interface ScheduleOptions{
+interface SchedulerOptions{
    runs?:number
    concurrency?: number
 }

@@ -1,0 +1,78 @@
+extends ./layout-flex
+
+block content
+
+    block intro
+
+    .d-flex.flex-column.h-100.p-0
+        .screen-container.d-flex.flex-column#top-panel.px-2.mb-4(
+            min-size=30
+        )
+            block maincontent
+
+        .content-resizer.d-none.position-absolute.bottom-0.w-100#detail-container(
+            data-direction="vertical"
+            style='z-index:75'
+        )
+            .resizer.bg-dark(data-direction='vertical')
+                .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
+                    .badge.rounded-pill.text-bg-danger.me-2.resizer-close(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Close"
+                    )
+                        .fa.fas.fa-fw.fa-times
+                    .badge.rounded-pill.text-bg-warning.me-2.resizer-move(
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Drag to Resize"
+                    )
+                        .fa.fas.fa-fw.fa-arrows-alt-v
+
+                    .badge.rounded-pill.text-bg-success.me-2.resizer-expand(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Expand"
+                    )
+                        .fa.fas.fa-fw.fa-expand-alt
+
+                    .badge.rounded-pill.text-bg-success.me-2.resizer-restore(
+                        style="cursor:pointer;"
+                        data-bs-toggle="tooltip"
+                        data-delay={ "show": 500, "hide": 100 }
+                        title="Restore"
+                    )
+                        .fa.fas.fa-fw.fa-compress-alt
+
+            #bottom-panel.py-3.px-4.bg-white.h-100(
+                    tabindex="-1"
+                    timeslot-id='none'
+                    type='init'
+                    scenes='[]'
+                    data-bs-scroll="true"
+                    data-bs-backdrop="false"
+                )
+
+                    .d-block
+                        div(data-bs-theme="dark")
+                            button.float-end.btn-close.resizer-close(area-label="close" type="button")
+                        .row.py-2
+                            .col
+                                h5.offcanvas-title.title
+                        .row.loading
+                            .col
+                                .text-center.my-1
+                                    .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
+                                        .visually-hidden Loading
+                        .row.py-2
+                            .col
+                                .content(style='display:none')
+
+append styles
+    link(rel='stylesheet' href='/stylesheets/panel.css')
+
+append scripts
+    script(src='/javascripts/panel.js')
+

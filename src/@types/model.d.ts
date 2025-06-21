@@ -413,3 +413,14 @@ interface ScheduleBusyModel extends ModelData{
     type_id: number
     name?: string
 }
+
+interface SceneIssueModel extends ModelData{
+    id: number
+    scene_id: number
+    level: string
+    code: string
+    text:string
+    ignored?: boolean
+    resolved?: boolean
+    created?: Date
+}

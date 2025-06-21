@@ -4,7 +4,6 @@ include ../partials/schedule
 
 block content
     -
-        locations.push({id:'busy', name:'Special', tags:[]})
         let xAxis = locations
         let yAxis = timeslots
         let xAxisType = 'location'
@@ -26,13 +25,57 @@ block content
     input#locationColumns(type='hidden' value=xAxis.length*(xAxisType==='location'?cellsPerSlot:1) )
     input#locationRows(type='hidden' value=yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) )
     input#eventId(type='hidden' value=event.id)
-    input#scheduleType(type='hidden' value='display')
-    input#userType(type='hidden' value=checkPermission('event')?'staff':'player')
+    input#scheduleType(type='hidden' value='edit')
+    input#csrfToken(type='hidden' value=csrfToken)
 
     .d-flex.flex-column.h-100.p-0
         .screen-container.d-flex.flex-column#schedule-container.px-2.mb-4(
             min-size=30
         )
+
+            if new Date(event.end_time) < new Date()
+                .container
+                    .row.mb-2
+                        .col
+                            .alert.alert-info
+                                i.fa.fa-info-circle.me-2
+                                | This event is in the past
+            .row.mb-2
+                .col.px-4
+                    button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Confirm all Scheduled Scenes'
+                    )
+                        i.fa.fa-calendar-check.me-2
+                        | Confirm Schedule
+                    button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Clear all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler/clear`
+                        data-csrf=csrfToken
+                    )
+                        i.fa.fa-calendar-times.me-2
+                        | Clear Schedule
+
+                    button.btn.btn-sm.btn-outline-warning.me-2#run-scheduler-btn(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Run Scheduler for all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler`
+                        data-csrf=csrfToken
+                    )
+                        i.fa.fa-calendar-alt.me-2
+                        | Run Scheduler
+                    button.btn.btn-sm.btn-outline-info#show-issues-btn(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Display all scheduling issues'
+                    )
+                        i.fas.fa-tasks.me-2
+                        | Show Issues
+
             .container.my-0
                 .row.my-0
                     .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
@@ -40,18 +83,18 @@ block content
 
                         span.alert-text
                         button.btn-close(type="button" aria-label="Close")
-            if !checkPermission('contrib')
-                .container
-                    .row-my-2
-                        .col
-                            .form-check.form-switch
-                                input.form-check-input#highlight-user-scenes(type="checkbox")
-                                label.form-check-label(for="highlight-user-scenes") Highlight my Scenes
+                .row.my-0
+                    .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
+                        i.fas.fa-info.me-2
+
+                        span.alert-text
+                        button.btn-close(type="button" aria-label="Close")
 
             .row.my-2
                 #schedule-container-grid.d-grid.col(
                     style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
                 )
+
                     each xItem, idx in xAxis
                         -
                             const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
@@ -62,9 +105,8 @@ block content
                                 style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
                             )
                                 strong=xItem.name
-                                if checkPermission('event')
-                                    div.text-start.px-2
-                                        +locationTags(xItem)
+                                div.text-start.px-2
+                                    +locationTags(xItem)
                         else
                             div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
                                 id=`timeslot-${xItem.id}-header`
@@ -74,6 +116,11 @@ block content
                             )
                                 span.flex-fill.text-center
                                     +timeslotName(xItem)
+
+                    if xAxisType === 'location'
+                        div.users-header.text-center(
+                            style=`grid-row: 1; grid-column: -2`)
+                            strong Users
 
                     each yItem, row in yAxis
                         -
@@ -93,9 +140,8 @@ block content
                                 style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1`
                             )
                                 strong=yItem.name
-                                if checkPermission('event')
-                                    div.text-start.px-2
-                                        +locationTags(yItem)
+                                div.text-start.px-2
+                                    +locationTags(yItem)
 
 
                         each xItem, idx in xAxis
@@ -120,30 +166,69 @@ block content
                                 span.float-end.schedule-drop-indicator.m-1.text-success.schedule-drop-suggested Suggested
                                 span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
-                    each scene in scenes
-                        if checkPermission('event') || scene.display_to_pc
-                            +sceneItem(scene, xAxisType, cellsPerSlot)
-
-                    +nullBusyItem(xAxisType, cellsPerSlot)
-            if checkPermission('contrib')
-                .container
-                    .row.my-2
-                        .col
-                            select.form-select.complex-select2#schedule-user-picker(
-                                data-allow-clear="true"
-                                data-placeholder='Attendee'
+                        if xAxisType === 'location'
+                            div.users-cell.align-items-center.d-flex.text-center.px-1(
+                                style=`grid-row: ${row+2}; grid-column: -2`
+                                data-timeslot-id=yItem.id
                             )
-                                option
-                                for attendance in event.attendees
-                                    if attendance.attending
-                                        - const type = capitalize(attendance.user.typeForDisplay)
-                                        option(
-                                            value=attendance.user.id
-                                            title=attendance.user.name
-                                            data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                            data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                        ) #{capitalize(attendance.user.name)} (#{type})
+                                +timeslotButtons(yItem)
 
+
+                    if xAxisType !== 'location'
+                        each xItem, idx in xAxis
+                            -
+                                const posXstart = (idx) + 2;
+                            div.users-cell.align-items-center.d-flex.text-center.px-1.border-start.border-end.justify-content-center(
+                                style=`grid-row: ${rows} / span ${cellsPerSlot}; grid-column: ${posXstart}`
+                                data-timeslot-id=xItem.id
+                            )
+                                +timeslotButtons(xItem)
+
+                    div(style=`grid-row: ${rows + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
+                        #schedule-legend.my-2(
+                            style=`grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
+                        )
+                                .bg-warning-subtle.px-2.py-1.border Weak Match
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 AND
+                                        span Timeslot Requested
+                                .bg-info-subtle.px-2.py-1.border Strong Match
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 OR
+                                        span Timeslot Required
+                                .bg-success-subtle.px-2.py-1.border Suggested
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 AND
+                                        span Timeslot Required
+                                .bg-danger-subtle.px-2.py-1.border Rejected
+                                    div.ms-2
+                                        span Location
+                                        strong.mx-1 OR
+                                        span Timeslot Rejected
+
+                    -
+                        const maxHeight = _.max(scenes, scene => {
+                            if (scene.status === 'ready') { return scene.timeslot_count; }
+                            return 0;
+                        });
+
+                    div( style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
+
+                        #unscheduled.schedule-cell.schedule-slot.border(
+                            data-location-id='none'
+                            data-timeslot-id='none'
+                            data-pos-x=1
+                            data-pos-y=2
+                            style=`grid-template-columns: repeat(${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: minmax(${rowHeight}px, auto); min-height: ${rowHeight}px`
+                        )
+                            div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 10')
+                                span.float-start.text-dark(style='z-index:0') Unscheduled Scenes
+
+                    each scene in scenes
+                        +sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
         .content-resizer.d-none.position-absolute.bottom-0.w-100#detail-container(
             data-direction="vertical"
@@ -205,7 +290,7 @@ block content
                         .col
                             .content(style='display:none')
 
-append styles
+
     link(rel='stylesheet' href='/stylesheets/schedule.css')
 append scripts
     script(src='https://cdn.jsdelivr.net/npm/async@3.2.6/dist/async.min.js')
@@ -213,4 +298,5 @@ append scripts
     script(src='/javascripts/templates/event/sceneDetails.js')
     script(src='/javascripts/templates/event/usersList.js')
     script(src='/javascripts/templates/event/busyUsersList.js')
+    script(src='/javascripts/templates/event/issuesList.js')
     script(src='/javascripts/schedule.js')

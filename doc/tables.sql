@@ -1202,3 +1202,23 @@ create table schedule_busies(
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type scene_issue_level as ENUM(
+    'warning',
+    'info'
+);
+
+create table scene_issues(
+    id serial,
+    scene_id int not null,
+    level scene_issue_level not null,
+    code varchar(20) not null,
+    text varchar(255) not null,
+    ignored boolean default false,
+    resolved boolean default false,
+    created timestamp with time zone default now(),
+    unique(scene_id, code, text),
+    primary key (id),
+    CONSTRAINT scene_issues_scene_fk FOREIGN KEY (scene_id)
+        REFERENCES "scenes" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);

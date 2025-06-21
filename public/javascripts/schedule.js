@@ -1,4 +1,5 @@
-/* globals _ scenedetailsTemplate userslistTemplate busyuserslistTemplate async */
+/* globals _ scenedetailsTemplate userslistTemplate busyuserslistTemplate async issueslistTemplate*/
+/* globals splitDetailPanel fullDetailPanel closeDetailPanel*/
 $(function(){
     $('.scene-item-draggable').draggable({
         snap:'.schedule-slot',
@@ -63,28 +64,16 @@ $(function(){
         title:'Run Scheduler for all non-confirmed Scenes?'
     }).on('click', runSchedulerBtn);
 
+    $('#show-issues-btn').on('click', showIssuesBtn);
+
     $('.users-btn').on('click', showUsersBtn);
 
-    $('.resizer-close').on('click', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        closeDetailPanel();
+    $('#detail-container').on('closed', function(e){
         clearTimeslotHighlight();
     });
-    $('.resizer-expand').on('click', function(){
-        fullDetailPanel();
-    });
-    $('.resizer-restore').on('click', function(){
-        splitDetailPanel();
-    });
-    async.parallel([
-        validateAllScenes,
-        updateAllSlots,
-    ]);
 
-    $('.resizer').each(function(){
-        resizable($(this)[0]);
-    });
+    validateAllScenes();
+    updateAllSlots();
 
     $('.complex-select2').each(function(e){
         const $select = $(this);
@@ -117,7 +106,7 @@ function clearTimeslotHighlight(){
     $('.schedule-cell').removeClass('text-bg-info');
     $('.users-btn').removeClass('active');
     $('.scene-item').removeClass('scene-item-droppable');
-    const sceneIds = JSON.parse($('#users-panel').attr('scenes'));
+    const sceneIds = JSON.parse($('#bottom-panel').attr('scenes'));
     for (const sceneId of sceneIds){
 
         $(`.scene-item[data-scene-id=${sceneId}]`).find('.scene-details').collapse('hide');
@@ -513,9 +502,9 @@ async function validateAllScenes(){
     if ($('#userType').val() === 'player'){
         return;
     }
-    const sceneIds = [];
     async.parallel([
         async ()=>{
+            const sceneIds = [];
             $('.scene-item').each(function(){
                 if (!$(this).data('busy')){
                     sceneIds.push($(this).data('scene-id'));
@@ -540,15 +529,17 @@ async function validateScenes(sceneIds){
             const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
             $scenes.each(function() {
                 const $scene = $(this);
-                if (scene.issues.warning.length){
+                const warningIssues = scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored;});
+                if (warningIssues.length){
                     $scene.addClass('validation-warning');
-                    $scene.find('.scene-warning').attr('content', makeValidationHtml(scene.issues.warning)[0].innerHTML);
+                    $scene.find('.scene-warning').attr('content', makeValidationHtml(warningIssues)[0].innerHTML);
                 } else {
                     $scene.removeClass('validation-warning');
                 }
-                if (scene.issues.info.length){
+                const infoIssues = scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored;});
+                if (infoIssues.length){
                     $scene.addClass('validation-info');
-                    $scene.find('.scene-info').attr('content', makeValidationHtml(scene.issues.info)[0].innerHTML);
+                    $scene.find('.scene-info').attr('content', makeValidationHtml(infoIssues)[0].innerHTML);
                 } else {
                     $scene.removeClass('validation-info');
                 }
@@ -564,7 +555,7 @@ function makeValidationHtml(issues){
     const $ul = $('<ul>');
     for (const issue of issues){
         const $li = $('<li>');
-        $li.text(issue);
+        $li.text(issue.text);
         $ul.append($li);
     }
     return $ul;
@@ -649,12 +640,12 @@ async function showUsersBtn(e){
     const timeslotId = $btn.data('timeslot-id');
     const type = $btn.data('type');
     $('.users-btn').removeClass('active');
-    if (Number($('#users-panel').attr('timeslot-id')) !== timeslotId){
+    if (Number($('#bottom-panel').attr('timeslot-id')) !== timeslotId){
         clearTimeslotHighlight();
     }
 
-    if (Number($('#users-panel').attr('timeslot-id')) === timeslotId &&
-        $('#users-panel').attr('type') === type &&
+    if (Number($('#bottom-panel').attr('timeslot-id')) === timeslotId &&
+        $('#bottom-panel').attr('type') === type &&
         $('#detail-container').hasClass('show')){
         clearTimeslotHighlight();
         closeDetailPanel();
@@ -664,6 +655,7 @@ async function showUsersBtn(e){
     $btn.find('i.fas')
         .removeClass('fa-user')
         .removeClass('fa-users')
+        .removeClass('fa-user-check')
         .addClass('fa-spin')
         .addClass('fa-sync');
     $btn.tooltip('hide');
@@ -681,6 +673,7 @@ async function showUsersBtn(e){
     let icon = 'fa-users';
     if (type === 'player'){icon = 'fa-user'; }
     if (type === 'all'){icon = 'fa-globe'; }
+    if (type === 'busy'){icon = 'fa-user-check'; }
 
     $btn.find('i.fas')
         .removeClass('fa-sync')
@@ -693,21 +686,21 @@ async function updateUsersPanel(timeslotId, type){
         return;
     }
     if (!timeslotId){
-        timeslotId = $('#users-panel').attr('timeslot-id');
+        timeslotId = $('#bottom-panel').attr('timeslot-id');
     }
     if (!type){
-        type = $('#users-panel').attr('type');
+        type = $('#bottom-panel').attr('type');
     }
     if (type === 'init'){
         return;
     }
 
-    $('#users-panel').attr('type', type);
-    $('#users-panel').attr('timeslot-id', timeslotId);
+    $('#bottom-panel').attr('type', type);
+    $('#bottom-panel').attr('timeslot-id', timeslotId);
 
-    $('#users-panel').find('.content').hide();
-    $('#users-panel').find('.loading').show();
-    $('#users-panel').find('.title').text('Loading');
+    $('#bottom-panel').find('.content').hide();
+    $('#bottom-panel').find('.loading').show();
+    $('#bottom-panel').find('.title').text('Loading');
     const eventId = $('#eventId').val();
     let url = '';
     if (type === 'busy-all'){
@@ -720,7 +713,7 @@ async function updateUsersPanel(timeslotId, type){
     const data = await result.json();
     if (data.success){
         formatUsersData(data, type);
-        $('#users-panel').find('.loading').hide();
+        $('#bottom-panel').find('.loading').hide();
     } else {
         showError(data.error);
     }
@@ -740,7 +733,7 @@ function formatUsersData(data, type){
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
     data.type = type;
-    const $panel = $('#users-panel');
+    const $panel = $('#bottom-panel');
     $panel.attr('timeslot-id', data.timeslot.id);
     $panel.attr('scenes', JSON.stringify(_.pluck(data.scenes, 'id')));
     $panel.find('.title').text(title);
@@ -1010,200 +1003,7 @@ async function updateTimeslotUsersCount(){
     }
 }
 
-async function closeDetailPanel(){
-    new Promise((resolve, reject) => {
-        if (!$('#detail-container').hasClass('show')){
-            return;
-        }
 
-        $('#schedule-container')
-            .removeClass('d-none')
-            .addClass('d-flex')
-            .animate({height:'100%'}, 200);
-
-        $('#detail-container')
-            .addClass('d-none')
-            .removeClass('show')
-            .css({overflow:'hidden'})
-            .animate({height:'0'}, 200, ()=>{
-                resolve();
-            });
-    });
-}
-
-async function fullDetailPanel(hideAdjust, hideClose = false){
-    new Promise((resolve, reject)=>{
-        let minSize = 0;
-        if ($('#schedule-container').attr('min-size')){
-            minSize = $('#schedule-container').attr('min-size');
-        }
-        $('#schedule-container')
-            .removeClass('d-none')
-            .addClass('d-flex')
-            .animate({height:`${minSize}%`}, 200);
-        if(hideAdjust){
-            $('#detail-container').addClass('d-none');
-        } else {
-            $('#detail-container').removeClass('d-none');
-        }
-
-        if (hideClose){
-            $('#detail-container >> .resizer-close').addClass('d-none');
-        } else {
-            $('#detail-container >> .resizer-close').removeClass('d-none');
-        }
-        $('#detail-container .resizer-expand').hide();
-        $('#detail-container .resizer-restore').show();
-        $('#detail-container')
-            .removeClass('d-none')
-            .addClass('show')
-            .css({overflow:'visible'})
-            .animate({height:`${100-minSize}%`}, 200, ()=>{
-                resolve();
-            });
-    });
-}
-
-async function splitDetailPanel(hideClose = false){
-    new Promise((resolve, reject) => {
-        if (hideClose){
-            $('#detail-container .resizer-close').addClass('d-none');
-        } else {
-            $('#detail-container .resizer-close').removeClass('d-none');
-        }
-
-        $('#detail-container .resizer-expand').show();
-        $('#detail-container .resizer-restore').hide();
-        $('#schedule-container')
-            .removeClass('d-none')
-            .addClass('d-flex')
-            .show()
-            .animate({height:'60%'}, 200);
-
-        $('#detail-container')
-            .removeClass('d-none')
-            .addClass('show')
-            .css({overflow:'visible'})
-            .show();
-
-        if(!$('#detail-container').hasClass('show')){
-            $('#detail-container').css({height:'0%'});
-        }
-        $('#detail-container .resizer-expand').show();
-        $('#detail-container .resizer-restore').hide();
-        $('#detail-container').animate({height:'40%'}, 200, () => {
-            resolve();
-        });
-    });
-}
-
-
-function resizable(resizer) {
-    const direction = resizer.getAttribute('data-direction') || 'horizontal';
-    const prevSibling = resizer.parentElement.previousElementSibling;
-    const nextSibling = resizer.parentElement;
-    const minSize = Number(prevSibling.getAttribute('min-size'));
-    // The current position of mouse
-    let x = 0;
-    let y = 0;
-    let prevSiblingHeight = 0;
-    let prevSiblingWidth = 0;
-
-    // Handle the mousedown event
-    // that's triggered when user drags the resizer
-    const mouseDownHandler = function(e) {
-        // Get the current mouse position
-        x = e.clientX;
-        y = e.clientY;
-        const rect = prevSibling.getBoundingClientRect();
-        prevSiblingHeight = rect.height;
-        prevSiblingWidth = rect.width;
-
-        // Attach the listeners to `document`
-        document.addEventListener('mousemove', mouseMoveHandler);
-        document.addEventListener('mouseup', mouseUpHandler);
-    };
-
-    const mouseMoveHandler = function(e) {
-        // How far the mouse has been moved
-        const dx = e.clientX - x;
-        const dy = e.clientY - y;
-
-
-        switch (direction) {
-            case 'vertical':{
-                let h = (prevSiblingHeight + dy) * 100 / prevSibling.parentNode.getBoundingClientRect().height;
-                if (minSize && h < minSize){
-                    h = minSize;
-                }
-
-                prevSibling.style.height = `${h}%`;
-                nextSibling.style.height = `${100-h}%`;
-                break;
-            }
-            case 'horizontal':
-            default:{
-                let w = (prevSiblingWidth + dx) * 100 / resizer.parentNode.getBoundingClientRect().width;
-                if (minSize && w < minSize){
-                    w = minSize;
-                }
-                prevSibling.style.width = `${w}%`;
-                break;
-            }
-        }
-
-        const cursor = direction === 'horizontal' ? 'col-resize' : 'row-resize';
-        resizer.style.cursor = cursor;
-        document.body.style.cursor = cursor;
-
-        prevSibling.style.userSelect = 'none';
-        prevSibling.style.pointerEvents = 'none';
-
-        nextSibling.style.userSelect = 'none';
-        nextSibling.style.pointerEvents = 'none';
-        if (direction === 'vertical'){
-            if (parseInt(prevSibling.style.height) < (minSize+3)){
-                $(resizer).find('.resizer-expand').hide();
-                $(resizer).find('.resizer-restore').show();
-            } else {
-                $(resizer).find('.resizer-expand').show();
-                $(resizer).find('.resizer-restore').hide();
-            }
-        }
-    };
-
-    const mouseUpHandler = function() {
-        resizer.style.removeProperty('cursor');
-        document.body.style.removeProperty('cursor');
-
-        prevSibling.style.removeProperty('user-select');
-        prevSibling.style.removeProperty('pointer-events');
-
-        nextSibling.style.removeProperty('user-select');
-        nextSibling.style.removeProperty('pointer-events');
-
-        // Remove the handlers of `mousemove` and `mouseup`
-        document.removeEventListener('mousemove', mouseMoveHandler);
-        document.removeEventListener('mouseup', mouseUpHandler);
-        if (parseInt(nextSibling.style.height) < 10){
-            closeDetailPanel();
-            clearTimeslotHighlight();
-        }
-    };
-
-    // Attach the handler
-    resizer.addEventListener('mousedown', mouseDownHandler);
-
-    resizer.addEventListener('dblclick', function(){
-        const height = parseInt($('#schedule-container')[0].style.height);
-        if ( height < (minSize+5)){
-            splitDetailPanel();
-
-        } else {
-            fullDetailPanel();
-        }
-    });
-}
 
 function showError(message){
     $('#schedule-alert').find('.alert-text').html(message);
@@ -1239,7 +1039,7 @@ function scrollToTimeslot(timeslotId){
     }
     const $header = $(`.timeslot-header[data-timeslot-id=${timeslotId}]`);
     if ($($header).length){
-        const $container= $('#schedule-container');
+        const $container= $('#top-panel');
         $container.animate({
             scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - 50
 
@@ -1383,4 +1183,108 @@ function updateSceneLocation(scene){
             updateSceneStatus($(this), scene.status);
         });
     }
+}
+
+async function showIssuesBtn(e){
+    e.preventDefault();
+    $(this).tooltip('hide');
+
+    if ($('#bottom-panel').attr('type') === 'issues' &&
+        $('#detail-container').hasClass('show')){
+        closeDetailPanel();
+        return;
+    }
+
+    $('#bottom-panel').find('.content').hide();
+    $('#bottom-panel').find('.loading').show();
+    $(this).find('i.fas')
+        .removeClass('fa-tasks')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+
+    const sceneIds = [];
+    $('.scene-item').each(function(){
+        if (!$(this).data('busy')){
+            sceneIds.push($(this).data('scene-id'));
+        }
+    });
+    const url = `/event/${$('#eventId').val()}/scene/validate?`;
+    const result = await fetch(url + new URLSearchParams({
+        scenes: _.uniq(sceneIds)
+    }).toString());
+
+    const data = await result.json();
+
+    if (data.success){
+
+        const $panel = $('#bottom-panel');
+        $panel.attr('timeslot-id', null);
+        $panel.attr('type', 'issues');
+        $panel.attr('scenes', JSON.stringify([]));
+        $panel.find('.title').text('Issue List');
+        $panel.find('.content').html(issueslistTemplate(data)).show();
+        $panel.find('.content').find('[data-bs-toggle="tooltip"]').tooltip({
+            delay: { 'show': 300, 'hide': 100 },
+        });
+        $panel.find('a.scene-link').on('click', function(e){
+            e.preventDefault();
+            const sceneId = $(this).data('scene-id');
+            highlightScene(sceneId);
+        });
+        $panel.find('#showIgnoredIssues').on('change', updateIgnoredIssueList).trigger('change');
+        $panel.find('.issue-ignore-btn').on('click', updateIssue);
+        $panel.find('.loading').hide();
+        $(this).find('i.fas')
+            .addClass('fa-tasks')
+            .removeClass('fa-spin')
+            .removeClass('fa-sync');
+
+        if (!$('#detail-container').hasClass('show')){
+            await splitDetailPanel(50);
+        }
+
+    } else {
+        showError(data.message);
+    }
+}
+
+function updateIgnoredIssueList(e){
+    if($(this).is(':checked')){
+        $('#issues-table').find('tr[ignored="true"]').show();
+    } else {
+        $('#issues-table').find('tr[ignored="true"]').hide();
+    }
+}
+
+async function updateIssue(e){
+    e.preventDefault();
+    const $row = $(this).closest('tr');
+    const issueId = $(this).data('issue-id');
+    const status = $(this).data('status');
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/issue/${issueId}/${status}`;
+    const result = await fetch(url, {
+        method:'PUT',
+        headers: {
+            'CSRF-Token': $('#csrfToken').val(),
+        }
+    });
+    const data = await result.json();
+    if (data.success){
+        $row.attr('ignored', data.issue.ignored?'true':'false');
+        $('#showIgnoredIssues').trigger('change');
+        validateScenes([data.issue.scene_id]);
+    } else {
+        showError(data.message);
+    }
+}
+
+function highlightScene(sceneId){
+    const cell = $(`#scene-${sceneId}-0`).attr('cell');
+    const timeslotId = $(`#${cell}`).data('timeslot-id');
+    $('.timeslot-header').removeClass('text-bg-info');
+    $('.schedule-cell').removeClass('text-bg-info');
+    $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+    $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+    scrollToTimeslot(timeslotId);
 }

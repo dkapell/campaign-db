@@ -611,5 +611,6 @@ router.put('/:id/scene/:sceneId/users/confirm/:type', permission('gm'), schedule
 router.put('/:id/scene/:sceneId/users/unconfirm/:type', permission('gm'), scheduleRoutes.unconfirmSceneUsers);
 router.put('/:id/scene/:sceneId/unconfirm', permission('gm'), scheduleRoutes.unconfirmScene);
 router.put('/:id/user/:userId', permission('gm'), scheduleRoutes.updateUser);
+router.put('/:id/issue/:issueId/:status', permission('gm'), scheduleRoutes.updateIssue);
 
 export default router;

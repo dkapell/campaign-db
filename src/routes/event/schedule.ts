@@ -24,8 +24,9 @@ async function showScheduler(req, res, next){
             }
             return true;
         });
-        res.locals.scenes = await async.map(scenes, async (scene) => {
-            scene.issues = await scheduleHelper.validateScene(scene);
+        const eventScenes = await req.models.scene.find({event_id:event.id});
+        res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
+            scene.issues = await scheduleHelper.validateScene(scene, eventScenes);
             return scene;
         });
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
@@ -67,8 +68,9 @@ async function showSchedule(req, res, next){
         }
 
         const scenes = await req.models.scene.find({campaign_id:req.campaign.id, event_id:event.id, status:'confirmed'})
-        res.locals.scenes = await async.map(scenes, async (scene) => {
-            scene.issues = await scheduleHelper.validateScene(scene);
+        const eventScenes = await req.models.scene.find({event_id:event.id});
+        res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
+            scene.issues = await scheduleHelper.validateScene(scene, eventScenes);
             return scene;
         });
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
@@ -345,12 +347,14 @@ async function validateScenes(req, res){
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
-        const scenes = await async.mapSeries(sceneIds, async(sceneId) => {
+        const eventScenes = await req.models.scene.find({event_id:eventId});
+        const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {
+                name: scene.name,
                 id: scene.id,
-                issues: await scheduleHelper.validateScene(scene)
+                issues: await scheduleHelper.validateScene(scene, eventScenes)
             }
         })
         res.json({success:true, scenes:scenes});
@@ -667,7 +671,46 @@ async function clearSchedule(req, res){
         res.json({success:false, error:err.message})
     }
 }
+async function updateIssue(req, res){
+    const eventId = req.params.id;
+    const issueId = req.params.issueId;
+    const status = req.params.status
+    try{
+        const event = await req.models.event.get(eventId);
 
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const issue = await req.models.scene_issue.get(issueId);
+        if (!issue){
+            throw new Error('Invalid Issue');
+        }
+        const scene = await req.models.scene.get(issue.scene_id);
+        if (scene.event_id !== event.id){
+            throw new Error('Invalid Event');
+        }
+        switch (status){
+            case 'ignore':
+                if (issue.ignored){
+                    return res.json({ success:true, issue: issue });
+                }
+                issue.ignored = true;
+                break;
+            case 'unignore':
+                if (!issue.ignored){
+                    return res.json({ success:true, issue: issue });
+                }
+                issue.ignored = false;
+                break;
+            default:
+                throw new Error('Invalid Status');
+        }
+        await req.models.scene_issue.update(issue.id, issue);
+        res.json({ success:true, issue: issue });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
 
 export default {
     showScheduler,
@@ -685,5 +728,6 @@ export default {
     exportSchedule,
     getUserSchedule,
     runScheduler,
-    clearSchedule
+    clearSchedule,
+    updateIssue,
 };

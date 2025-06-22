@@ -62,7 +62,7 @@ async function showSchedule(req, res, next){
         if (event.schedule_status === 'private'){
             req.flash('error', 'The schedule for this event is not available');
             return res.redirect(`/event/${event.id}`);
-        } else if (req.checkPermission('player') && event.schedule_status !== 'player visible'){
+        } else if (!req.checkPermission('event') && event.schedule_status !== 'player visible'){
             req.flash('error', 'The schedule for this event is not available');
             return res.redirect(`/event/${event.id}`);
         }

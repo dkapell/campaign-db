@@ -1,6 +1,6 @@
 /* globals userslistTemplate busyuserslistTemplate async updateSceneStatus updateSceneDetails*/
 /* globals updateSlotScenes validateScenes clearTimeslotHighlight scrollToTimeslot assignUserToScene validateAllScenes */
-/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel highlightScene showError hideMessages */
+/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 $(function(){
     $('.users-btn').on('click', showUsersBtn);
 });
@@ -45,6 +45,7 @@ async function showUsersBtn(e){
     const timeslotId = $btn.data('timeslot-id');
     const type = $btn.data('type');
     $('.users-btn').removeClass('active');
+    $('#show-issues-btn').removeClass('active');
     if (Number($('#bottom-panel').attr('timeslot-id')) !== timeslotId){
         clearTimeslotHighlight();
     }

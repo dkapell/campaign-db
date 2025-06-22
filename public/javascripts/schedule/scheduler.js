@@ -1,5 +1,5 @@
 /* globals showSuccess collapseScenes confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
-/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel highlightScene showError hideMessages */
+/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 
 $(function(){
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -28,7 +28,6 @@ $(function(){
         $(this).tooltip('hide');
         collapseAllScenes();
     });
-
 });
 
 function clearTimeslotHighlight(){

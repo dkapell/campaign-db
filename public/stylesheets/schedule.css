@@ -69,7 +69,10 @@
 }
 
 
-.scene-item.disabled, .schedule-busy-type-item.disabled{
+.scene-item.disabled,
+.scene-item.tag-disabled,
+.schedule-busy-type-item.disabled
+{
   opacity: 33%
 }
 .user-item.disabled {

@@ -7,7 +7,8 @@ $(function(){
 async function showIssuesBtn(e){
     e.preventDefault();
     $(this).tooltip('hide');
-
+    $('.users-btn').removeClass('active');
+    $(this).addClass('active');
     if ($('#bottom-panel').attr('type') === 'issues' &&
         $('#detail-container').hasClass('show')){
         closeDetailPanel();
@@ -47,12 +48,16 @@ async function showIssuesBtn(e){
         });
 
         $panel.find('.data-table').each(prepDataTable);
+        if (localStorage.getItem('cdb-scheduler-show-ignored-issues')){
+            $panel.find('#showIgnoredIssues').prop('checked', true);
+        }
         $panel.find('#showIgnoredIssues').on('change', updateIgnoredIssueList).trigger('change');
         $panel.find('#issues-table tbody').on('click', '.issue-ignore-btn', updateIssue);
         $panel.find('#issues-table tbody').on('click', 'a.scene-link', function(e){
             e.preventDefault();
             const sceneId = $(this).data('scene-id');
             highlightScene(sceneId);
+
         });
 
         $panel.find('.panel-loading').hide();
@@ -83,6 +88,7 @@ function updateIgnoredIssueList(e){
             }
         );
     }
+    localStorage.setItem('cdb-scheduler-show-ignored-issues', $(this).is(':checked'));
     table.draw();
 }
 

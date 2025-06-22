@@ -141,6 +141,31 @@ block maincontent
                                     data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                                     data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                                 ) #{capitalize(attendance.user.name)} (#{type})
+                -
+                    const tags = [];
+                    for (const scene of scenes){
+                        for (const tag of scene.tags){
+                            tags.push(tag.name);
+                        }
+                    }
+                if tags.length
+                    .col-3
+                        select.form-select.complex-select2.float-end#schedule-tag-picker(
+                                data-placeholder='Filter by Tag'
+                            )
+                                option
+                                option(
+                                    value="-1"
+                                    data-text='<i>All</i>'
+                                    data-html='<i>All</i>'
+                                ) All
+                                for tag in _.uniq(tags.sort())
+                                    option(
+                                        title=tag
+                                        data-text=`<span class="badge text-bg-info">${tag}</span>`
+                                        data-html=`<span class="badge text-bg-info">${tag}</span>`
+                                        value=tag
+                                    )= tag
 
 
 

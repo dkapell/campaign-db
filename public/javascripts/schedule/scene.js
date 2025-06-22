@@ -1,5 +1,5 @@
 /* globals validateAllScenes updateSlotScenes updateSceneStatus updateSceneDetails */
-/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel highlightScene showError hideMessages */
+/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 $(function(){
     $('.scene-item-draggable').draggable({
         snap:'.schedule-slot',

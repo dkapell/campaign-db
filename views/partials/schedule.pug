@@ -63,7 +63,6 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             if (xAxisType !== 'location'){
                 size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
             }
-
         .scene-item.d-none(
             id=`scene-${scene.id}-${locationIdx}`
             style=`${size}; z-index:10`
@@ -72,6 +71,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             data-location-idx=locationIdx
             data-timeslot-count=scene.timeslot_count
             cell=cell
+            data-tags=_.pluck(scene.tags, 'name')
             status=scene.status
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
@@ -121,6 +121,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-scene-name=scene.name
             data-location-idx=locationIdx
             data-timeslot-count=scene.timeslot_count
+            data-tags=_.pluck(scene.tags, 'name')
             locations=JSON.stringify(scene.locations)
             timeslots=JSON.stringify(scene.timeslots)
             cell=cell

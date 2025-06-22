@@ -96,6 +96,31 @@ block maincontent
                 title='Close all Scene Details'
             )
                 i.fas.fa-eye-slash
+        -
+            const tags = [];
+            for (const scene of scenes){
+                for (const tag of scene.tags){
+                    tags.push(tag.name);
+                }
+            }
+        if tags.length
+            .col-2.px-4
+                select.form-select.complex-select2#schedule-tag-picker(
+                        data-placeholder='Filter by Tag'
+                    )
+                        option
+                        option(
+                            value="-1"
+                            data-text='<i>All</i>'
+                            data-html='<i>All</i>'
+                        ) All
+                        for tag in _.uniq(tags.sort())
+                            option(
+                                title=tag
+                                data-text=`<span class="badge text-bg-info">${tag}</span>`
+                                data-html=`<span class="badge text-bg-info">${tag}</span>`
+                                value=tag
+                            )= tag
 
 
     .container.my-0

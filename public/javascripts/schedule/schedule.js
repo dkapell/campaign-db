@@ -50,6 +50,8 @@ $(function(){
             }
         });
     });
+
+    $('#schedule-tag-picker').on('change', updateTagFilter);
 });
 
 function updateAllSlots(){
@@ -65,7 +67,24 @@ function highlightScene(sceneId){
     $('.schedule-cell').removeClass('text-bg-info');
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
     $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+    $(`.scene-item[data-scene-id=${sceneId}]`).find('.scene-details').collapse('show');
     scrollToTimeslot(timeslotId);
+}
+
+function updateTagFilter(e){
+    const tag = $(this).val();
+    if (!tag){ return; }
+    if (tag === "-1"){
+        $(this).val(null).trigger('change');
+        $('.scene-item').removeClass('tag-disabled');
+        return;
+    }
+    $('.scene-item').each(function(){
+        const $scene = $(this);
+        if (_.indexOf($scene.data('tags'), tag) === -1){
+            $scene.addClass('tag-disabled');
+        }
+    });
 }
 
 function collapseAllScenes(){

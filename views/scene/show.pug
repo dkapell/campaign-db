@@ -210,3 +210,12 @@ block content
                             dt.col-sm-3 Skills #{capitalize(requestStatus)}
                             dd.col-sm-9= (_.pluck(skillsByRequestStatus[requestStatus], 'name')).join(', ')
 
+        if scene.description
+            dt.col-sm-3 Description (Player-Visible)
+            dd.col-sm-9
+                != marked.parseInline(scene.description, {breaks:true})
+
+        if scene.schedule_notes
+            dt.col-sm-3 Schedule Notes
+            dd.col-sm-9
+                != marked.parseInline(scene.schedule_notes, {breaks:true})

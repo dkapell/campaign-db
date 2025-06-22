@@ -27,6 +27,7 @@ block intro
     input#eventId(type='hidden' value=event.id)
     input#scheduleType(type='hidden' value='edit')
     input#csrfToken(type='hidden' value=csrfToken)
+    input#userType(type='hidden' value='staff')
 
 block maincontent
     if new Date(event.end_time) < new Date()
@@ -45,32 +46,57 @@ block maincontent
             )
                 i.fa.fa-calendar-check.me-2
                 | Confirm Schedule
-            button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn(
-                role="button"
-                data-bs-toggle='tooltip'
-                title='Clear all non-confirmed Scenes'
-                data-url=`/event/${event.id}/scheduler/clear`
-                data-csrf=csrfToken
+            button.btn.btn-sm.btn-outline-warning.me-2#scheduler-show-btn(
+                type="button"
+                title='Show/Hide Scheduler Actions'
+                data-bs-toggle="collapse"
+                data-bs-target=".schedulerButtons"
+                aria-expanded="false"
+                aria-controls="schedulerButtons"
             )
-                i.fa.fa-calendar-times.me-2
-                | Clear Schedule
+                i.fa.fa-calendar.me-2
+                span.expand-text.me-1 Show
+                span.expand-text-shown.me-1 Hide
+                span.me-2 Scheduler
 
-            button.btn.btn-sm.btn-outline-warning.me-2#run-scheduler-btn(
-                role="button"
-                data-bs-toggle='tooltip'
-                title='Run Scheduler for all non-confirmed Scenes'
-                data-url=`/event/${event.id}/scheduler`
-                data-csrf=csrfToken
-            )
-                i.fa.fa-calendar-alt.me-2
-                | Run Scheduler
-            button.btn.btn-sm.btn-outline-info#show-issues-btn(
+                i.fa.fa-angle-right.ms-2.expand-text
+                i.fa.fa-angle-left.ms-2.expand-text-shown
+
+            span.d-inline-block.text-nowrap.overflow-visible
+                .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip !important")
+                    button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Clear all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler/clear`
+                        data-csrf=csrfToken
+                    )
+                        i.fa.fa-calendar-times.me-2
+                        | Clear Schedule
+
+                    button.btn.btn-sm.btn-outline-warning.me-2#run-scheduler-btn.text-nowrap(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Run Scheduler for all non-confirmed Scenes'
+                        data-url=`/event/${event.id}/scheduler`
+                        data-csrf=csrfToken
+                    )
+                        i.fa.fa-calendar-alt.me-2
+                        | Run Scheduler
+            button.btn.btn-sm.btn-outline-info.me-2#show-issues-btn(
                 role="button"
                 data-bs-toggle='tooltip'
                 title='Display all scheduling issues'
             )
                 i.fas.fa-tasks.me-2
                 | Show Issues
+            button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn(
+                role="button"
+                data-bs-toggle='tooltip'
+                title='Close all Scene Details'
+            )
+                i.fas.fa-eye-slash
+
 
     .container.my-0
         .row.my-0

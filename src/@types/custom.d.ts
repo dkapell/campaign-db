@@ -121,4 +121,6 @@ interface SchedulerResult{
 interface SchedulerOptions{
    runs?:number
    concurrency?: number
+   maxScenesPerRun?:number
+   skipPlayers?:boolean
 }

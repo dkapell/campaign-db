@@ -76,7 +76,7 @@ const tableFields = [
     'player_gallery',
     'stripe_account_id',
     'stripe_account_ready',
-    'schedule_users'
+    'schedule_players'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

@@ -29,9 +29,7 @@ interface IssueRecord{
 }
 
 async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): Promise<SceneIssueModel[]> {
-    let time = (new Date()).getTime()
     const issues: IssueRecord[] = [];
-    console.log(`working on ${scene.name}`)
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
     }
@@ -63,7 +61,6 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             }
         }
     }
-    console.log(`0: ${(new Date()).getTime() - time}`); time = (new Date()).getTime();
     for (const location of locations.locations){
         switch (location.scene_request_status){
             case 'rejected':
@@ -260,11 +257,8 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
         });
     }
 
-    console.log(`1: ${(new Date()).getTime() - time}`); time = (new Date()).getTime();
-
     await saveSceneIssues(scene.id, issues);
 
-    console.log(`3: ${(new Date()).getTime() - time}`); time = (new Date()).getTime();
     return models.scene_issue.find({scene_id:scene.id, resolved:false});
 }
 

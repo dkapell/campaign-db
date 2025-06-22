@@ -5,13 +5,14 @@ if scene.tags
                 span.badge.text-bg-info.me-1=tag
 .row.my-1
     .col
-        a.btn.btn-xs.btn-outline-info.me-2(
-            href=`/scene/${scene.id}`
-            target='_blank'
-            data-bs-toggle='tooltip'
-            title='View Scene Details'
-        )
-            i.fas.fa-eye
+        if userType === 'staff'
+            a.btn.btn-xs.btn-outline-info.me-2(
+                href=`/scene/${scene.id}`
+                target='_blank'
+                data-bs-toggle='tooltip'
+                title='View Scene Details'
+            )
+                i.fas.fa-eye
         if scheduleType === 'edit'
 
             if (scene.locations.suggested  || scene.locations.confirmed) && (scene.timeslots.suggested || scene.timeslots.confirmed)
@@ -32,88 +33,95 @@ if scene.tags
                     )
                         i.fas.fa-check-circle.me-1
                         | Confirm Placement
-.row.my-1
-    .col
-        -
-            const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
-            const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
-            const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
-        span.me-1 Players
-        if _.has(scene, 'player_count_min')
-            if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
-                span.text-danger.me-1=currentPlayerCount
-            else
-                span.me-1=currentPlayerCount
-            span of (#{scene.player_count_min}-#{scene.player_count_max})
-        ul.list-group
-            if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
-                li.list-group-item.my-0.p-1
 
-                    if scene.players.suggested && scene.players.suggested.length > 1
-                        button.btn.btn-xs.btn-outline-success.confirm-all-scene-users-btn.me-1(
-                            role='button'
-                            data-bs-toggle='tooltip'
-                            data-type='player'
-                            title='Confirm all Suggested Players'
-                        )
-                            i.fas.fa-check-circle.me-1
-                            | Confirm
+if scheduleType !== 'edit' && scene.description
+    .row.mt-1.mb-2
+        .col
+            p.mb-1!= marked.parseInline(scene.description, {breaks:true})
 
-                    if scheduleType === 'edit' && scene.players.confirmed && scene.status !== 'confirmed'
-                        button.btn.btn-xs.btn-outline-warning.unconfirm-all-scene-users-btn.me-1(
-                            role='button'
-                            data-bs-toggle='tooltip'
-                            data-type='player'
-                            title='Unconfirm all Confirmed Players'
-                        )
-                            i.fas.fa-plus-circle.me-1
-                            | Unconfirm
-            if scene.players.confirmed
-                each player in scene.players.confirmed
-                    li.list-group-item.my-0.p-0
-                        if scheduleType === 'edit'
+if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed.length
+    .row.my-1
+        .col
+            -
+                const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
+                const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
+                const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
+            span.me-1 Players
+            if _.has(scene, 'player_count_min')
+                if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
+                    span.text-danger.me-1=currentPlayerCount
+                else
+                    span.me-1=currentPlayerCount
+                span of (#{scene.player_count_min}-#{scene.player_count_max})
+            ul.list-group
+                if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
+                    li.list-group-item.my-0.p-1
+
+                        if scene.players.suggested && scene.players.suggested.length > 1
+                            button.btn.btn-xs.btn-outline-success.confirm-all-scene-users-btn.me-1(
+                                role='button'
+                                data-bs-toggle='tooltip'
+                                data-type='player'
+                                title='Confirm all Suggested Players'
+                            )
+                                i.fas.fa-check-circle.me-1
+                                | Confirm
+
+                        if scheduleType === 'edit' && scene.players.confirmed && scene.status !== 'confirmed'
+                            button.btn.btn-xs.btn-outline-warning.unconfirm-all-scene-users-btn.me-1(
+                                role='button'
+                                data-bs-toggle='tooltip'
+                                data-type='player'
+                                title='Unconfirm all Confirmed Players'
+                            )
+                                i.fas.fa-plus-circle.me-1
+                                | Unconfirm
+                if scene.players.confirmed
+                    each player in scene.players.confirmed
+                        li.list-group-item.my-0.p-0
+                            if scheduleType === 'edit'
+                                a.p-1(href=`/user/${player.id}` target='_blank')
+                                    i.fas.fa-user.me-1.text-success
+                                    = player.name
+                            else
+                                span.p-1= player.name
+                            if scheduleType === 'edit'
+                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
+                                    role='button'
+                                    data-user-id=player.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Remove ${player.name} from Scene`
+                                )
+                                    i.fas.fa-user-times
+                            i.fas.fa-check-circle.text-success.float-end.p-1(
+                                title='Confirmed'
+                                data-bs-toggle='tooltip'
+                            )
+                if scene.players.suggested
+                    each player in scene.players.suggested
+                        li.list-group-item.my-0.p-0
                             a.p-1(href=`/user/${player.id}` target='_blank')
                                 i.fas.fa-user.me-1.text-success
                                 = player.name
-                        else
-                            span.p-1= player.name
-                        if scheduleType === 'edit'
-                            button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
-                                role='button'
-                                data-user-id=player.id
+                            .btn-group.float-end.ms-1(role='group')
+                                button.btn.btn-xs.btn-outline-success.schedule-user-btn(
+                                    role='button'
+                                    data-user-id=player.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Accept Suggestion`
+                                )
+                                    i.fas.fa-user-plus
+                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
+                                    role='button'
+                                    data-user-id=player.id
+                                    data-bs-toggle='tooltip'
+                                    title=`Remove ${player.name} from Scene`
+                                )
+                                    i.fas.fa-user-times
+                            i.fas.fa-plus-circle.text-warning.float-end.p-1(
+                                title='Suggested'
                                 data-bs-toggle='tooltip'
-                                title=`Remove ${player.name} from Scene`
                             )
-                                i.fas.fa-user-times
-                        i.fas.fa-check-circle.text-success.float-end.p-1(
-                            title='Confirmed'
-                            data-bs-toggle='tooltip'
-                        )
-            if scene.players.suggested
-                each player in scene.players.suggested
-                    li.list-group-item.my-0.p-0
-                        a.p-1(href=`/user/${player.id}` target='_blank')
-                            i.fas.fa-user.me-1.text-success
-                            = player.name
-                        .btn-group.float-end.ms-1(role='group')
-                            button.btn.btn-xs.btn-outline-success.schedule-user-btn(
-                                role='button'
-                                data-user-id=player.id
-                                data-bs-toggle='tooltip'
-                                title=`Accept Suggestion`
-                            )
-                                i.fas.fa-user-plus
-                            button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
-                                role='button'
-                                data-user-id=player.id
-                                data-bs-toggle='tooltip'
-                                title=`Remove ${player.name} from Scene`
-                            )
-                                i.fas.fa-user-times
-                        i.fas.fa-plus-circle.text-warning.float-end.p-1(
-                            title='Suggested'
-                            data-bs-toggle='tooltip'
-                        )
 
 if scene.staff
     .row.my-1
@@ -202,4 +210,10 @@ if scene.staff
                                 title='Suggested'
                                 data-bs-toggle='tooltip'
                             )
+if scheduleType==='edit' && scene.schedule_notes
+    .row.mt-2
+        .col
+            strong Schedule Notes
+            p.mb-1!= marked.parseInline(scene.schedule_notes, {breaks:true})
+
 

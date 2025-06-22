@@ -1,6 +1,6 @@
 /* globals async scenedetailsTemplate confirmSceneBtn unconfirmSceneBtn unconfirmAllSceneUsersBtn updateUsersPanel */
 /* globals updateTimeslotUsersCount
-/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel */
+/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel marked */
 $(function(){
     $('#schedule-alert .btn-close').on('click', ()=>{
         hideMessages();
@@ -214,6 +214,8 @@ async function updateSceneDetails($scene){
     const result = await fetch(`/scene/${sceneId}?api=true`);
     const data = await result.json();
     data.scheduleType = $('#scheduleType').val();
+    data.userType = $('#userType').val();
+    data.marked = marked;
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
         $scene.find('.scene-details').html(scenedetailsTemplate(data));

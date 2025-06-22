@@ -56,6 +56,7 @@ create table scenes (
     name varchar(80) not null,
     player_name varchar(80),
     status scene_status not null default 'new',
+    schedule_notes text,
     description text,
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
@@ -273,4 +274,4 @@ create type event_schedule_status as ENUM(
 
 alter table events add column schedule_status event_schedule_status default 'private';
 alter table campaigns add column display_schedule boolean default true;
-alter table campaigns add column schedule_users boolean default true;
+alter table campaigns add column schedule_players boolean default true;

@@ -19,6 +19,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         timeslot_count: scene.timeslot_count,
         locations_count: scene.locations_count,
         player_url: scene.player_url,
+        description: scene.description
 
     };
     if (forPlayer){
@@ -26,7 +27,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
     } else {
         output.name = scene.name;
         output.player_name = scene.player_name;
-        output.description = scene.description;
+        output.schedule_notes = scene.schedule_notes;
         output.player_count_min = scene.player_count_min;
         output.player_count_max = scene.player_count_max;
         output.staff_count_min = scene.staff_count_min;

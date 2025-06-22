@@ -353,6 +353,7 @@ interface SceneModel extends ModelData{
     event?:EventModel|string
     tags?:TagModel[]
     score?:number
+    prereq_of?:number[]
 }
 
 interface FormattedSceneModel extends ModelData{
@@ -363,6 +364,7 @@ interface FormattedSceneModel extends ModelData{
     player_name?:string
     status?:string
     description?:string
+    schedule_notes?:string
     timeslot_count?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string

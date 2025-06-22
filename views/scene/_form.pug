@@ -88,8 +88,9 @@ if (backto)
 
 fieldset.my-2.border.p-2.rounded
     label.h5.w-100.mb-0#scene-details-heading( role="button" for="scene-details", data-bs-toggle="collapse" data-bs-target="#scene-details" aria-expanded="false") Scene Details
-        #display-to-players.badge.text-bg-info.mx-3 Display To Players
-        #player-facing-name.badge.text-bg-info.mx-3 Player-Facing Name
+        #display-to-players.badge.text-bg-info.mx-2 Display To Players
+        #has-player-facing-name.badge.text-bg-info.mx-2 Player-Facing Name
+        #has-description-badge.badge.text-bg-info.mx-2 Has Description
 
         span.float-end.ps-2
             i.fa.fa-chevron-up
@@ -106,16 +107,19 @@ fieldset.my-2.border.p-2.rounded
                     input.form-check-input#scene_display_to_pc(type="checkbox", name="scene[display_to_pc]", checked=scene.display_to_pc)
                     label.form-check-label(for="scene_display_to_pc") Display Scene to Player(s) when Confirmed
         .row.my-2
-            label.col-form-label.col-md-2(for="scene_staff_url") Staff Writeup URL
+            label.col-form-label.col-md-2(for="scene_staff_url") Staff Writeup
             .col-md
-                input.form-control#scene_staff_url(type="text" placeholder="Writeup URL" name="scene[staff_url]" value=scene.staff_url)
+                input.form-control#scene_staff_url(type="text" placeholder="Staff Writeup URL" name="scene[staff_url]" value=scene.staff_url)
+
+            label.col-form-label.col-md-2(for="scene_player_url") Player Writeup
+            .col-md
+                input.form-control#scene_player_url(type="text" placeholder="Player Writeup URL" name="scene[player_url]" value=scene.player_url)
         .row.my-2
-            label.col-form-label.col-md-2(for="scene_player_url") Player Writeup URL
             .col-md
-                input.form-control#scene_player_url(type="text" placeholder="Writeup URL" name="scene[player_url]" value=scene.player_url)
+                +markdownEditor('Description (Player-Visible)', 'scene_description', 'scene[description]', 5, 75, scene.description, true)
         .row.my-2
             .col-md
-                +markdownEditor('Description/Notes (Staff-Only)', 'scene_description', 'scene[description]', 5, 100, scene.description, true)
+                +markdownEditor('Scheduling Notes (Staff-Only)', 'scene_schedule_notes', 'scene[schedule_notes]', 3, 50, scene.schedule_notes, false)
 
 .row.my-3
     .col
@@ -184,50 +188,62 @@ fieldset.my-2.border.p-2.rounded
                         +sceneTimeslotInput(timeslot, sceneTimeslot.scene_request_status, sceneTimeslot.scene_schedule_status)
 
     .col
-        .row.mb-3
-            .col.scene-user-picker-container
-                h5 Players
-                .row.my-1
-                    label.col-form-label.col-lg(for="scene_player_count") Total Player Count
-                        span.ms-1.text-danger *
-                    .col-lg-5
-                        .input-group.input-group-sm#scene_player_count
-                            input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min)
-                            .input-group-text to
-                            input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max)
+        if currentCampaign.schedule_players
+            .row.mb-3
+                .col.scene-user-picker-container
+                    h5 Players
+                    .row.my-1
+                        label.col-form-label.col-lg(for="scene_player_count") Total Player Count
+                            span.ms-1.text-danger *
+                        .col-lg-5
+                            .input-group.input-group-sm#scene_player_count
+                                input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min)
+                                .input-group-text to
+                                input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max)
 
-                ul.my-1.list-group.scene-user-list#scene-player-list
-                    each user in scene.users
-                        if user.type === 'player'
-                            +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
-                    +sceneUserInput({id:'new', typeForDisplay:'placeholder'}, 'requested', 'unscheduled')
-                .input-group
-                    select.form-select.complex-search-select2.scene-user-picker#scene-player-picker(data-placeholder='Player')
-                        option
-                        each user in users
+                    ul.my-1.list-group.scene-user-list#scene-player-list
+                        each user in scene.users
                             if user.type === 'player'
-                                -
-                                    let tagString = user.tags.length?'<br>':'';
-                                    for (const tag of user.tags){
-                                        tagString += `<span class="badge text-bg-info mx-1">${tag.name}</span>`
-                                    }
-                                    let characterString = '';
-                                    if (user.character){
-                                        characterString = `<span class="mx-1">(${user.character.name})</span>`
-                                    }
-                                option(
-                                    value=user.id
-                                    data-user=user
-                                    data-type='Player'
-                                    title=user.name
-                                    data-text=`${user.name}${characterString}`
-                                    data-html=`${user.name}${characterString}${tagString}`
-                                    data-search=`${user.name} ${characterString} ${_.pluck(user.tags, 'name').join(' ')}`
-                                ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
-                    button.btn.btn-outline-dark.add-user-btn Request
+                                +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
+                        +sceneUserInput({id:'new', typeForDisplay:'placeholder'}, 'requested', 'unscheduled')
+                    .input-group
+                        select.form-select.complex-search-select2.scene-user-picker#scene-player-picker(data-placeholder='Player')
+                            option
+                            each user in users
+                                if user.type === 'player'
+                                    -
+                                        let tagString = user.tags.length?'<br>':'';
+                                        for (const tag of user.tags){
+                                            tagString += `<span class="badge text-bg-info mx-1">${tag.name}</span>`
+                                        }
+                                        let characterString = '';
+                                        if (user.character){
+                                            characterString = `<span class="mx-1">(${user.character.name})</span>`
+                                        }
+                                    option(
+                                        value=user.id
+                                        data-user=user
+                                        data-type='Player'
+                                        title=user.name
+                                        data-text=`${user.name}${characterString}`
+                                        data-html=`${user.name}${characterString}${tagString}`
+                                        data-search=`${user.name} ${characterString} ${_.pluck(user.tags, 'name').join(' ')}`
+                                    ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
+                        button.btn.btn-outline-dark.add-user-btn Request
         .row.mb-3
             .col.scene-user-picker-container
-                h5 Staff
+                .row.mb-2
+                    .col
+                        .float-end
+                            a.btn.btn-sm.btn-outline-primary#staff-require-me-btn(
+                                href='#'
+                                data-bs-toggle='tooltip'
+                                title='Add me to the Required Staff List'
+                                data-user-id=activeUser.id
+                            ) Require Me
+                        h5 Staff
+
+
                 .row.my-1
                     label.col-form-label.col-lg(for="scene_staff_count") Total Staff Count
                         span.ms-1.text-danger *
@@ -269,47 +285,47 @@ fieldset.my-2.border.p-2.rounded
                                 ) #{capitalize(user.name)} (#{type})
                     button.btn.btn-outline-dark.add-user-btn Request
 
+        if currentCampaign.schedule_players
+            .row.mb-3
+                .col
+                    h5 Sources &amp; Skills
 
-        .row.mb-3
-            .col
-                h5 Sources &amp; Skills
-
-                ul.my-1#scene-source-list.list-group
-                    each source in scene.sources
-                        +sceneSourceInput(source, source.scene_request_status, source.scene_schedule_status)
-                    each skill in scene.skills
-                        +sceneSkillInput(skill, skill.scene_request_status, skill.scene_schedule_status)
-                +sceneSourceInput({id:'new', type:{name:'placeholder'}}, 'requested', 'unscheduled')
-                +sceneSkillInput({id:'new', source:{name:'placeholder'}}, 'requested', 'unscheduled')
-                .input-group
-                    select.form-select.complex-select2#scene-source-picker(data-placeholder='Source')
-                        option
-                        each source in sources
-                            if !source.required
-                                - const type = capitalize(source.type.name)
-                                option(
-                                    value=source.id
-                                    data-type=type
-                                    data-source=source
-                                    title=source.name
-                                    data-text=`${source.name} <span class="badge text-bg-primary ms-1">${type}</span>`
-                                    data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${source.name}`
-                                ) #{capitalize(source.name)} (#{type})
-                    button.btn.btn-outline-dark#add-source-btn Request
-                .input-group.mt-1
-                    select.form-select.complex-select2#scene-skill-picker(data-placeholder='Skill')
-                        option
-                        each skill in skills
-                            if !skill.required
-                                option(
-                                    value=skill.id
-                                    data-skill=skill
-                                    data-source=skill.source.name
-                                    title=skill.name
-                                    data-text=`${skill.name} <span class="badge text-bg-primary ms-1">${skill.source.name}</span>`
-                                    data-html=`<span class="text-primary"><strong>${skill.source.name}</strong>:</span> ${skill.name}`
-                                ) #{skill.name} (#{skill.source.name})
-                    button.btn.btn-outline-dark#add-skill-btn Request
+                    ul.my-1#scene-source-list.list-group
+                        each source in scene.sources
+                            +sceneSourceInput(source, source.scene_request_status, source.scene_schedule_status)
+                        each skill in scene.skills
+                            +sceneSkillInput(skill, skill.scene_request_status, skill.scene_schedule_status)
+                    +sceneSourceInput({id:'new', type:{name:'placeholder'}}, 'requested', 'unscheduled')
+                    +sceneSkillInput({id:'new', source:{name:'placeholder'}}, 'requested', 'unscheduled')
+                    .input-group
+                        select.form-select.complex-select2#scene-source-picker(data-placeholder='Source')
+                            option
+                            each source in sources
+                                if !source.required
+                                    - const type = capitalize(source.type.name)
+                                    option(
+                                        value=source.id
+                                        data-type=type
+                                        data-source=source
+                                        title=source.name
+                                        data-text=`${source.name} <span class="badge text-bg-primary ms-1">${type}</span>`
+                                        data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${source.name}`
+                                    ) #{capitalize(source.name)} (#{type})
+                        button.btn.btn-outline-dark#add-source-btn Request
+                    .input-group.mt-1
+                        select.form-select.complex-select2#scene-skill-picker(data-placeholder='Skill')
+                            option
+                            each skill in skills
+                                if !skill.required
+                                    option(
+                                        value=skill.id
+                                        data-skill=skill
+                                        data-source=skill.source.name
+                                        title=skill.name
+                                        data-text=`${skill.name} <span class="badge text-bg-primary ms-1">${skill.source.name}</span>`
+                                        data-html=`<span class="text-primary"><strong>${skill.source.name}</strong>:</span> ${skill.name}`
+                                    ) #{skill.name} (#{skill.source.name})
+                        button.btn.btn-outline-dark#add-skill-btn Request
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= scene.id?'Update':'Create'

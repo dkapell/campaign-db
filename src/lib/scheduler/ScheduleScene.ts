@@ -53,6 +53,13 @@ class ScheduleScene  {
     get status(): string{
         return this.data.status;
     }
+    get prereqs(){
+        if (typeof this.data.prereqs === 'string'){
+            return JSON.parse(this.data.prereqs);
+        } else {
+            return this.data.prereqs;
+        }
+    }
 
     set status(value:string){
         if (this.data.status !== 'confirmed'){
@@ -84,20 +91,29 @@ class ScheduleScene  {
 
         const allTimeslots = await this.cache.timeslots();
 
+        let timeslot_count = this.timeslot_count;
+
+        // Do not slot a scene with prereqs into the final slot of the event
+        if (this.data.prereq_of && this.data.prereq_of.length){
+            allTimeslots.pop();
+        }
 
         // filer possibilities by the ones that allow the full scene time
         const possibleTimeslots = [];
         for (const timeslotId of scenePossibleTimeslots){
             const timeslotIdx = _.indexOf(_.pluck(allTimeslots, 'id'), timeslotId);
-
+            if (timeslotIdx === -1){
+                continue;
+            }
             let valid = true;
             // Check all the following timeslots needed for this scene
-            for (let idx = 0; idx < this.timeslot_count; idx ++){
+            for (let idx = 0; idx < timeslot_count; idx ++){
                 const checkSlotIdx = timeslotIdx + idx;
                 const checkSlot = allTimeslots[checkSlotIdx];
                 // If past the end of the event, or not a possible timeslot, reject the starting timeslot
                 if (checkSlotIdx >= timeslots.length || _.indexOf(scenePossibleTimeslots, checkSlot.id) === -1){
                     valid = false;
+                    break;
                 }
             }
             if (valid){

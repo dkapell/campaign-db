@@ -96,7 +96,14 @@
     },
     "scheduler":{
         "runs": 20,
-        "maxScenesPerRun": 1000
+        "maxScenesPerRun": 1000,
+        "points": {
+            "scheduled": 25,
+            "locations_count": 2,
+            "timeslot_count": 6,
+            "users_requested": 2,
+            "users": 1
+        }
     }
 
 }

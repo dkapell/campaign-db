@@ -9,22 +9,46 @@ import Schedule from './scheduler/Schedule';
 import ScheduleScene from './scheduler/ScheduleScene';
 import ScheduleCache from './scheduler/ScheduleCache';
 
+async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
+    scenes = scoreScenes(scenes);
+    for (const scene of scenes){
+        for (const prereq of scene.prereqs){
+            const prereqId = getPrereqId(prereq);
+            const prereqScene = _.findWhere(scenes, {id:prereqId});
+            if (!_.has(prereqScene, 'prereq_of')){
+                prereqScene.prereq_of = []
+            }
+            prereqScene.prereq_of.push(scene.id);
+        }
+
+    }
+    return scenes;
+}
+
+function getPrereqId(prereq:string|number|SceneModel):number{
+    let prereqId:number = null;
+    if (typeof prereq === 'number'){
+        return prereq;
+    } else if (typeof prereq === 'string'){
+        const prereqData:SceneModel = JSON.parse(prereq);
+        return prereqData.id;
+    } else {
+        return prereq.id;
+    }
+
+}
 function scoreScenes(scenes:SceneModel[]): SceneModel[]{
     scenes = scenes.map(scoreScene)
         .map(scene => {
+            if (scene.prereqs.length){
+                scene.score += 5
+            }
             for (const prereq of scene.prereqs){
-                let prereqId:number = null;
-                if (typeof prereq === 'number'){
-                    prereqId = prereq;
-                } else if (typeof prereq === 'string'){
-                    const prereqData:SceneModel = JSON.parse(prereq);
-                    prereqId = prereqData.id;
-                } else {
-                    prereqId = prereq.id;
-                }
+                const prereqId = getPrereqId(prereq);
                 const prereqScene = _.findWhere(scenes, {id:prereqId});
                 if (prereqScene && (scene.score >= prereqScene.score)){
-                    scene.score = prereqScene.score - 1;
+
+                    prereqScene.score = scene.score + 1;
                 }
             }
             return scene;
@@ -37,11 +61,11 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
 
 function scoreScene(scene:SceneModel): SceneModel{
     scene.score = 0;
-    scene.score += scene.locations_count * 2;
+    scene.score += (scene.locations_count * Number(config.get('scheduler.points.locations_count')));
     scene.score -= scene.locations.filter(location => {
         return location.scene_request_status !== 'none';
     }).length;
-    scene.score += scene.timeslot_count * 6;
+    scene.score += (scene.timeslot_count * Number(config.get('scheduler.points.timeslot_count')));
     scene.score -= scene.timeslots.filter(timeslot => {
         return timeslot.scene_request_status !== 'none';
     }).length;
@@ -69,7 +93,8 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
     });
     const rawScenes = [...eventScenes, ...unassignedScenes];
 
-    const scoredScenes = scoreScenes(rawScenes);
+    const scoredScenes = await prepScenes(rawScenes);
+
     const cache = new ScheduleCache(event.campaign_id, event.id);
     await cache.fill();
 
@@ -86,7 +111,7 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
     await async.timesLimit(runs, concurrency, async function(idx): Promise<SchedulerResult>{
         const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
         const schedule = new Schedule(eventId, scenes, cache);
-        attempts.push(await schedule.scheduleScenes(scenesToPlace));
+        attempts.push(await schedule.run(scenesToPlace, options));
         return;
     });
 

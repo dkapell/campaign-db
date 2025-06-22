@@ -78,6 +78,7 @@ $(function(){
     $('#timeslots-button-no-meals').on('click', requestNoMealTimeslots);
     $('#timeslots-button-clear').on('click', clearTimeslots);
 
+    $('#staff-require-me-btn').on('click', addSceneSelfUser);
     $('#scene-user-new').hide();
     $('#scene-source-new').hide();
     $('#scene-skill-new').hide();
@@ -85,26 +86,32 @@ $(function(){
     $('#add-source-btn').on('click', addSceneSource);
     $('#add-skill-btn').on('click', addSceneSkill);
 
-    $('#scene_player_name').on('input', updatePlayerNameBadge).trigger('input');
-    $('#scene_display_to_pc').on('change', updateDisplayToPc).trigger('change');
+    $('#scene_player_name').on('input', updateBadges);
+    $('#scene_description').on('input', updateBadges);
+    $('#scene_display_to_pc').on('change', updateBadges);
+    updateBadges()
 });
 
-function updatePlayerNameBadge(){
-    if ($(this).val() !== ''){
-        $('#player-facing-name').show();
+function updateBadges(){
+    if ($('#scene_player_name').val() !== ''){
+        $('#has-player-facing-name').show();
     } else {
-        $('#player-facing-name').hide();
+        $('#has-player-facing-name').hide();
     }
-}
 
-function updateDisplayToPc(){
-    if ($(this).prop('checked')){
+    if ($('#scene_description').val() !== ''){
+        $('#has-description-badge').show();
+    } else {
+        $('#has-description-badge').hide();
+    }
+
+    if ($('#scene_display_to_pc').prop('checked')){
         $('#display-to-players').show();
     } else {
         $('#display-to-players').hide();
     }
-
 }
+
 function requestCombatLocations(e){
     e.preventDefault();
     $(this).tooltip('hide');
@@ -209,6 +216,26 @@ function addSceneUser(e){
     if ($(`#scene-user-${user.id}`).length){
         return;
     }
+    addSceneUserRow($container, user, type);
+    $userPicker.val(null).trigger('change');
+}
+
+function addSceneSelfUser(e){
+    e.preventDefault();
+    const $container = $(this).closest('.scene-user-picker-container');
+    const $userPicker = $container.find('.scene-user-picker');
+    const userId = $(this).data('user-id');
+
+    const user = $userPicker.find(`option[value="${userId}"]`).data('user');
+    const type = $userPicker.find(`option[value="${userId}"]`).data('type');
+    if (!user) { return; }
+    if ($(`#scene-user-${user.id}`).length){
+        return;
+    }
+    addSceneUserRow($container, user, type, 'required');
+}
+
+function addSceneUserRow($container, user, type, value){
     const $new = $('#scene-user-new').clone();
     $new.attr('id', `scene-user-${user.id}`);
     $new.find('.user-name').text(user.name);
@@ -222,6 +249,9 @@ function addSceneUser(e){
         const $input = $(this);
         $input.attr('name', `scene[users][${user.id}]`);
         $input.attr('id', `scene-users-${user.type}-${user.id}`);
+        if (value){
+            $input.val(value);
+        }
     });
     $new.find('.scene-status-select').select2({
         theme:'bootstrap-5',
@@ -245,8 +275,8 @@ function addSceneUser(e){
     $new.find('.scene-status-select').on('change', updateSceneUser);
     $new.appendTo($container.find('.scene-user-list'));
     $new.show();
-    $userPicker.val(null).trigger('change');
 }
+
 
 function updateSceneUser(){
     const $container = $(this).closest('.scene-user-picker-container');

@@ -79,7 +79,7 @@ create table campaigns (
     player_gallery boolean default false,
     stripe_account_id varchar(80),
     stripe_account_ready boolean default false,
-    schedule_users boolean default true
+    schedule_players boolean default true
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -1015,6 +1015,7 @@ create table scenes (
     player_name varchar(80),
     status scene_status not null default 'new',
     description text,
+    schedule_notes text,
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
     prereqs jsonb,

@@ -102,6 +102,7 @@ async function showNew(req, res, next){
                 event_id: null,
                 status: 'new',
                 description: null,
+                schedule_notes: null,
                 display_to_pc: true,
                 prereqs:[],
                 player_count_min: 2,

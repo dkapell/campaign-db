@@ -1,4 +1,4 @@
-/* globals showSuccess collapseScenes confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn*/
+/* globals showSuccess collapseScenes confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel highlightScene showError hideMessages */
 
 $(function(){
@@ -22,6 +22,11 @@ $(function(){
 
     $('#detail-container').on('closed', function(e){
         clearTimeslotHighlight();
+    });
+
+    $('#collapse-all-scenes-btn').on('click', function(e){
+        $(this).tooltip('hide');
+        collapseAllScenes();
     });
 
 });

@@ -44,6 +44,7 @@ const tableFields = [
     'player_name',
     'status',
     'description',
+    'schedule_notes',
     'timeslot_count',
     'display_to_pc',
     'prereqs',

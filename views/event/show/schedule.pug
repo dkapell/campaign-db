@@ -131,6 +131,10 @@ include ../../partials/scene
                                                     strong.me-2 Player-facing Scene Name:
                                                     = scene.player_name
 
+                                        if scene.description
+                                            .row.my-1
+                                                .col
+                                                    p.my-1!=marked.parseInline(scene.description, {breaks:true})
 
 
                                         .row.my-1

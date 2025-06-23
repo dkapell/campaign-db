@@ -392,7 +392,7 @@ async function signS3UserImage(req, res, next){
                 postUpload: {
                     url: `/admin/upload/${image.upload.id}/uploaded`,
                     csrfToken: res.locals.csrfToken
-
+                }
             },
         });
     }

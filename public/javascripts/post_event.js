@@ -6,6 +6,7 @@ let saveTimeoutId = null;
 $(function(){
     $('.custom-event-field').each(watchField);
     $('#postEventSubmitBtn').confirmation({});
+    $('#postEventAddendumSubmitBtn').confirmation({});
     $('#postEventHideBtn').confirmation({});
     $('[data-bs-toggle="tooltip"]').tooltip();
 
@@ -15,9 +16,11 @@ $(function(){
         width:'resolve'
     });
     $('#postEventSubmitBtn').on('click', submitPostEventSurvey);
+    $('#postEventAddendumSubmitBtn').on('click', submitPostEventAddendum);
     $('#postEventHideBtn').on('click', hidePostEventSurvey);
     $('#postEventUnhideBtn').on('click', unhidePostEventSurvey);
     $('#postEventSurveyForm').on('submit', submitPostEventSurveyForm);
+    $('#postEventAddendumForm').on('submit', submitPostEventSurveyForm);
 
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
 });
@@ -127,11 +130,28 @@ function submitPostEventSurvey(e){
     $form.submit();
 }
 
+function submitPostEventAddendum(e){
+    e.preventDefault();
+    const $form = $('#postEventAddendumForm');
+    $form.find('#submit-action').val('submit');
+    $form.submit();
+}
+
+
 async function submitPostEventSurveyForm(e){
     e.preventDefault();
     const $form = $(this);
-    $form.find('.submit-icon-save').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
-    $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
+    const submitAction = $form.find('#submit-action').val();
+    console.log(submitAction);
+    if (submitAction === 'submit'){
+        $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
+    } else if (submitAction === 'hide'){
+        $form.find('.submit-icon-hide').removeClass('fa-eye').addClass('fa-sync').addClass('fa-spin');
+    } else if (submitAction === 'unhide'){
+        $form.find('.submit-icon-unhide').removeClass('fa-eye-slash').addClass('fa-sync').addClass('fa-spin');
+    } else {
+        $form.find('.submit-icon-save').removeClass('fa-save').addClass('fa-sync').addClass('fa-spin');
+    }
     let images = 0;
     const rows = document.querySelectorAll('.custom-event-field');
     for (const row of rows){

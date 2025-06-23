@@ -163,7 +163,7 @@ block content
                                             data-bs-toggle='tooltip'
                                             title='Restore to Task List'
                                         )
-                                            i.fas.fa-eye.me-1
+                                            i.fas.fa-eye.me-1.submit-icon-unhide
                                             | Unhide
                                     else if new Date(event.post_event_survey_deadline) < new Date()
                                         button.btn.btn-info#postEventHideBtn(
@@ -175,7 +175,7 @@ block content
                                             message=`This will remove the reminder from the front page.  You can return to the ${currentCampaign.renames.post_event_survey.plural} page to submit later.`
                                             showMessage='true'
                                         )
-                                            i.fas.fa-eye-slash.me-1
+                                            i.fas.fa-eye-slash.me-1.submit-icon-hide
                                             | Hide
 
                                 if backto === 'list'

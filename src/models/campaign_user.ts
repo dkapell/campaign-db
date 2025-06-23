@@ -23,7 +23,8 @@ const tableFields = [
     'notes',
     'permissions',
     'image_id',
-    'occasional_attendee'
+    'occasional_attendee',
+    'calendar_id'
 ];
 
 const CampaignUser = new Model('campaigns_users', tableFields, {

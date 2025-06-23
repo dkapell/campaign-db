@@ -89,6 +89,7 @@ create table campaigns (
 
 create index campaigns_site_idx ON campaigns (site);
 
+
 create table campaigns_users(
     user_id             int not null,
     campaign_id         int not null,
@@ -101,6 +102,7 @@ create table campaigns_users(
     image_id            int,
     created             timestamp with time zone DEFAULT now(),
     occasional_attendee boolean default false,
+    calendar_id         uuid not null default gen_random_uuid(),
     primary key(user_id, campaign_id),
     CONSTRAINT campaigns_users_user_fk FOREIGN KEY (user_id)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -109,6 +111,8 @@ create table campaigns_users(
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+create index campaigns_users_calendar_idx on campaigns_users (calendar_id);
+
 
 create table skill_source_types(
     id              serial,
@@ -662,6 +666,7 @@ create table events (
     id serial,
     campaign_id int not null,
     name varchar(255) not null,
+    guid uuid not null default gen_random_uuid(),
     description text,
     start_time timestamp with time zone,
     end_time timestamp with time zone,
@@ -1011,6 +1016,7 @@ create table scenes (
     id serial,
     campaign_id int not null,
     event_id int,
+    guid uuid not null default gen_random_uuid(),
     name varchar(80) not null,
     player_name varchar(80),
     status scene_status not null default 'new',
@@ -1184,6 +1190,7 @@ create table schedule_busies(
     user_id int not null,
     event_id int not null,
     type_id int not null,
+    guid uuid not null default gen_random_uuid(),
     unique(user_id, event_id, timeslot_id, type_id),
     primary key (id),
     CONSTRAINT schedule_busies_campaign_fk FOREIGN KEY (campaign_id)

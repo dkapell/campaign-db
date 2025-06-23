@@ -25,7 +25,7 @@ async function list(req, res, next){
     try {
         res.locals.events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false});
         res.locals.title += ' - Events';
-        res.render('event/list', { pageTitle: 'Events' });
+        res.render('event/list');
     } catch (err){
         next(err);
     }

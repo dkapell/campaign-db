@@ -63,6 +63,8 @@ import orderRouter from './routes/order';
 
 import sceneRouter from './routes/scene';
 
+import calendarRouter from './routes/calendar';
+
 import adminRulebookRouter from './routes/admin/rulebook';
 import adminDocumentationRouter from './routes/admin/documentation';
 import adminUploadRouter from './routes/admin/upload';
@@ -373,6 +375,7 @@ app.use('/post_event_survey', postEventSurveyRouter);
 app.use('/translation', translationRouter);
 app.use('/order', orderRouter);
 app.use('/scene', sceneRouter);
+app.use('/calendar', calendarRouter);
 
 app.use('/admin/rulebook', adminRulebookRouter);
 app.use('/admin/campaign', adminCampaignRouter);

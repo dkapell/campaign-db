@@ -40,6 +40,7 @@ const tableFields = [
     'id',
     'campaign_id',
     'event_id',
+    'guid',
     'name',
     'player_name',
     'status',
@@ -118,6 +119,9 @@ async function getTags(sceneId: number): Promise<TagModel[]>{
 
 async function preSave(data: SceneModel): Promise<SceneModel>{
     if (typeof data.prereqs === 'object'){
+        if (data.prereqs.length && typeof data.prereqs[0] === 'object'){
+            data.prereqs = _.pluck(data.prereqs, 'id');
+        }
         data.prereqs = JSON.stringify(data.prereqs);
     }
     return data;

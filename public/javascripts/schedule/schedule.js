@@ -74,7 +74,7 @@ function highlightScene(sceneId){
 function updateTagFilter(e){
     const tag = $(this).val();
     if (!tag){ return; }
-    if (tag === "-1"){
+    if (tag === '-1'){
         $(this).val(null).trigger('change');
         $('.scene-item').removeClass('tag-disabled');
         return;

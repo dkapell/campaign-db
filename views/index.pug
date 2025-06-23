@@ -135,7 +135,17 @@ append content
                                 +allRulebooks(rulebooks)
 
                     if checkPermission('event') && events.length
-                        h3.mt-3 Upcoming Events
+                        .row.mt-3.mb-2
+                            .col
+                                a.btn.btn-outline-info.float-end.btn-sm(
+                                    href=`https://calendar.google.com/calendar/u/0/r?cid=${activeUser.calendar_url}`
+                                    target='_blank'
+                                    title='Add to Google Calendar'
+                                    data-bs-toggle='tooltip'
+                                )
+                                    i.fas.fa-calendar-plus
+                                h3.d-inline Upcoming Events
+
                         .list-group.mb-2
                             each event in events
                                 a.list-group-item.list-group-item-action(href=`/event/${event.id}`)
@@ -157,7 +167,16 @@ append content
                     +characterList(characters)
 
                 if checkPermission('player') && !checkPermission('event')
-                    h3.mt-3 Upcoming Events
+                    .row.mt-3.mb-2
+                        .col
+                            a.btn.btn-outline-info.float-end.btn-sm(
+                                href=`https://calendar.google.com/calendar/u/0/r?cid=${activeUser.calendar_url}`
+                                target='_blank'
+                                title='Add to Google Calendar'
+                                data-bs-toggle='tooltip'
+                            )
+                                i.fas.fa-calendar-plus
+                            h3.d-inline Upcoming Events
                     .list-group.mb-2
                         each event in events
                             a.list-group-item.list-group-item-action(href=`/event/${event.id}`)

@@ -89,7 +89,7 @@ $(function(){
     $('#scene_player_name').on('input', updateBadges);
     $('#scene_description').on('input', updateBadges);
     $('#scene_display_to_pc').on('change', updateBadges);
-    updateBadges()
+    updateBadges();
 });
 
 function updateBadges(){

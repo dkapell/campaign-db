@@ -11,6 +11,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
     }
     const output: FormattedSceneModel = {
         id:scene.id,
+        guid:scene.guid,
         campaign_id: scene.campaign_id,
         event_id: scene.event_id,
         event: scene.event,
@@ -80,17 +81,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         }
     }
 
-    const timeslots = scene.timeslots.map(timeslot => {
-        return {
-            id: timeslot.id,
-            name: timeslot.name,
-            type: timeslot.type,
-            scene_schedule_status: timeslot.scene_schedule_status,
-            scene_request_status: timeslot.scene_request_status,
-            length: timeslot.length
-        }
-    })
-    output.timeslots = _.groupBy(timeslots, 'scene_schedule_status');
+
+    output.timeslots = _.groupBy(scene.timeslots, 'scene_schedule_status');
     if (forPlayer){
         if (output.timeslots.confirmed){
             output.timeslots = {
@@ -287,7 +279,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
     });
 }
 
-async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotModel[]> {
+async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false): Promise<TimeslotModel[]> {
     const event = await models.event.get(eventId);
     if (!event) { throw new Error('Invalid Event'); }
     const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
@@ -310,7 +302,7 @@ async function getUserSchedule(eventId:number, userId:number): Promise<TimeslotM
         for (const scene_timeslot of scene_timeslots){
             if (_.findWhere(scene_users, {scene_id: scene_timeslot.scene_id})){
                 const scene = await models.scene.get(scene_timeslot.scene_id);
-                timeslot.scenes.push(formatScene(scene));
+                timeslot.scenes.push(formatScene(scene, forPlayer));
             }
         }
         timeslot.schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});

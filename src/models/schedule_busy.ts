@@ -13,7 +13,8 @@ const tableFields = [
     'timeslot_id',
     'user_id',
     'event_id',
-    'type_id'
+    'type_id',
+    'guid'
 ];
 
 const ScheduleBusy = new Model('schedule_busies', tableFields, {

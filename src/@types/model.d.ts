@@ -332,6 +332,7 @@ interface SceneModel extends ModelData{
     player_name?:string
     status?:string
     description?:string
+    schedule_notes?:string
     timeslot_count?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string

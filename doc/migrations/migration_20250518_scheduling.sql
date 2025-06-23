@@ -52,6 +52,7 @@ create type scene_status as enum(
 create table scenes (
     id serial,
     campaign_id int not null,
+    guid uuid not null default gen_random_uuid(),
     event_id int,
     name varchar(80) not null,
     player_name varchar(80),
@@ -226,6 +227,7 @@ create table schedule_busies(
     user_id int not null,
     event_id int not null,
     type_id int not null,
+    guid uuid not null default gen_random_uuid(),
     unique(user_id, event_id, timeslot_id, type_id),
     primary key (id),
     CONSTRAINT schedule_busies_campaign_fk FOREIGN KEY (campaign_id)
@@ -275,3 +277,6 @@ create type event_schedule_status as ENUM(
 alter table events add column schedule_status event_schedule_status default 'private';
 alter table campaigns add column display_schedule boolean default true;
 alter table campaigns add column schedule_players boolean default true;
+alter table campaigns_users add column calendar_id uuid not null default gen_random_uuid();
+alter table events add column guid uuid not null default gen_random_uuid();
+create index campaigns_users_calendar_idx on campaigns_users (calendar_id);

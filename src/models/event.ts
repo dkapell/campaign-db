@@ -21,6 +21,7 @@ const tableFields = [
     'id',
     'campaign_id',
     'name',
+    'guid',
     'description',
     'start_time',
     'end_time',

@@ -3,6 +3,18 @@ extends ../layout
 include ../partials/event.pug
 
 block content
+    .row
+        .col
+            a.btn.btn-outline-info.float-end.btn-sm(
+                href=`https://calendar.google.com/calendar/u/0/r?cid=${activeUser.calendar_url}`
+                target='_blank'
+                title='Add to Google Calendar'
+                data-bs-toggle='tooltip'
+            )
+                i.fas.fa-calendar-plus.me-1
+                | Add to Google Calendar
+
+            h2 Events
     if checkPermission('gm')
         a.btn.btn-outline-success.my-2(href='/event/new')
             span(class="fa fa-plus")
@@ -49,6 +61,9 @@ append scripts
             }
             $('#eventTabs').on('shown.bs.tab', function(e){
                 localStorage.setItem(eventListStorageId, $(e.target).attr('id'));
+            });
+            $('[data-bs-toggle="tooltip"]').tooltip({
+                delay: { 'show': 300, 'hide': 100 },
             });
         });
 

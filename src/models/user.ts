@@ -4,6 +4,7 @@ import _ from 'underscore';
 import database from '../lib/database';
 import cache from '../lib/cache';
 import validator from 'validator';
+import config from 'config';
 
 import campaign_userModel from './campaign_user';
 import campaignModel from './campaign';
@@ -202,6 +203,7 @@ async function postSelect(user, campaignId){
         return user;
     }
 
+    const campaign = await models.campaign.get(campaignId);
     const campaign_user = await models.campaign_user.findOne({user_id: user.id, campaign_id: campaignId});
     if (campaign_user){
         user.type = campaign_user.type;
@@ -213,16 +215,16 @@ async function postSelect(user, campaignId){
         user.image_id = campaign_user.image_id;
         user.occasional_attendee = campaign_user.occasional_attendee;
         user.tags = campaign_user.tags;
+        user.calendar_id = campaign_user.calendar_id;
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
         }
+        user.calendar_url = `${config.get('app.secureOnly')?'https':'http'}://${campaign.site}/calendar/${campaign_user.calendar_id}`
     } else {
         user.type = 'none';
         user.campaignType = 'unset';
     }
-
-    const campaign = await models.campaign.get(campaignId);
 
     if (_.has(campaign.user_type_map, user.type)){
         user.typeForDisplay = campaign.user_type_map[user.type].name;

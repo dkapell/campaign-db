@@ -28,6 +28,11 @@ async function showGroupReport(req, res, next){
         current: 'Character Group Report'
     };
     try{
+        res.locals.group = []
+        if (req.query.group){
+            const requests = req.query.group.split(/\s*,\s*/);
+
+        }
         const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});
         res.locals.characters = await async.map(characters, async (character) => {
             if (character.user_id){
@@ -35,7 +40,19 @@ async function showGroupReport(req, res, next){
             }
             return character;
         });
-        res.locals.csrfToken = req.csrfToken();
+
+        res.locals.group = []
+        if (req.query.group){
+            const requests = req.query.group.split(/\s*,\s*/);
+            for (const request of requests){
+                if (_.findWhere(characters, {id:Number(request)})){
+                    res.locals.group.push(Number(request));
+                }
+            }
+        }
+
+
+
         res.render('report/group', { pageTitle: 'Character Group Report' });
     } catch (err){
         next(err);

@@ -11,6 +11,7 @@ block content
                         title=character.name
                         data-text=`<strong>${character.name}</strong> (<i>${character.user.name}</i>)`
                         data-html=`<span class='float-end badge text-bg-info'>${character.user.type}</span><strong>${character.name}</strong> (<i>${character.user.name}</i>)`
+                        selected=_.indexOf(group, character.id)!==-1
                     ) #{character.name} (#{character.user.name})
 
     .row.my-1

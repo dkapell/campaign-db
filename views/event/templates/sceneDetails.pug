@@ -6,13 +6,35 @@ if scene.tags
 .row.my-1
     .col
         if userType === 'staff'
-            a.btn.btn-xs.btn-outline-info.me-2(
+            a.btn.btn-xs.btn-outline-info.me-1(
                 href=`/scene/${scene.id}`
                 target='_blank'
                 data-bs-toggle='tooltip'
                 title='View Scene Details'
             )
-                i.fas.fa-eye
+                i.fas.fa-eye.fa-fw
+            if (scene.players.confirmed && scene.players.confirmed.length) || (scene.players.suggested && scene.players.suggested.length)
+
+                -
+                    const characterIds = [];
+                    for (const status of ['confirmed', 'suggested']){
+                        if (scene.players[status]){
+                            for (const player of scene.players[status]){
+                                if (player.character){
+                                    characterIds.push(player.character.id);
+                                }
+                            }
+                        }
+                    }
+
+                a.btn.btn-xs.btn-outline-info.group-report-btn.me-1(
+                    href=`/report/group?group=${characterIds.join(',')}`
+                    target='_blank'
+                    data-bs-toggle='tooltip'
+                    title="Group Report"
+                )
+                    i.fas.fa-calculator.fa-fw
+
         if scheduleType === 'edit'
 
             if (scene.locations.suggested  || scene.locations.confirmed) && (scene.timeslots.suggested || scene.timeslots.confirmed)
@@ -76,6 +98,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                             )
                                 i.fas.fa-plus-circle.me-1
                                 | Unconfirm
+
                 if scene.players.confirmed
                     each player in scene.players.confirmed
                         li.list-group-item.my-0.p-0

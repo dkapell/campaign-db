@@ -18,8 +18,6 @@ $(function(){
         title:'Run Scheduler for all non-confirmed Scenes?'
     }).on('click', runSchedulerBtn);
 
-    $('.users-btn').on('click', showUsersBtn);
-
     $('#detail-container').on('closed', function(e){
         clearTimeslotHighlight();
     });

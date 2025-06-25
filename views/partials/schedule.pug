@@ -173,9 +173,9 @@ mixin sceneBody(scene, locationIdx, forScheduler)
 
                 )
         .flex-grow-1
-            a.scene-name.d-block.ms-1.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+            a.scene-name.d-block.ms-1.text-body.link-underline-info.link-offset-1.link-underline-opacity-50.link-underline-opacity-100-hover(
                 href='#'
-                title=scene.name
+                title='Show/Hide Details'
                 data-bs-toggle='collapse'
                 data-bs-target=`#scene-details-${scene.id}-${locationIdx}`
                 aria-expanded="false"

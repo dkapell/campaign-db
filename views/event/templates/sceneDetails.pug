@@ -68,14 +68,28 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
                 const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
                 const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
-            span.me-1 Players
-            if _.has(scene, 'player_count_min')
-                if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
-                    span.text-danger.me-1=currentPlayerCount
-                else
-                    span.me-1=currentPlayerCount
-                span of (#{scene.player_count_min}-#{scene.player_count_max})
-            ul.list-group
+            a.scene-player-header.d-block.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+                role='button'
+                href=`#scene-player-${scene.id}-${locationIdx}`
+                title=`Show/Hide Players`
+                data-bs-toggle='collapse'
+                aria-expanded="false"
+                aria-controls=`scene-player-${scene.id}-${locationIdx}`
+            )
+
+                span.me-1 Players
+                if _.has(scene, 'player_count_min')
+                    if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
+                        span.text-danger.me-1=currentPlayerCount
+                    else
+                        span.me-1=currentPlayerCount
+                    span of (#{scene.player_count_min}-#{scene.player_count_max})
+
+                span.ps-2.float-end
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
+
+            ul.list-group.collapse.scene-user-list.scene-player-list(id=`scene-player-${scene.id}-${locationIdx}`)
                 if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
                     li.list-group-item.my-0.p-1
 
@@ -153,17 +167,31 @@ if scene.staff
                 const confirmedStaffCount = scene.staff.confirmed?scene.staff.confirmed.length:0;
                 const suggestedStaffCount = scene.staff.suggested?scene.staff.suggested.length:0;
                 const currentStaffCount = suggestedStaffCount + confirmedStaffCount;
-            span.me-1 Staff/NPCs
-            if currentStaffCount < scene.staff_count_min || currentStaffCount > scene.staff_count_max
-                span.text-danger.me-1=currentStaffCount
-            else
-                span.me-1=currentStaffCount
-            span of (#{scene.staff_count_min}-#{scene.staff_count_max})
+            a.scene-staff-header.d-block.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+                role='button'
+                href=`#scene-staff-${scene.id}-${locationIdx}`
+                title=`Show/Hide Staff`
+                data-bs-toggle='collapse'
+                aria-expanded="false"
+                aria-controls=`scene-staff-${scene.id}-${locationIdx}`
+            )
 
-            if scene.combat_staff_count_min
-                span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
+                span.ps-2.float-end
+                    i.fa.fa-chevron-up
+                    i.fa.fa-chevron-down
 
-            ul.list-group
+                span.me-1 Staff/NPCs
+                if currentStaffCount < scene.staff_count_min || currentStaffCount > scene.staff_count_max
+                    span.text-danger.me-1=currentStaffCount
+                else
+                    span.me-1=currentStaffCount
+                span of (#{scene.staff_count_min}-#{scene.staff_count_max})
+
+                if scene.combat_staff_count_min
+                    span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
+
+
+            ul.list-group.collapse.scene-user-list.scene-staff-list(id=`scene-staff-${scene.id}-${locationIdx}`)
                 if (scene.staff.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.staff.suggested && scene.staff.suggested.length > 1)
                     li.list-group-item.my-0.p-1
 

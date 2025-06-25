@@ -157,7 +157,14 @@ function formatUsersData(data, type){
     });
     for (const scene of data.scenes){
         $(`.scene-item[data-scene-id=${scene.id}]`).addClass('scene-item-droppable');
-        $(`.scene-item[data-scene-id=${scene.id}]`).find('.scene-details').collapse('show');
+        $(`.scene-item[data-scene-id=${scene.id}]`).each(function(){
+            const $scene = $(this);
+            if ($scene.find('.scene-details').hasClass('show')){
+                updateSceneDetails($scene);
+            } else {
+                $scene.find('.scene-details').collapse('show');
+            }
+        });
     }
 
     $panel.find('.content').find('.unschedule-busy-btn').on('click', unschedulBusyUserBtn);

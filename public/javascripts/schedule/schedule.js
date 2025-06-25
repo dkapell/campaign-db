@@ -15,11 +15,15 @@ $(function(){
         customClass:'scene-info-popover'
     });
 
-    $('.scene-details').on('show.bs.collapse', function(e){
+
+    $('body').on('show.bs.collapse', '.scene-details', function(e){
         const $scene = $(e.target).closest('.scene-item');
         updateSceneDetails($scene);
     });
 
+    $('body').on('show.bs.collapse', '.scene-user-list', function(e){
+        e.stopPropagation();
+    });
 
     $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 300, 'hide': 100 },
@@ -248,6 +252,7 @@ async function updateSceneDetails($scene){
     data.marked = marked;
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
+        data.locationIdx = $scene.data('location-idx');
         $scene.find('.scene-details').html(scenedetailsTemplate(data));
         $scene.find('.scene-details').find('[data-bs-toggle="tooltip"]').tooltip({
             delay: { 'show': 300, 'hide': 100 },
@@ -260,6 +265,14 @@ async function updateSceneDetails($scene){
         $scene.find('.unschedule-user-btn').on('click', unscheduleSceneUserBtn);
         $scene.find('.schedule-user-btn').on('click', scheduleSceneUserBtn);
         $scene.find('.confirm-all-scene-users-btn').on('click', confirmAllSceneUsersBtn);
+
+        if ($('#detail-container').hasClass('show') && $('#bottom-panel').attr('type')){
+            if ($('#bottom-panel').attr('type') === 'all'){
+                $scene.find(`.scene-user-list`).collapse('show');
+            } else {
+               $scene.find(`.scene-${$('#bottom-panel').attr('type')}-list`).collapse('show');
+            }
+        }
 
     });
 }
@@ -441,8 +454,6 @@ function scrollToSlot(timeslotId, locationId){
     if($('#schedule-alert').hasClass('show')){
         return;
     }
-    console.log(timeslotId)
-    console.log(locationId)
     const $cell = $(`#cell-timeslot-${timeslotId}-location-${locationId}`);
     if ($($cell).length){
         const $container = $('#top-panel');

@@ -73,9 +73,9 @@ function highlightScene(sceneId){
         $(this).find('.scene-details').collapse('show');
         $(`#${cell}`).addClass('text-bg-info');
 
-    })
+    });
     const firstCell = $(`#scene-${sceneId}-0`).attr('cell');
-    const $slot = $(`#${firstCell}`)
+    const $slot = $(`#${firstCell}`);
     const timeslotId = $slot.data('timeslot-id');
     const locationId = $slot.data('location-id');
 
@@ -268,9 +268,9 @@ async function updateSceneDetails($scene){
 
         if ($('#detail-container').hasClass('show') && $('#bottom-panel').attr('type')){
             if ($('#bottom-panel').attr('type') === 'all'){
-                $scene.find(`.scene-user-list`).collapse('show');
+                $scene.find('.scene-user-list').collapse('show');
             } else {
-               $scene.find(`.scene-${$('#bottom-panel').attr('type')}-list`).collapse('show');
+                $scene.find(`.scene-${$('#bottom-panel').attr('type')}-list`).collapse('show');
             }
         }
 

@@ -3,7 +3,6 @@ import _ from 'underscore';
 import async from 'async';
 import config from 'config'
 import models from './models';
-import scheduleHelper from './scheduleHelper';
 import Schedule from './scheduler/Schedule';
 
 import ScheduleScene from './scheduler/ScheduleScene';
@@ -26,7 +25,6 @@ async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
 }
 
 function getPrereqId(prereq:string|number|SceneModel):number{
-    let prereqId:number = null;
     if (typeof prereq === 'number'){
         return prereq;
     } else if (typeof prereq === 'string'){
@@ -108,7 +106,7 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
     const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:5;
     const attempts = [];
 
-    await async.timesLimit(runs, concurrency, async function(idx): Promise<SchedulerResult>{
+    await async.timesLimit(runs, concurrency, async function(): Promise<SchedulerResult>{
         const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
         const schedule = new Schedule(eventId, scenes, cache);
         attempts.push(await schedule.run(scenesToPlace, options));

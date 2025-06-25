@@ -112,7 +112,7 @@ class Schedule {
         let unscheduled = 0;
         let scenesProcessed = 0;
         const start =  (new Date()).getTime()
-        let last = start;
+        //let last = start;
         let maxScenesPerRun = config.get('scheduler.maxScenesPerRun') as number;
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
@@ -355,7 +355,7 @@ class Schedule {
         const conflicts = [];
         timeslotLoop: for (const timeslotId of possibleTimeslots){
             const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-            prereqLoop: for (const prereq of scene.prereqs){
+            for (const prereq of scene.prereqs){
                 let prereqScene:ScheduleScene = null
                 if (typeof prereq === 'number'){
                     prereqScene = _.findWhere(this.scenes, {id:prereq});

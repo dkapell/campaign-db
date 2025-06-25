@@ -1,6 +1,5 @@
 'use strict'
 
-import async from 'async'
 import _ from 'underscore'
 import models from '../models';
 import ScheduleCache from './ScheduleCache';
@@ -91,7 +90,7 @@ class ScheduleScene  {
 
         const allTimeslots = await this.cache.timeslots();
 
-        let timeslot_count = this.timeslot_count;
+        const timeslot_count = this.timeslot_count;
 
         // Do not slot a scene with prereqs into the final slot of the event
         if (this.data.prereq_of && this.data.prereq_of.length){

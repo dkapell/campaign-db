@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import eventModel from '../../models/event';
 import sceneModel from '../../models/scene';
 import scheduler from '../../lib/scheduler';

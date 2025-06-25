@@ -299,39 +299,6 @@ async function saveSceneIssues(sceneId:number, issues: IssueRecord[]){
         });
     });
 }
-async function saveIssue(sceneId, code, text){
-    if (!_.has(issueList, code)){
-        return;
-    }
-    const current = await models.scene_issue.findOne({scene_id:sceneId, code:code, text:text});
-    if (current){
-        if (!current.resolved){
-            return;
-        } else {
-            current.resolved = false;
-            return models.scene_issue.update(current.id, current);
-        }
-    }
-    return models.scene_issue.create({
-        scene_id: sceneId,
-        code: code,
-        level: issueList[code],
-        text: text
-    });
-}
-
-async function clearIssue(sceneId, code){
-    const current: SceneIssueModel[] = await models.scene_issue.find({scene_id:sceneId, code:code});
-    return async.each(current, async (issue) => {
-        if (issue.resolved) { return; }
-        if (issue.ignored) {
-            issue.resolved = true;
-            return models.scene_issue.update(issue.id, issue);
-        } else {
-            return models.scene_issue.delete(issue.id);
-        }
-    });
-}
 
 function getSelectedTimeslots(scene:SceneModel): {type:string, timeslots:TimeslotModel[]}{
     let timeslots = scene.timeslots.filter(timeslot => {

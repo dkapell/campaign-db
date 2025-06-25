@@ -29,10 +29,6 @@ async function showGroupReport(req, res, next){
     };
     try{
         res.locals.group = []
-        if (req.query.group){
-            const requests = req.query.group.split(/\s*,\s*/);
-
-        }
         const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});
         res.locals.characters = await async.map(characters, async (character) => {
             if (character.user_id){
@@ -50,8 +46,6 @@ async function showGroupReport(req, res, next){
                 }
             }
         }
-
-
 
         res.render('report/group', { pageTitle: 'Character Group Report' });
     } catch (err){

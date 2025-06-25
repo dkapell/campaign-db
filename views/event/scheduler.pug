@@ -149,7 +149,7 @@ block maincontent
                     div.location-header.text-center.align-bottom.mb-1.schedule-cell(
                         id=`location-${xItem.id}-header`
                         data-location-id=xItem.id
-                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
+                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
                     )
                         strong=xItem.name
                         div.text-start.px-2
@@ -158,7 +158,7 @@ block maincontent
                     div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
                         id=`timeslot-${xItem.id}-header`
                         data-timeslot-id=xItem.id
-                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}`
+                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
 
                     )
                         span.flex-fill.text-center
@@ -184,7 +184,7 @@ block maincontent
                     div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
                         id=`location-${yItem.id}-header`
                         data-location-id=yItem.id
-                        style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1`
+                        style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1; min-width:180px`
                     )
                         strong=yItem.name
                         div.text-start.px-2

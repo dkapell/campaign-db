@@ -61,14 +61,25 @@ function updateAllSlots(){
 }
 
 function highlightScene(sceneId){
-    const cell = $(`#scene-${sceneId}-0`).attr('cell');
-    const timeslotId = $(`#${cell}`).data('timeslot-id');
     $('.timeslot-header').removeClass('text-bg-info');
     $('.schedule-cell').removeClass('text-bg-info');
-    $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
-    $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
-    $(`.scene-item[data-scene-id=${sceneId}]`).find('.scene-details').collapse('show');
-    scrollToTimeslot(timeslotId);
+
+    $(`.scene-item[data-scene-id=${sceneId}]`).each( function(){
+        const cell = $(this).attr('cell');
+        $(this).find('.scene-details').collapse('show');
+        $(`#${cell}`).addClass('text-bg-info');
+
+    })
+    const firstCell = $(`#scene-${sceneId}-0`).attr('cell');
+    const $slot = $(`#${firstCell}`)
+    const timeslotId = $slot.data('timeslot-id');
+    const locationId = $slot.data('location-id');
+
+    if ($('#xAxisType').val() === 'location'){
+        scrollToTimeslot(timeslotId);
+    } else {
+        scrollToSlot(timeslotId, locationId);
+    }
 }
 
 function updateTagFilter(e){
@@ -426,6 +437,22 @@ function showSuccess(message){
     }, 100);
 }
 
+function scrollToSlot(timeslotId, locationId){
+    if($('#schedule-alert').hasClass('show')){
+        return;
+    }
+    console.log(timeslotId)
+    console.log(locationId)
+    const $cell = $(`#cell-timeslot-${timeslotId}-location-${locationId}`);
+    if ($($cell).length){
+        const $container = $('#top-panel');
+        $container.animate({
+            scrollTop:  $container.scrollTop() + ($cell.position().top - $container.position().top) - 0,
+            scrollLeft:  $container.scrollLeft() + ($cell.position().left - $container.position().left) - 240
+        }, 100);
+    }
+}
+
 function scrollToTimeslot(timeslotId){
     if($('#schedule-alert').hasClass('show')){
         return;
@@ -433,10 +460,17 @@ function scrollToTimeslot(timeslotId){
     const $header = $(`.timeslot-header[data-timeslot-id=${timeslotId}]`);
     if ($($header).length){
         const $container= $('#top-panel');
-        $container.animate({
-            scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - 50
+        if ($('xAxisType' === 'location')){
+            $container.animate({
+                scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - 50
 
-        }, 100);
+            }, 100);
+        } else {
+            $container.animate({
+                scrollLeft:  $container.scrollLeft() + ($header.position().left - $container.position().left) - 240
+
+            }, 100);
+        }
     }
 }
 

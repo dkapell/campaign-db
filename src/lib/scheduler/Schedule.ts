@@ -112,7 +112,7 @@ class Schedule {
         let unscheduled = 0;
         let scenesProcessed = 0;
         const start =  (new Date()).getTime()
-        //let last = start;
+        let last = start;
         let maxScenesPerRun = config.get('scheduler.maxScenesPerRun') as number;
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
@@ -121,7 +121,7 @@ class Schedule {
             scenesProcessed++;
             const scene = queue.next();
             switch (scene.schedule_status){
-                case 'new': {
+                case 'new': { // -> slotted
                     const slotResult = await this.findSlot(scene);
                     if (slotResult.slotted){
                         scene.happiness += Number(config.get('scheduler.points.scheduled'));
@@ -135,28 +135,56 @@ class Schedule {
                     } else {
                         unscheduled++;
                     }
-                    //console.log(`n ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                     break;
                 }
-                case 'slotted':
+                case 'slotted': // -> users requested min
+                    // fill to min with requested users
                     scene.happiness += await this.fillUsers(scene, 'requested', false, options);
-                    scene.schedule_status = 'users requested';
+                    scene.schedule_status = 'users requested min';
                     queue.enqueue(scene.id);
-                    //console.log(`s ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
-                case 'users requested':
+                case 'users requested min': // -> users requested min
+                    // Fill to max with requested users
+                    scene.happiness += await this.fillUsers(scene, 'requested', true, options);
+                    scene.schedule_status = 'users requested max';
+                    queue.enqueue(scene.id);
+                    //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+
+                    break;
+                case 'users requested max': // -> users fill skills
+                    // Fill to max with users that fill requested sources and skills
+                    scene.happiness += await this.fillByCharacter(scene, options);
+                    scene.schedule_status = 'users fill skills'
+                    if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
+                        queue.enqueue(scene.id);
+                    } else {
+                        scene.schedule_status = 'done';
+                    }
+                    //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+
+                    break;
+                case 'users fill skills': // -> users fill min
+                    // Fill to min with any user
                     scene.happiness += await this.fillUsers(scene, 'any', false, options);
-                    scene.schedule_status = 'users fill min'
-                    queue.enqueue(scene.id);
-                    //console.log(`r ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    scene.schedule_status = 'users fill min';
+
+                    if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
+                        queue.enqueue(scene.id);
+                    } else {
+                        scene.schedule_status = 'done';
+                    }
+                    //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
-                case 'users fill min':
+
+                case 'users fill min': // -> done
+                    // Fill to max with any available user
                     scene.happiness += await this.fillUsers(scene, 'any', true, options);
                     scene.schedule_status = 'done'
-                    //console.log(`f ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-
+                    //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                     break;
             }
             this.addScene(scene);
@@ -482,6 +510,92 @@ class Schedule {
         return score * Number(config.get('scheduler.points.users'));
 
     }
+
+    protected async fillByCharacter(scene: ScheduleScene, options:SchedulerOptions): Promise<number>{
+        if (scene.currentPlayers.length >= scene.player_count.max){
+            // Scene is already full
+            return 0;
+        }
+
+        const desires = {
+            sources: {
+                required: scene.desiredSources('required'),
+                requested: scene.desiredSources('requested')
+            },
+            skills: {
+                required: scene.desiredSkills('required'),
+                requested: scene.desiredSkills('requested')
+            }
+        };
+
+        if (!(
+            desires.sources.requested.length +
+            desires.sources.required.length +
+            desires.skills.requested.length +
+            desires.skills.required.length
+        )){
+            // Nothing requested/required
+            return 0;
+        }
+
+        const playersAvailable = await this.usersAvailable(scene.currentTimeslots, 'player');
+
+        const currentGroup = await scene.currentGroup();
+        const characters = await this.cache.characters();
+        const charactersAvailable = characters.filter(character => {
+            return _.indexOf(playersAvailable.available, character.user_id) !== -1
+        });
+        let score = 0;
+
+        const typeList: Array<keyof CharacterData> = ['sources', 'skills'];
+
+        statusLoop: for (const status of ['required', 'requested'] ){
+            typeLoop: for (const type of ['sources', 'skills']){
+
+                itemLoop: for (const itemId of desires[type][status] ){
+
+                    // Check if scene is full
+                    if (scene.currentPlayers.length >= scene.player_count.max){
+                        break statusLoop;
+                    }
+
+                    for (const character of currentGroup){
+
+                        const records = getCharacterData(character, type);
+                        if(_.findWhere(records, {id:itemId})){
+                            // Scene already has a character with requested skill or source
+                            break itemLoop;
+                        }
+                    }
+
+                    for (const character of charactersAvailable){
+                        const records = getCharacterData(character, type)
+                        if (_.findWhere(records, {id:itemId})){
+
+                            // Found am available character with required/requested skill/source
+                            scene.addPossiblePlayer(character.user_id);
+                            score++;
+                            continue itemLoop; // Move on to the next item of this status/type
+                        }
+                    }
+
+                }
+            }
+        }
+        return score * Number(config.get('scheduler.points.character'));
+    }
 }
+
+function getCharacterData(character:CharacterData, type:string){
+    if (type === 'sources'){
+        return character.sources;
+    } else if (type === 'skills'){
+        return character.skills;
+    } else{
+        return;
+    }
+}
+
+
 
 export default Schedule;

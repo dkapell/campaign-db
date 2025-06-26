@@ -1,6 +1,7 @@
 'use strict'
 import async from 'async';
 import models from '../models';
+import Character from '../Character';
 
 class ScheduleCache {
     protected event_id;
@@ -9,6 +10,7 @@ class ScheduleCache {
         timeslots: [],
         locations: [],
         event: null,
+        characters: [],
     };
 
     constructor(campaignId:number, eventId:number = null){
@@ -52,11 +54,29 @@ class ScheduleCache {
         return this.cache.event;
     }
 
+    async characters(): Promise<CharacterData[]>{
+        if (this.cache.characters.length){
+            return this.cache.characters;
+        }
+        const attendees = await models.attendance.find({event_id: this.event_id, attending:true});
+        const players = attendees.filter(attendee => {
+            return attendee.user.type === 'player' && attendee.character_id;
+        });
+
+        this.cache.characters = await async.map(players, async(player) => {
+            const character = new Character({id: player.character_id});
+            await character.init();
+            return character.data();
+        });
+        return this.cache.characters;
+    }
+
     async fill(){
         await async.parallel([
             async() => {this.event()},
             async() => {this.timeslots()},
-            async() => {this.locations()}
+            async() => {this.locations()},
+            async() => {this.characters()}
         ]);
     }
 

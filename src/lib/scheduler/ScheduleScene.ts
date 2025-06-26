@@ -3,6 +3,7 @@
 import _ from 'underscore'
 import models from '../models';
 import ScheduleCache from './ScheduleCache';
+import reportHelper from '../reportHelper';
 
 
 interface CurrentSchedule{
@@ -301,11 +302,35 @@ class ScheduleScene  {
     get sources(): SourceModel[] {
         return this.data.sources;
     }
+
+    desiredSources(type:string): number[]{
+        const sources = this.data.sources.filter( source => {
+            return source.scene_request_status === type;
+        });
+        return _.pluck(sources, 'id');
+    }
+
     get skills(): SkillModel[] {
         if (this.data.skills){
             return this.data.skills;
         }
         return [];
+    }
+
+    desiredSkills(type:string): number[]{
+        const skills = this.data.skills.filter( skill => {
+            return skill.scene_request_status === type;
+        });
+        return _.pluck(skills, 'id');
+    }
+
+    async currentGroup(){
+        const characterIds = [];
+        const characters = await this.cache.characters();
+
+        return this.currentPlayers.map(id => {
+            return _.findWhere(characters, {user_id:id});
+        });
     }
 
     async write(){

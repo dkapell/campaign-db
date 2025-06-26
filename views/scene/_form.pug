@@ -122,11 +122,11 @@ fieldset.my-2.border.p-2.rounded
                 +markdownEditor('Scheduling Notes (Staff-Only)', 'scene_schedule_notes', 'scene[schedule_notes]', 3, 50, scene.schedule_notes, false)
 
 .row.my-3
-    .col
+    .col-md
         .row.mb-2
-            .col
-
-                .float-end
+            .col-lg
+                h5 Locations
+            .col-lg-auto.text-end
                     a.btn.btn-sm.btn-outline-primary#locations-button-combat.me-1(
                         href='#'
                         data-bs-toggle='tooltip'
@@ -142,7 +142,6 @@ fieldset.my-2.border.p-2.rounded
                         data-bs-toggle='tooltip'
                         title='Set all \'Requested\' to \'None\''
                         ) Clear
-                h5 Locations
         .row.my-2
             label.col-form-label.col-md(for="scene_location_count") Location Count
                 span.ms-1.text-danger *
@@ -155,26 +154,27 @@ fieldset.my-2.border.p-2.rounded
                         - const sceneLocation = _.findWhere(scene.locations, {id: location.id}) || {};
 
                         +sceneLocationInput(location, sceneLocation.scene_request_status, sceneLocation.scene_schedule_status)
-    .col
+    .col-md
         .row.mb-2
-            .col
-                .float-end
-                    a.btn.btn-sm.btn-outline-primary#timeslots-button-no-meals.me-1(
-                        href='#'
-                        data-bs-toggle='tooltip'
-                        title='Request all regular timeslots currently set to \'None\''
-                    ) All Except Meals
-                    a.btn.btn-sm.btn-outline-primary#timeslots-button-all.me-1(
-                        href='#'
-                        data-bs-toggle='tooltip'
-                        title='Request all regular timeslots currently set to \'None\''
-                    ) All
-                    a.btn.btn-sm.btn-outline-danger#timeslots-button-clear(
-                        href='#'
-                        data-bs-toggle='tooltip'
-                        title='Set all \'Requested\' to \'None\''
-                    ) Clear
+            .col-lg
                 h5 Timeslots
+            .col-lg-auto.text-end
+                a.btn.btn-sm.btn-outline-primary#timeslots-button-no-meals.me-1(
+                    href='#'
+                    data-bs-toggle='tooltip'
+                    title='Request all regular timeslots currently set to \'None\''
+                ) All Except Meals
+                a.btn.btn-sm.btn-outline-primary#timeslots-button-all.me-1(
+                    href='#'
+                    data-bs-toggle='tooltip'
+                    title='Request all regular timeslots currently set to \'None\''
+                ) All
+                a.btn.btn-sm.btn-outline-danger#timeslots-button-clear(
+                    href='#'
+                    data-bs-toggle='tooltip'
+                    title='Set all \'Requested\' to \'None\''
+                ) Clear
+
         .row.my-2
             label.col-form-label.col-md(for="scene_timeslot_count") Timeslot Count
                 span.ms-1.text-danger *
@@ -187,15 +187,15 @@ fieldset.my-2.border.p-2.rounded
                         - const sceneTimeslot = _.findWhere(scene.timeslots, {id: timeslot.id}) || {};
                         +sceneTimeslotInput(timeslot, sceneTimeslot.scene_request_status, sceneTimeslot.scene_schedule_status)
 
-    .col
+    .col-md
         if currentCampaign.schedule_players
             .row.mb-3
                 .col.scene-user-picker-container
                     h5 Players
                     .row.my-1
-                        label.col-form-label.col-lg(for="scene_player_count") Total Player Count
+                        label.col-form-label.col-xl(for="scene_player_count") Total Player Count
                             span.ms-1.text-danger *
-                        .col-lg-5
+                        .col-xl-5
                             .input-group.input-group-sm#scene_player_count
                                 input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min)
                                 .input-group-text to
@@ -233,28 +233,28 @@ fieldset.my-2.border.p-2.rounded
         .row.mb-3
             .col.scene-user-picker-container
                 .row.mb-2
-                    .col
-                        .float-end
-                            a.btn.btn-sm.btn-outline-primary#staff-require-me-btn(
-                                href='#'
-                                data-bs-toggle='tooltip'
-                                title='Add me to the Required Staff List'
-                                data-user-id=activeUser.id
-                            ) Require Me
+                    .col-lg
                         h5 Staff
+                    .col-lg-auto
+                        a.btn.btn-sm.btn-outline-primary#staff-require-me-btn(
+                            href='#'
+                            data-bs-toggle='tooltip'
+                            title='Add me to the Required Staff List'
+                            data-user-id=activeUser.id
+                        ) Require Me
 
 
                 .row.my-1
-                    label.col-form-label.col-lg(for="scene_staff_count") Total Staff Count
+                    label.col-form-label.col-xl(for="scene_staff_count") Total Staff Count
                         span.ms-1.text-danger *
-                    .col-lg-5
+                    .col-xl-5
                         .input-group.input-group-sm#scene_staff_count
                             input.form-control.scene-user-count#scene_staff_count_min(type="number" placeholder="Min" name="scene[staff_count_min]" value=scene.staff_count_min)
                             .input-group-text to
                             input.form-control.scene-user-count#scene_staff_count_max(type="number" placeholder="Max" name="scene[staff_count_max]" value=scene.staff_count_max)
                 .row.my-1
-                    label.col-form-label.col-lg(for="scene_combat_staff_count") Combat Staff Count
-                    .col-lg-5
+                    label.col-form-label.col-xl(for="scene_combat_staff_count") Combat Staff Count
+                    .col-xl-5
                         .input-group.input-group-sm#scene_combat_staff_count
                             input.form-control#scene_combat_staff_count_min(type="number" placeholder="Min" name="scene[combat_staff_count_min]" value=scene.combat_staff_count_min)
                             .input-group-text to

@@ -89,9 +89,9 @@ function highlightScene(sceneId){
 function updateTagFilter(e){
     const tag = $(this).val();
     if (!tag){ return; }
+    $('.scene-item').removeClass('tag-disabled');
     if (tag === '-1'){
         $(this).val(null).trigger('change');
-        $('.scene-item').removeClass('tag-disabled');
         return;
     }
     $('.scene-item').each(function(){

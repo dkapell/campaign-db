@@ -119,7 +119,8 @@ async function showNew(req, res, next){
                 locations:[],
                 users:[],
                 sources:[],
-                timeslots:[]
+                timeslots:[],
+                skills:[]
             };
 
             res.locals.breadcrumbs = {

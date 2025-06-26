@@ -535,14 +535,16 @@ function addScheduleBusy(text, timeslotId){
     const cols = xAxisType==='location'?$('#cellsPerSlot').val():1;
 
     const $busyScene = $('#null-busy-item').clone();
-    $busyScene.addClass('busy-item')
-        .attr('id', `busy-timeslot-${timeslotId}`)
-        .find('.title').text(text);
+
+    $busyScene.find('.title').text(text);
 
     $busyScene
+        .addClass('busy-item')
+        .attr('id', `busy-timeslot-${timeslotId}`)
         .css('grid-row', `${gridY} / span ${rows}`)
         .css('grid-column', `${gridX} / span ${cols}`)
-        .removeClass('d-none').addClass('d-flex');
+        .removeClass('d-none')
+        .addClass('d-flex');
 
-    $('#top-panel-grid').append($busyScene);
+    $('#schedule-container-grid').append($busyScene);
 }

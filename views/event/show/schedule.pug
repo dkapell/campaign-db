@@ -7,7 +7,6 @@ include ../../partials/scene
             )
                 i.fa.fa-download.me-1
                 | Export Staff CSV
-        - console.log(event.schedule_status)
         if checkPermission('event') || event.schedule_status === 'player visible'
             button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-player-export-btn(
                 data-export=`/event/${event.id}/schedule/export?type=player`
@@ -19,6 +18,13 @@ include ../../partials/scene
             )
                i.fa.fa-calendar.me-1
                | Schedule
+
+        if checkPermission('gm') && new Date(event.start_time) > new Date()
+            a.btn.btn-sm.btn-outline-primary.my-2.ms-2.float-end(
+                href=`/event/${event.id}/scheduler`
+            )
+                i.fas.fa-calendar.me-1
+                | Event Scheduler
 .row.my-2
     .col-md-5
         .table-responsive

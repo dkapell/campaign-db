@@ -305,7 +305,12 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
                 timeslot.scenes.push(formatScene(scene, forPlayer));
             }
         }
-        timeslot.schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});
+        const schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});
+        if (schedule_busy && (!forPlayer || schedule_busy.type.display_to_player)){
+            timeslot.schedule_busy = schedule_busy
+        } else {
+            timeslot.schedule_busy = null;
+        }
         return timeslot;
     });
 }

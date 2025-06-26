@@ -338,7 +338,6 @@ function addSceneSkill(e){
     e.preventDefault();
     const $skillPicker = $('#scene-skill-picker');
     const skill = $skillPicker.find('option:selected').data('skill');
-    console.log(skill);
     const source = $skillPicker.find('option:selected').data('source');
     if (!skill) { return; }
     if ($(`#scene-skill-${skill.id}`).length){

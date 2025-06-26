@@ -97,10 +97,12 @@
     "scheduler":{
         "runs": 20,
         "maxScenesPerRun": 1000,
-        "points": {
-            "scheduled": 25,
+        "score":{
             "locations_count": 2,
-            "timeslot_count": 6,
+            "timeslot_count": 6
+        },
+        "happiness": {
+            "scheduled": 25,
             "users_requested": 2,
             "users": 1,
             "character": 2

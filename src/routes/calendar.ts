@@ -18,8 +18,6 @@ async function calendar(req, res, next){
 
         const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
 
-        console.log(`Generating calendar for ${user.name}`);
-
         const calendarItems = [];
 
         for (const event of events){

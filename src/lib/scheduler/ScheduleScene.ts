@@ -3,8 +3,6 @@
 import _ from 'underscore'
 import models from '../models';
 import ScheduleCache from './ScheduleCache';
-import reportHelper from '../reportHelper';
-
 
 interface CurrentSchedule{
     locations: number[]
@@ -325,7 +323,6 @@ class ScheduleScene  {
     }
 
     async currentGroup(){
-        const characterIds = [];
         const characters = await this.cache.characters();
 
         return this.currentPlayers.map(id => {

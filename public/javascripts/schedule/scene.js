@@ -15,7 +15,7 @@ $(function(){
         stop: function (event, ui) {
             stopDragScene($(this));
         },
-        containment:'#top-panel-grid'
+        containment:'#schedule-container-grid'
 
     });
 

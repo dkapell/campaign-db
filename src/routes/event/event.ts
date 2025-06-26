@@ -52,7 +52,7 @@ async function show(req, res, next){
 
         if ((req.checkPermission('event') && event.schedule_status !== 'private') ||
             (req.checkPermission('player') && event.schedule_status === 'player visible')){
-            res.locals.schedule = await scheduleHelper.getUserSchedule(event.id, req.session.activeUser.id);
+            res.locals.schedule = await scheduleHelper.getUserSchedule(event.id, req.session.activeUser.id, req.session.activeUser.type==='player');
         }
 
         if (req.checkPermission('contrib')){

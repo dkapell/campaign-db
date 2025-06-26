@@ -112,7 +112,7 @@ class Schedule {
         let unscheduled = 0;
         let scenesProcessed = 0;
         const start =  (new Date()).getTime()
-        let last = start;
+        //let last = start;
         let maxScenesPerRun = config.get('scheduler.maxScenesPerRun') as number;
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
@@ -124,7 +124,7 @@ class Schedule {
                 case 'new': { // -> slotted
                     const slotResult = await this.findSlot(scene);
                     if (slotResult.slotted){
-                        scene.happiness += Number(config.get('scheduler.points.scheduled'));
+                        scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
                         scene.schedule_status = 'slotted';
                         queue.enqueue(scene.id);
                     } else if (slotResult.conflicts && slotResult.conflicts.length){
@@ -198,6 +198,118 @@ class Schedule {
         };
     }
 
+    protected async findSlot(scene:ScheduleScene):Promise<FindSlotResult>{
+        const timeslots = await this.cache.timeslots();
+        const possibleTimeslots = await scene.possibleTimeslots(timeslots);
+        const foundTimeslots = [];
+        const conflicts = [];
+        timeslotLoop: for (const timeslotId of possibleTimeslots){
+            const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
+            for (const prereq of scene.prereqs){
+                let prereqScene:ScheduleScene = null
+                if (typeof prereq === 'number'){
+                    prereqScene = _.findWhere(this.scenes, {id:prereq});
+                } else if (typeof prereq === 'object'){
+                    prereqScene = _.findWhere(this.scenes, {id:prereq.id});
+                }
+                if (!prereqScene) { continue; }
+                for (const prereqTimeslotId of prereqScene.currentTimeslots){
+                    const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
+                    if (timeslotIdx <= prereqTimeslotIdx){
+                        if (_.indexOf(conflicts, prereqScene.id) === -1){
+                            conflicts.push(prereqScene.id);
+                        }
+                        continue timeslotLoop;
+                    }
+                }
+            }
+
+            // check if Required Staff and Players are available starting at this timeslot
+            if (! await this.checkTimeslotUsers(scene, timeslotId)){
+                continue;
+            }
+
+            const suggestedLocations = await this.findLocations(scene, timeslotId);
+            if (suggestedLocations.length === scene.locations_count){
+                for (let idx = 0; idx < scene.timeslot_count; idx++){
+                    foundTimeslots.push(timeslots[timeslotIdx+idx].id);
+                }
+                scene.currentLocations = suggestedLocations;
+                break;
+            }
+        }
+
+        if (foundTimeslots.length === scene.timeslot_count){
+            scene.currentTimeslots = foundTimeslots;
+            scene.status = 'scheduled';
+            scene.event_id = this.event_id;
+            for (const userId of scene.desiredPlayers('required')){
+                scene.addPossiblePlayer(userId);
+            }
+            for (const userId of scene.desiredStaff('required')){
+                scene.addPossibleStaff(userId);
+            }
+            return {slotted: true, conflicts:[]};
+        } else {
+            scene.currentTimeslots = [];
+            scene.clearPlayers();
+            scene.clearStaff();
+            scene.status = 'ready';
+            return {slotted: false, conflicts:conflicts};
+        }
+    }
+
+    protected async checkTimeslotUsers(scene, timeslotId){
+        const timeslots = await this.cache.timeslots();
+
+        // check timeslotCount future timeslots to see if the required users are available for all of them
+        let clear = true;
+        const startTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
+        checkScene: for(let tIdx = 0; tIdx < scene.timeslot_count; tIdx++){
+            const timeslot = timeslots[startTimeslotIdx+tIdx]
+            const currentStaff = await this.usersAvailable([timeslot.id], 'staff');
+            const requiredStaff = scene.desiredStaff('required');
+            for(const userId of requiredStaff){
+                // Check if staff is signed up for event
+                if (_.indexOf(currentStaff.all, userId) === -1){
+                    continue;
+                }
+                // Check if required staff is already allocated to a scene
+                if (_.indexOf(currentStaff.allocated, userId) !== -1){
+                    clear = false
+                    break checkScene;
+                }
+            }
+            // check if we have enough overall staff at this time
+            if (currentStaff.min + scene.staff_count.min > currentStaff.all.length){
+                clear = false;
+                break checkScene;
+            }
+            const currentPlayers = await this.usersAvailable([timeslot.id], 'player');
+            const requiredPlayers = scene.desiredPlayers('required');
+            for(const userId of requiredPlayers){
+                // Check if staff is signed up for event
+                if (_.indexOf(currentPlayers.all, userId) === -1){
+                    continue;
+                }
+                // Check if required player is already allocated to a scene
+                if (_.indexOf(currentPlayers.allocated, userId) !== -1){
+                    clear = false
+                    break checkScene;
+                }
+            }
+
+            // check if we have enough overall players at this time
+            if (currentPlayers.min + scene.player_count.min > currentPlayers.all.length){
+                clear = false;
+                break checkScene;
+            }
+
+        }
+
+        return clear;
+    }
+
     protected async findLocations(scene: ScheduleScene, timeslotId: number): Promise<number[]>{
         const foundLocations = [];
         const possibleLocationsIds = scene.possibleLocations();
@@ -225,44 +337,6 @@ class Schedule {
                         clear = false;
                         break checkScene;
                     }
-
-                    const currentStaff = await this.usersAvailable([timeslotId], 'staff');
-                    const requiredStaff = scene.desiredStaff('required');
-                    for(const userId of requiredStaff){
-                        // Check if staff is signed up for event
-                        if (_.indexOf(currentStaff.all, userId) === -1){
-                            continue;
-                        }
-                        // Check if required staff is already allocated to a scene
-                        if (_.indexOf(currentStaff.allocated, userId) !== -1){
-                            clear = false
-                            break checkScene;
-                        }
-                    }
-                    // check if we have enough overall staff at this time
-                    if (currentStaff.min + scene.staff_count.min > currentStaff.all.length){
-                        clear = false;
-                        break checkScene;
-                    }
-                    const currentPlayers = await this.usersAvailable([timeslotId], 'player');
-                    const requiredPlayers = scene.desiredPlayers('required');
-                    for(const userId of requiredPlayers){
-                        // Check if staff is signed up for event
-                        if (_.indexOf(currentPlayers.all, userId) === -1){
-                            continue;
-                        }
-                        // Check if required player is already allocated to a scene
-                        if (_.indexOf(currentPlayers.allocated, userId) !== -1){
-                            clear = false
-                            break checkScene;
-                        }
-                    }
-                    // check if we have enough overall staff at this time
-                    if (currentPlayers.min + scene.player_count.min > currentPlayers.all.length){
-                        clear = false;
-                        break checkScene;
-                    }
-
                 }
                 if (clear){
                     foundLocations.push(locationId);
@@ -292,7 +366,6 @@ class Schedule {
             return;
         }
         return _.pluck(allUsers, 'id');
-
     }
 
     protected async usersAvailable(timeslots:number[], type:string): Promise<UsersAvailable>{
@@ -375,64 +448,6 @@ class Schedule {
         return result;
     }
 
-
-    protected async findSlot(scene:ScheduleScene):Promise<FindSlotResult>{
-        const timeslots = await this.cache.timeslots();
-        const possibleTimeslots = await scene.possibleTimeslots(timeslots);
-        const foundTimeslots = [];
-        const conflicts = [];
-        timeslotLoop: for (const timeslotId of possibleTimeslots){
-            const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-            for (const prereq of scene.prereqs){
-                let prereqScene:ScheduleScene = null
-                if (typeof prereq === 'number'){
-                    prereqScene = _.findWhere(this.scenes, {id:prereq});
-                } else if (typeof prereq === 'object'){
-                    prereqScene = _.findWhere(this.scenes, {id:prereq.id});
-                }
-                if (!prereqScene) { continue; }
-                for (const prereqTimeslotId of prereqScene.currentTimeslots){
-                    const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
-                    if (timeslotIdx <= prereqTimeslotIdx){
-                        if (_.indexOf(conflicts, prereqScene.id) === -1){
-                            conflicts.push(prereqScene.id);
-                        }
-                        continue timeslotLoop;
-                    }
-                }
-            }
-
-            const suggestedLocations = await this.findLocations(scene, timeslotId);
-            if (suggestedLocations.length === scene.locations_count){
-                for (let idx = 0; idx < scene.timeslot_count; idx++){
-                    foundTimeslots.push(timeslots[timeslotIdx+idx].id);
-                }
-                scene.currentLocations = suggestedLocations;
-                break;
-            }
-        }
-
-        if (foundTimeslots.length === scene.timeslot_count){
-            scene.currentTimeslots = foundTimeslots;
-            scene.status = 'scheduled';
-            scene.event_id = this.event_id;
-            for (const userId of scene.desiredPlayers('required')){
-                scene.addPossiblePlayer(userId);
-            }
-            for (const userId of scene.desiredStaff('required')){
-                scene.addPossibleStaff(userId);
-            }
-            return {slotted: true, conflicts:[]};
-        } else {
-            scene.currentTimeslots = [];
-            scene.currentLocations = [];
-            scene.clearPlayers();
-            scene.clearStaff();
-            scene.status = 'ready';
-            return {slotted: false, conflicts:conflicts};
-        }
-    }
-
     protected async fillUsers(scene:ScheduleScene, status:string, max:boolean, options:SchedulerOptions):Promise<number>{
 
         const usersAvailable = {
@@ -464,9 +479,7 @@ class Schedule {
         const maxPlayers = max?scene.player_count.max:scene.player_count.min;
         const maxStaff = max?scene.staff_count.max:scene.staff_count.min;
 
-        let score = 0;
-        //console.log(`${scene.name}: [${scene.currentPlayers}] [${requestedPlayers}] [${usersAvailable.players.available}]`)
-        //console.log(`${scene.name}: [${scene.currentStaff}] [${requestedStaff}] [${usersAvailable.staff.available}]`)
+        let happiness = 0;
 
         if (!options.skipPlayers){
             for (const userId of requestedPlayers){
@@ -482,7 +495,7 @@ class Schedule {
                 // accept if they're available
                 if (_.indexOf(usersAvailable.players.available, userId) !== -1){
                     scene.addPossiblePlayer(userId);
-                    score++;
+                    happiness++;
                 }
             }
         }
@@ -501,14 +514,13 @@ class Schedule {
             // accept if they're available
             if (_.indexOf(usersAvailable.staff.available, userId) !== -1){
                 scene.addPossibleStaff(userId);
-                score++;
+                happiness++;
             }
         }
         if (status === 'requested'){
-            return score * Number(config.get('scheduler.points.users_requested'));
+            return happiness * Number(config.get('scheduler.happiness.users_requested'));
         }
-        return score * Number(config.get('scheduler.points.users'));
-
+        return happiness * Number(config.get('scheduler.happiness.users'));
     }
 
     protected async fillByCharacter(scene: ScheduleScene, options:SchedulerOptions): Promise<number>{
@@ -545,12 +557,10 @@ class Schedule {
         const charactersAvailable = characters.filter(character => {
             return _.indexOf(playersAvailable.available, character.user_id) !== -1
         });
-        let score = 0;
-
-        const typeList: Array<keyof CharacterData> = ['sources', 'skills'];
+        let happiness = 0;
 
         statusLoop: for (const status of ['required', 'requested'] ){
-            typeLoop: for (const type of ['sources', 'skills']){
+            for (const type of ['sources', 'skills']){
 
                 itemLoop: for (const itemId of desires[type][status] ){
 
@@ -574,7 +584,7 @@ class Schedule {
 
                             // Found am available character with required/requested skill/source
                             scene.addPossiblePlayer(character.user_id);
-                            score++;
+                            happiness++;
                             continue itemLoop; // Move on to the next item of this status/type
                         }
                     }
@@ -582,7 +592,7 @@ class Schedule {
                 }
             }
         }
-        return score * Number(config.get('scheduler.points.character'));
+        return happiness * Number(config.get('scheduler.happiness.character'));
     }
 }
 

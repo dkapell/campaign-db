@@ -73,14 +73,6 @@ function scoreScene(scene:SceneModel): SceneModel{
     return scene;
 }
 
-interface SchedulerOutput{
-    schedule: Schedule
-    attempts?: number
-    unscheduled?: number
-    scenesProcessed?: number
-    happiness?: Record<string,number>
-}
-
 async function runScheduler(eventId:number, options:SchedulerOptions={}): Promise<SchedulerOutput>{
     const event = await models.event.get(eventId);
     const eventScenes = await models.scene.find({event_id:eventId});
@@ -125,6 +117,7 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
         schedule: schedule.schedule,
         unscheduled: schedule.unscheduled,
         attempts: attempts.length,
+        issues: schedule.issues,
         happiness: {
             max: schedule.happiness,
             avg: happyAvg

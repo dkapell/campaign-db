@@ -116,6 +116,7 @@ interface SchedulerResult{
     schedule: Schedule
     scenesProcessed: number
     happiness: number
+    issues: string[]
 }
 
 interface SchedulerOptions{
@@ -124,3 +125,13 @@ interface SchedulerOptions{
    maxScenesPerRun?:number
    skipPlayers?:boolean
 }
+
+interface SchedulerOutput{
+    schedule: Schedule
+    attempts?: number
+    unscheduled?: number
+    scenesProcessed?: number
+    happiness?: Record<string,number>
+    issues?: string[]
+}
+

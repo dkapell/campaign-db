@@ -95,7 +95,7 @@
         ]
     },
     "scheduler":{
-        "runs": 20,
+        "runs": 30,
         "maxScenesPerRun": 1000,
         "score":{
             "locations_count": 2,

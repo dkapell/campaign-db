@@ -125,14 +125,15 @@ block maincontent
 
     .container.my-0
         .row.my-0
-            .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
-                i.fa.fa-exclamation-triangle.me-2
+            .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
+                i.fas.fa-info.me-2
 
                 span.alert-text
                 button.btn-close(type="button" aria-label="Close")
+
         .row.my-0
-            .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
-                i.fas.fa-info.me-2
+            .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
+                i.fa.fa-exclamation-triangle.me-2
 
                 span.alert-text
                 button.btn-close(type="button" aria-label="Close")

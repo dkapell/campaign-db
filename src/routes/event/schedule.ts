@@ -647,7 +647,8 @@ async function runScheduler(req, res){
             attempts:schedulerData.attempts,
             unscheduled: schedulerData.unscheduled,
             scenes: await schedulerData.schedule.getScenes(),
-            happiness: schedulerData.happiness
+            happiness: schedulerData.happiness,
+            issues: schedulerData.issues
         });
     } catch (err) {
         res.json({success:false, error:err.message})

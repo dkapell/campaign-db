@@ -20,7 +20,10 @@ const issueList = {
     'unconfirmed-players': 'info',
     'not-enough-staff': 'warning',
     'too-many-staff': 'warning',
-    'unconfirmed-staff': 'info'
+    'unconfirmed-staff': 'info',
+    'missing-req-user': 'warning',
+    'missing-req-attendee': 'warning',
+
 }
 
 interface IssueRecord{
@@ -255,6 +258,22 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             code: 'unconfirmed-staff',
             text: 'Unconfirmed Staff'
         });
+    }
+
+    for (const user of scene.users){
+        if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
+            if (! await models.attendance.findOne({user_id:user.id, event_id:scene.event_id, attending:true})){
+                issues.push({
+                    code: 'missing-req-attendee',
+                    text: `${user.name} is required, but not attending this event`
+                });
+            } else {
+                issues.push({
+                    code: 'missing-req-user',
+                    text: `${user.name} is required, but not assigned`
+                });
+            }
+        }
     }
 
     await saveSceneIssues(scene.id, issues);

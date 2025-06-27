@@ -94,6 +94,9 @@ async function runSchedulerBtn(e){
     const data = await result.json();
     if (data.success){
         showSuccess(`Ran Scheduler ${data.attempts} time(s), resulting in ${data.unscheduled} unscheduled Scenes.`);
+        if (data.issues.length){
+            showError(data.issues.join('<br>'));
+        }
         data.scenes.forEach(updateSceneLocation);
         await updateAllSlots();
         await validateAllScenes();

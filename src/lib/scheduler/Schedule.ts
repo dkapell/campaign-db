@@ -27,6 +27,7 @@ class Schedule {
     scenes: ScheduleScene[];
     event_id: number;
     protected cache: ScheduleCache;
+    issues: string[] = [];
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
         this.event_id = event_id;
@@ -194,6 +195,7 @@ class Schedule {
             schedule: this,
             unscheduled: unscheduled,
             happiness: this.happiness,
+            issues: this.issues,
             scenesProcessed: scenesProcessed
         };
     }
@@ -203,39 +205,43 @@ class Schedule {
         const possibleTimeslots = await scene.possibleTimeslots(timeslots);
         const foundTimeslots = [];
         const conflicts = [];
-        timeslotLoop: for (const timeslotId of possibleTimeslots){
-            const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-            for (const prereq of scene.prereqs){
-                let prereqScene:ScheduleScene = null
-                if (typeof prereq === 'number'){
-                    prereqScene = _.findWhere(this.scenes, {id:prereq});
-                } else if (typeof prereq === 'object'){
-                    prereqScene = _.findWhere(this.scenes, {id:prereq.id});
-                }
-                if (!prereqScene) { continue; }
-                for (const prereqTimeslotId of prereqScene.currentTimeslots){
-                    const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
-                    if (timeslotIdx <= prereqTimeslotIdx){
-                        if (_.indexOf(conflicts, prereqScene.id) === -1){
-                            conflicts.push(prereqScene.id);
+
+
+        if (await this.checkRequiredUsers(scene)){
+            timeslotLoop: for (const timeslotId of possibleTimeslots){
+                const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
+                for (const prereq of scene.prereqs){
+                    let prereqScene:ScheduleScene = null
+                    if (typeof prereq === 'number'){
+                        prereqScene = _.findWhere(this.scenes, {id:prereq});
+                    } else if (typeof prereq === 'object'){
+                        prereqScene = _.findWhere(this.scenes, {id:prereq.id});
+                    }
+                    if (!prereqScene) { continue; }
+                    for (const prereqTimeslotId of prereqScene.currentTimeslots){
+                        const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
+                        if (timeslotIdx <= prereqTimeslotIdx){
+                            if (_.indexOf(conflicts, prereqScene.id) === -1){
+                                conflicts.push(prereqScene.id);
+                            }
+                            continue timeslotLoop;
                         }
-                        continue timeslotLoop;
                     }
                 }
-            }
 
-            // check if Required Staff and Players are available starting at this timeslot
-            if (! await this.checkTimeslotUsers(scene, timeslotId)){
-                continue;
-            }
-
-            const suggestedLocations = await this.findLocations(scene, timeslotId);
-            if (suggestedLocations.length === scene.locations_count){
-                for (let idx = 0; idx < scene.timeslot_count; idx++){
-                    foundTimeslots.push(timeslots[timeslotIdx+idx].id);
+                // check if Required Staff and Players are available starting at this timeslot
+                if (! await this.checkTimeslotUsers(scene, timeslotId)){
+                    continue;
                 }
-                scene.currentLocations = suggestedLocations;
-                break;
+
+                const suggestedLocations = await this.findLocations(scene, timeslotId);
+                if (suggestedLocations.length === scene.locations_count){
+                    for (let idx = 0; idx < scene.timeslot_count; idx++){
+                        foundTimeslots.push(timeslots[timeslotIdx+idx].id);
+                    }
+                    scene.currentLocations = suggestedLocations;
+                    break;
+                }
             }
         }
 
@@ -259,6 +265,30 @@ class Schedule {
         }
     }
 
+    // Check if required staff/players are signed up for the event
+    protected async checkRequiredUsers(scene){
+        const allUsers = await this.allAttendeeIds();
+        const required = {
+            player: scene.desiredPlayers('required'),
+            staff: scene.desiredStaff('required')
+        }
+        for (const type of ['player', 'staff']){
+            for (const userId of required[type]){
+                if (_.indexOf(allUsers, userId) === -1){
+                    const event = await this.cache.event();
+                    const user = await models.user.get(event.campaign_id, userId);
+                    const issue = `${scene.name} is missing required ${type}: ${user.name}`;
+                    if (_.indexOf(this.issues, issue) === -1){
+                        this.issues.push(issue);
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Check if required staff/players are available at a given timeslot
     protected async checkTimeslotUsers(scene, timeslotId){
         const timeslots = await this.cache.timeslots();
 
@@ -270,10 +300,6 @@ class Schedule {
             const currentStaff = await this.usersAvailable([timeslot.id], 'staff');
             const requiredStaff = scene.desiredStaff('required');
             for(const userId of requiredStaff){
-                // Check if staff is signed up for event
-                if (_.indexOf(currentStaff.all, userId) === -1){
-                    continue;
-                }
                 // Check if required staff is already allocated to a scene
                 if (_.indexOf(currentStaff.allocated, userId) !== -1){
                     clear = false
@@ -288,10 +314,6 @@ class Schedule {
             const currentPlayers = await this.usersAvailable([timeslot.id], 'player');
             const requiredPlayers = scene.desiredPlayers('required');
             for(const userId of requiredPlayers){
-                // Check if staff is signed up for event
-                if (_.indexOf(currentPlayers.all, userId) === -1){
-                    continue;
-                }
                 // Check if required player is already allocated to a scene
                 if (_.indexOf(currentPlayers.allocated, userId) !== -1){
                     clear = false
@@ -310,6 +332,7 @@ class Schedule {
         return clear;
     }
 
+    // Check if workable location(s) are available at the given timeslot(s)
     protected async findLocations(scene: ScheduleScene, timeslotId: number): Promise<number[]>{
         const foundLocations = [];
         const possibleLocationsIds = scene.possibleLocations();
@@ -348,25 +371,28 @@ class Schedule {
         return foundLocations;
     }
 
-    protected async allAttendeeIds(type:string): Promise<number[]>{
+    protected async allAttendeeIds(type:string = 'all'): Promise<number[]>{
         let event = null;
         while (!_.has(event, 'attendees')){
             event = await this.cache.event();
         }
-        let allUsers: CampaignUser[];
         if (type === 'staff'){
-            allUsers = event.attendees.filter( attendee => {
+            return event.attendees.filter( attendee => {
                 return attendee.attending && attendee.user.type !== 'player'
-            }).map(attendee => { return attendee.user});
+            }).map(attendee => { return attendee.user_id});
+
         } else if (type === 'player'){
-            allUsers = event.attendees.filter( attendee => {
+            return event.attendees.filter( attendee => {
                 return attendee.attending && attendee.user.type === 'player'
-            }).map(attendee => { return attendee.user});
+            }).map(attendee => { return attendee.user_id});
+
         } else {
-            return;
+            return event.attendees.filter( attendee => {
+                return attendee.attending;
+            }).map(attendee => { return attendee.user_id});
         }
-        return _.pluck(allUsers, 'id');
     }
+
 
     protected async usersAvailable(timeslots:number[], type:string): Promise<UsersAvailable>{
         let event = null;
@@ -454,7 +480,6 @@ class Schedule {
             players: await this.usersAvailable(scene.currentTimeslots, 'player'),
             staff: await this.usersAvailable(scene.currentTimeslots, 'staff'),
         };
-
         let requestedPlayers = [];
         let requestedStaff = [];
         if (status === 'any'){
@@ -551,6 +576,7 @@ class Schedule {
         }
 
         const playersAvailable = await this.usersAvailable(scene.currentTimeslots, 'player');
+        const rejectedPlayers = scene.desiredPlayers('rejected');
 
         const currentGroup = await scene.currentGroup();
         const characters = await this.cache.characters();
@@ -579,10 +605,13 @@ class Schedule {
                     }
 
                     for (const character of charactersAvailable){
+                        if (_.indexOf(rejectedPlayers, character.user_id) !== -1){
+                            continue;
+                        }
                         const records = getCharacterData(character, type)
                         if (_.findWhere(records, {id:itemId})){
 
-                            // Found am available character with required/requested skill/source
+                            // Found an available character with required/requested skill/source
                             scene.addPossiblePlayer(character.user_id);
                             happiness++;
                             continue itemLoop; // Move on to the next item of this status/type
@@ -597,6 +626,10 @@ class Schedule {
 }
 
 function getCharacterData(character:CharacterData, type:string){
+    if (!character){
+        return;
+
+    }
     if (type === 'sources'){
         return character.sources;
     } else if (type === 'skills'){

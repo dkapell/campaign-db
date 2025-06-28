@@ -195,7 +195,7 @@ fieldset.my-2.border.p-2.rounded
                     .row.my-1
                         label.col-form-label.col-xl(for="scene_player_count") Total Player Count
                             span.ms-1.text-danger *
-                        .col-xl-5
+                        .col-xl-6
                             .input-group.input-group-sm#scene_player_count
                                 input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min)
                                 .input-group-text to
@@ -247,14 +247,14 @@ fieldset.my-2.border.p-2.rounded
                 .row.my-1
                     label.col-form-label.col-xl(for="scene_staff_count") Total Staff Count
                         span.ms-1.text-danger *
-                    .col-xl-5
+                    .col-xl-6
                         .input-group.input-group-sm#scene_staff_count
                             input.form-control.scene-user-count#scene_staff_count_min(type="number" placeholder="Min" name="scene[staff_count_min]" value=scene.staff_count_min)
                             .input-group-text to
                             input.form-control.scene-user-count#scene_staff_count_max(type="number" placeholder="Max" name="scene[staff_count_max]" value=scene.staff_count_max)
                 .row.my-1
                     label.col-form-label.col-xl(for="scene_combat_staff_count") Combat Staff Count
-                    .col-xl-5
+                    .col-xl-6
                         .input-group.input-group-sm#scene_combat_staff_count
                             input.form-control#scene_combat_staff_count_min(type="number" placeholder="Min" name="scene[combat_staff_count_min]" value=scene.combat_staff_count_min)
                             .input-group-text to
@@ -262,7 +262,7 @@ fieldset.my-2.border.p-2.rounded
                 ul.my-1.list-group.scene-user-list#scene-staff-list
                     each user in scene.users
                         if user.type !== 'player'
-                            +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
+                            +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status, user.scene_details)
                 .input-group
                     select.form-select.complex-search-select2.scene-user-picker#scene-staff-picker(data-placeholder='Staff')
                         option

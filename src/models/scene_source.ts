@@ -5,7 +5,8 @@ import Model from  '../lib/Model';
 const tableFields = [
     'scene_id',
     'source_id',
-    'request_status'
+    'request_status',
+    'details'
 ];
 
 const SceneSource = new Model('scenes_sources', tableFields, {

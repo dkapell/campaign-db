@@ -406,11 +406,13 @@ interface FormattedSceneModel extends ModelData{
     score?:number
     start?:string
     duration?:number
+    npc?:string
 }
 
 interface SceneUserModel extends ModelData{
     scene_id: number
     user_id: number
+    details?:Record<string, unknown>
     schedule_status?: string
     request_status?:string
 }
@@ -418,6 +420,7 @@ interface SceneUserModel extends ModelData{
 interface SceneLocationModel extends ModelData{
     scene_id: number
     location_id: number
+    details?:Record<string, unknown>
     schedule_status?: string
     request_status?:string
 }
@@ -425,6 +428,7 @@ interface SceneLocationModel extends ModelData{
 interface SceneTimeslotModel extends ModelData{
     scene_id: number
     timeslot_id: number
+    details?:Record<string, unknown>
     schedule_status?: string
     request_status?:string
 }

@@ -183,6 +183,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
                 tags: _.pluck(user.tags, 'name'),
                 scene_schedule_status: user.scene_schedule_status,
                 scene_request_status: user.scene_request_status,
+                npc: user.scene_details && user.scene_details.npc && user.scene_details.npc !== ''?user.scene_details.npc:null
             }
         });
         output.staff = _.groupBy(staff, 'scene_schedule_status');
@@ -328,7 +329,12 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
         for (const scene_timeslot of scene_timeslots){
             if (_.findWhere(scene_users, {scene_id: scene_timeslot.scene_id})){
                 const scene = await models.scene.get(scene_timeslot.scene_id);
-                timeslot.scenes.push(formatScene(scene, forPlayer));
+                const formattedScene = formatScene(scene, forPlayer);
+                const userRecord = _.findWhere(formattedScene.users, {id:userId});
+                if (userRecord && userRecord.npc){
+                    formattedScene.npc = userRecord.npc
+                }
+                timeslot.scenes.push(formattedScene);
             }
         }
         const schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});
@@ -402,7 +408,12 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
                     userScenes.push(timeslot.schedule_busy.name)
                 }
                 for (const scene of timeslot.scenes){
-                    userScenes.push(scene.name);
+                    let sceneName = scene.name
+                    const userRecord = _.findWhere(scene.users, {id:attendance.user_id});
+                    if (userRecord && userRecord.npc){
+                        sceneName += ` (${userRecord.npc})`;
+                    }
+                    userScenes.push(sceneName);
                 }
                 row.push(userScenes.join(', '))
             }

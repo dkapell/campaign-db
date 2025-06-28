@@ -70,7 +70,7 @@ include ../../partials/scene
                                                         = scene.name
 
                                                 if scene.locations.confirmed
-                                                    span.scene.location(style='font-size:.77rem')
+                                                    span.scene-location(style='font-size:.77rem')
                                                         span (
                                                         each location, lidx in scene.locations.confirmed
 
@@ -78,6 +78,12 @@ include ../../partials/scene
                                                             if lidx < scene.locations.confirmed.length-1
                                                                 span.ms-0.me-1 ,
                                                         span )
+                                                if scene.npc
+                                                    span.scene-npc.mx-1(style='font-size:.77rem')
+                                                        span.me-0 (
+                                                        i.far.fa-user.me-1
+                                                        | #{scene.npc})
+
                                                 if idx < timeslot.scenes.length-1
                                                     span.ms-0 ,
     .col

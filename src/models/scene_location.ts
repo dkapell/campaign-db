@@ -6,7 +6,8 @@ const tableFields = [
     'scene_id',
     'location_id',
     'request_status',
-    'schedule_status'
+    'schedule_status',
+    'details'
 ];
 
 const SceneLocation = new Model('scenes_locations', tableFields, {

@@ -148,7 +148,7 @@ async function showNew(req, res, next){
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
-        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}}).reverse();
+        res.locals.events = (await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}})).reverse();
 
         const skills = await req.models.skill.find({campaign_id:req.campaign.id});
         res.locals.skills = skills.filter(skill => {
@@ -241,6 +241,7 @@ async function prepForm(req){
         const record = await req.models.user.get(req.campaign.id, item.id);
         record.scene_request_status = item.scene_request_status;
         record.scene_schedule_status = item.scene_schedule_status;
+        record.scene_details = item.scene_details;
         return record;
     });
     scene.sources = await async.map(scene.sources, async (item) => {
@@ -279,11 +280,11 @@ async function create(req, res){
 async function update(req, res){
     const id = req.params.id;
     try {
-        const scene = await prepSceneData(req);
+        const current = await req.models.scene.get(id);
+        const scene = await prepSceneData(req, current);
         req.session.sceneData = scene;
         scene.campaign_id = req.campaign.id;
-
-        const current = await req.models.scene.get(id);
+        console.log(scene)
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
@@ -304,7 +305,7 @@ async function update(req, res){
     }
 }
 
-async function prepSceneData(req): Promise<ModelData>{
+async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
     const scene = req.body.scene;
     for (const field of ['display_to_pc']){
         if (!_.has(scene, field)){
@@ -345,12 +346,22 @@ async function prepSceneData(req): Promise<ModelData>{
             }
             records.push({
                 id: itemId,
-                scene_request_status: scene[field][item]
+                scene_request_status: scene[field][item].request_status,
+                scene_details: scene[field][item].scene_details
             });
         }
         scene[field] = records;
     }
 
+    if (current) {
+        for (const user of current.users){
+            if (!_.findWhere(scene.users, {id:''+user.id})){
+                console.log('could not find ' + user.name)
+                user.scene_request_status = 'none';
+                scene.users.push(user);
+            }
+        }
+    }
 
     return scene;
 }

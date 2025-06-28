@@ -20,10 +20,14 @@ mixin sceneLocationInput(location, request_status, schedule_status)
         .row.my-1
             .col.px-1
                 if !schedule_status || schedule_status=== 'unscheduled'
-                    select.form-select.form-select-sm.complex-select2(name=`scene[locations][id-${location.id}]`)
+                    select.form-select.form-select-sm.complex-select2(name=`scene[locations][id-${location.id}][request_status]`)
                         +sceneStatusRequestOptions(request_status)
                 else
-                    input(type='hidden' name=`scene[locations][id-${location.id}]` value=request_status)
+                    input(
+                        type='hidden'
+                        name=`scene[locations][id-${location.id}][request_status]`
+                        value=request_status
+                    )
                     +sceneItemRequestText(request_status)
 
 
@@ -50,10 +54,14 @@ mixin sceneTimeslotInput(timeslot, request_status, schedule_status)
 
             .col.px-1
                 if !schedule_status || schedule_status=== 'unscheduled'
-                    select.form-select.form-select-sm.complex-select2(name=`scene[timeslots][id-${timeslot.id}]`)
+                    select.form-select.form-select-sm.complex-select2(name=`scene[timeslots][id-${timeslot.id}][request_status]`)
                         +sceneStatusRequestOptions(request_status)
                 else
-                    input(type='hidden' name=`scene[timeslots][id-${timeslot.id}]` value=request_status)
+                    input(
+                        type='hidden'
+                        name=`scene[timeslots][id-${timeslot.id}][request_status]`
+                        value=request_status
+                    )
                     +sceneItemRequestText(request_status)
                     .float-end
                         +sceneItemScheduleBadge(schedule_status)
@@ -75,7 +83,7 @@ mixin timeslotName(timeslot, showTags=false, schedule_status='unscheduled')
     if tags && timeslot.type !== 'regular'
         .badge.text-bg-primary.ms-2=capitalize(timeslot.type)
 
-mixin sceneUserInput(user, request_status, schedule_status)
+mixin sceneUserInput(user, request_status, schedule_status, details)
     li.list-group-item.scene-user(id=`scene-user-${user.id}`)
         .row
             .col-md-7
@@ -92,16 +100,29 @@ mixin sceneUserInput(user, request_status, schedule_status)
 
                     select.form-select.form-select-sm.scene-status-select(
                         class=user.id!=='new'?'complex-select2':''
-                        name=`scene[users][id-${user.id}]`
-                        id=`scene-users-${user.type}-${user.id}`
+                        name=`scene[users][id-${user.id}][request_status]`
+                        id=`scene-users-${user.type}-${user.id}-request-status`
                     )
                         +sceneStatusRequestOptions(request_status)
                 else
-                    input(type='hidden' name=`scene[users][id-${user.id}]` value=request_status)
+                    input(
+                        type='hidden'
+                        name=`scene[users][id-${user.id}][request_status]`
+                        value=request_status
+                    )
 
                     +sceneItemRequestText(request_status)
                     .float-end
                         +sceneItemScheduleBadge(schedule_status)
+        if (user.type !== 'player')
+            .row.my-1.details-row
+                .col.ps-4.pe-1
+                    input.form-control.form-control-sm.scene-details-input(
+                        type='text'
+                        name=`scene[users][id-${user.id}][scene_details][npc]`
+                        value=details&&details.npc?details.npc:null
+                        placeholder='NPC Name'
+                    )
 
 mixin sceneSourceInput(source, request_status, schedule_status)
     li.list-group-item.scene-source(id=`scene-source-${source.id}`)
@@ -119,12 +140,12 @@ mixin sceneSourceInput(source, request_status, schedule_status)
                 if !schedule_status || schedule_status=== 'unscheduled'
                     select.form-select.form-select-sm.scene-status-select(
                         class=source.id!=='new'?'complex-select2':''
-                        name=`scene[sources][id-${source.id}]`
+                        name=`scene[sources][id-${source.id}][request_status]`
                         id=`scene-sources-${source.id}`
                     )
                         +sceneStatusRequestOptions(request_status)
                 else
-                    input(type='hidden' name=`scene[sources][id-${source.id}]` value=request_status)
+                    input(type='hidden' name=`scene[sources][id-${source.id}][request_status]` value=request_status)
 
                     +sceneItemRequestText(request_status)
                     .float-end
@@ -146,12 +167,12 @@ mixin sceneSkillInput(skill, request_status, schedule_status)
                 if !schedule_status || schedule_status=== 'unscheduled'
                     select.form-select.form-select-sm.scene-status-select(
                         class=skill.id!=='new'?'complex-select2':''
-                        name=`scene[skills][id-${skill.id}]`
+                        name=`scene[skills][id-${skill.id}][request_status]`
                         id=`scene-skills-${skill.id}`
                     )
                         +sceneStatusRequestOptions(request_status)
                 else
-                    input(type='hidden' name=`scene[skills][id-${skill.id}]` value=request_status)
+                    input(type='hidden' name=`scene[skills][id-${skill.id}][request_status]` value=request_status)
 
                     +sceneItemRequestText(request_status)
                     .float-end
@@ -347,9 +368,15 @@ mixin playerEntry(user)
 
 mixin staffEntry(user)
     if checkPermission('contrib')
-        a(href=`/user/${user.id}`)
+        a.me-2(href=`/user/${user.id}`)
             i.fas.fa-users.me-1
             = user.name
+        if user.npc
+            span.me-0 (
+            i.far.fa-user.me-1
+            =user.npc
+            span.ms-0 )
+
     else
         i.fas.fa-users.me-1
         = user.name

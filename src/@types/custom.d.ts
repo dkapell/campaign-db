@@ -33,8 +33,10 @@ interface CampaignUser {
    sso_name?: string
    scene_schedule_status?: string
    scene_request_status?: string
+   scene_details?:Record<string, unknown>
    tags?: string[] | TagModel[]
    character?: CharacterData
+   npc?:string
 }
 
 interface Models {

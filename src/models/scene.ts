@@ -18,7 +18,6 @@ import characterModel from './character';
 import skillModel from './skill';
 import scene_skillModel from './scene_skill';
 import attendanceModel from './attendance';
-import { rootCertificates } from 'node:tls';
 
 
 const models = {
@@ -92,6 +91,9 @@ async function fill(data: SceneModel){
             if (record.schedule_status){
                 object.scene_schedule_status = record.schedule_status;
             }
+            if (record.details){
+                object.scene_details = record.details;
+            }
             return object;
         });
         if (table === 'timeslot'){
@@ -153,7 +155,7 @@ async function postSave(sceneId:number, data:ModelData){
                     statuses.schedule = record.scene_schedule_status as string;
                 }
 
-               return saveRecord(sceneId, table, record.id as number, statuses);
+               return saveRecord(sceneId, table, record.id as number, statuses, record.scene_details);
             })
 
             await async.each(currentRecords as ModelData[], async (record:ModelData) => {
@@ -169,7 +171,7 @@ async function postSave(sceneId:number, data:ModelData){
 
 }
 
-async function saveRecord(sceneId:number, table:string, objectId:number, statuses:sceneElementStatuses){
+async function saveRecord(sceneId:number, table:string, objectId:number, statuses:sceneElementStatuses, details:Record<string,unknown>){
     const doc = {
         scene_id: sceneId
     };
@@ -188,6 +190,11 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
         if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
             return models[`scene_${table}`].delete(doc);
         }
+        if (details && !_.isEqual(details, record.details)){
+            record.details = details;
+            changed = true;
+        }
+
         if (changed){
             return models[`scene_${table}`].update(doc, record);
         }
@@ -195,13 +202,17 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
         record = {
             scene_id: sceneId,
             schedule_status: 'unscheduled',
-            request_status: 'none'
+            request_status: 'none',
+            details: null
         }
         if (statuses.request){
             record.request_status = statuses.request;
         }
         if (statuses.schedule){
             record.schedule_status = statuses.schedule;
+        }
+        if (details){
+            record.details = details;
         }
         record[`${table}_id`] = objectId;
         if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){

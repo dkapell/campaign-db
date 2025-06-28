@@ -6,7 +6,8 @@ const tableFields = [
     'scene_id',
     'timeslot_id',
     'request_status',
-    'schedule_status'
+    'schedule_status',
+    'details'
 ];
 
 const SceneTimeslot = new Model('scenes_timeslots', tableFields, {

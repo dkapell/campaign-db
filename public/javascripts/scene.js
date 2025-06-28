@@ -67,8 +67,8 @@ $(function(){
         });
     });
 
-    $('.scene-user').find('.scene-status-select').on('change', updateSceneUser);
-    $('.scene-source').find('.scene-status-select').on('change', updateSceneSource);
+    $('.scene-user').find('.scene-status-select').on('change', updateSceneUser).trigger('change');
+    $('.scene-source').find('.scene-status-select').on('change', updateSceneSource).trigger('change');
 
     $('#locations-button-combat').on('click', requestCombatLocations);
     $('#locations-button-non-combat').on('click', requestNonComLocations);
@@ -245,14 +245,21 @@ function addSceneUserRow($container, user, type, value){
     } else {
         $new.find('.user-type').show();
     }
-    $new.find('.form-select').each(function(e) {
+    $new.find('.scene-status-select').each(function(e) {
         const $input = $(this);
-        $input.attr('name', `scene[users][${user.id}]`);
-        $input.attr('id', `scene-users-${user.type}-${user.id}`);
+        $input.attr('name', `scene[users][${user.id}][request_status]`);
+        $input.attr('id', `scene-users-${user.type}-${user.id}-request-status`);
         if (value){
             $input.val(value);
         }
     });
+
+    $new.find('.scene-details-input').each(function(e) {
+        const $input = $(this);
+        $input.attr('name', `scene[users][${user.id}][scene_details][npc]`);
+        $input.attr('id', `scene-users-${user.type}-${user.id}-details-npc`);
+    });
+
     $new.find('.scene-status-select').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
@@ -272,7 +279,7 @@ function addSceneUserRow($container, user, type, value){
         dropdownParent: $container.closest('form')
     });
 
-    $new.find('.scene-status-select').on('change', updateSceneUser);
+    $new.find('.scene-status-select').on('change', updateSceneUser).trigger('change');
     $new.appendTo($container.find('.scene-user-list'));
     $new.show();
 }
@@ -282,7 +289,12 @@ function updateSceneUser(){
     const $container = $(this).closest('.scene-user-picker-container');
     if ($(this).val() === 'none'){
         $(this).closest('.scene-user').remove();
+    } else if ($(this).val() === 'rejected'){
+        $(this).closest('.scene-user').find('.details-row').hide();
+    } else {
+        $(this).closest('.scene-user').find('.details-row').show();
     }
+
 }
 
 function addSceneSource(e){

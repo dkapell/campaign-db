@@ -40,6 +40,8 @@ create type tag_type as enum(
 
 alter table glossary_tags rename to tags;
 alter table tags add column type tag_type default 'glossary';
+alter table tags DROP CONSTRAINT glossary_tags_name_key;
+alter table tags add CONSTRAINT tags_name_uk UNIQUE (campaign_id, type, name);
 
 create type scene_status as enum(
     'new',
@@ -141,7 +143,6 @@ create table scenes_sources(
     scene_id int not null,
     source_id int not null,
     request_status scene_element_request_status not null default 'none',
-    schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, source_id),
     CONSTRAINT scenes_sources_scene_fk FOREIGN KEY (scene_id)
         REFERENCES "scenes" (id) MATCH SIMPLE
@@ -155,7 +156,6 @@ create table scenes_skills(
     scene_id int not null,
     skill_id int not null,
     request_status scene_element_request_status not null default 'none',
-    schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, skill_id),
     CONSTRAINT scenes_skill_scene_fk FOREIGN KEY (scene_id)
         REFERENCES "scenes" (id) MATCH SIMPLE

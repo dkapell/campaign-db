@@ -315,7 +315,7 @@ create table tags(
     name citext not null,
     type tag_type not null,
     primary key(id),
-    unique(campaign_id, name),
+    unique(campaign_id, name, type),
     CONSTRAINT glossary_tags_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
@@ -1104,7 +1104,6 @@ create table scenes_sources(
     scene_id int not null,
     source_id int not null,
     request_status scene_element_request_status not null default 'none',
-    schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, source_id),
     CONSTRAINT scenes_sources_scene_fk FOREIGN KEY (scene_id)
         REFERENCES "scenes" (id) MATCH SIMPLE
@@ -1118,7 +1117,6 @@ create table scenes_skills(
     scene_id int not null,
     skill_id int not null,
     request_status scene_element_request_status not null default 'none',
-    schedule_status scene_element_schedule_status not null default 'unscheduled',
     primary key(scene_id, skill_id),
     CONSTRAINT scenes_skill_scene_fk FOREIGN KEY (scene_id)
         REFERENCES "scenes" (id) MATCH SIMPLE

@@ -18,6 +18,7 @@ import characterModel from './character';
 import skillModel from './skill';
 import scene_skillModel from './scene_skill';
 import attendanceModel from './attendance';
+import { rootCertificates } from 'node:tls';
 
 
 const models = {
@@ -88,7 +89,9 @@ async function fill(data: SceneModel){
                 object = await models[table].get(record[`${table}_id`]);
             }
             object.scene_request_status = record.request_status;
-            object.scene_schedule_status = record.schedule_status;
+            if (record.schedule_status){
+                object.scene_schedule_status = record.schedule_status;
+            }
             return object;
         });
         if (table === 'timeslot'){

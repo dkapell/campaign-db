@@ -6,7 +6,6 @@ const tableFields = [
     'scene_id',
     'skill_id',
     'request_status',
-    'schedule_status'
 ];
 
 const SceneSkill = new Model('scenes_skills', tableFields, {

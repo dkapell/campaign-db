@@ -73,11 +73,11 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 href=`#scene-player-${scene.id}-${locationIdx}`
                 title=`Show/Hide Players`
                 data-bs-toggle='collapse'
-                aria-expanded="false"
+                aria-expanded=userType==="staff"?"false":"true"
                 aria-controls=`scene-player-${scene.id}-${locationIdx}`
             )
 
-                span.me-1 Players
+                span.me-1= userType==='staff'?'Players':'Characters'
                 if _.has(scene, 'player_count_min')
                     if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
                         span.text-danger.me-1=currentPlayerCount
@@ -89,7 +89,10 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                     i.fa.fa-chevron-up
                     i.fa.fa-chevron-down
 
-            ul.list-group.collapse.scene-user-list.scene-player-list(id=`scene-player-${scene.id}-${locationIdx}`)
+            ul.list-group.collapse.scene-user-list.scene-player-list(
+                id=`scene-player-${scene.id}-${locationIdx}`
+                class=userType==='staff'?'':'show'
+            )
                 if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
                     li.list-group-item.my-0.p-1
 

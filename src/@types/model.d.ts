@@ -106,7 +106,7 @@ interface SkillModel extends ModelData{
     conflicts?: SkillModel[]
     updated?: Date
     required?: boolean
-    source?: Record<string, unknown>
+    source?: SourceModel
     usage?: Record<string, unknown>
     status?: Record<string, unknown>
     tags?: string[]|SkillTagModel[]
@@ -118,6 +118,7 @@ interface SkillModel extends ModelData{
         sheet_note?:string
         notes?:string
     }
+    scene_request_status?:string
 }
 
 interface CharacterSkillModel extends SkillModel{
@@ -158,6 +159,7 @@ interface SourceModel extends ModelData{
     type?: SourceTypeModel
     max_skills?: number
     users?: number[]|string|string[]
+    scene_request_status?:string
 }
 
 interface CharacterSourceModel extends SourceModel{
@@ -357,6 +359,21 @@ interface SceneModel extends ModelData{
     prereq_of?:number[]
 }
 
+interface FormattedSourceModel{
+    id?:number
+    name?:string
+    type?:string
+    scene_request_status?:string
+}
+
+interface FormattedSkillModel{
+    id?:number
+    name?:string
+    source?:string
+    scene_request_status?:string
+}
+
+
 interface FormattedSceneModel extends ModelData{
     id?:number
     campaign_id?:number
@@ -382,9 +399,13 @@ interface FormattedSceneModel extends ModelData{
     staff?:Record<string, CampaignUser[]>
     usersByStatus?:Record<string, CampaignUser[]>
     users?:CampaignUser[]
+    sources?:Record<string, FormattedSourceModel[]>
+    skills?:Record<string, FormattedSkillModel[]>
     event?:EventModel|string
     tags?:string[]
     score?:number
+    start?:string
+    duration?:number
 }
 
 interface SceneUserModel extends ModelData{

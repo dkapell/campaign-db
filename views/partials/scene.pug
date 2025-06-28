@@ -315,3 +315,306 @@ mixin sceneTable(scenes)
                                 data-csrf=csrfToken
                             )
                                 i.fas.fa-trash.fa-fw
+
+mixin playerEntry(user)
+    if checkPermission('contrib')
+        if user.character
+            a.me-2(href=`character/${user.character.id}`)
+                i.far.fa-user.me-1
+                = user.character.name
+            span.me-0 (
+            a(href=`/user/${user.id}`)
+                i.fa.fas.fa-user.me-1
+                = user.name
+            span.ms-0 )
+        else
+            a(href=`/user/${user.id}`)
+                i.fa.fas.fa-user.me-1
+                = user.name
+
+    else
+        if user.character
+            i.far.fa-user.me-1
+            span.me-2= user.character.name
+            if checkPermission('event')
+                span.me-0 (
+                i.fas.fa-user.me-1
+                =user.name
+                span.ms-0 )
+        else
+            i.fas.fa-user.me-1
+            =user.name
+
+mixin staffEntry(user)
+    if checkPermission('contrib')
+        a(href=`/user/${user.id}`)
+            i.fas.fa-users.me-1
+            = user.name
+    else
+        i.fas.fa-users.me-1
+        = user.name
+
+mixin sourceEntry(source)
+    i.far.fa-id-card.me-1.align-middle
+    strong.align-middle.source-name= source.name
+    .badge.text-bg-primary.ms-2.source-type=capitalize(source.type)
+
+mixin skillEntry(skill)
+    i.fas.fa-scroll.me-1.align-middle
+    strong.align-middle.skill-name= skill.name
+    .badge.text-bg-primary.ms-2.skill-source=skill.source.name
+
+
+mixin sceneCard(scene, full=false)
+    .card
+        .card-header
+            .row
+                .col-auto.col-lg
+                    h5.d-inline
+                        if checkPermission('event')
+                            = scene.name
+                        else if scene.player_name
+                            = scene.player_name
+                        else
+                            = scene.name
+                if full && checkPermission('event')
+                    .col.text-end.text-md-center
+                        if scene.display_to_pc
+                            .badge.text-bg-success.me-2 Display to PC
+                        else
+                            .badge.text-bg-danger.me-2 Do Not Display to PC
+                        +sceneStatusBadge(scene.status)
+
+                if scene.event
+                    .col-md.text-end
+                        if full
+                            a.me-2(href=`/event/${scene.event.id}`)
+                                i.far.fa-calendar.me-1
+                                = scene.event.name
+
+                        = scene.start
+                        if (scene.timeslots.confirmed && scene.timeslots.confirmed.length > 1) || (scene.timeslots.suggested && scene.timeslots.suggested.length > 1)
+                            span.ms-1 +#{scene.duration/60}h
+
+                else if full
+                    .col.text-end
+                        i Unspecified Event
+
+
+
+
+        .card-body.position-relative
+            if full && checkPermission('gm')
+                .position-absolute.top-0.end-0.pe-3.pt-3
+                    a.btn.btn-sm.btn-outline-primary(
+                        role="button"
+                        href=`/scene/${scene.id}/edit?backto=scene`
+                        title="Edit Scene"
+                        data-bs-toggle="tooltip"
+                    )
+                        i.fas.fa-edit
+                        span.d-none.d-md-inline.ms-1 Edit Scene
+
+            if scene.player_name
+                .row.my-1
+                    .col
+                        strong.me-2 Player-Facing Name:
+                        span=scene.player_name
+
+            if checkPermission('event') && scene.tags && scene.tags.length
+                .row.my-1
+                    .col
+                        each tag in scene.tags
+                            .badge.text-bg-info=tag
+
+            if scene.locations.confirmed
+                .row.my-1
+                    .col
+                        strong.me-2 Location(s):
+                        each location, lidx in scene.locations.confirmed
+                            = location.name
+                            if lidx < scene.locations.confirmed.length-1
+                                span.ms-0.me-1 ,
+                        if scene.locations_count !== scene.locations.confirmed.length
+                            span.ms-2 (#{scene.locations_count} Requested)
+            else if scene.locations.suggested
+                .row.my-1
+                    .col
+                        strong.me-2 Location(s):
+                        each location, lidx in scene.locations.suggested
+                            = location.name
+                            if lidx < scene.locations.suggested.length-1
+                                span.ms-0.me-1 ,
+                        if scene.locations_count !== scene.locations.suggested.length
+                            span.ms-2 (#{scene.locations_count} Requested)
+            else if scene.locations.unscheduled
+                - const locationsByRequest = _.groupBy(scene.locations.unscheduled, 'scene_request_status');
+                .row.my-1
+                    .col
+                        strong.me-2 Location Count
+                        span=scene.locations_count
+                each status in ['requested', 'required', 'rejected']
+                    if locationsByRequest[status]
+                        .row.my-1
+                            .col
+                                strong.me-2 Location(s) #{capitalize(status)}:
+                                each location, lidx in locationsByRequest[status]
+                                    = location.name
+                                    if lidx < locationsByRequest[status].length-1
+                                        span.ms-0.me-1 ,
+
+            if !scene.timeslots.confirmed && !scene.timeslots.suggested && scene.timeslots.unscheduled
+                - const timeslotsByRequest = _.groupBy(scene.timeslots.unscheduled, 'scene_request_status');
+                .row.my-1
+                    .col
+                        strong.me-2 Timeslot Count
+                        span=scene.timeslot_count
+                each status in ['requested', 'required', 'rejected']
+                    if timeslotsByRequest[status]
+                        .row.my-1
+                            .col
+                                strong.me-2 Timeslot(s) #{capitalize(status)}:
+                                each location, lidx in timeslotsByRequest[status]
+                                    = location.name
+                                    if lidx < timeslotsByRequest[status].length-1
+                                        span.ms-0.me-1 ,
+            if scene.prereqs && scene.prereqs.length
+                .row.my-1
+                    .col
+                        strong.me-2 Prereqs
+                        each prereq, pidx in scene.prereqs
+                            a(href=`/scene/${prereq.id}`)
+                                i.fas.fa-theater-masks.me-1
+                                =prereq.name
+                            if pidx < scene.prereqs.length-1
+                                span.ms-0.me-2 ,
+
+            if scene.description
+                .row.my-1
+                    .col
+                        strong Description
+                            if full
+                                span.ms-1 (Player-Visible)
+
+                        p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.description, {breaks:true})
+
+            if full && scene.schedule_notes
+                .row.my-1
+                    .col
+                        strong Schedule Notes
+                        p.my-1.ps-4!=marked.parseInline(scene.schedule_notes, {breaks:true})
+
+            .row.my-1
+                if _.keys(scene.players).length
+                    .col-lg-8
+                        h5 Characters
+                        if full && checkPermission('event')
+                            .player-count
+                                strong.me-2 Player Count:
+                                span #{scene.player_count_min} - #{scene.player_count_max}
+                        ul.list-unstyled
+                            each status in ['confirmed', 'suggested']
+                                if scene.players[status]
+                                    each user in scene.players[status]
+                                        li
+                                            if status !== 'confirmed'
+                                                +sceneStatusBadge(status)
+                                            +playerEntry(user)
+
+                            if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
+                                - const playersByRequestStatus = _.groupBy(scene.players.unscheduled, 'scene_request_status');
+                                 each requestStatus in _.keys(playersByRequestStatus)
+                                    each user in playersByRequestStatus[requestStatus]
+                                        li
+                                            +sceneStatusBadge(requestStatus)
+                                            +playerEntry(user)
+
+
+
+                if checkPermission('event') && _.keys(scene.staff).length
+                    .col-lg
+                        h5 Staff
+                        if full
+                            .staff-count
+                                strong.me-2 Staff Count
+                                span #{scene.staff_count_min} - #{scene.staff_count_max}
+                                if scene.combat_staff_count_min
+                                    span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
+                        ul.list-unstyled
+                            each status in ['confirmed', 'suggested']
+                                if scene.players[status]
+                                    each user in scene.staff[status]
+                                        li
+                                            if status !== 'confirmed'
+                                                +sceneStatusBadge(status)
+                                            +staffEntry(user)
+
+                            if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
+                                - const staffByRequestStatus = _.groupBy(scene.staff.unscheduled, 'scene_request_status');
+                                 each requestStatus in _.keys(staffByRequestStatus)
+                                    each user in staffByRequestStatus[requestStatus]
+                                        li
+                                            +sceneStatusBadge(requestStatus)
+                                            +staffEntry(user)
+            if full && (_.keys(scene.sources).length || _.keys(scene.skills).length)
+                .row
+                    if _.keys(scene.sources).length
+                        .col-lg
+                            h5 Sources
+                            ul.list-unstyled
+                                each requestStatus in _.keys(scene.sources)
+                                    each source in scene.sources[requestStatus]
+                                        li
+                                            +sceneStatusBadge(requestStatus)
+                                            +sourceEntry(source)
+                    if _.keys(scene.skills).length
+                        .col-lg
+                            h5 Skills
+                            ul.list-unstyled
+                                each requestStatus in _.keys(scene.skills)
+                                    each skill in scene.skills[requestStatus]
+                                        li
+                                            +sceneStatusBadge(requestStatus)
+                                            +skillEntry(skill)
+
+
+        -
+            const characterIds = [];
+            for (const status of ['confirmed', 'suggested']){
+                if (scene.players[status]){
+                    for (const player of scene.players[status]){
+                        if (player.character){
+                            characterIds.push(player.character.id);
+                        }
+                    }
+                }
+            }
+
+
+        if (checkPermission('event') && scene.staff_url) || scene.player_url || (checkPermission('contrib') && characterIds.length)
+            .card-footer
+                if checkPermission('event') && scene.staff_url
+                    a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
+                        | Staff Writeup
+                        i.fa.fa-external-link.ms-1
+                if scene.player_url
+                    a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
+                        | Player Writeup
+                        i.fa.fa-external-link.ms-1
+
+                if characterIds.length
+                    a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
+                        href=`/report/group?group=${characterIds.join(',')}`
+                        title="Group Report"
+                    )
+                        i.fas.fa-calculator.me-1
+                        | Group Report
+
+                if !full && checkPermission('contrib')
+                    .float-end
+                        a.btn.btn-sm.btn-outline-info(
+                            href=`/scene/${scene.id}`
+                            title="View Scene"
+                            data-bs-toggle='tooltip'
+                        )
+                            i.fas.fa-eye

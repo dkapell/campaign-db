@@ -34,16 +34,14 @@ async function show(req, res, next){
             if (req.checkPermission('gm')){
                 return res.json({scene:scheduleHelper.formatScene(scene)});
             } else if (scene.status === 'confirmed'){
-                if (req.checkPermission('event')){
-                    return res.json({scene:scheduleHelper.formatScene(scene)});
-                } else {
-                    return res.json({scene:scheduleHelper.formatScene(scene, true)});
-                }
+                return res.json({
+                    scene: scheduleHelper.formatScene(scene, !req.checkPermission('event'))
+                });
             } else {
                 return res.json({});
             }
         } else {
-            if (!req.checkPermission('gm')){
+            if (!(req.checkPermission('gm') || scene.status === 'confirmed')){
                 req.flash('error', 'Permission Denied');
                 return res.redirect('/');
             }
@@ -55,7 +53,7 @@ async function show(req, res, next){
             ],
             current: scene.name
         };
-        res.locals.scene = scene;
+        res.locals.scene = scheduleHelper.formatScene(scene, !req.checkPermission('event'));
         res.locals.title += ` - Scene - ${scene.name}`;
         res.render('scene/show');
     } catch(err){
@@ -150,7 +148,7 @@ async function showNew(req, res, next){
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
-        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}});
+        res.locals.events = await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}}).reverse();
 
         const skills = await req.models.skill.find({campaign_id:req.campaign.id});
         res.locals.skills = skills.filter(skill => {

@@ -17,6 +17,7 @@ import eventModel from './event';
 import characterModel from './character';
 import skillModel from './skill';
 import scene_skillModel from './scene_skill';
+import attendanceModel from './attendance';
 
 
 const models = {
@@ -32,7 +33,8 @@ const models = {
     event: eventModel,
     character: characterModel,
     skill: skillModel,
-    scene_skill: scene_skillModel
+    scene_skill: scene_skillModel,
+    attendance: attendanceModel
 };
 
 
@@ -76,8 +78,11 @@ async function fill(data: SceneModel){
             let object = null;
             if (table === 'user'){
                 object = await models[table].get(data.campaign_id, record.user_id)
-                if (object.type === 'player'){
-                    object.character = await models.character.findOne({user_id: object.id, active: true, campaign_id:data.campaign_id});
+                if (object.type === 'player' && data.event_id){
+                    const attendance = await models.attendance.findOne({user_id:object.id, event_id:data.event_id, attending:true});
+                    if (attendance && attendance.character_id){
+                        object.character = await models.character.get(attendance.character_id);
+                    }
                 }
             } else {
                 object = await models[table].get(record[`${table}_id`]);

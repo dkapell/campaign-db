@@ -87,14 +87,7 @@ include ../../partials/scene
                 each scene in timeslot.scenes
                     if checkPermission('event') || scene.display_to_pc
                         if _.indexOf(scenes, scene.id) === -1
-                            -
-                                scenes.push(scene.id)
-                                const start = scene.timeslots.confirmed[0].name
-                                let duration = scene.timeslots.confirmed[0].length;
-                                for (const timeslot of scene.timeslots.confirmed){
-                                    duration += timeslot.length;
-                                }
-
+                            - scenes.push(scene.id)
                             .tab-pane.fade(
                                 role="tabpanel"
                                 id=`scene-${scene.id}-pane`
@@ -102,100 +95,7 @@ include ../../partials/scene
                                 tabindex="0"
                                 data-bs-parent='#scene-list'
                             )
-                                .card
-                                    .card-header
-                                        h5.d-inline
-                                            if checkPermission('event')
-                                                = scene.name
-                                            else if scene.player_name
-                                                = scene.player_name
-                                            else
-                                                = scene.name
-                                        span.float-end
-                                            = start
-                                            if scene.timeslots.confirmed.length > 1
-                                                span.ms-1 +#{duration/60}h
-
-                                    .card-body
-                                        if checkPermission('event') && scene.tags && scene.tags.length
-                                            .row.my-1
-                                                .col
-                                                    each tag in scene.tags
-                                                        .badge.text-bg-info=tag
-
-                                        if scene.locations.confirmed
-                                            .row.my-1
-                                                .col
-                                                    strong.me-2 Locations:
-                                                    each location, lidx in scene.locations.confirmed
-                                                        = location.name
-                                                        if lidx < scene.locations.confirmed.length-1
-                                                            span.ms-0.me-1 ,
-                                        if checkPermission('event') && scene.player_url
-                                            .row.my-1
-                                                .col
-                                                    strong.me-2 Player-facing Scene Name:
-                                                    = scene.player_name
-
-                                        if scene.description
-                                            .row.my-1
-                                                .col
-                                                    p.my-1!=marked.parseInline(scene.description, {breaks:true})
-
-
-                                        .row.my-1
-                                            if scene.players.confirmed
-                                                .col-md-8
-                                                    h5 Characters
-                                                    ul.list-unstyled
-                                                        each user in scene.players.confirmed
-                                                            li
-                                                                if checkPermission('contrib')
-                                                                    if (user.character)
-                                                                        a.me-2(href=`character/${user.character.id}`)
-                                                                            i.far.fa-user.me-1
-                                                                            = user.character.name
-                                                                    span.me-0 (
-                                                                    a(href=`/user/${user.id}`)
-                                                                        i.fa.fas.fa-user.me-1
-                                                                        = user.name
-                                                                    span.ms-0 )
-
-                                                                else
-                                                                    if user.character
-                                                                        i.far.fa-user.me-1
-                                                                        span.me-2= user.character.name
-                                                                    if !user.character || checkPermission('event')
-                                                                        span.me-0 (
-                                                                        i.fas.fa-user.me-1
-                                                                        =user.name
-                                                                        span.ms-0 )
-
-                                            if checkPermission('event') && scene.staff.confirmed
-                                                .col
-                                                    h5 Staff
-                                                    ul.list-unstyled
-                                                        each user in scene.staff.confirmed
-                                                            li
-                                                                if checkPermission('contrib')
-                                                                    a(href=`/user/${user.id}`)
-                                                                        i.fas.fa-users.me-1
-                                                                        = user.name
-                                                                else
-                                                                    i.fas.fa-users.me-1
-                                                                    = user.name
-
-                                    if (checkPermission('event') && scene.staff_url) || scene.player_url
-                                        .card-footer
-                                            if checkPermission('event') && scene.staff_url
-                                                a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
-                                                    | Staff Writeup
-                                                    i.fa.fa-external-link.ms-1
-                                            if scene.player_url
-                                                a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
-                                                    | Player Writeup
-                                                    i.fa.fa-external-link.ms-1
-
+                                +sceneCard(scene)
 
 
 

@@ -23,6 +23,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         description: scene.description
 
     };
+
+
     if (forPlayer){
         output.name = scene.player_name?scene.player_name:scene.name;
     } else {
@@ -94,19 +96,43 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         }
     }
 
+    if (output.timeslots.confirmed && output.timeslots.confirmed.length){
+        output.start = output.timeslots.confirmed[0].name;
+        output.duration = 0;
+        for (const timeslot of output.timeslots.confirmed){
+            output.duration += timeslot.length;
+        }
+    } else if (output.timeslots.suggested){
+        output.start = output.timeslots.suggested[0].name;
+        output.duration = 0;
+        for (const timeslot of output.timeslots.suggested){
+            output.duration += timeslot.length;
+        }
+    }
+
     if (!forPlayer){
         const sources = scene.sources.map(source => {
             return {
                 id: source.id,
                 name: source.name,
                 type: source.type.name,
-                scene_schedule_status: source.scene_schedule_status,
                 scene_request_status: source.scene_request_status,
             };
 
         });
 
-        output.sources = _.groupBy(sources, 'scene_schedule_status');
+        output.sources = _.groupBy(sources, 'scene_request_status');
+        const skills = scene.skills.map(skill => {
+            return {
+                id: skill.id,
+                name: skill.name,
+                source: skill.source.name,
+                scene_request_status: skill.scene_request_status,
+            };
+
+        });
+
+        output.skills = _.groupBy(skills, 'scene_request_status');
     }
 
     const players = scene.users.filter(user => {

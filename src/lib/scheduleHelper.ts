@@ -38,6 +38,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.combat_staff_count_min = scene.combat_staff_count_min;
         output.combat_staff_count_max = scene.combat_staff_count_max;
         output.staff_url = scene.staff_url;
+        output.setup_slots = scene.setup_slots;
+        output.cleanup_slots = scene.cleanup_slots;
         output.tags = _.pluck(scene.tags, 'name');
     }
 
@@ -175,7 +177,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         const staff = scene.users.filter(user => {
             return user.type !== 'player';
         }).map(user => {
-            return {
+            const doc = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
@@ -183,8 +185,12 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
                 tags: _.pluck(user.tags, 'name'),
                 scene_schedule_status: user.scene_schedule_status,
                 scene_request_status: user.scene_request_status,
-                npc: user.scene_details && user.scene_details.npc && user.scene_details.npc !== ''?user.scene_details.npc:null
+                npc: null
             }
+            if (user.scene_details && user.scene_details.npc && typeof user.scene_details.npc === 'string' && user.scene_details.npc !== ''){
+                doc.npc = user.scene_details.npc;
+            }
+            return doc;
         });
         output.staff = _.groupBy(staff, 'scene_schedule_status');
         output.users = [...players, ...staff];

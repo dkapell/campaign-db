@@ -7,6 +7,8 @@ import ScheduleCache from './ScheduleCache';
 interface CurrentSchedule{
     locations: number[]
     timeslots: number[]
+    setup_timeslots: number[]
+    cleanup_timeslots: number[]
     players: number[]
     staff: number[]
 }
@@ -20,6 +22,8 @@ class ScheduleScene  {
     private current: CurrentSchedule = {
         locations: [],
         timeslots: [],
+        setup_timeslots: [],
+        cleanup_timeslots: [],
         players: [],
         staff: []
     };
@@ -73,13 +77,47 @@ class ScheduleScene  {
 
     /* Timeslots */
     get timeslot_count(): number {
-        return this.data.timeslot_count
+        return this.data.timeslot_count;
+    }
+    get setup_slots(): number{
+        return this.data.setup_slots;
+    }
+    get cleanup_slots(): number{
+        return this.data.cleanup_slots;
     }
     get timeslots(): TimeslotModel[] {
         return this.data.timeslots;
     }
     get currentTimeslots(): Array<number> {
         return this.current.timeslots;
+    }
+
+    async claimedTimeslots(): Promise<number[]>{
+        const timeslotList = [];
+        if (!this.currentTimeslots.length){
+            return timeslotList;
+        }
+        const allTimeslots = await this.cache.timeslots();
+
+        const sceneTimeslotIndexes = []
+        for ( const timeslotId of this.currentTimeslots){
+            sceneTimeslotIndexes.push(_.indexOf(_.pluck(allTimeslots, 'id'), timeslotId));
+        }
+        const firstSlotIdx = _.min(sceneTimeslotIndexes);
+        const firstSetupIdx = _.max([0, firstSlotIdx - this.setup_slots]);
+        for (let i = firstSetupIdx; i < firstSlotIdx; i++){
+            timeslotList.push(allTimeslots[i].id);
+        }
+        for (const timeslotIdx of sceneTimeslotIndexes){
+            timeslotList.push(allTimeslots[timeslotIdx].id);
+        }
+        const lastSlotIdx = _.max(sceneTimeslotIndexes);
+        const lastCleanupIdx = _.min([allTimeslots.length, lastSlotIdx + this.cleanup_slots +1])
+        for (let i = lastSlotIdx+1; i < lastCleanupIdx; i++){
+            timeslotList.push(allTimeslots[i].id);
+        }
+
+        return timeslotList;
     }
     async possibleTimeslots(timeslots:TimeslotModel[]): Promise<number[]>{
         // Build a ordered list of possibilites based on requred > requested

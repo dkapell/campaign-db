@@ -79,7 +79,10 @@ create table campaigns (
     player_gallery boolean default false,
     stripe_account_id varchar(80),
     stripe_account_ready boolean default false,
-    schedule_players boolean default true
+    schedule_players boolean default true,
+    default_setup_slots int not null default 0,
+    default_scene_slots int not null default 1,
+    default_cleanup_slots int not null default 0,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE

@@ -11,6 +11,16 @@ block content
                     form.form.needs-validation#userForm(method="POST" action="/user/profile" novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
+                        .row.my-2
+                            .col-md
+                                a.btn.btn-outline-info.btn-sm(
+                                    href=`https://calendar.google.com/calendar/u/0/r?cid=${activeUser.calendar_url}`
+                                    target='_blank'
+                                    title='Add to Google Calendar'
+                                    data-bs-toggle='tooltip'
+                                )
+                                    i.fas.fa-calendar-plus.me-1
+                                    | Add Campaign to Google Calendar
                         .row.my-2.mb-3
                             .col-md
                                 +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image, {

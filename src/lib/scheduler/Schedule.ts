@@ -71,10 +71,11 @@ class Schedule {
         });
     }
 
-    getSlotScenes(timeslotId, locationId): ScheduleScene[]{
+    async getSlotScenes(timeslotId, locationId): Promise<ScheduleScene[]>{
         const scenes = [];
         for (const scene of this.scenes){
-            if (_.indexOf(scene.currentTimeslots, timeslotId) !== -1 &&
+            const claimedTimeslots = await scene.claimedTimeslots();
+            if (_.indexOf(claimedTimeslots, timeslotId) !== -1 &&
                 _.indexOf(scene.currentLocations, locationId) !== -1){
                 scenes.push(scene)
             }
@@ -265,6 +266,27 @@ class Schedule {
         }
     }
 
+    protected async getTimeslotSpan(timeslotId: number, before: number, after:number): Promise<number[]>{
+        const timeslotList = [];
+
+        const allTimeslots = await this.cache.timeslots();
+
+
+        const timeslotIdx = _.indexOf(_.pluck(allTimeslots, 'id'), timeslotId);
+
+        const firstSetupIdx = _.max([0, timeslotIdx - before]);
+        for (let i = firstSetupIdx; i < timeslotIdx; i++){
+            timeslotList.push(allTimeslots[i].id);
+        }
+
+        const lastCleanupIdx = _.min([allTimeslots.length, timeslotIdx + after])
+        for (let i = timeslotIdx; i < lastCleanupIdx; i++){
+            timeslotList.push(allTimeslots[i].id);
+        }
+
+        return timeslotList;
+    }
+
     // Check if required staff/players are signed up for the event
     protected async checkRequiredUsers(scene){
         const allUsers = await this.allAttendeeIds();
@@ -338,6 +360,9 @@ class Schedule {
         const possibleLocationsIds = scene.possibleLocations();
         const locations = await this.cache.locations();
         const timeslots = await this.cache.timeslots();
+
+        const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count + scene.cleanup_slots);
+
         // try to find the desired number of locations
         for (let idx = 0; idx < scene.locations_count; idx++ ){
             // Look at each possible Location
@@ -350,10 +375,13 @@ class Schedule {
 
                 // check timeslotCount future timeslots to see if this location is clear for all of them
                 let clear = true;
+
                 const startTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-                checkScene: for(let tIdx = 0; tIdx < scene.timeslot_count; tIdx++){
-                    const timeslot = timeslots[startTimeslotIdx+tIdx]
-                    const slotScenes = this.getSlotScenes(timeslot.id, locationId).filter(slotScene=>{
+                checkScene: for (const timeslotId of sceneTimeslots){
+
+                //checkScene: for(let tIdx = 0; tIdx < scene.timeslot_count; tIdx++){
+                    //const timeslot = timeslots[startTimeslotIdx+tIdx]
+                    const slotScenes = (await this.getSlotScenes(timeslotId, locationId)).filter(slotScene=>{
                         return slotScene.id !== scene.id;
                     });
                     if (slotScenes.length && !location.multiple_scenes){

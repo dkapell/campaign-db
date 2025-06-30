@@ -75,6 +75,9 @@ async function showNew(req, res){
         translation_scale: 1,
         player_gallery: false,
         schedule_users: true,
+        default_setup_slots: 0,
+        default_scene_slots: 1,
+        default_cleanup_slots: 0
 
 
     };

@@ -59,14 +59,19 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
 
 function scoreScene(scene:SceneModel): SceneModel{
     scene.score = 0;
+
     scene.score += (scene.locations_count * Number(config.get('scheduler.score.locations_count')));
     scene.score -= scene.locations.filter(location => {
         return location.scene_request_status !== 'none';
     }).length;
+
     scene.score += (scene.timeslot_count * Number(config.get('scheduler.score.timeslot_count')));
+    scene.score += scene.setup_slots * Number(config.get('scheduler.score.timeslot_count'));
+    scene.score += scene.cleanup_slots * Number(config.get('scheduler.score.timeslot_count'));
     scene.score -= scene.timeslots.filter(timeslot => {
         return timeslot.scene_request_status !== 'none';
     }).length;
+
     scene.score += scene.player_count_max;
     scene.score += scene.staff_count_max;
 

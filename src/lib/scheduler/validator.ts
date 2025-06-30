@@ -5,6 +5,7 @@ import async from 'async';
 
 const issueList = {
     'dbl-book': 'warning',
+    'dbl-book-setup': 'info',
     'rej-location': 'warning',
     'non-req-location': 'info',
     'rej-timeslot': 'warning',
@@ -40,16 +41,59 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
         eventScenes = await models.scene.find({event_id:scene.event_id});
     }
     const locations = getSelectedLocations(scene);
-    const timeslots = getSelectedTimeslots(scene);
+    const timeslots = getSceneTimeslots(scene);
+    const reservedTimeslots = await getReservedSceneTimeslots(scene);
 
     for (const checkScene of eventScenes){
         if (checkScene.id === scene.id){
             continue;
         }
         const checkLocations = getSelectedLocations(checkScene);
-        const checkTimeslots = getSelectedTimeslots(checkScene);
+        const checkTimeslots = getSceneTimeslots(checkScene);
+        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene);
+
         for (const timeslot of checkTimeslots.timeslots){
             if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
+                for (const location of checkLocations.locations){
+                    if (_.findWhere(locations.locations, {id:location.id})){
+                        if (!location.multiple_scenes){
+                            issues.push({
+                                code: 'dbl-book',
+                                text: `Double-booked with ${checkScene.name} in ${location.name}`
+                            });
+                        }
+                    }
+                }
+
+            } else if (_.findWhere(reservedTimeslots.timeslots, {id:timeslot.id})){
+                for (const location of checkLocations.locations){
+                    if (_.findWhere(locations.locations, {id:location.id})){
+                        if (!location.multiple_scenes){
+                            issues.push({
+                                code: 'dbl-book-setup',
+                                text: `Double-booked for Setup/Cleanup with ${checkScene.name} in ${location.name}`
+                            });
+                        }
+                    }
+                }
+
+            }
+        }
+
+        for (const timeslot of checkReservedTimeslots.timeslots){
+            if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
+                for (const location of checkLocations.locations){
+                    if (_.findWhere(locations.locations, {id:location.id})){
+                        if (!location.multiple_scenes){
+                            issues.push({
+                                code: 'dbl-book-setup',
+                                text: `Double-booked for Setup/Cleanup with ${checkScene.name} in ${location.name}`
+                            });
+                        }
+                    }
+                }
+
+            } else if (_.findWhere(reservedTimeslots.timeslots, {id:timeslot.id})){
                 for (const location of checkLocations.locations){
                     if (_.findWhere(locations.locations, {id:location.id})){
                         if (!location.multiple_scenes){
@@ -128,7 +172,7 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
                     text: `Prereq ${prereqScene.name} is scheduled for a different event`
                 });
             } else {
-                const prereqTimeslots = getSelectedTimeslots(prereqScene);
+                const prereqTimeslots = getSceneTimeslots(prereqScene);
                 const prereqTimeslotIdx = _.findIndex(allTimeslots, {id: prereqTimeslots.timeslots[0].id});
                 if (prereqTimeslotIdx >= myTimeslotIdx){
                     issues.push({
@@ -172,7 +216,7 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
                     if (checkScene.id === scene.id){
                         return false
                     }
-                    const checkTimeslots = getSelectedTimeslots(checkScene);
+                    const checkTimeslots = getSceneTimeslots(checkScene);
                     if (_.findWhere(checkTimeslots.timeslots, {id:timeslot.id})){
                         return true;
                     }
@@ -319,10 +363,76 @@ async function saveSceneIssues(sceneId:number, issues: IssueRecord[]){
     });
 }
 
-function getSelectedTimeslots(scene:SceneModel): {type:string, timeslots:TimeslotModel[]}{
+async function getFullSceneTimeslots(scene:SceneModel): Promise<{type:string, timeslots:TimeslotModel[]}>{
+    const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+
+    const timeslots = getSceneTimeslots(scene);
+    if (timeslots.type === 'none'){
+        return timeslots;
+    }
+    const timeslotList = [];
+
+    const sceneTimeslotIndexes = []
+
+    for ( const timeslot of timeslots.timeslots){
+        sceneTimeslotIndexes.push(_.indexOf(_.pluck(allTimeslots, 'id'), timeslot.id));
+    }
+    const firstSlotIdx = _.min(sceneTimeslotIndexes);
+    const firstSetupIdx = _.max([0, firstSlotIdx - scene.setup_slots]);
+    for (let i = firstSetupIdx; i < firstSlotIdx; i++){
+        timeslotList.push(allTimeslots[i]);
+    }
+    for (const timeslotIdx of sceneTimeslotIndexes){
+        timeslotList.push(allTimeslots[timeslotIdx]);
+    }
+    const lastSlotIdx = _.max(sceneTimeslotIndexes);
+    const lastCleanupIdx = _.min([allTimeslots.length, lastSlotIdx + scene.cleanup_slots +1])
+    for (let i = lastSlotIdx+1; i < lastCleanupIdx; i++){
+        timeslotList.push(allTimeslots[i]);
+    }
+
+    timeslots.timeslots = timeslotList;
+    return timeslots;
+
+}
+
+
+async function getReservedSceneTimeslots(scene:SceneModel): Promise<{type:string, timeslots:TimeslotModel[]}>{
+    const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+
+    const timeslots = getSceneTimeslots(scene);
+    if (timeslots.type === 'none'){
+        return timeslots;
+    }
+    const timeslotList = [];
+
+    const sceneTimeslotIndexes = []
+
+    for ( const timeslot of timeslots.timeslots){
+        sceneTimeslotIndexes.push(_.indexOf(_.pluck(allTimeslots, 'id'), timeslot.id));
+    }
+    const firstSlotIdx = _.min(sceneTimeslotIndexes);
+    const firstSetupIdx = _.max([0, firstSlotIdx - scene.setup_slots]);
+    for (let i = firstSetupIdx; i < firstSlotIdx; i++){
+        timeslotList.push(allTimeslots[i]);
+    }
+
+    const lastSlotIdx = _.max(sceneTimeslotIndexes);
+    const lastCleanupIdx = _.min([allTimeslots.length, lastSlotIdx + scene.cleanup_slots +1])
+    for (let i = lastSlotIdx+1; i < lastCleanupIdx; i++){
+        timeslotList.push(allTimeslots[i]);
+    }
+
+    timeslots.timeslots = timeslotList;
+    return timeslots;
+
+}
+function getSceneTimeslots(scene: SceneModel): {type:string, timeslots:TimeslotModel[]}{
+
     let timeslots = scene.timeslots.filter(timeslot => {
         return timeslot.scene_schedule_status === 'confirmed'
     });
+
     if (timeslots.length){
         return {type:'confirmed', timeslots:timeslots};
     }

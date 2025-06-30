@@ -76,7 +76,10 @@ const tableFields = [
     'player_gallery',
     'stripe_account_id',
     'stripe_account_ready',
-    'schedule_players'
+    'schedule_players',
+    'default_setup_slots',
+    'default_scene_slots',
+    'default_cleanup_slots'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

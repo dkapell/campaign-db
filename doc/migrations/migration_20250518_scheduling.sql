@@ -285,6 +285,9 @@ create type event_schedule_status as ENUM(
 alter table events add column schedule_status event_schedule_status default 'private';
 alter table campaigns add column display_schedule boolean default true;
 alter table campaigns add column schedule_players boolean default true;
+alter table campaigns add column default_setup_slots int not null default 0;
+alter table campaigns add column default_scene_slots int not null default 1;
+alter table campaigns add column default_cleanup_slots int not null default 0;
 alter table campaigns_users add column calendar_id uuid not null default gen_random_uuid();
 alter table events add column guid uuid not null default gen_random_uuid();
 create index campaigns_users_calendar_idx on campaigns_users (calendar_id);

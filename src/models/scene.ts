@@ -49,6 +49,8 @@ const tableFields = [
     'description',
     'schedule_notes',
     'timeslot_count',
+    'setup_slots',
+    'cleanup_slots',
     'display_to_pc',
     'prereqs',
     'player_count_min',
@@ -155,7 +157,7 @@ async function postSave(sceneId:number, data:ModelData){
                     statuses.schedule = record.scene_schedule_status as string;
                 }
 
-               return saveRecord(sceneId, table, record.id as number, statuses, record.scene_details);
+               return saveRecord(sceneId, table, record.id as number, statuses, record.scene_details as Record<string, unknown>);
             })
 
             await async.each(currentRecords as ModelData[], async (record:ModelData) => {

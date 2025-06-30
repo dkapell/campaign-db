@@ -424,6 +424,26 @@ fieldset.mb-2.border.p-2.rounded
                     input.form-control#campaign_event_default_location(placeholder="Days",name="campaign[post_event_survey_hide_days]",value=campaign.post_event_survey_hide_days type='number' max=14, min=0)
                     .input-group-text Days
 
+if campaign.display_schedule
+    fieldset.mb-2.border.p-2.rounded
+        label.h5.w-100#schedule-heading(data-bs-toggle="collapse" data-bs-target="#schedule-container" aria-expanded="false" area-controls="schedule-container") Schedule Options
+            span.float-end.ps-2
+                i.fa.fa-chevron-up
+                i.fa.fa-chevron-down
+        #schedule-container.collapse(aria-labeledby="schedule-heading")
+            .row.my-2
+                label.col-form-label.col-md-4(for="campaign_default_setup_slots") Default Setup Slots
+                .col
+                    input.form-control#campaign_default_setup_slots(placeholder="Setup Slots",name="campaign[default_setup_slots]",value=campaign.default_setup_slots type='number' min=0)
+            .row.my-2
+                label.col-form-label.col-md-4(for="campaign_default_svene_slots") Default Scene Slots
+                .col
+                    input.form-control#campaign_default_scene_slots(placeholder="Scene Slots",name="campaign[default_scene_slots]",value=campaign.default_scene_slots type='number' min=1)
+            .row.my-2
+                label.col-form-label.col-md-4(for="campaign_default_cleanup_slots") Default Cleanup Slots
+                .col
+                    input.form-control#campaign_default_cleanup_slots(placeholder="Cleanup Slots",name="campaign[default_cleanup_slots]",value=campaign.default_cleanup_slots type='number' min=0)
+
 //- Translations
 if campaign.display_translations && fonts.length
     fieldset.mb-2.border.p-2.rounded

@@ -462,7 +462,16 @@ mixin sceneCard(scene, full=false)
                     .col
                         each tag in scene.tags
                             .badge.text-bg-info=tag
-
+            if full && scene.setup_slots!== currentCampaign.default_setup_slots
+                .row.my-1
+                    .col
+                        strong.me-2 Setup Timeslots:
+                        span=scene.setup_slots
+            if full && scene.cleanup_slots !== currentCampaign.default_cleanup_slots
+                .row.my-1
+                    .col
+                        strong.me-2 Cleanup Timeslots:
+                        span=scene.cleanup_slots
             if scene.locations.confirmed
                 .row.my-1
                     .col

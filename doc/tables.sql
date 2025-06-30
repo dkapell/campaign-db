@@ -985,6 +985,7 @@ create table timeslots(
     start_minute int not null default 0,
     length int,
     type timeslot_type not null default 'regular',
+    nighttime boolean default false,
     primary key(id),
     CONSTRAINT timeslot_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
@@ -1035,6 +1036,8 @@ create table scenes (
     staff_url varchar(255),
     player_url varchar(255),
     priority jsonb,
+    setup_slots int,
+    cleanup_slots int,
     primary key (id),
     CONSTRAINT scenes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

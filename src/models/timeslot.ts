@@ -9,7 +9,8 @@ const tableFields = [
     'start_hour',
     'start_minute',
     'length',
-    'type'
+    'type',
+    'nighttime'
 ];
 
 const Timeslot = new Model('timeslots', tableFields, {

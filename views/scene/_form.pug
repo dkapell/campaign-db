@@ -155,6 +155,7 @@ fieldset.my-2.border.p-2.rounded
 
                         +sceneLocationInput(location, sceneLocation.scene_request_status, sceneLocation.scene_schedule_status)
     .col-md
+        - showDayTime = (_.where(timeslots, {nighttime:true})).length
         .row.mb-2
             .col-lg
                 h5 Timeslots
@@ -163,7 +164,25 @@ fieldset.my-2.border.p-2.rounded
                     href='#'
                     data-bs-toggle='tooltip'
                     title='Request all regular timeslots currently set to \'None\''
-                ) All Except Meals
+                )
+                    if !showDayTime
+                        | All Except Meals
+                    else
+                        i.far.fa-clock
+                if showDayTime
+                    a.btn.btn-sm.btn-outline-primary#timeslots-button-daytime.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        title='Request all regular daytime timeslots currently set to \'None\''
+                    )
+                        i.far.fa-sun
+                    a.btn.btn-sm.btn-outline-primary#timeslots-button-nighttime.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        title='Request all regular nighttime timeslots currently set to \'None\''
+                    )
+                        i.far.fa-moon
+
                 a.btn.btn-sm.btn-outline-primary#timeslots-button-all.me-1(
                     href='#'
                     data-bs-toggle='tooltip'
@@ -185,7 +204,7 @@ fieldset.my-2.border.p-2.rounded
                 ul.list-group
                     each timeslot in timeslots
                         - const sceneTimeslot = _.findWhere(scene.timeslots, {id: timeslot.id}) || {};
-                        +sceneTimeslotInput(timeslot, sceneTimeslot.scene_request_status, sceneTimeslot.scene_schedule_status)
+                        +sceneTimeslotInput(timeslot, sceneTimeslot.scene_request_status, sceneTimeslot.scene_schedule_status, showDayTime)
 
     .col-md
         if currentCampaign.schedule_players

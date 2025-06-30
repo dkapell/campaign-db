@@ -336,6 +336,8 @@ interface SceneModel extends ModelData{
     description?:string
     schedule_notes?:string
     timeslot_count?:number
+    setup_slots?:number
+    cleanup_slots?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string
     player_count_min?:number
@@ -384,6 +386,8 @@ interface FormattedSceneModel extends ModelData{
     description?:string
     schedule_notes?:string
     timeslot_count?:number
+    setup_slots?:number
+    cleanup_slots?:number
     display_to_pc?:boolean
     prereqs?:scenePrereq[]|string
     player_count?:number

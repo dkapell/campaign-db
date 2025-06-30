@@ -20,6 +20,7 @@ block content
                     th Start Time
                     th Length
                     th Type
+                    th Nightime
                     if checkPermission('admin')
                         th
 
@@ -32,6 +33,7 @@ block content
                         td= timeslot.startStr
                         td #{timeslot.length} Minutes
                         td= capitalize(timeslot.type)
+                        td=timeslot.nighttime?'Night':'Day'
                         
                         if checkPermission('admin')
                             td.text-end

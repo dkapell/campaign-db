@@ -31,6 +31,11 @@
             option
             for type in ['regular', 'special', 'meal']
                 option(value=type selected=timeslot.type===type)= capitalize(type)
+    .col
+        .form-check.form-switch
+            input.form-check-input#timeslot_nighttime(type="checkbox" name="timeslot[nighttime]" checked=timeslot.nighttime)
+            label.form-check-label(for="timeslot_nighttime") Is Nighttime
+
 
             
 .row.my-3

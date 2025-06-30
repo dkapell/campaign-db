@@ -76,6 +76,9 @@ $(function(){
 
     $('#timeslots-button-all').on('click', requestAllTimeslots);
     $('#timeslots-button-no-meals').on('click', requestNoMealTimeslots);
+    $('#timeslots-button-daytime').on('click', requestDaytimeTimeslots);
+    $('#timeslots-button-nighttime').on('click', requestNighttimeTimeslots);
+
     $('#timeslots-button-clear').on('click', clearTimeslots);
 
     $('#staff-require-me-btn').on('click', addSceneSelfUser);
@@ -182,6 +185,46 @@ function requestNoMealTimeslots(e){
     $('.timeslot-input').each(function(elem){
         const $this = $(this);
         if ($this.data('type')!== 'regular'){
+            return;
+        }
+
+        const $select = $this.find('select');
+        if ($select.val() === 'none'){
+            $select.val('requested').trigger('change');
+        }
+    });
+}
+
+function requestDaytimeTimeslots(e){
+    e.preventDefault();
+    $(this).tooltip('hide');
+
+    $('.timeslot-input').each(function(elem){
+        const $this = $(this);
+        if ($this.data('type')!== 'regular'){
+            return;
+        }
+        if ($this.data('nighttime')){
+            return;
+        }
+
+        const $select = $this.find('select');
+        if ($select.val() === 'none'){
+            $select.val('requested').trigger('change');
+        }
+    });
+}
+
+function requestNighttimeTimeslots(e){
+    e.preventDefault();
+    $(this).tooltip('hide');
+
+    $('.timeslot-input').each(function(elem){
+        const $this = $(this);
+        if ($this.data('type')!== 'regular'){
+            return;
+        }
+        if (!$this.data('nighttime')){
             return;
         }
 

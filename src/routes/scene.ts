@@ -110,6 +110,8 @@ async function showNew(req, res, next){
                 combat_staff_count_min:null,
                 combat_staff_count_max:null,
                 timeslot_count: 1,
+                setup_slots: 0,
+                cleanup_slots: 0,
                 locations_count: 1,
                 staff_url:null,
                 player_url:null,

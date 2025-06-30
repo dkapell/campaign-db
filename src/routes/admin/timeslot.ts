@@ -55,7 +55,8 @@ async function showNew(req, res, next){
             start_hour: null,
             start_minute: 0,
             length: 60,
-            type: 'regular'
+            type: 'regular',
+            nighttime: false,
         };
 
         res.locals.breadcrumbs = {
@@ -112,6 +113,12 @@ async function create(req, res){
     req.session.timeslotData = timeslot;
     timeslot.campaign_id = req.campaign.id;
 
+    for (const field of ['nighttime']){
+        if (!_.has(timeslot, field)){
+            timeslot[field] = false;
+        }
+    }
+
     try{
         const id = await req.models.timeslot.create(timeslot);
         await req.audit('timeslot', id, 'create', {new:timeslot});
@@ -128,6 +135,12 @@ async function update(req, res){
     const id = req.params.id;
     const timeslot = req.body.timeslot;
     req.session.timeslotData = timeslot;
+
+    for (const field of ['nighttime']){
+        if (!_.has(timeslot, field)){
+            timeslot[field] = false;
+        }
+    }
 
     try {
         const current = await req.models.timeslot.get(id);

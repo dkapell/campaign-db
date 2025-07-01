@@ -264,8 +264,19 @@ if scene.staff
                                 title='Suggested'
                                 data-bs-toggle='tooltip'
                             )
+if scheduleType==='edit' && scene.setup_slots
+    .row
+        .col
+            strong.me-2 Setup Slots
+            =scene.setup_slots
+if scheduleType==='edit' && scene.cleanup_slots
+    .row
+        .col
+            strong.me-2 Cleanup Slots
+            =scene.cleanup_slots
+
 if scheduleType==='edit' && scene.schedule_notes
-    .row.mt-2
+    .row.mt-1
         .col
             strong Schedule Notes
             p.mb-1!= marked.parseInline(scene.schedule_notes, {breaks:true})

@@ -62,6 +62,12 @@ class ScheduleScene  {
             return this.data.prereqs;
         }
     }
+    get happiness(): number {
+        let happiness = this.happiness;
+        happiness -= (this.player_count.max - this.currentPlayers.length) * 2;
+        happiness -= (this.staff_count.max - this.currentStaff.length) * 2;
+        return happiness;
+    }
 
     set status(value:string){
         if (this.data.status !== 'confirmed'){

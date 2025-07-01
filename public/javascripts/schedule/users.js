@@ -97,7 +97,7 @@ async function updateUsersPanel(timeslotId, type){
     if (!type){
         type = $('#bottom-panel').attr('type');
     }
-    if (type === 'init'){
+    if (type === 'init' || type === 'issues'){
         return;
     }
 

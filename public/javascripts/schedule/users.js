@@ -70,6 +70,7 @@ async function showUsersBtn(e){
     if (!$('#detail-container').hasClass('show')){
         await splitDetailPanel();
     }
+    hideMessages();
     scrollToTimeslot(timeslotId);
 
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');

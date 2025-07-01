@@ -17,7 +17,8 @@ const tableFields = [
     'name',
     'display_order',
     'multiple_scenes',
-    'combat'
+    'combat',
+    'outdoors'
 ];
 
 const Location = new Model('locations', tableFields, {

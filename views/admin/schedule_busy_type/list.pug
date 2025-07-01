@@ -3,7 +3,7 @@ extends ../../layout
 block content
     a.btn.btn-outline-success.my-2(href='/admin/schedule_busy_type/new')
         span(class="fa fa-plus")
-        |  New Schedule Filler Type
+        |  New Schedule Busy Type
 
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
@@ -46,7 +46,7 @@ block content
                         if checkPermission('admin')
                             td.text-end
                                 a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
-                                    title='Delete Schedule Filler Type'
+                                    title='Delete Schedule Busy Type'
                                     data-bs-toggle='tooltip'
                                     role="button",
                                     url=`/schedule_busy_type/${schedule_busy_type.id}`,

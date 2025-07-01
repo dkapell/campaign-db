@@ -1002,6 +1002,7 @@ create table locations(
     display_order int,
     multiple_scenes boolean default false,
     combat boolean default false,
+    outdoors boolean default false,
     primary key(id),
     CONSTRAINT locations_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

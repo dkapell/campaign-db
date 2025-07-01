@@ -19,6 +19,8 @@ block intro
 
         const columns = xAxis.length*(xAxisType==='location'?cellsPerSlot:1) + (xAxisType==='location'?2:1);
         const rows = yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) + (xAxisType!=='location'?2:1);
+        const showDayTime = (_.where(timeslots, {nighttime:true})).length;
+        const showOutdoors = (_.where(locations, {outdoors:true})).length;
 
     input#cellsPerSlot(type='hidden' value=cellsPerSlot)
     input#xAxisType(type='hidden' value=xAxisType)
@@ -72,7 +74,7 @@ block maincontent
                         data-csrf=csrfToken
                     )
                         i.fa.fa-calendar-times.me-2
-                        | Clear Schedule
+                        | Clear Unconfirmed
 
                     button.btn.btn-sm.btn-outline-warning.me-2#run-scheduler-btn.text-nowrap(
                         role="button"
@@ -138,6 +140,7 @@ block maincontent
                 span.alert-text
                 button.btn-close(type="button" aria-label="Close")
 
+
     .row.my-2
         #schedule-container-grid.d-grid.col(
             style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
@@ -152,7 +155,7 @@ block maincontent
                         data-location-id=xItem.id
                         style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
                     )
-                        strong=xItem.name
+                        +locationName(xItem, showOutdoors)
                         div.text-start.px-2
                             +locationTags(xItem)
                 else
@@ -163,7 +166,7 @@ block maincontent
 
                     )
                         span.flex-fill.text-center
-                            +timeslotName(xItem)
+                            +timeslotName(xItem, false, 'unscheduled', showDayTime)
 
             if xAxisType === 'location'
                 div.users-header.text-center(
@@ -180,14 +183,14 @@ block maincontent
                         style=`grid-row:${posY}; grid-column: 1`
                     )
                         span.flex-fill.text-center
-                            +timeslotName(yItem)
+                            +timeslotName(yItem, false, 'unscheduled', showDayTime)
                 else
                     div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
                         id=`location-${yItem.id}-header`
                         data-location-id=yItem.id
                         style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1; min-width:180px`
                     )
-                        strong=yItem.name
+                        +locationName(yItem, showOutdoors)
                         div.text-start.px-2
                             +locationTags(yItem)
 

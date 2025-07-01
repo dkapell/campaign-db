@@ -113,7 +113,7 @@ async function create(req, res){
     req.session.locationData = location;
     location.campaign_id = req.campaign.id;
 
-    for (const field of ['multiple_scenes', 'combat']){
+    for (const field of ['multiple_scenes', 'combat', 'outdoors']){
         if (!_.has(location, field)){
             location[field] = false;
         }
@@ -151,7 +151,7 @@ async function update(req, res){
     const location = req.body.location;
     req.session.locationData = location;
 
-    for (const field of ['multiple_scenes', 'combat']){
+    for (const field of ['multiple_scenes', 'combat', 'outdoors']){
         if (!_.has(location, field)){
             location[field] = false;
         }

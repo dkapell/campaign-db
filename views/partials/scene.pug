@@ -1,7 +1,8 @@
-mixin sceneLocationInput(location, request_status, schedule_status)
+mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors)
     li.list-group-item.location-input(
         data-multiple=location.multiple_scenes?'true':'false'
         data-combat=location.combat?'true':'false'
+        data-outdoors=location.outdoors?'true':'false'
     )
         .row.mb-2
             .col.px-1
@@ -12,7 +13,13 @@ mixin sceneLocationInput(location, request_status, schedule_status)
                     let iconClass = '';
                     if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
                     if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
-                i.fas.fa-map-marker-alt.me-1(class=iconClass)
+                if showOutdoors
+                    if location.outdoors
+                        i.fas.fa-tree.me-1(class=iconClass)
+                    else
+                        i.fas.fa-warehouse.me-1(class=iconClass)
+                else
+                    i.fas.fa-map-marker-alt.me-1(class=iconClass)
                 strong.me-1= location.name
                 +locationTags(location)
 
@@ -34,9 +41,13 @@ mixin sceneLocationInput(location, request_status, schedule_status)
 mixin locationTags(location)
     if location.id !== 'busy'
         if location.combat
-            .badge.text-bg-primary.me-1 Combat
+            .badge.text-bg-primary.me-1
+                i.fas.fa-fist-raised.me-1
+                | Combat
         else
-            .badge.text-bg-primary.me-1 Non-Combat
+            .badge.text-bg-primary.me-1
+                i.fas.fa-comments.me-1
+                | Non-Combat
 
     if location.multiple_scenes
         .badge.text-bg-primary.mx-1 Multiple
@@ -77,20 +88,62 @@ mixin timeslotName(timeslot, showTags=false, schedule_status='unscheduled', show
         if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
     case timeslot.type
         when 'meal'
-            i.fas.fa-utensils.fa-fw.me-1(class=iconClass)
+            i.fas.fa-utensils.fa-fw.me-1(
+                class=iconClass
+                title='Meal'
+                data-bs-toggle='tooltip'
+            )
         when 'special'
-            i.fas.fa-clock.fa-fw.me-1(class=iconClass)
+            i.fas.fa-clock.fa-fw.me-1(
+                class=iconClass
+                title='Special'
+                data-bs-toggle='tooltip'
+            )
+
         default
             if showDaytime
                 if timeslot.nighttime
-                    i.far.fa-moon.fa-fw.me-1(class=iconClass)
+                    i.far.fa-moon.fa-fw.me-1(
+                        class=iconClass
+                        title='Evening'
+                        data-bs-toggle='tooltip'
+                    )
                 else
-                    i.far.fa-sun.fa-fw.me-1(class=iconClass)
+                    i.far.fa-sun.fa-fw.me-1(
+                        class=iconClass
+                        title='Day'
+                        data-bs-toggle='tooltip'
+                    )
             else
-                i.far.fa-clock.fa-fw.me-1(class=iconClass)
+                i.far.fa-clock.fa-fw.me-1(
+                    class=iconClass
+                    title='Regular'
+                    data-bs-toggle='tooltip'
+                )
     strong= timeslot.name
     if tags && timeslot.type !== 'regular'
         .badge.text-bg-primary.ms-2=capitalize(timeslot.type)
+
+mixin locationName(location, showOutdoors)
+    if location.id === 'busy'
+        i.fas.fa-calendar.me-1(
+            title='Busy'
+            data-bs-toggle='tooltip'
+        )
+    else if showOutdoors
+        if location.outdoors
+            i.fas.fa-tree.me-1(
+                title='Outdoors'
+                data-bs-toggle='tooltip'
+            )
+        else
+            i.fas.fa-warehouse.me-1(
+                title='Indoors'
+                data-bs-toggle='tooltip'
+            )
+    else
+        i.fas.fa-map-marker-alt.me-1
+    strong=location.name
 
 mixin sceneUserInput(user, request_status, schedule_status, details)
     li.list-group-item.scene-user(id=`scene-user-${user.id}`)
@@ -647,7 +700,7 @@ mixin sceneCard(scene, full=false)
                         | Player Writeup
                         i.fa.fa-external-link.ms-1
 
-                if characterIds.length
+                if checkPermission('contrib') && characterIds.length
                     a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
                         href=`/report/group?group=${characterIds.join(',')}`
                         title="Group Report"

@@ -20,6 +20,8 @@ block intro
 
         const columns = xAxis.length*(xAxisType==='location'?cellsPerSlot:1) + (xAxisType==='location'?2:1);
         const rows = yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) + (xAxisType!=='location'?2:1);
+        const showDayTime = (_.where(timeslots, {nighttime:true})).length;
+        const showOutdoors = (_.where(locations, {outdoors:true})).length;
 
     input#cellsPerSlot(type='hidden' value=cellsPerSlot)
     input#xAxisType(type='hidden' value=xAxisType)
@@ -68,7 +70,7 @@ block maincontent
                         data-location-id=xItem.id
                         style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:200px`
                     )
-                        strong=xItem.name
+                        +locationName(xItem, showOutdoors)
                         if checkPermission('event')
                             div.text-start.px-2
                                 +locationTags(xItem)
@@ -80,7 +82,7 @@ block maincontent
 
                     )
                         span.flex-fill.text-center
-                            +timeslotName(xItem)
+                            +timeslotName(xItem, false, 'unscheduled', showDayTime)
 
             each yItem, row in yAxis
                 -
@@ -92,14 +94,14 @@ block maincontent
                         style=`grid-row:${posY}; grid-column: 1`
                     )
                         span.flex-fill.text-center
-                            +timeslotName(yItem)
+                            +timeslotName(yItem, false, 'unscheduled', showDayTime)
                 else
                     div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
                         id=`location-${yItem.id}-header`
                         data-location-id=yItem.id
                         style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1; mix-width:180px`
                     )
-                        strong=yItem.name
+                        +locationName(yItem, showOutdoors)
                         if checkPermission('event')
                             div.text-start.px-2
                                 +locationTags(yItem)

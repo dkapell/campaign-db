@@ -123,25 +123,70 @@ fieldset.my-2.border.p-2.rounded
 
 .row.my-3
     .col-md
+        - const showOutdoors = (_.where(locations, {outdoors:true})).length
         .row.mb-2
             .col-lg
                 h5 Locations
             .col-lg-auto.text-end
-                    a.btn.btn-sm.btn-outline-primary#locations-button-combat.me-1(
+                if showOutdoors
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        data-outdoors="true"
+                        data-combat="true"
+                        title='Request all Outdoors Combat locations currently set to \'None\''
+                        )
+                            i.fas.fa-tree.me-1
+                            i.fas.fa-fist-raised
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        data-outdoors="false"
+                        data-combat="true"
+                        title='Request all Indoors Combat locations currently set to \'None\''
+                        )
+                            i.fas.fa-warehouse.me-1
+                            i.fas.fa-fist-raised
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        data-outdoors="true"
+                        data-combat="false"
+                        title='Request all Outdoors Non-Combat locations currently set to \'None\''
+                        )
+                            i.fas.fa-tree.me-1
+                            i.fas.fa-comments
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
+                        href='#'
+                        data-bs-toggle='tooltip'
+                        data-outdoors="false"
+                        data-combat="false"
+                        title='Request all Indoors Non-Combat locations currently set to \'None\''
+                        )
+                            i.fas.fa-warehouse.me-1
+                            i.fas.fa-comments
+
+                else
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
                         href='#'
                         data-bs-toggle='tooltip'
                         title='Request all Combat locations currently set to \'None\''
+                        data-outdoors='any'
+                        data-combat='true'
                         ) All Combat
-                    a.btn.btn-sm.btn-outline-primary#locations-button-non-combat.me-1(
+                    a.btn.btn-sm.btn-outline-primary.location-select-btn.me-1(
                         href='#'
                         data-bs-toggle='tooltip'
                         title='Request all non-Combat locations currently set to \'None\''
+                        data-outdoors='any'
+                        data-combat='false'
+
                         ) All Non-Combat
-                    a.btn.btn-sm.btn-outline-danger#locations-button-clear(
-                        href='#'
-                        data-bs-toggle='tooltip'
-                        title='Set all \'Requested\' to \'None\''
-                        ) Clear
+                a.btn.btn-sm.btn-outline-danger#locations-button-clear(
+                    href='#'
+                    data-bs-toggle='tooltip'
+                    title='Set all \'Requested\' to \'None\''
+                    ) Clear
         .row.my-2
             label.col-form-label.col-md(for="scene_location_count") Location Count
                 span.ms-1.text-danger *
@@ -153,9 +198,9 @@ fieldset.my-2.border.p-2.rounded
                     each location in locations
                         - const sceneLocation = _.findWhere(scene.locations, {id: location.id}) || {};
 
-                        +sceneLocationInput(location, sceneLocation.scene_request_status, sceneLocation.scene_schedule_status)
+                        +sceneLocationInput(location, sceneLocation.scene_request_status, sceneLocation.scene_schedule_status, showOutdoors)
     .col-md
-        - showDayTime = (_.where(timeslots, {nighttime:true})).length
+        - const showDayTime = (_.where(timeslots, {nighttime:true})).length
         .row.mb-2
             .col-lg
                 h5 Timeslots
@@ -179,7 +224,7 @@ fieldset.my-2.border.p-2.rounded
                     a.btn.btn-sm.btn-outline-primary#timeslots-button-nighttime.me-1(
                         href='#'
                         data-bs-toggle='tooltip'
-                        title='Request all regular nighttime timeslots currently set to \'None\''
+                        title='Request all regular evening timeslots currently set to \'None\''
                     )
                         i.far.fa-moon
 

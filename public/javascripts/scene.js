@@ -70,6 +70,7 @@ $(function(){
     $('.scene-user').find('.scene-status-select').on('change', updateSceneUser).trigger('change');
     $('.scene-source').find('.scene-status-select').on('change', updateSceneSource).trigger('change');
 
+    $('.location-select-btn').on('click', requestLocations);
     $('#locations-button-combat').on('click', requestCombatLocations);
     $('#locations-button-non-combat').on('click', requestNonComLocations);
     $('#locations-button-clear').on('click',clearLocations);
@@ -115,6 +116,37 @@ function updateBadges(){
     }
 }
 
+function requestLocations(e){
+    e.preventDefault();
+    const combat = $(this).data('combat');
+    const outdoors = $(this).data('outdoors');
+    console.log(combat);
+    console.log(outdoors);
+    $(this).tooltip('hide');
+    $('.location-input').each(function(elem){
+        const $location = $(this);
+        if (!combat && $location.data('combat')){
+            return;
+        }
+        if (combat && combat !== 'any' && !$location.data('combat')){
+            return;
+        }
+
+        if (!outdoors && $location.data('outdoors')){
+            return;
+        }
+        if (outdoors && outdoors !== 'any' && !$location.data('outdoors')){
+            return;
+        }
+
+
+        const $select = $location.find('select');
+        if ($select.val() === 'none'){
+            $select.val('requested').trigger('change');
+        }
+    });
+
+}
 function requestCombatLocations(e){
     e.preventDefault();
     $(this).tooltip('hide');
@@ -322,8 +354,8 @@ function addSceneUserRow($container, user, type, value){
         dropdownParent: $container.closest('form')
     });
 
-    $new.find('.scene-status-select').on('change', updateSceneUser).trigger('change');
     $new.appendTo($container.find('.scene-user-list'));
+    $new.find('.scene-status-select').on('change', updateSceneUser).trigger('change');
     $new.show();
 }
 
@@ -333,6 +365,8 @@ function updateSceneUser(){
     if ($(this).val() === 'none'){
         $(this).closest('.scene-user').remove();
     } else if ($(this).val() === 'rejected'){
+        $(this).closest('.scene-user').find('.details-row').hide();
+    } else if ( $(this).closest('ul').attr('id') === 'scene-player-list'){
         $(this).closest('.scene-user').find('.details-row').hide();
     } else {
         $(this).closest('.scene-user').find('.details-row').show();

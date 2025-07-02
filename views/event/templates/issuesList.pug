@@ -1,3 +1,4 @@
+include ../../partials/scene
 .row
     .col.text-center
         .form-check.form-switch.pt-0.form-check-inline
@@ -5,70 +6,4 @@
             label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
 .row
     .col
-        - const issues = _.flatten(_.pluck(scenes, 'issues'))
-        .table-responsive
-            .col-sm-6.offset-sm-3.text-center.table-loading
-                .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
-                    .visually-hidden Table is Loading
-            table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100#issues-table(
-                style="display: none"
-                data-page-length="10"
-                )
-                thead
-                    tr
-                        th
-                        th Level
-                        th Scene
-                        th Issue
-                        th Status
-                        th
-                tbody
-                    each scene in scenes
-                        each issue in scene.issues
-                            tr.px-2(
-                                class=issue.ignored?'ignored':''
-                                data-issue-id=issue.id
-                                data-scene-id=scene.id
-                                ignored=issue.ignored?'true':'false'
-                            )
-                                td.dtr-control
-                                td
-                                    if issue.level==='warning'
-                                        span.badge.text-bg-danger
-                                            i.fas.fa-exclamation-triangle.me-1
-                                            | Warning
-                                    else
-                                        span.badge.text-bg-info
-                                            i.fas.fa-info-circle.scene-info.me-1
-                                            | Info
-
-                                td
-                                    a.scene-link.action-btn(
-                                        href='#'
-                                        data-scene-id=scene.id
-                                    )= scene.name
-
-                                td= issue.text
-                                td
-                                    span.badge.text-bg-info.ms-2.ignored-badge Accepted
-                                td.text-end
-                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.ignore-btn.text-success.action-btn(
-                                        data-bs-toggle='tooltip'
-                                        title='Accept/Ignore Issue'
-                                        data-issue-id=issue.id
-                                        data-status='ignore'
-                                        href='#'
-                                    )
-                                        i.far.fa-square.fa-lg
-                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-dark.action-btn(
-                                        data-bs-toggle='tooltip'
-                                        title='Reopen Issue'
-                                        data-issue-id=issue.id
-                                        data-status='unignore'
-                                        href='#'
-                                    )
-                                        i.far.fa-check-square.fa-lg
-
-
-
-
+        +issueTable(scenes)

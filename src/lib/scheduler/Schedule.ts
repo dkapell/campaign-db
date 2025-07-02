@@ -45,7 +45,7 @@ class Schedule {
     get happiness():number{
         let happiness = 0;
         for (const scene of this.scenes){
-            happiness+= scene.happiness;
+            happiness+= scene.total_happiness;
         }
         return happiness;
     }

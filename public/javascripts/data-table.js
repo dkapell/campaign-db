@@ -64,7 +64,7 @@ function prepDataTable(){
         options.order = [[2,'asc']];
     }
 
-    const dt = $table.DataTable(options);
+    //const dt = $table.DataTable(options);
 
     if ($table.hasClass('table-exportable')){
         const $exportIcon = $('<i>').addClass('fa').addClass('fa-download').addClass('me-1');
@@ -83,13 +83,20 @@ function prepDataTable(){
                 window.open(url, '_self');
                 $(this).blur();
             });
-
-        $(dt.table().container()).find('.dataTables_length').append($exportBtn);
+        options.layout = {
+            topEnd:null,
+            topStart:null,
+            top1:[
+                'pageLength',
+                $exportBtn,
+                'search'
+            ]
+        };
     }
+    let $orderSwitch;
 
     if ($table.hasClass('table-orderable')){
-        dt.column(1).visible(false);
-        const $orderSwitch = $('<div>')
+        $orderSwitch = $('<div>')
             .addClass('form-check')
             .addClass('form-switch')
             .attr('title', 'Enable reordering of items')
@@ -116,7 +123,22 @@ function prepDataTable(){
             .addClass('float-end')
             .append($orderSwitch);
 
-        $('.dataTables_length').append($orderSwitchContainer);
+        options.layout = {
+            topEnd:null,
+            topStart:null,
+            top1:[
+                'pageLength',
+                $orderSwitchContainer,
+                'search'
+            ]
+        };
+    }
+
+
+    const dt = $table.DataTable(options);
+
+    if ($table.hasClass('table-orderable')){
+        dt.column(1).visible(false);
 
         $orderSwitch.on('change', function(e){
             if ($(this).find('input').prop('checked')){
@@ -127,7 +149,6 @@ function prepDataTable(){
                 $('#orderSwitchContainer').removeClass('text-bg-warning').removeClass('text-white');
             }
         });
-
 
         dt.on('row-reorder', async function (e, diff, edit) {
             const updates = [];
@@ -154,7 +175,6 @@ function prepDataTable(){
 
         });
     }
-
 
     $table.show();
     $table.DataTable().columns.adjust().responsive.recalc();

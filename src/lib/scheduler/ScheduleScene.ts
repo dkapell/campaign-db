@@ -62,7 +62,7 @@ class ScheduleScene  {
             return this.data.prereqs;
         }
     }
-    get happiness(): number {
+    get total_happiness(): number {
         let happiness = this.happiness;
         happiness -= (this.player_count.max - this.currentPlayers.length) * 2;
         happiness -= (this.staff_count.max - this.currentStaff.length) * 2;

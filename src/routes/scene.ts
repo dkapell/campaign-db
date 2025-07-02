@@ -54,6 +54,9 @@ async function show(req, res, next){
             current: scene.name
         };
         res.locals.scene = scheduleHelper.formatScene(scene, !req.checkPermission('event'));
+        if (req.checkPermission('gm')){
+            res.locals.scene.issues = await scheduleHelper.validateScene(scene);
+        }
         res.locals.title += ` - Scene - ${scene.name}`;
         res.render('scene/show');
     } catch(err){

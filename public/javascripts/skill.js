@@ -101,7 +101,8 @@ function makeColumnsResponsive() {
 function prepSkillTable(){
     const $table = $(this);
     $table.find('thead tr').clone(true).appendTo( $table.find('thead'));
-    const table = $table.DataTable({
+
+    const options = {
         paging: true,
         scrollCollapse: true,
         stateSave: true,
@@ -210,26 +211,9 @@ function prepSkillTable(){
             toggleDeleteButtons();
         }
 
-    });
-
-    $('.dataTables_filter').find('label').append($('<button>')
-        .append($('<i>').addClass('fa').addClass('fa-times-circle').addClass('pe-2'))
-        .append('Clear Filters')
-        .addClass('float-end')
-        .addClass('btn')
-        .addClass('btn-sm')
-        .addClass('ml-2')
-        .addClass('btn-outline-secondary')
-        .on('click', function(e){
-            e.preventDefault();
-            $('.skill-table thead th select').each(function() {
-                $(this).val(null).trigger('change');
-            });
-        })
-    );
+    };
 
     if ($table.data('showedittoggle')){
-
 
         const $editSwitch = $('<div>')
             .addClass('form-check')
@@ -259,8 +243,6 @@ function prepSkillTable(){
             .addClass('float-end')
             .append($editSwitch);
 
-        $('.dataTables_length').append($editSwitchContainer);
-
         if (localStorage.getItem('cdb-skill-edit-switch') === 'true'){
             $('#editSwitchContainer').addClass('bg-warning').addClass('text-white');
         }
@@ -274,7 +256,37 @@ function prepSkillTable(){
                 $('#editSwitchContainer').removeClass('text-bg-warning');
             }
         });
+
+        options.layout = {
+            topEnd:null,
+            topStart:null,
+            top1:[
+                'pageLength',
+                $editSwitchContainer,
+                'search'
+            ]
+        };
     }
+
+    const table = $table.DataTable(options);
+
+    $('.dataTables_filter').find('label').append($('<button>')
+        .append($('<i>').addClass('fa').addClass('fa-times-circle').addClass('pe-2'))
+        .append('Clear Filters')
+        .addClass('float-end')
+        .addClass('btn')
+        .addClass('btn-sm')
+        .addClass('ml-2')
+        .addClass('btn-outline-secondary')
+        .on('click', function(e){
+            e.preventDefault();
+            $('.skill-table thead th select').each(function() {
+                $(this).val(null).trigger('change');
+            });
+        })
+    );
+
+
 
     $('button.toggle-vis').on( 'click', function (e) {
         e.preventDefault();

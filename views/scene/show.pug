@@ -2,9 +2,15 @@ extends ../layout
 include ../partials/scene
 
 block content
+    input#csrfToken(type='hidden' value=csrfToken)
     +sceneCard(scene, true)
 
+append styles
+    link(rel='stylesheet' href='/stylesheets/schedule.css')
+
 append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/scene-issues.js')
     script.
         $(function(){
             $('[data-bs-toggle="tooltip"]').tooltip();

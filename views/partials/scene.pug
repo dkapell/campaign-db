@@ -453,6 +453,78 @@ mixin skillEntry(skill)
     strong.align-middle.skill-name= skill.name
     .badge.text-bg-primary.ms-2.skill-source=skill.source.name
 
+mixin issueTable(scenes, simpleTable=false)
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-1.dt-responsive.nowrap.table-sm.w-100#issues-table(
+            style="display: none"
+            data-paging=simpleTable?'false':'true'
+            data-searching=simpleTable?'true':'true'
+            data-layout=simpleTable?'{"topEnd":null}':null
+            data-info=simpleTable?'false':'true'
+            data-page-length="10"
+            )
+            thead
+                tr
+                    th
+                    th Level
+                    if scenes.length > 1
+                        th Scene
+                    th Issue
+                    th Status
+                    th
+            tbody
+                each scene in scenes
+                    each issue in scene.issues
+                        tr.px-2(
+                            class=issue.ignored?'ignored':''
+                            data-issue-id=issue.id
+                            data-scene-id=scene.id
+                            ignored=issue.ignored?'true':'false'
+                        )
+                            td.dtr-control
+                            td
+                                if issue.level==='warning'
+                                    span.badge.text-bg-danger
+                                        i.fas.fa-exclamation-triangle.me-1
+                                        | Warning
+                                else
+                                    span.badge.text-bg-info
+                                        i.fas.fa-info-circle.scene-info.me-1
+                                        | Info
+
+                            if scenes.length > 1
+                                td
+                                    a.scene-link.action-btn(
+                                        href='#'
+                                        data-scene-id=scene.id
+                                    )= scene.name
+
+                            td= issue.text
+                            td
+                                span.badge.text-bg-info.ms-2.ignored-badge Accepted
+                            td.text-end
+                                a.link-underline.link-underline-opacity-0.issue-ignore-btn.ignore-btn.text-success.action-btn(
+                                    data-bs-toggle='tooltip'
+                                    title='Accept/Ignore Issue'
+                                    data-event-id=scene.event_id
+                                    data-issue-id=issue.id
+                                    data-status='ignore'
+                                    href='#'
+                                )
+                                    i.far.fa-square.fa-lg
+                                a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-dark.action-btn(
+                                    data-bs-toggle='tooltip'
+                                    title='Reopen Issue'
+                                    data-event-id=scene.event_id
+                                    data-issue-id=issue.id
+                                    data-status='unignore'
+                                    href='#'
+                                )
+                                    i.far.fa-check-square.fa-lg
+
 
 mixin sceneCard(scene, full=false)
     .card
@@ -503,6 +575,16 @@ mixin sceneCard(scene, full=false)
                     )
                         i.fas.fa-edit
                         span.d-none.d-md-inline.ms-1 Edit Scene
+            if full && scene.issues.length
+                .row.my-1
+                    .col-8
+                        h5.d-inline.pe-4 Issues
+                        .form-check.form-switch.pt-0.form-check-inline
+                            input.form-check-input#showIgnoredIssues(type="checkbox")
+                            label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
+                        +issueTable([scene], true)
+
+
 
             if scene.player_name
                 .row.my-1
@@ -640,7 +722,7 @@ mixin sceneCard(scene, full=false)
                                     span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
                         ul.list-unstyled
                             each status in ['confirmed', 'suggested']
-                                if scene.players[status]
+                                if scene.staff[status]
                                     each user in scene.staff[status]
                                         li
                                             if status !== 'confirmed'

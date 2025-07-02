@@ -102,10 +102,7 @@ fieldset.mb-2.border.p-2.rounded
                     input.form-check-input#campaign_display_schedule(type="checkbox", name="campaign[display_schedule]", checked=campaign.display_schedule)
                     label.form-check-label(for="campaign_display_schedule") Enable Event/Scene Scheduler
 
-            .col
-                .form-check.form-switch
-                    input.form-check-input#campaign_schedule_users(type="checkbox", name="campaign[schedule_players]", checked=campaign.schedule_players)
-                    label.form-check-label(for="campaign_schedule_players") Schedule Players in the Event Scheduler
+
 
 
 
@@ -443,6 +440,15 @@ if campaign.display_schedule
                 label.col-form-label.col-md-4(for="campaign_default_cleanup_slots") Default Cleanup Slots
                 .col
                     input.form-control#campaign_default_cleanup_slots(placeholder="Cleanup Slots",name="campaign[default_cleanup_slots]",value=campaign.default_cleanup_slots type='number' min=0)
+            .row.my-2
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#campaign_schedule_y_location(type="checkbox", name="campaign[schedule_y_location]", checked=campaign.schedule_y_location)
+                        label.form-check-label(for="campaign_schedule_y_location") Use Locations as Vertical Axis
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#campaign_schedule_users(type="checkbox", name="campaign[schedule_players]", checked=campaign.schedule_players)
+                        label.form-check-label(for="campaign_schedule_players") Schedule Players in the Event Scheduler
 
 //- Translations
 if campaign.display_translations && fonts.length

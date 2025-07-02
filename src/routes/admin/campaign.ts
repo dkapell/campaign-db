@@ -153,7 +153,8 @@ async function create(req, res){
         'display_gallery',
         'display_schedule',
         'player_gallery',
-        'schedule_players'
+        'schedule_players',
+        'schedule_y_location'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
@@ -188,7 +189,8 @@ async function update(req, res){
         'display_gallery',
         'display_schedule',
         'player_gallery',
-        'schedule_players'
+        'schedule_players',
+        'schedule_y_location'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;

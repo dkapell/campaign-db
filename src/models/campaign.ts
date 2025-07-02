@@ -79,7 +79,8 @@ const tableFields = [
     'schedule_players',
     'default_setup_slots',
     'default_scene_slots',
-    'default_cleanup_slots'
+    'default_cleanup_slots',
+    'schedule_y_location'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

@@ -11,7 +11,7 @@ block intro
         let cellsPerSlot = 6;
         let maxScenesPerSlot = 3;
         let rowHeight = 50;
-        if (locations.length > timeslots.length){
+        if (currentCampaign.schedule_y_location){
             xAxis = timeslots;
             yAxis = locations;
             xAxisType = 'timeslot'

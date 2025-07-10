@@ -286,16 +286,21 @@ async function update(req, res){
     const id = req.params.id;
     try {
         const current = await req.models.scene.get(id);
-        const scene = await prepSceneData(req, current);
+        const scene: SceneModel = await prepSceneData(req, current);
         req.session.sceneData = scene;
         scene.campaign_id = req.campaign.id;
-        console.log(scene)
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
         await checkPrereqs(req, scene);
         await req.models.scene.update(id, scene);
         await req.audit('scene', id, 'update', {old: current, new:scene});
+        if (scene.event_id){
+            await scheduleHelper.saveScheduleScene(scene.event_id, id);
+        }
+        if (current.event_id && Number(current.event_id) !== Number(scene.event_id)){
+            await scheduleHelper.saveSchedule(current.event_id, 'current');
+        }
         delete req.session.sceneData;
         req.flash('success', 'Updated Scene ' + scene.name);
         if (req.body.backto && req.body.backto==='list'){
@@ -398,6 +403,9 @@ async function remove(req, res, next){
             throw new Error('Can not delete record from different campaign');
         }
         await req.models.scene.delete(id);
+        if (current.event_id){
+            await scheduleHelper.removeScheduleScene(current.event_id, id);
+        }
         await req.audit('scene', id, 'delete', {old: current});
         req.flash('success', 'Removed Scene');
         res.redirect('/scene');

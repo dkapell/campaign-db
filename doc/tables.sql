@@ -684,6 +684,7 @@ create table events (
     hide_attendees boolean default false,
     post_event_survey_deadline timestamp with time zone,
     schedule_status event_schedule_status default 'private',
+    schedule_read_only boolean default false,
     primary key (id),
     CONSTRAINT events_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
@@ -1241,3 +1242,23 @@ create table scene_issues(
         REFERENCES "scenes" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+create table schedules(
+    id serial,
+    event_id int not null,
+    name varchar(80),
+    created timestamp with time zone default now(),
+    timeslots jsonb,
+    locations jsonb,
+    schedule_busies jsonb,
+    scenes jsonb,
+    read_only boolean default false,
+    version int not null default 1,
+    keep boolean default false,
+    primary key (id),
+    unique (event_id, version),
+    CONSTRAINT schedules_event_fk FOREIGN KEY (campaign_id)
+        REFERENCES "events" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+

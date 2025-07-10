@@ -4,6 +4,7 @@ import models from './models';
 import async from 'async';
 import stringify from 'csv-stringify-as-promised';
 import validator from './scheduler/validator';
+import {DateTime} from 'luxon';
 
 function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
@@ -315,27 +316,29 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
 async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false): Promise<TimeslotModel[]> {
     const event = await models.event.get(eventId);
     if (!event) { throw new Error('Invalid Event'); }
-    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+    const schedule = await getSchedule(eventId);
 
-    let scene_users: SceneUserModel[] = await models.scene_user.find({user_id:userId, schedule_status:'confirmed'});
+    const timeslots = schedule.timeslots;
 
-    scene_users = await async.filter(scene_users, async(scene_user) => {
-        const scene = await models.scene.get(scene_user.scene_id, {postSelect:async (data)=>{return data}});
+    const scenes = [];
+    for (const scene of schedule.scenes){
+        if (scene.status !== 'confirmed'){
+            continue;
+        }
+        for (const scene_user of scene.users){
+            if (scene_user.id === userId && scene_user.scene_schedule_status === 'confirmed'){
+                scenes.push(scene);
+                break;
+            }
+        }
+    }
 
-        return scene.event_id === eventId && scene.status === 'confirmed';
-
-    });
     return async.map(timeslots, async (timeslot: TimeslotModel)=>{
         timeslot.scenes = [];
-        let scene_timeslots: SceneTimeslotModel[] = await models.scene_timeslot.find({timeslot_id:timeslot.id, schedule_status:'confirmed'});
-        scene_timeslots = await async.filter(scene_timeslots, async(scene_timeslot) => {
-            const scene = await models.scene.get(scene_timeslot.scene_id, {postSelect:async (data)=>{return data}});
-            return scene.event_id === eventId && scene.status === 'confirmed';
-        });
-        for (const scene_timeslot of scene_timeslots){
-            if (_.findWhere(scene_users, {scene_id: scene_timeslot.scene_id})){
-                const scene = await models.scene.get(scene_timeslot.scene_id);
-                const formattedScene = formatScene(scene, forPlayer);
+
+        for (const scene of scenes){
+            if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'})){
+                const formattedScene = formatScene(scene);
                 const userRecord = _.findWhere(formattedScene.users, {id:userId});
                 if (userRecord && userRecord.npc){
                     formattedScene.npc = userRecord.npc
@@ -343,7 +346,9 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
                 timeslot.scenes.push(formattedScene);
             }
         }
-        const schedule_busy = await models.schedule_busy.findOne({event_id:eventId, user_id:userId, timeslot_id:timeslot.id});
+
+        const schedule_busy = _.findWhere(schedule.schedule_busies, {user_id:userId, timeslot_id:timeslot.id});
+
         if (schedule_busy && (!forPlayer || schedule_busy.type.display_to_player)){
             timeslot.schedule_busy = schedule_busy
         } else {
@@ -356,10 +361,14 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
 async function getCsv(eventId:number, csvType:string):Promise<string>{
     const event = await models.event.get(eventId);
 
-    let scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
+    const schedule = await models.schedule.current(eventId);
+
+    let scenes = schedule.scene.filter(scene => {
+        return scene.status === 'confirmed';
+    });
     scenes = scenes.map(scene=> {return formatScene(scene); });
-    const timeslots = await models.timeslot.find({campaign_id:event.campaign_id});
-    const locations = await models.location.find({campaign_id:event.campaign_id});
+    const timeslots = schedule.timeslots;
+    const locations = schedule.locations;
     const output = [];
     const header = ['Location', 'Attendee'];
     for (const timeslot of timeslots){
@@ -464,6 +473,163 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
     return stringify(output, {});
 }
 
+async function checkScheduleConfigMatches(campaignId:number, schedule){
+    for (const type of ['timeslot', 'location']){
+        const current = await models[type].find({campaign_id:campaignId});
+        for (const item of current){
+            const checkItem = _.findWhere(schedule[`${type}s`], {id:item.id});
+            if(!checkItem){
+                console.log('new item added')
+                continue;
+            }
+            for (const field of models[type].fields){
+                if (checkItem[field] !== item[field]){
+                    console.log(`${field} differs`);
+                    return false;
+                }
+            }
+        }
+        for (const item of schedule[`${type}s`]){
+            const checkItem = _.findWhere(current, {id:item.id});
+            if(!checkItem){
+                console.log('item removed')
+                return false;
+            }
+            for (const field of models[type].fields){
+                if (checkItem[field] !== item[field]){
+                    console.log(`${field} differs`);
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+async function saveSchedule(eventId: number, name:string=null, keep:boolean=false){
+    const event = await models.event.get(eventId);
+    const current = await models.schedule.current(eventId);
+    const doc = {
+        event_id: eventId,
+        name: name,
+        keep: keep,
+        timeslots: await models.timeslot.find({campaign_id:event.campaign_id}),
+        locations: await models.location.find({campaign_id:event.campaign_id}),
+        scenes: await models.scene.find({event_id:eventId}),
+        schedule_busies: await models.schedule_busy.find({event_id:eventId}),
+        created: new Date()
+    };
+
+    if (current && current.read_only){
+        return;
+    }
+    return models.schedule.save(doc);
+}
+
+async function getSchedule(eventId:number){
+    const event = await models.event.get(eventId);
+    const schedule = await models.schedule.current(eventId);
+    if (schedule){
+        if (schedule.read_only || await checkScheduleConfigMatches(event.campaign_id, schedule)){
+            return schedule;
+        }
+
+        const scenes = schedule.scenes.filter(scene => {
+            return scene.status === 'scheduled' || scene.status === 'confirmed';
+        });
+
+        if (scenes.length){
+            schedule.read_only = true;
+            await models.schedule.update(schedule.id, schedule);
+            event.schedule_read_only = true;
+            await models.event.update(event.id, event);
+        }
+        return schedule;
+    }
+    return {
+        name: 'live',
+        read_only: false,
+        timeslots: await models.timeslot.find({campaign_id:event.campaign_id}),
+        locations: await models.location.find({campaign_id:event.campaign_id}),
+        scenes: await models.scene.find({event_id:eventId}),
+        schedule_busies: await models.schedule_busy.find({event_id:eventId})
+    }
+}
+
+async function saveScheduleScene(eventId:number, sceneId:number){
+    const scene = await models.scene.get(sceneId);
+    if (Number(eventId) !== Number(scene.event_id)){
+        return;
+    }
+    const schedule = await models.schedule.current(eventId);
+    if (!schedule.read_only){
+        return saveSchedule(eventId);
+    }
+    for (const item of schedule.scenes){
+        if (Number(item.id) !== Number(scene.id)) { continue; }
+        for (const field in item){
+            if (_.has(item, field) && item[field] != scene[field]){
+                item[field] = scene[field];
+            }
+        }
+    }
+    return models.schedule.update(schedule.id, schedule);
+}
+
+async function removeScheduleScene(eventId:number, sceneId:number){
+    const scene = await models.scene.get(sceneId);
+    if (Number(eventId) !== Number(scene.event_id)){
+        return;
+    }
+    const schedule = await models.schedule.current(eventId);
+    if (!schedule.read_only){
+        return saveSchedule(eventId);
+    }
+    schedule.scenes = schedule.scenes.filter(scene => {
+        return Number(scene.id !== sceneId);
+    });
+    return models.schedule.update(schedule.id, schedule);
+}
+
+async function restoreSchedule(scheduleId:number){
+    const schedule = await models.schedule.get(scheduleId);
+    if (!schedule){ throw new Error('Invalid Schedule'); }
+    const scheduleFormattedDate = (DateTime.fromJSDate(new Date(schedule.created))).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+    schedule.name = `restore from ${scheduleFormattedDate}`;
+    console.log(schedule.name);
+    if (schedule.read_only){
+        // bump this to the top of the snapshots, but do not update anything live
+        return models.schedule.save(schedule)
+    }
+    const event = await models.event.get(schedule.event_id);
+    if (!await checkScheduleConfigMatches(event.campaign_id, schedule)){
+        // Config has changed, make read-only and bump
+        schedule.read_only = true;
+        return models.schedule.save(schedule)
+    }
+    await async.each(schedule.scenes as SceneModel[], async (scene) => {
+        const currentScene = await models.scene.get(scene.id);
+        if (!currentScene) { return; }
+        currentScene.status = scene.status;
+        if (scene.id === 12){ console.log(scene.timeslots); console.log(currentScene.timeslots)}
+        for (const type of ['timeslots', 'locations', 'users']){
+            currentScene[type] = scene[type];
+        }
+        if (scene.id === 12){ console.log(currentScene.timeslots)}
+        return models.scene.update(currentScene.id, currentScene);
+    });
+
+    await async.each(schedule.schedule_busies as ScheduleBusyModel[], async(schedule_busy) => {
+        const current = await models.schedule_busy.get(schedule_busy.id);
+        if (!current){
+            return models.schedule_busy.create(schedule_busy);
+        }
+        return models.schedule_busy.update(current.id, schedule_busy);
+    });
+
+    return saveSchedule(event.id, schedule.name);
+}
+
 export default {
     validateScene: validator,
     formatScene,
@@ -473,5 +639,10 @@ export default {
     getScenesAtTimeslot,
     getUsersAtTimeslot,
     getUserSchedule,
-    getCsv
+    getCsv,
+    saveSchedule,
+    saveScheduleScene,
+    getSchedule,
+    removeScheduleScene,
+    restoreSchedule,
 };

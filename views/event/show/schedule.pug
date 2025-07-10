@@ -19,7 +19,7 @@ include ../../partials/scene
                i.fa.fa-calendar.me-1
                | Schedule
 
-        if checkPermission('gm') && new Date(event.start_time) > new Date()
+        if checkPermission('gm') && new Date(event.start_time) > new Date() && !event.schedule_read_only
             a.btn.btn-sm.btn-outline-primary.my-2.ms-2.float-end(
                 href=`/event/${event.id}/scheduler`
             )

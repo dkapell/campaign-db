@@ -48,8 +48,6 @@ class Model implements IModel{
         try{
             const result = await database.query(query, [id]);
 
-            await cache.store(this.table, id, record);
-
             if (result.rows.length){
                 record = result.rows[0];
                 if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
@@ -58,8 +56,9 @@ class Model implements IModel{
                 } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
                     record = await this.options.postSelect(record);
                 }
-
-                await cache.store(this.table, id, record);
+                if (!_.has(options, 'excludeFields')){
+                    await cache.store(this.table, id, record);
+                }
                 return record;
             }
             return;

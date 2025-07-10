@@ -7,6 +7,7 @@ import Schedule from './scheduler/Schedule';
 
 import ScheduleScene from './scheduler/ScheduleScene';
 import ScheduleCache from './scheduler/ScheduleCache';
+import scheduleHelper from './scheduleHelper';
 
 async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
     scenes = scoreScenes(scenes);
@@ -117,6 +118,7 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
     }, 0)/attempts.length);
 
     await schedule.schedule.write();
+    await scheduleHelper.saveSchedule(eventId, 'scheduler');
 
     return {
         schedule: schedule.schedule,
@@ -134,7 +136,6 @@ async function runScheduler(eventId:number, options:SchedulerOptions={}): Promis
 async function clearSchedule(eventId:number): Promise<SchedulerOutput>{
     const event = await models.event.get(eventId);
     const eventScenes = await models.scene.find({event_id:eventId});
-
     const unassignedScenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
         return !scene.event_id || scene.event_id === eventId || _.indexOf(_.pluck(eventScenes, 'id'), scene.id) !== -1;
 
@@ -145,7 +146,7 @@ async function clearSchedule(eventId:number): Promise<SchedulerOutput>{
         const sceneObj = new ScheduleScene(scene);
         return sceneObj.clear();
     });
-
+    await scheduleHelper.saveSchedule(eventId, 'cleared');
     const schedule = new Schedule(eventId, rawScenes);
     return {schedule: schedule};
 }

@@ -64,8 +64,6 @@ function prepDataTable(){
         options.order = [[2,'asc']];
     }
 
-    //const dt = $table.DataTable(options);
-
     if ($table.hasClass('table-exportable')){
         const $exportIcon = $('<i>').addClass('fa').addClass('fa-download').addClass('me-1');
         const $exportBtn = $('<button>')
@@ -133,7 +131,6 @@ function prepDataTable(){
             ]
         };
     }
-
 
     const dt = $table.DataTable(options);
 

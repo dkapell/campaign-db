@@ -106,7 +106,8 @@
             "users_requested": 2,
             "users": 1,
             "character": 2
-        }
+        },
+        "keepVersions":50
     }
 
 }

@@ -13,6 +13,12 @@ async function showScheduler(req, res, next){
             throw new Error('Invalid Event');
         }
 
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            req.flash('Schedule Config has changed, Event is read-only');
+            return res.redirect(`/event/${event.id}`)
+        }
+
         const scenes = (await req.models.scene.find({campaign_id:req.campaign.id})).filter(scene => {
             // Scene assigned to a different event
             if (scene.event_id && scene.event_id !== event.id){
@@ -67,15 +73,19 @@ async function showSchedule(req, res, next){
             return res.redirect(`/event/${event.id}`);
         }
 
-        const scenes = await req.models.scene.find({campaign_id:req.campaign.id, event_id:event.id, status:'confirmed'})
-        const eventScenes = await req.models.scene.find({event_id:event.id});
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        const scenes = schedule.scenes.filter(scene => {
+            return scene.status === 'confirmed';
+        });
+
         res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
-            scene.issues = await scheduleHelper.validateScene(scene, eventScenes);
+            scene.issues = await scheduleHelper.validateScene(scene, schedule.scenes);
             return scene;
         });
-        res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
-        res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        res.locals.locations = schedule.locations;
+        res.locals.timeslots = schedule.timeslots;
         res.locals.event = event;
+        res.locals.scheduleName = `${schedule.name}:${schedule.version}`;
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -102,6 +112,11 @@ async function updateScene(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const scene = await req.models.scene.get(sceneId);
@@ -174,6 +189,7 @@ async function updateScene(req, res){
             }
         }
         await req.models.scene.update(sceneId, scene);
+        await scheduleHelper.saveSchedule(event.id);
 
         return res.json({success:true, scene:scene});
 
@@ -192,10 +208,16 @@ async function confirmScene(req, res){
             throw new Error('Invalid Event');
         }
 
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
+        }
+
         const scene = await req.models.scene.get(sceneId);
         if (!scene || scene.campaign_id !== req.campaign.id){
             throw new Error('Invalid Scene');
         }
+
         if (scene.status !== 'scheduled'){
             throw new Error('Scene is not Scheduled');
         }
@@ -208,6 +230,7 @@ async function confirmScene(req, res){
             }
         }
         await req.models.scene.update(sceneId, scene);
+        await scheduleHelper.saveSchedule(event.id);
         return res.json({success:true, scene:scene});
 
     } catch (err){
@@ -224,6 +247,11 @@ async function confirmSceneUsers(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const scene = await req.models.scene.get(sceneId);
@@ -250,6 +278,7 @@ async function confirmSceneUsers(req, res){
             user.scene_schedule_status = 'confirmed';
         }
         await req.models.scene.update(sceneId, scene);
+        await scheduleHelper.saveSchedule(event.id);
         return res.json({success:true, scene:scene});
 
     } catch (err){
@@ -266,6 +295,11 @@ async function unconfirmSceneUsers(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const scene = await req.models.scene.get(sceneId);
@@ -295,6 +329,7 @@ async function unconfirmSceneUsers(req, res){
             user.scene_schedule_status = 'suggested';
         }
         await req.models.scene.update(sceneId, scene);
+        await scheduleHelper.saveSchedule(event.id);
         return res.json({success:true, scene:scene});
 
     } catch (err){
@@ -310,6 +345,11 @@ async function unconfirmScene(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const scene = await req.models.scene.get(sceneId);
@@ -329,6 +369,7 @@ async function unconfirmScene(req, res){
         }
 
         await req.models.scene.update(sceneId, scene);
+        await scheduleHelper.saveSchedule(event.id);
         return res.json({success:true, scene:scene});
 
     } catch (err){
@@ -343,6 +384,11 @@ async function validateScenes(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
@@ -495,6 +541,11 @@ async function updateUser(req, res){
             throw new Error('Invalid Event');
         }
 
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
+        }
+
         const user = await req.models.user.get(req.campaign.id, userId);
 
         if (!user){
@@ -565,6 +616,7 @@ async function updateUser(req, res){
                 await req.models.schedule_busy.delete(schedule_busy.id);
             }
         }
+        await scheduleHelper.saveSchedule(event.id);
         res.json({success:true});
     } catch (err){
         console.trace(err);
@@ -587,7 +639,6 @@ async function exportSchedule(req, res, next){
         switch (event.schedule_status){
             case 'private':
                 return res.status(403).json({success:false, error: 'Schedule is not live'});
-                break;
             case 'staff only':
                 if (req.checkPermision('player')){
                     return res.status(403).json({success:false, error: 'Schedule is not live'});
@@ -641,6 +692,11 @@ async function runScheduler(req, res){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
+        }
         const schedulerData = await scheduler.run(eventId);
         res.json({
             success:true,
@@ -662,6 +718,11 @@ async function clearSchedule(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        const schedule = await scheduleHelper.getSchedule(event.id);
+        if (schedule.read_only){
+            throw new Error('Schedule Config has changed, Event is read-only');
         }
         const schedulerData = await scheduler.clear(eventId);
         res.json({
@@ -713,6 +774,155 @@ async function updateIssue(req, res){
     }
 }
 
+async function listScheduleSnapshots(req, res, next){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        res.locals.schedules = await req.models.schedule.find({ event_id: eventId});
+        res.locals.event = event;
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/event', name: 'Events'},
+                { url: `/event/${event.id}`, name: event.name}
+            ],
+            current: 'Schedule Snapshots'
+        };
+        res.locals.title += ` ${event.name} - Schedule Snapshots`;
+        res.render('event/scheduleSnapshots', {pageTitle:`${event.name} - Schedule Snapshots` });
+    } catch(err){
+        next(err);
+    }
+}
+
+async function keepScheduleSnapshot(req, res){
+    const eventId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const schedule = await req.models.schedule.get(scheduleId, {
+            excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        });
+        if (!schedule || schedule.event_id !== event.id){
+            throw new Error('Invalid Schedule');
+        }
+        schedule.keep = true;
+        await req.models.schedule.update(schedule.id, schedule);
+        res.json({ success:true });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+async function unkeepScheduleSnapshot(req, res){
+    const eventId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const schedule = await req.models.schedule.get(scheduleId, {
+            excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        });
+        if (!schedule || schedule.event_id !== event.id){
+            throw new Error('Invalid Schedule');
+        }
+        schedule.keep = false;
+        await req.models.schedule.update(schedule.id, schedule);
+        res.json({ success:true });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function restoreScheduleSnapshot(req, res){
+    const eventId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const schedule = await req.models.schedule.get(scheduleId, {
+            excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        });
+        if (!schedule || schedule.event_id !== event.id){
+            throw new Error('Invalid Schedule');
+        }
+        console.log(`Would restore ${schedule.id}`)
+        await scheduleHelper.restoreSchedule(schedule.id);
+        req.flash('success', 'Rolled back')
+        res.json({ success:true });
+    } catch (err) {
+        console.trace(err);
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function saveScheduleSnapshot(req, res){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const name = req.body.name;
+        await scheduleHelper.saveSchedule(event.id, name, true);
+        res.json({ success:true });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+
+}
+
+async function removeScheduleSnapshot(req, res, next){
+    const eventId = req.params.id;
+    const scheduleId = req.params.scheduleId;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        const schedule = await req.models.schedule.get(scheduleId, {
+            excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        });
+
+        if (!schedule || schedule.event_id !== event.id){
+            throw new Error('Invalid Schedule');
+        }
+        const current = await req.models.schedule.findOne({event_id:eventId}, {
+            excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        });
+
+        if (current.id === schedule.id){
+            throw new Error ('Can not remove the current snapshot');
+        }
+        await req.models.schedule.delete(schedule.id);
+        req.flash('success', 'Removed Schedule Snapshot');
+        res.redirect(`/event/${event.id}/schedules`);
+    } catch(err) {
+        return next(err);
+    }
+
+}
+
 export default {
     showScheduler,
     showSchedule,
@@ -731,4 +941,10 @@ export default {
     runScheduler,
     clearSchedule,
     updateIssue,
+    listScheduleSnapshots,
+    keepScheduleSnapshot,
+    unkeepScheduleSnapshot,
+    restoreScheduleSnapshot,
+    saveScheduleSnapshot,
+    removeScheduleSnapshot,
 };

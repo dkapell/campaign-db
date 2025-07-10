@@ -283,7 +283,27 @@ create type event_schedule_status as ENUM(
     'player visible'
 );
 
+create table schedules(
+    id serial,
+    event_id int not null,
+    name varchar(80),
+    created timestamp with time zone default now(),
+    timeslots jsonb,
+    locations jsonb,
+    schedule_busies jsonb,
+    scenes jsonb,
+    read_only boolean default false,
+    version int not null default 1,
+    keep boolean default false,
+    primary key (id),
+    unique (event_id, version),
+    CONSTRAINT schedules_event_fk FOREIGN KEY (campaign_id)
+        REFERENCES "events" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 alter table events add column schedule_status event_schedule_status default 'private';
+alter table events add column schedule_read_only boolean default false;
 alter table campaigns add column display_schedule boolean default true;
 alter table campaigns add column schedule_players boolean default true;
 alter table campaigns add column default_setup_slots int not null default 0;

@@ -597,6 +597,7 @@ router.use(function(req, res, next){
 });
 router.get('/:id/scheduler', permission('gm'), scheduleRoutes.showScheduler);
 router.get('/:id/schedule', scheduleRoutes.showSchedule);
+router.get('/:id/schedules', permission('gm'), scheduleRoutes.listScheduleSnapshots);
 router.get('/:id/schedule/export', scheduleRoutes.exportSchedule);
 router.get('/:id/scene/validate', permission('contrib'), scheduleRoutes.validateScenes);
 router.get('/:id/timeslot', permission('contrib'), scheduleRoutes.getUsersPerTimeslot);
@@ -605,6 +606,9 @@ router.get('/:id/timeslot/:timeslotId/busy', permission('contrib'), scheduleRout
 router.get('/:id/user/:userId/schedule', scheduleRoutes.getUserSchedule);
 router.put('/:id/scheduler', permission('gm'), scheduleRoutes.runScheduler);
 router.put('/:id/scheduler/clear', permission('gm'), scheduleRoutes.clearSchedule);
+router.put('/:id/schedule/:scheduleId/keep', permission('gm'), scheduleRoutes.keepScheduleSnapshot);
+router.put('/:id/schedule/:scheduleId/unkeep', permission('gm'), scheduleRoutes.unkeepScheduleSnapshot);
+router.put('/:id/schedule/:scheduleId/restore', permission('gm'), scheduleRoutes.restoreScheduleSnapshot);
 router.put('/:id/scene/:sceneId', permission('gm'), scheduleRoutes.updateScene);
 router.put('/:id/scene/:sceneId/confirm', permission('gm'), scheduleRoutes.confirmScene);
 router.put('/:id/scene/:sceneId/users/confirm/:type', permission('gm'), scheduleRoutes.confirmSceneUsers);
@@ -612,5 +616,7 @@ router.put('/:id/scene/:sceneId/users/unconfirm/:type', permission('gm'), schedu
 router.put('/:id/scene/:sceneId/unconfirm', permission('gm'), scheduleRoutes.unconfirmScene);
 router.put('/:id/user/:userId', permission('gm'), scheduleRoutes.updateUser);
 router.put('/:id/issue/:issueId/:status', permission('gm'), scheduleRoutes.updateIssue);
+router.post('/:id/schedule', permission('gm'), scheduleRoutes.saveScheduleSnapshot);
+router.delete('/:id/schedule/:scheduleId', permission('admin'), scheduleRoutes.removeScheduleSnapshot);
 
 export default router;

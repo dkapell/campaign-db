@@ -92,12 +92,20 @@ block maincontent
             )
                 i.fas.fa-tasks.me-2
                 | Show Issues
+
+            a.btn.btn-sm.btn-outline-info.me-2(
+                href=`/event/${event.id}/schedules`
+                data-bs-toggle='tooltip'
+                title='View/Restore Snapshots'
+            )
+                i.fas.fa-history
             button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn(
                 role="button"
                 data-bs-toggle='tooltip'
                 title='Close all Scene Details'
             )
                 i.fas.fa-eye-slash
+
         -
             const tags = [];
             for (const scene of scenes){

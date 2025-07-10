@@ -91,7 +91,7 @@ block maincontent
                 title='Display all scheduling issues'
             )
                 i.fas.fa-tasks.me-2
-                | Show Issues
+                | Issues
 
             a.btn.btn-sm.btn-outline-info.me-2(
                 href=`/event/${event.id}/schedules`
@@ -105,7 +105,21 @@ block maincontent
                 title='Close all Scene Details'
             )
                 i.fas.fa-eye-slash
-
+        .col-md-2.pe-2
+            select.form-select.complex-select2#schedule-user-picker(
+                data-allow-clear="true"
+                data-placeholder='Filter by Attendee'
+            )
+                option
+                for attendance in event.attendees
+                    if attendance.attending
+                        - const type = capitalize(attendance.user.typeForDisplay)
+                        option(
+                            value=attendance.user.id
+                            title=attendance.user.name
+                            data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                            data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                        ) #{capitalize(attendance.user.name)} (#{type})
         -
             const tags = [];
             for (const scene of scenes){
@@ -114,7 +128,7 @@ block maincontent
                 }
             }
         if tags.length
-            .col-2.px-4
+            .col-md-2.pe-2
                 select.form-select.complex-select2#schedule-tag-picker(
                         data-placeholder='Filter by Tag'
                     )

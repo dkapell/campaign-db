@@ -21,8 +21,21 @@ $(function(){
         updateSceneDetails($scene);
     });
 
+    $('body').on('hide.bs.collapse', '.scene-details', function(e){
+        const $scene = $(e.target).closest('.scene-item');
+        $scene.attr('expanded-staff', false);
+        $scene.attr('expanded-players', false);
+    });
+
     $('body').on('show.bs.collapse', '.scene-user-list', function(e){
         e.stopPropagation();
+        const $scene = $(e.target).closest('.scene-item');
+        $scene.attr(`expanded-${$(this).data('list-type')}`, true);
+    });
+    $('body').on('hide.bs.collapse', '.scene-user-list', function(e){
+        e.stopPropagation();
+        const $scene = $(e.target).closest('.scene-item');
+        $scene.attr(`expanded-${$(this).data('list-type')}`, false);
     });
 
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -273,7 +286,12 @@ async function updateSceneDetails($scene){
                 $scene.find(`.scene-${$('#bottom-panel').attr('type')}-list`).collapse('show');
             }
         }
-
+        if ($scene.attr('expanded-staff') === 'true'){
+            $scene.find('.scene-staff-list').collapse('show');
+        }
+        if ($scene.attr('expanded-players') === 'true'){
+            $scene.find('.scene-player-list').collapse('show');
+        }
     });
 }
 
@@ -503,7 +521,11 @@ async function highlightUserSchedule(userId){
         $('.scene-item').removeClass('disabled');
     } else {
         const eventId = $('#eventId').val();
-        const url = `/event/${eventId}/user/${userId}/schedule`;
+
+        let url = `/event/${eventId}/user/${userId}/schedule`;
+        if ($('#scheduleType').val()==='edit'){
+            url += '?unconfirmed=true';
+        }
         const result = await fetch(url);
         const data = await result.json();
         $('.scene-item').addClass('disabled');

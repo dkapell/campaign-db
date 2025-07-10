@@ -677,7 +677,7 @@ async function getUserSchedule(req, res){
             throw new Error('Invalid User');
         }
 
-        const schedule = await scheduleHelper.getUserSchedule(event.id, user.id, req.session.activeUser.type==='player');
+        const schedule = await scheduleHelper.getUserSchedule(event.id, user.id, req.session.activeUser.type==='player', !!req.query.unconfirmed);
         res.json({success:true, schedule:schedule});
     } catch (err) {
         res.json({success:false, error:err.message})

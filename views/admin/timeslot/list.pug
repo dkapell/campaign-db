@@ -4,7 +4,10 @@ block content
     a.btn.btn-outline-success.my-2(href='/admin/timeslot/new')
         span(class="fa fa-plus")
         |  New Timeslot
-
+    .row.my-2
+        .col
+            .alert.alert-warning
+                | Removing or modifying Timeslots will cause the schedule for any scheduled events to become read-only.
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")

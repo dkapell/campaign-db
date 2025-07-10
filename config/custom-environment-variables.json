@@ -45,6 +45,7 @@
         "endpointSecret": "STRIPE_ENDPOINT_SECRET"
     },
     "scheduler":{
-        "runs": "SCHEDULER_RUNS"
+        "runs": "SCHEDULER_RUNS",
+        "keepVersions": "SCHEDULER_KEEP_VERSIONS"
     }
 }

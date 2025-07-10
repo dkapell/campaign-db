@@ -313,20 +313,34 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<Ca
     });
 }
 
-async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false): Promise<TimeslotModel[]> {
+async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false, showUnconfirmed:boolean=false): Promise<TimeslotModel[]> {
     const event = await models.event.get(eventId);
     if (!event) { throw new Error('Invalid Event'); }
+
+    if (forPlayer){
+        showUnconfirmed = false;
+    }
+
     const schedule = await getSchedule(eventId);
 
     const timeslots = schedule.timeslots;
 
     const scenes = [];
     for (const scene of schedule.scenes){
-        if (scene.status !== 'confirmed'){
+        if (showUnconfirmed){
+            if (!scene.status.match(/^(confirmed|scheduled)$/)){
+                console.log(`continue on ${scene.name}`)
+                continue;
+            }
+        } else if (scene.status !== 'confirmed'){
             continue;
         }
+
         for (const scene_user of scene.users){
-            if (scene_user.id === userId && scene_user.scene_schedule_status === 'confirmed'){
+            if (scene_user.id === userId &&
+                (scene_user.scene_schedule_status === 'confirmed' ||
+                (showUnconfirmed && scene_user.scene_schedule_status === 'suggested'))
+            ){
                 scenes.push(scene);
                 break;
             }
@@ -337,7 +351,9 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
         timeslot.scenes = [];
 
         for (const scene of scenes){
-            if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'})){
+            if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
+                (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
+            ){
                 const formattedScene = formatScene(scene);
                 const userRecord = _.findWhere(formattedScene.users, {id:userId});
                 if (userRecord && userRecord.npc){

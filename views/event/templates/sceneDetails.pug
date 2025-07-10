@@ -91,6 +91,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
 
             ul.list-group.collapse.scene-user-list.scene-player-list(
                 id=`scene-player-${scene.id}-${locationIdx}`
+                data-list-type='player'
                 class=userType==='staff'?'':'show'
             )
                 if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
@@ -194,7 +195,10 @@ if scene.staff
                     span.ms-1 (Combat: #{scene.combat_staff_count_min}-#{scene.combat_staff_count_max})
 
 
-            ul.list-group.collapse.scene-user-list.scene-staff-list(id=`scene-staff-${scene.id}-${locationIdx}`)
+            ul.list-group.collapse.scene-user-list.scene-staff-list(
+                data-list-type='staff'
+                id=`scene-staff-${scene.id}-${locationIdx}`
+            )
                 if (scene.staff.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.staff.suggested && scene.staff.suggested.length > 1)
                     li.list-group-item.my-0.p-1
 

@@ -40,7 +40,7 @@ block maincontent
                         i.fa.fa-info-circle.me-2
                         | This event is in the past
     .row.mb-2
-        .col.px-4
+        .col.px-4.pt-1
             button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
                 role="button"
                 data-bs-toggle='tooltip'
@@ -65,7 +65,7 @@ block maincontent
                 i.fa.fa-angle-left.ms-2.expand-text-shown
 
             span.d-inline-block.text-nowrap.overflow-visible
-                .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip !important")
+                .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip")
                     button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
                         role="button"
                         data-bs-toggle='tooltip'
@@ -76,16 +76,45 @@ block maincontent
                         i.fa.fa-calendar-times.me-2
                         | Clear Unconfirmed
 
-                    button.btn.btn-sm.btn-outline-warning.me-2#run-scheduler-btn.text-nowrap(
-                        role="button"
-                        data-bs-toggle='tooltip'
-                        title='Run Scheduler for all non-confirmed Scenes'
-                        data-url=`/event/${event.id}/scheduler`
-                        data-csrf=csrfToken
-                    )
-                        i.fa.fa-calendar-alt.me-2
-                        | Run Autoscheduler
-            button.btn.btn-sm.btn-outline-info.me-2#show-issues-btn(
+                    .btn-group.me-2
+
+                        button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                            role="button"
+                            data-bs-toggle='tooltip'
+                            title='Run Autoscheduler for all non-confirmed Scenes, placing Required Users Only'
+                            data-url=`/event/${event.id}/scheduler`
+                            data-phase='required'
+                            data-csrf=csrfToken
+                        )
+                            .text-success
+                                i.fa.fa-calendar-alt.me-2
+                                | Required
+                        button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                            role="button"
+                            data-bs-toggle='tooltip'
+                            title='Run Autoscheduler for all non-confirmed Scenes, placing Required and Requested Users Only'
+                            data-url=`/event/${event.id}/scheduler`
+                            data-phase='requested'
+                            data-csrf=csrfToken
+                        )
+                            .text-info
+                                i.fa.fa-calendar-alt.me-2
+                                | Requested
+                        button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                            role="button"
+                            data-bs-toggle='tooltip'
+                            title='Run Autoscheduler for all non-confirmed Scenes, placing All Users'
+                            data-url=`/event/${event.id}/scheduler`
+                            data-phase='all'
+                            data-csrf=csrfToken
+                        )
+                            .text-dark
+                                i.fa.fa-calendar-alt.me-2
+                                | All
+
+
+
+            button.btn.btn-sm.btn-outline-info.me-2#show-issues-btn.pt-1(
                 role="button"
                 data-bs-toggle='tooltip'
                 title='Display all scheduling issues'
@@ -93,19 +122,19 @@ block maincontent
                 i.fas.fa-tasks.me-2
                 | Issues
 
-            a.btn.btn-sm.btn-outline-info.me-2(
+            a.btn.btn-sm.btn-outline-info.me-2.pt-1(
                 href=`/event/${event.id}/schedules`
                 data-bs-toggle='tooltip'
                 title='View/Restore Snapshots'
             )
                 i.fas.fa-history
-            button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn(
+            button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn.pt-1(
                 role="button"
                 data-bs-toggle='tooltip'
                 title='Close all Scene Details'
             )
                 i.fas.fa-eye-slash
-        .col-md-2.pe-2
+        .col-md-auto.pe-3.text-end
             select.form-select.complex-select2#schedule-user-picker(
                 data-allow-clear="true"
                 data-placeholder='Filter by Attendee'
@@ -128,7 +157,7 @@ block maincontent
                 }
             }
         if tags.length
-            .col-md-2.pe-2
+            .col-md-auto.pe-3
                 select.form-select.complex-select2#schedule-tag-picker(
                         data-placeholder='Filter by Tag'
                     )

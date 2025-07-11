@@ -126,6 +126,7 @@ interface SchedulerOptions{
    concurrency?: number
    maxScenesPerRun?:number
    skipPlayers?:boolean
+   phase?:'all'|'requested'|'required'
 }
 
 interface SchedulerOutput{

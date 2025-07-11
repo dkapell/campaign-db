@@ -12,7 +12,7 @@ const eventId = 3;
 (async function main() {
     await wait(100);
     await models.event.get(eventId);
-    const schedulerData = await scheduler.run(eventId);
+    const schedulerData = await scheduler.run(eventId, {phase:'all'});
     console.log(`Took ${schedulerData.attempts} attempts, with a winning happiness of ${schedulerData.happiness.max} points and left ${schedulerData.unscheduled} scenes unscheduled`);
     if (schedulerData.issues.length){
         console.log(`Had issue(s): ${schedulerData.issues.join(', ')}`);

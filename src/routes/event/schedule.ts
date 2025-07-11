@@ -697,7 +697,12 @@ async function runScheduler(req, res){
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
-        const schedulerData = await scheduler.run(eventId);
+        const options: SchedulerOptions = {};
+        if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
+            options.phase = req.body.phase;
+        }
+
+        const schedulerData = await scheduler.run(eventId, options);
         res.json({
             success:true,
             attempts:schedulerData.attempts,

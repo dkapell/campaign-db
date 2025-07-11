@@ -129,6 +129,7 @@ class Schedule {
                         scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
                         scene.schedule_status = 'slotted';
                         queue.enqueue(scene.id);
+
                     } else if (slotResult.conflicts && slotResult.conflicts.length){
                         for (const id of slotResult.conflicts){
                             queue.enqueue(id, true);
@@ -141,6 +142,11 @@ class Schedule {
                     break;
                 }
                 case 'slotted': // -> users requested min
+                    // if required only, skip remaining steps
+                    if (options.phase === 'required'){
+                        scene.schedule_status = 'done';
+                        break;
+                    }
                     // fill to min with requested users
                     scene.happiness += await this.fillUsers(scene, 'requested', false, options);
                     scene.schedule_status = 'users requested min';
@@ -169,6 +175,12 @@ class Schedule {
 
                     break;
                 case 'users fill skills': // -> users fill min
+                    // If requested only, skip remaining steps
+                    if (options.phase === 'requested'){
+                        scene.schedule_status = 'done';
+                        break;
+                    }
+
                     // Fill to min with any user
                     scene.happiness += await this.fillUsers(scene, 'any', false, options);
                     scene.schedule_status = 'users fill min';

@@ -263,6 +263,9 @@ async function updateSceneDetails($scene){
     data.scheduleType = $('#scheduleType').val();
     data.userType = $('#userType').val();
     data.marked = marked;
+    data.capitalize = function capitalize(string){
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
     $(`.scene-item[data-scene-id=${sceneId}]`).each(function(){
         const $scene = $(this);
         data.locationIdx = $scene.data('location-idx');

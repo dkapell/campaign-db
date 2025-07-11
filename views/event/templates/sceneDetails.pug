@@ -119,10 +119,24 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
 
                 if scene.players.confirmed
                     each player in scene.players.confirmed
+                        -
+                            let userIconClass = 'text-dark fa-user'
+                            if (player.scene_request_status === 'requested'){
+                                userIconClass = 'text-info fa-user-check'
+                            } else if (player.scene_request_status === 'required'){
+                                userIconClass = 'text-success fa-user-plus'
+                            } else if (player.scene_request_status === 'rejected'){
+                                userIconClass = 'text-danger fa-user-times'
+                            }
+
                         li.list-group-item.my-0.p-0
                             if scheduleType === 'edit'
                                 a.p-1(href=`/user/${player.id}` target='_blank')
-                                    i.fas.fa-user.me-1.text-success
+                                    i.fas.me-1(
+                                        data-bs-toggle='tooltip'
+                                        title= capitalize(player.scene_request_status)
+                                        class=userIconClass
+                                    )
                                     = player.name
                             else
                                 span.p-1= player.name
@@ -140,9 +154,22 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                             )
                 if scene.players.suggested
                     each player in scene.players.suggested
+                        -
+                            let userIconClass = 'text-dark fa-user'
+                            if (player.scene_request_status === 'requested'){
+                                userIconClass = 'text-info fa-user-check'
+                            } else if (player.scene_request_status === 'required'){
+                                userIconClass = 'text-success fa-user-plus'
+                            } else if (player.scene_request_status === 'rejected'){
+                                userIconClass = 'text-danger fa-user-times'
+                            }
                         li.list-group-item.my-0.p-0
                             a.p-1(href=`/user/${player.id}` target='_blank')
-                                i.fas.fa-user.me-1.text-success
+                                i.fas.me-1(
+                                    data-bs-toggle='tooltip'
+                                    title= capitalize(player.scene_request_status)
+                                    class=userIconClass
+                                )
                                 = player.name
                             .btn-group.float-end.ms-1(role='group')
                                 button.btn.btn-xs.btn-outline-success.schedule-user-btn(
@@ -223,10 +250,23 @@ if scene.staff
 
                 if scene.staff.confirmed
                     each staff in scene.staff.confirmed
+                        -
+                            let userIconClass = 'text-dark fa-user'
+                            if (staff.scene_request_status === 'requested'){
+                                userIconClass = 'text-info fa-user-check'
+                            } else if (staff.scene_request_status === 'required'){
+                                userIconClass = 'text-success fa-user-plus'
+                            } else if (staff.scene_request_status === 'rejected'){
+                                userIconClass = 'text-danger fa-user-times'
+                            }
                         li.list-group-item.my-0.p-0
                             if scheduleType === 'edit'
                                 a.p-1(href=`/user/${staff.id}` target='_blank')
-                                    i.fas.fa-user.me-1.text-success
+                                    i.fas.me-1(
+                                        data-bs-toggle='tooltip'
+                                        title= capitalize(staff.scene_request_status)
+                                        class=userIconClass
+                                    )
                                     = staff.name
                             else
                                 span.p-1= staff.name
@@ -245,9 +285,22 @@ if scene.staff
 
                 if scene.staff.suggested
                     each staff in scene.staff.suggested
+                        -
+                            let userIconClass = 'text-dark fa-user'
+                            if (staff.scene_request_status === 'requested'){
+                                userIconClass = 'text-info fa-user-check'
+                            } else if (staff.scene_request_status === 'required'){
+                                userIconClass = 'text-success fa-user-plus'
+                            } else if (staff.scene_request_status === 'rejected'){
+                                userIconClass = 'text-danger fa-user-times'
+                            }
                         li.list-group-item.my-0.p-0
                             a.p-1(href=`/user/${staff.id}` target='_blank')
-                                i.fas.fa-user.me-1.text-success
+                                i.fas.me-1(
+                                    data-bs-toggle='tooltip'
+                                    title= capitalize(staff.scene_request_status)
+                                    class=userIconClass
+                                )
                                 = staff.name
                             .btn-group.float-end.ms-1(role='group')
                                 button.btn.btn-xs.btn-outline-success.schedule-user-btn(

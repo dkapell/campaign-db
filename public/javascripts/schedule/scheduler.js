@@ -1,4 +1,4 @@
-/* globals showSuccess collapseScenes confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
+/* globals showSuccess collapseScenes collapseAllScenes, confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 
 $(function(){
@@ -14,9 +14,7 @@ $(function(){
         title:'Clear all non-confirmed scenes?'
     }).on('click', clearUnconfirmedScenes);
 
-    $('#run-scheduler-btn').confirmation({
-        title:'Run Scheduler for all non-confirmed Scenes?'
-    }).on('click', runSchedulerBtn);
+    $('.run-scheduler-btn').confirmation({}).on('click', runSchedulerBtn);
 
     $('#detail-container').on('closed', function(e){
         clearTimeslotHighlight();
@@ -85,11 +83,14 @@ async function runSchedulerBtn(e){
         .addClass('fa-sync');
     showSuccess('Running Scheduler, please wait...');
     const url = $(this).data('url');
+    const phase = $(this).data('phase');
     const result = await fetch(url, {
         method: 'PUT',
         headers: {
-            'CSRF-Token': $(this).data('csrf')
-        }
+            'CSRF-Token': $(this).data('csrf'),
+            'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({phase:phase})
     });
     const data = await result.json();
     if (data.success){
@@ -98,6 +99,7 @@ async function runSchedulerBtn(e){
             showError(data.issues.join('<br>'));
         }
         data.scenes.forEach(updateSceneLocation);
+        collapseAllScenes();
         await updateAllSlots();
         await validateAllScenes();
         $(this).find('i.fa')

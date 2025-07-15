@@ -1257,7 +1257,7 @@ create table schedules(
     keep boolean default false,
     primary key (id),
     unique (event_id, version),
-    CONSTRAINT schedules_event_fk FOREIGN KEY (campaign_id)
+    CONSTRAINT schedules_event_fk FOREIGN KEY (event_id)
         REFERENCES "events" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE
 );

@@ -42,7 +42,10 @@ Schedule.save = async function save(data:ModelData): Promise<number|null>{
     }, {
         excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
     });
-    const maxVal = _.max(_.pluck(current, 'version'));
+    let maxVal = 0;
+    if (current.length){
+        maxVal = _.max(_.pluck(current, 'version'));
+    }
     const maxVersions: number = config.get('scheduler.keepVersions') ;
     let saved = 0;
     for (const item of current){

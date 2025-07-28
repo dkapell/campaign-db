@@ -273,6 +273,7 @@ async function showNewApi(req, res, next){
     try{
 
         const doc = {
+            csrfToken: res.locals.csrfToken,
             skill_sources: await req.models.skill_source.find({campaign_id: req.campaign.id}),
             skill_usages: await req.models.skill_usage.find({campaign_id: req.campaign.id}),
             skill_tags: await req.models.skill_tag.find({campaign_id: req.campaign.id}),

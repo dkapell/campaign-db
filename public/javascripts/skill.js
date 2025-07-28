@@ -576,12 +576,13 @@ function updateTable(data){
             .data(rowData)
             .draw();
     } else {
-        tableRow = $('.skill-table')
+        tableRow = $(
+            $('.skill-table')
             .DataTable()
             .row.add(rowData)
             .draw()
-            .nodes()
-            .toJQuery();
+            .node()
+        );
 
         tableRow.addClass('clickable-row');
         tableRow.attr('data-click-object', 'skill');

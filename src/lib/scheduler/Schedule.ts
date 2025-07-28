@@ -3,6 +3,9 @@
 import async from 'async'
 import _ from 'underscore'
 import config from 'config'
+
+import {Readable} from 'node:stream';
+
 import models from '../models';
 import ScheduleScene from './ScheduleScene';
 import ScheduleQueue from './ScheduleQueue';
@@ -23,13 +26,21 @@ interface FindSlotResult{
     conflicts?: number[]
 }
 
-class Schedule {
+
+class Schedule extends Readable {
     scenes: ScheduleScene[];
     event_id: number;
     protected cache: ScheduleCache;
+    protected scheduleResult: SchedulerResult = {};
     issues: string[] = [];
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
+        super({
+            objectMode:true,
+            autoDestroy:false,
+            highWaterMark: 1024
+        });
+
         this.event_id = event_id;
         if (cache){
             this.cache = cache;
@@ -42,12 +53,34 @@ class Schedule {
         });
     }
 
+    _read(){}
+
+    statusUpdate(scene, duration){
+        this.push({
+            type: 'scene status',
+            sceneId: scene.id,
+            status: scene.schedule_status,
+            message: `${scene.name}: ${scene.schedule_status} in ${duration}ms`,
+            duration: duration
+        });
+    }
+
     get happiness():number{
         let happiness = 0;
         for (const scene of this.scenes){
             happiness+= scene.total_happiness;
         }
         return happiness;
+    }
+
+    get summary(): SchedulerResult{
+        return {
+            schedule:this,
+            unscheduled: this.scheduleResult.unscheduled,
+            scenesProcessed: this.scheduleResult.scenesProcessed,
+            happiness: this.happiness,
+            issues: this.issues
+        }
     }
 
     async write(){
@@ -109,12 +142,17 @@ class Schedule {
         }
     }
 
-    async run(scenes:ScheduleScene[], options:SchedulerOptions): Promise<SchedulerResult>{
+    async run(scenes:ScheduleScene[], options:SchedulerOptions, schedulerIdx:number){
+        this.push({
+            type: 'status',
+            message: `${schedulerIdx}: starting scheduler`,
+            duration: 0
+        });
         const queue = new ScheduleQueue(scenes);
         let unscheduled = 0;
         let scenesProcessed = 0;
         const start =  (new Date()).getTime()
-        //let last = start;
+        let last = start;
         let maxScenesPerRun = config.get('scheduler.maxScenesPerRun') as number;
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
@@ -138,6 +176,8 @@ class Schedule {
                     } else {
                         unscheduled++;
                     }
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                     break;
                 }
@@ -151,6 +191,8 @@ class Schedule {
                     scene.happiness += await this.fillUsers(scene, 'requested', false, options);
                     scene.schedule_status = 'users requested min';
                     queue.enqueue(scene.id);
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
@@ -159,6 +201,8 @@ class Schedule {
                     scene.happiness += await this.fillUsers(scene, 'requested', true, options);
                     scene.schedule_status = 'users requested max';
                     queue.enqueue(scene.id);
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
@@ -171,6 +215,8 @@ class Schedule {
                     } else {
                         scene.schedule_status = 'done';
                     }
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
@@ -190,6 +236,8 @@ class Schedule {
                     } else {
                         scene.schedule_status = 'done';
                     }
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
 
                     break;
@@ -198,19 +246,24 @@ class Schedule {
                     // Fill to max with any available user
                     scene.happiness += await this.fillUsers(scene, 'any', true, options);
                     scene.schedule_status = 'done'
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
                     //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                     break;
             }
             this.addScene(scene);
         }
-        console.log(`took ${((new Date()).getTime() - start)}ms: ${this.happiness}`);
-        return {
-            schedule: this,
+        const totalDuration = (new Date()).getTime() - start;
+        this.push({
+            type: 'status',
+            message: `${schedulerIdx}: finished in ${totalDuration}ms: ${this.happiness}`,
+            duration: totalDuration
+        });
+        this.scheduleResult = {
             unscheduled: unscheduled,
-            happiness: this.happiness,
-            issues: this.issues,
             scenesProcessed: scenesProcessed
         };
+        this.push(null);
     }
 
     protected async findSlot(scene:ScheduleScene):Promise<FindSlotResult>{

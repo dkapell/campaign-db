@@ -1,6 +1,5 @@
 /* globals showSuccess collapseScenes collapseAllScenes, confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
-
 $(function(){
     $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 300, 'hide': 100 },
@@ -82,6 +81,10 @@ async function runSchedulerBtn(e){
         .addClass('fa-spin')
         .addClass('fa-sync');
     showSuccess('Running Scheduler, please wait...');
+    $('#schedulerProgress').attr('aria-valuenow', '0');
+    $('#schedulerProgressBar').width('0%').text('0%');
+    $('#schedulerProgress').removeClass('d-none');
+
     const url = $(this).data('url');
     const phase = $(this).data('phase');
     const result = await fetch(url, {
@@ -92,9 +95,54 @@ async function runSchedulerBtn(e){
         },
         body:JSON.stringify({phase:phase})
     });
-    const data = await result.json();
+
+    const reader = result.body.getReader();
+    let data = null;
+
+    for(;;){
+        const { done, value } = await reader.read();
+        if (done) break;
+        var text = new TextDecoder('utf-8').decode(value);
+        const lines = text.split('\n');
+        let runningText = '';
+        for (const line of lines) {
+            try {
+                runningText += line;
+                let obj = JSON.parse(runningText);
+                if (obj.type === 'summary'){
+                    data = obj;
+                }
+                if (obj.type === 'scene status'){
+                    const total = obj.scenes * obj.runs;
+                    let current = 0;
+                    for (const runIdx in obj.status){
+                        if (obj.status[runIdx].scheduler === 'done'){
+                            current += obj.scenes;
+                        } else {
+                            for (const status in obj.status[runIdx].scenes){
+                                if (status === 'done'){
+                                    current += obj.status[runIdx].scenes[status];
+                                } else if (status !== 'new'){
+                                    current += (obj.status[runIdx].scenes[status] * 0.5);
+                                }
+                            }
+                        }
+                    }
+                    const percent = Math.round((current/total) * 100);
+                    $('#schedulerProgress').attr('aria-valuenow', ''+percent);
+                    $('#schedulerProgressBar').width(`${percent}%`).text(`${percent}%`);
+                }
+                runningText = '';
+            } catch (e) {
+                // Not a valid JSON object
+            }
+        }
+
+    }
+
     if (data.success){
-        showSuccess(`Ran Scheduler ${data.attempts} time(s), resulting in ${data.unscheduled} unscheduled Scenes.`);
+        showSuccess(`Ran Scheduler ${data.attempts} time(s) in ${Math.round(data.processTime/100)/10} seconds, resulting in ${data.unscheduled} unscheduled Scenes.`);
+        $('#schedulerProgress').addClass('d-none');
         if (data.issues.length){
             showError(data.issues.join('<br>'));
         }

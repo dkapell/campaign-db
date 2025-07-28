@@ -701,16 +701,42 @@ async function runScheduler(req, res){
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
         }
+        const schedulerStream = scheduler.run(eventId, {phase:'all'});
 
-        const schedulerData = await scheduler.run(eventId, options);
-        res.json({
-            success:true,
-            attempts:schedulerData.attempts,
-            unscheduled: schedulerData.unscheduled,
-            scenes: await schedulerData.schedule.getScenes(),
-            happiness: schedulerData.happiness,
-            issues: schedulerData.issues
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Transfer-Encoding', 'chunked'); // Important for streaming
+
+        // Pipe the object stream to the response, transforming to JSON strings
+        schedulerStream.on('data', async(schedulerData) => {
+            if (schedulerData.type === 'status'){
+                console.log(schedulerData.message);
+            }
+
+            if (schedulerData.type === 'summary'){
+                res.write(JSON.stringify({
+                    type: 'summary',
+                    success:true,
+                    attempts:schedulerData.attempts,
+                    unscheduled: schedulerData.unscheduled,
+                    scenes: await schedulerData.schedule.getScenes(),
+                    happiness: schedulerData.happiness,
+                    issues: schedulerData.issues,
+                    processTime: schedulerData.processTime
+                }) + '\n');
+            } else {
+                res.write(JSON.stringify(schedulerData) + '\n');
+            }
         });
+
+        schedulerStream.on('end', () => {
+            res.end();
+        });
+
+        schedulerStream.on('error', (err) => {
+            console.error('Stream error:', err);
+            res.status(500).send('Error streaming data');
+        });
+
     } catch (err) {
         res.json({success:false, error:err.message})
     }

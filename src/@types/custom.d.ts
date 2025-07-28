@@ -114,11 +114,11 @@ interface SceneWarnings {
 }
 
 interface SchedulerResult{
-    unscheduled: number
-    schedule: Schedule
-    scenesProcessed: number
-    happiness: number
-    issues: string[]
+    unscheduled?: number
+    schedule?: Schedule
+    scenesProcessed?: number
+    happiness?: number
+    issues?: string[]
 }
 
 interface SchedulerOptions{
@@ -136,5 +136,6 @@ interface SchedulerOutput{
     scenesProcessed?: number
     happiness?: Record<string,number>
     issues?: string[]
+    processTime?:number
 }
 

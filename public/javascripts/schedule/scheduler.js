@@ -81,8 +81,15 @@ async function runSchedulerBtn(e){
         .addClass('fa-spin')
         .addClass('fa-sync');
     showSuccess('Running Scheduler, please wait...');
-    $('#schedulerProgress').attr('aria-valuenow', '0');
-    $('#schedulerProgressBar').width('0%').text('0%');
+
+    $('#schedulerProgressBarDone')
+        .attr('aria-valuenow', '0')
+        .width('0%')
+        .find('.progress-bar').text('0%');
+    $('#schedulerProgressBarInProcess')
+        .attr('aria-valuenow', '0')
+        .width('0%');
+
     $('#schedulerProgress').removeClass('d-none');
 
     const url = $(this).data('url');
@@ -114,30 +121,36 @@ async function runSchedulerBtn(e){
                 }
                 if (obj.type === 'scene status'){
                     const total = obj.scenes * obj.runs;
-                    let current = 0;
+                    let done = 0;
+                    let inProgress = 0;
                     for (const runIdx in obj.status){
                         if (obj.status[runIdx].scheduler === 'done'){
-                            current += obj.scenes;
+                            done += obj.scenes;
                         } else {
                             for (const status in obj.status[runIdx].scenes){
                                 if (status === 'done'){
-                                    current += obj.status[runIdx].scenes[status];
+                                    done += obj.status[runIdx].scenes[status];
                                 } else if (status !== 'new'){
-                                    current += (obj.status[runIdx].scenes[status] * 0.5);
+                                    inProgress += (obj.status[runIdx].scenes[status]);
                                 }
                             }
                         }
                     }
-                    const percent = Math.round((current/total) * 100);
-                    $('#schedulerProgress').attr('aria-valuenow', ''+percent);
-                    $('#schedulerProgressBar').width(`${percent}%`).text(`${percent}%`);
+                    const donePercent = Math.round((done/total) * 100);
+                    const inProgressPercent = Math.round((inProgress/total) * 100);
+                    $('#schedulerProgressBarDone')
+                        .attr('aria-valuenow', ''+donePercent)
+                        .width(`${donePercent}%`)
+                        .find('.progress-bar').text(`${donePercent}%`);
+                    $('#schedulerProgressBarInProcess')
+                        .attr('aria-valuenow', ''+inProgressPercent)
+                        .width(`${inProgressPercent}%`);
                 }
                 runningText = '';
             } catch (e) {
-                // Not a valid JSON object
+                console.error(e);
             }
         }
-
     }
 
     if (data.success){

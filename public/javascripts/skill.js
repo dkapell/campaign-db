@@ -578,10 +578,10 @@ function updateTable(data){
     } else {
         tableRow = $(
             $('.skill-table')
-            .DataTable()
-            .row.add(rowData)
-            .draw()
-            .node()
+                .DataTable()
+                .row.add(rowData)
+                .draw()
+                .node()
         );
 
         tableRow.addClass('clickable-row');

@@ -85,7 +85,6 @@ async function showSchedule(req, res, next){
         res.locals.locations = schedule.locations;
         res.locals.timeslots = schedule.timeslots;
         res.locals.event = event;
-        res.locals.scheduleName = `${schedule.name}:${schedule.version}`;
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -189,10 +188,8 @@ async function updateScene(req, res){
             }
         }
         await req.models.scene.update(sceneId, scene);
+        res.json({success:true, scene:scene});
         await scheduleHelper.saveSchedule(event.id);
-
-        return res.json({success:true, scene:scene});
-
     } catch (err){
         return res.json({success:false, error:err.message});
     }
@@ -230,8 +227,8 @@ async function confirmScene(req, res){
             }
         }
         await req.models.scene.update(sceneId, scene);
+        res.json({success:true, scene:scene});
         await scheduleHelper.saveSchedule(event.id);
-        return res.json({success:true, scene:scene});
 
     } catch (err){
         return res.json({success:false, error:err.message});
@@ -278,8 +275,9 @@ async function confirmSceneUsers(req, res){
             user.scene_schedule_status = 'confirmed';
         }
         await req.models.scene.update(sceneId, scene);
+        res.json({success:true, scene:scene});
         await scheduleHelper.saveSchedule(event.id);
-        return res.json({success:true, scene:scene});
+
 
     } catch (err){
         return res.json({success:false, error:err.message});
@@ -329,8 +327,8 @@ async function unconfirmSceneUsers(req, res){
             user.scene_schedule_status = 'suggested';
         }
         await req.models.scene.update(sceneId, scene);
+        res.json({success:true, scene:scene});
         await scheduleHelper.saveSchedule(event.id);
-        return res.json({success:true, scene:scene});
 
     } catch (err){
         return res.json({success:false, error:err.message});
@@ -369,8 +367,8 @@ async function unconfirmScene(req, res){
         }
 
         await req.models.scene.update(sceneId, scene);
+        res.json({success:true, scene:scene});
         await scheduleHelper.saveSchedule(event.id);
-        return res.json({success:true, scene:scene});
 
     } catch (err){
         return res.json({success:false, error:err.message});
@@ -616,8 +614,8 @@ async function updateUser(req, res){
                 await req.models.schedule_busy.delete(schedule_busy.id);
             }
         }
-        await scheduleHelper.saveSchedule(event.id);
         res.json({success:true});
+        await scheduleHelper.saveSchedule(event.id);
     } catch (err){
         console.trace(err);
         res.json({success:false, error:err.message});

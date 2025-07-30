@@ -24,6 +24,7 @@ if (backto)
                 name="event[start_date]"
                 value=event.start_date
                 autocomplete="off"
+                required
             )
             select.select2#event_start_hour(name="event[start_hour]" data-placeholder="Start Hour" required )
                 option
@@ -37,6 +38,7 @@ if (backto)
                 name="event[end_date]"
                 value=event.end_date
                 autocomplete="off"
+                required
             )
             select.select2#event_end_hour(name="event[end_hour]" data-placeholder="End Hour" required)
                 option
@@ -125,6 +127,7 @@ if (backto)
                 name="event[post_event_survey_deadline_date]"
                 value=event.post_event_survey_deadline_date
                 autocomplete="off"
+                required
             )
             select.select2#event_post_event_survey_deadline_hour(name="event[post_event_survey_deadline_hour]" data-placeholder="Hour" )
                 option

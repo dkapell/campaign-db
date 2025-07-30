@@ -64,7 +64,7 @@
     "npm": "10.2.x"
   },
   "devDependencies": {
-    "@eslint/js": "^9.11.1",
+    "@eslint/js": "^9.32.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/async": "^3.2.24",
     "@types/codemirror": "^5.60.15",
@@ -91,9 +91,9 @@
     "@types/validator": "^13.12.2",
     "@typescript-eslint/parser": "^8.7.0",
     "corpora-project": "^0.2.0",
-    "eslint": "^9.11.1",
+    "eslint": "^9.32.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
-    "typescript-eslint": "^8.7.0"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0"
   }
 }

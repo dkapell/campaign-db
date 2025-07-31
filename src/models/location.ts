@@ -15,9 +15,11 @@ const tableFields = [
     'id',
     'campaign_id',
     'name',
+    'description',
     'display_order',
     'multiple_scenes',
     'combat',
+    'special',
     'outdoors'
 ];
 

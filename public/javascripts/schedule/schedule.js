@@ -16,6 +16,16 @@ $(function(){
         customClass:'scene-info-popover'
     });
 
+    $('.location-info[data-bs-toggle="popover"]').popover({
+        trigger: 'hover',
+        delay: { 'show': 300, 'hide': 100 },
+        content: function(elem){
+            return marked.parseInline(elem.getAttribute('content'), {breaks:true});
+        },
+        html:true,
+        customClass:'scene-info-popover'
+    });
+
 
     $('body').on('show.bs.collapse', '.scene-details', function(e){
         const $scene = $(e.target).closest('.scene-item');

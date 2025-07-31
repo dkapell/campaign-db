@@ -911,7 +911,7 @@ async function saveScheduleSnapshot(req, res){
             throw new Error('Invalid Event');
         }
         const name = req.body.name;
-        await scheduleHelper.saveSchedule(event.id, name, true);
+        await scheduleHelper.saveSchedule(event.id, name, true, req.checkPermission('site_admin'));
         res.json({ success:true });
     } catch (err) {
         res.json({success:false, error:err.message})

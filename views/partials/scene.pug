@@ -3,6 +3,7 @@ mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors
         data-multiple=location.multiple_scenes?'true':'false'
         data-combat=location.combat?'true':'false'
         data-outdoors=location.outdoors?'true':'false'
+        data-special=location.special?'true':'false'
     )
         .row.mb-2
             .col.px-1
@@ -21,6 +22,14 @@ mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors
                 else
                     i.fas.fa-map-marker-alt.me-1(class=iconClass)
                 strong.me-1= location.name
+                if location.description
+                    button.btn.btn-outline-info.btn-xs.mx-1.location-info(
+                        type="button"
+                        data-bs-toggle='popover'
+                        title=location.name
+                        content=location.description
+                    )
+                        i.fas.fa-info.fa-fw
                 +locationTags(location)
 
 
@@ -51,6 +60,8 @@ mixin locationTags(location)
 
     if location.multiple_scenes
         .badge.text-bg-primary.mx-1 Multiple
+    if location.special
+        .badge.text-bg-primary.mx-1 Special
 
     .float-end
         each tag in location.tags
@@ -144,6 +155,15 @@ mixin locationName(location, showOutdoors)
     else
         i.fas.fa-map-marker-alt.me-1
     strong=location.name
+    if location.description
+        button.btn.btn-outline-info.btn-xs.ms-1.location-info(
+            type="button"
+            data-bs-toggle='popover'
+            title=location.name
+            content=location.description
+        )
+            i.fas.fa-info.fa-fw
+
 
 mixin sceneUserInput(user, request_status, schedule_status, details)
     li.list-group-item.scene-user(id=`scene-user-${user.id}`)

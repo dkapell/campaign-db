@@ -1,4 +1,4 @@
-/* globals _ */
+/* globals _ marked */
 $(function(){
     $('.select2').select2({
         theme:'bootstrap-5',
@@ -94,6 +94,17 @@ $(function(){
     $('#scene_description').on('input', updateBadges);
     $('#scene_display_to_pc').on('change', updateBadges);
     updateBadges();
+
+    $('.location-info[data-bs-toggle="popover"]').popover({
+        trigger: 'hover',
+        delay: { 'show': 300, 'hide': 100 },
+        content: function(elem){
+            return marked.parseInline(elem.getAttribute('content'), {breaks:true});
+        },
+        html:true,
+        customClass:'scene-info-popover'
+    });
+
 });
 
 function updateBadges(){
@@ -120,11 +131,10 @@ function requestLocations(e){
     e.preventDefault();
     const combat = $(this).data('combat');
     const outdoors = $(this).data('outdoors');
-    console.log(combat);
-    console.log(outdoors);
     $(this).tooltip('hide');
     $('.location-input').each(function(elem){
         const $location = $(this);
+        if ($(this).data('special')){ return; }
         if (!combat && $location.data('combat')){
             return;
         }
@@ -152,6 +162,7 @@ function requestCombatLocations(e){
     $(this).tooltip('hide');
     $('.location-input').each(function(elem){
         const $this = $(this);
+        if ($this.data('special')){ return; }
         if (!$this.data('combat')){
             return;
         }
@@ -168,6 +179,7 @@ function requestNonComLocations(e){
     $(this).tooltip('hide');
     $('.location-input').each(function(elem){
         const $this = $(this);
+        if ($this.data('special')){ return; }
         if ($this.data('combat')){
             return;
         }

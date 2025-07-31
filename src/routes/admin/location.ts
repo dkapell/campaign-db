@@ -54,6 +54,8 @@ async function showNew(req, res, next){
             name: null,
             multiple_scenes: false,
             tags: [],
+            description,
+            special: false,
         };
 
         res.locals.breadcrumbs = {
@@ -113,7 +115,7 @@ async function create(req, res){
     req.session.locationData = location;
     location.campaign_id = req.campaign.id;
 
-    for (const field of ['multiple_scenes', 'combat', 'outdoors']){
+    for (const field of ['multiple_scenes', 'combat', 'outdoors', 'special']){
         if (!_.has(location, field)){
             location[field] = false;
         }
@@ -151,7 +153,7 @@ async function update(req, res){
     const location = req.body.location;
     req.session.locationData = location;
 
-    for (const field of ['multiple_scenes', 'combat', 'outdoors']){
+    for (const field of ['multiple_scenes', 'combat', 'outdoors', 'special']){
         if (!_.has(location, field)){
             location[field] = false;
         }

@@ -25,6 +25,7 @@
         .input-group
             input.form-control#timeslot_length(placeholder="Minutes",name="timeslot[length]",value=timeslot.length type='number' required)
             .input-group-text Minutes
+.row.my-2
     .col
         label.control-label(for="timeslot_type") Type
         select.form-select.select2#timeslot_day(name='timeslot[type]' data-placeholder='Type' required)
@@ -35,6 +36,9 @@
         .form-check.form-switch
             input.form-check-input#timeslot_nighttime(type="checkbox" name="timeslot[nighttime]" checked=timeslot.nighttime)
             label.form-check-label(for="timeslot_nighttime") Is Evening
+    .col
+        .label.control-label(for='timeslot_display_name') Display Name (optional)
+        input.form-control#timeslot_display_name(type='text' name="timeslot[display_name]" placeholder="Name" value=timeslot.display_name)
 
 
             

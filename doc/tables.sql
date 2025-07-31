@@ -991,6 +991,7 @@ create table timeslots(
     length int,
     type timeslot_type not null default 'regular',
     nighttime boolean default false,
+    display_name varchar(20),
     primary key(id),
     CONSTRAINT timeslot_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
@@ -1001,10 +1002,12 @@ create table locations(
     id serial,
     campaign_id int not null,
     name varchar(80),
+    description text,
     display_order int,
     multiple_scenes boolean default false,
     combat boolean default false,
     outdoors boolean default false,
+    special boolean default false,
     primary key(id),
     CONSTRAINT locations_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

@@ -24,6 +24,7 @@ block content
                     th Length
                     th Type
                     th Time of Day
+                    th Name
                     if checkPermission('admin')
                         th
 
@@ -37,6 +38,7 @@ block content
                         td #{timeslot.length} Minutes
                         td= capitalize(timeslot.type)
                         td=timeslot.nighttime?'Evening':'Day'
+                        td=timeslot.name
                         
                         if checkPermission('admin')
                             td.text-end

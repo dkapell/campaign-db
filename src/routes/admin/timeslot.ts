@@ -57,6 +57,7 @@ async function showNew(req, res, next){
             length: 60,
             type: 'regular',
             nighttime: false,
+            display_name: null,
         };
 
         res.locals.breadcrumbs = {

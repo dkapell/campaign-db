@@ -14,10 +14,15 @@
        .form-check.form-switch
             input.form-check-input#location_combat(type="checkbox" name="location[combat]" checked=location.combat)
             label.form-check-label(for="location_combat") Combat Location
+.row.my-2
     .col
         .form-check.form-switch
             input.form-check-input#location_outdoors(type="checkbox" name="location[outdoors]" checked=location.outdoors)
             label.form-check-label(for="location_outdoors") Is Outdoors
+    .col
+        .form-check.form-switch
+            input.form-check-input#location_special(type="checkbox" name="location[special]" checked=location.special)
+            label.form-check-label(for="location_special") Is Special
 
 .row.my-2
     .col
@@ -31,6 +36,10 @@
             for tag in location.tags
                 if isNaN(tag) && !_.isObject(tag)
                     option(value=tag selected=true)= tag
+.row.my-2
+    .col
+        label.control-label(for="location_description") Description
+        +markdownEditor('Description', 'location_description', 'location[description]', 2, 50, location.description, true)
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= location.id?'Update':'Create'

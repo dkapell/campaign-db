@@ -383,7 +383,7 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
 
     const schedule = await models.schedule.current(eventId);
 
-    let scenes = schedule.scene.filter(scene => {
+    let scenes = schedule.scenes.filter(scene => {
         return scene.status === 'confirmed';
     });
     scenes = scenes.map(scene=> {return formatScene(scene); });

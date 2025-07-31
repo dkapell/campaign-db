@@ -50,18 +50,20 @@ mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors
 mixin locationTags(location)
     if location.id !== 'busy'
         if location.combat
-            .badge.text-bg-primary.me-1
-                i.fas.fa-fist-raised.me-1
-                | Combat
+            .badge.text-bg-primary.me-1(data-bs-toggle="tooltip" title='Combat')
+                i.fas.fa-fist-raised.fa-fw
+
         else
-            .badge.text-bg-primary.me-1
-                i.fas.fa-comments.me-1
-                | Non-Combat
+            .badge.text-bg-primary.me-1(data-bs-toggle="tooltip" title='Non-Combat')
+                i.fas.fa-comments.fa-fw
+
 
     if location.multiple_scenes
-        .badge.text-bg-primary.mx-1 Multiple
+        .badge.text-bg-primary.mx-1(data-bs-toggle="tooltip" title='Multiple Scenes')
+            i.fas.fa-plus.fa-fw
     if location.special
-        .badge.text-bg-primary.mx-1 Special
+        .badge.text-bg-primary.mx-1(data-bs-toggle="tooltip" title='Special Location')
+            i.fas.fa-star.fa-fw
 
     .float-end
         each tag in location.tags

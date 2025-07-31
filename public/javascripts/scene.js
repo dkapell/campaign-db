@@ -82,7 +82,7 @@ $(function(){
 
     $('#timeslots-button-clear').on('click', clearTimeslots);
 
-    $('#staff-require-me-btn').on('click', addSceneSelfUser);
+    $('#staff-require-runner-btn').on('click', addSceneRunnerUser);
     $('#scene-user-new').hide();
     $('#scene-source-new').hide();
     $('#scene-skill-new').hide();
@@ -295,11 +295,11 @@ function addSceneUser(e){
     $userPicker.val(null).trigger('change');
 }
 
-function addSceneSelfUser(e){
+function addSceneRunnerUser(e){
     e.preventDefault();
     const $container = $(this).closest('.scene-user-picker-container');
     const $userPicker = $container.find('.scene-user-picker');
-    const userId = $(this).data('user-id');
+    const userId = $('#scene-scene_runner_id').val();
 
     const user = $userPicker.find(`option[value="${userId}"]`).data('user');
     const type = $userPicker.find(`option[value="${userId}"]`).data('type');

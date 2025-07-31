@@ -2,7 +2,7 @@ doctype html
 html(lang="en").vh-100
     include ./partials/layout/head
 
-    body.h-100
+    body.h-100.overflow-x-hidden
         .d-flex.flex-column.vh-100.overflow-y-auto
             nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
                 include ./partials/layout/menu

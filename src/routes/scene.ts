@@ -4,6 +4,7 @@ import _ from 'underscore';
 import permission from '../lib/permission';
 import Graph from 'tarjan-graph';
 import scheduleHelper from '../lib/scheduleHelper';
+import campaignHelper from '../lib/campaignHelper';
 
 /* GET scenes listing. */
 async function list(req, res, next){
@@ -149,7 +150,7 @@ async function showNew(req, res, next){
             }
             return user;
         });
-        res.locals.users = _.sortBy(users, 'typeForDisplay')
+        res.locals.users = users.sort(campaignHelper.userSorter)
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
@@ -205,7 +206,7 @@ async function showEdit(req, res, next){
             }
             return user;
         });
-        res.locals.users = _.sortBy(users, 'typeForDisplay')
+        res.locals.users = users.sort(campaignHelper.userSorter);
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});

@@ -361,7 +361,6 @@ async function validateAllScenes(){
 async function validateScenes(sceneIds){
     isValidatingScenes++;
     if (isValidatingScenes > 1) { return; }
-    console.log('validation');
     $('#validatingIndicator').show();
     const url = `/event/${$('#eventId').val()}/scene/validate?`;
 
@@ -395,7 +394,6 @@ async function validateScenes(sceneIds){
     } else {
         showError('Scene Validation Failed');
     }
-    console.log('validation done');
     $('#validatingIndicator').hide();
     isValidatingScenes--;
     if (isValidatingScenes > 0){

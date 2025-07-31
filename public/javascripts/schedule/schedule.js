@@ -1,6 +1,7 @@
 /* globals async scenedetailsTemplate confirmSceneBtn unconfirmSceneBtn unconfirmAllSceneUsersBtn updateUsersPanel */
 /* globals updateTimeslotUsersCount
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel marked */
+let isValidatingScenes = 0;
 $(function(){
     $('#schedule-alert .btn-close').on('click', ()=>{
         hideMessages();
@@ -348,6 +349,10 @@ async function validateAllScenes(){
 }
 
 async function validateScenes(sceneIds){
+    isValidatingScenes++;
+    if (isValidatingScenes > 1) { return; }
+    console.log('validation');
+    $('#validatingIndicator').show();
     const url = `/event/${$('#eventId').val()}/scene/validate?`;
 
     const result = await fetch(url + new URLSearchParams({
@@ -355,6 +360,7 @@ async function validateScenes(sceneIds){
     }).toString());
 
     const data = await result.json();
+
     if (data.success){
         for (const scene of data.scenes){
             const $scenes = $(`.scene-item[data-scene-id=${scene.id}]`);
@@ -378,6 +384,13 @@ async function validateScenes(sceneIds){
         }
     } else {
         showError('Scene Validation Failed');
+    }
+    console.log('validation done');
+    $('#validatingIndicator').hide();
+    isValidatingScenes--;
+    if (isValidatingScenes > 0){
+        isValidatingScenes = 0;
+        validateScenes(sceneIds);
     }
     return;
 }

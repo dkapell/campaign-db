@@ -132,8 +132,12 @@ mixin timeslotName(timeslot, showTags=false, schedule_status='unscheduled', show
                     data-bs-toggle='tooltip'
                 )
     strong= timeslot.name
+
     if tags && timeslot.type !== 'regular'
         .badge.text-bg-primary.ms-2=capitalize(timeslot.type)
+    if timeslot.display_name
+        br
+        span #{timeslot.display_name}
 
 mixin locationName(location, showOutdoors)
     if location.id === 'busy'

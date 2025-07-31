@@ -55,6 +55,14 @@ if scene.tags
                     )
                         i.fas.fa-check-circle.me-1
                         | Confirm Placement
+if scene.writer_id || scene.runner_id
+    .row.my-1
+        if scene.writer_id
+            .col
+                | Wri: #{scene.writer.name}
+        if scene.runner_id
+            .col
+                | Run: #{scene.runner.name}
 
 if scheduleType !== 'edit' && scene.description
     .row.mt-1.mb-2

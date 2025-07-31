@@ -42,6 +42,10 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.setup_slots = scene.setup_slots;
         output.cleanup_slots = scene.cleanup_slots;
         output.tags = _.pluck(scene.tags, 'name');
+        output.writer_id = scene.writer_id;
+        output.writer = scene.writer;
+        output.runner_id = scene.runner_id;
+        output.runner = scene.runner;
     }
 
     if (scene.score){

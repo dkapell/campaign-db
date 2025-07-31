@@ -592,11 +592,24 @@ mixin sceneCard(scene, full=false)
                         strong.me-2 Player-Facing Name:
                         span=scene.player_name
 
+
             if checkPermission('event') && scene.tags && scene.tags.length
                 .row.my-1
                     .col
                         each tag in scene.tags
                             .badge.text-bg-info=tag
+            if checkPermission('event') && scene.writer
+                .row.my-1
+                    .col
+                        strong.me-2 Scene Writer:
+                        span=scene.writer.name
+
+            if checkPermission('event') && scene.runner
+                .row.my-1
+                    .col
+                        strong.me-2 Scene Runner:
+                        span=scene.runner.name
+
             if full && scene.setup_slots!== currentCampaign.default_setup_slots
                 .row.my-1
                     .col

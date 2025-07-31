@@ -2,10 +2,28 @@ if (backto)
     input(type="hidden" name="backto" value=backto)
 
 .row.my-2
-    label.col-form-label.col-md-2(for="scene_name") Name
+    label.col-form-label.col-md-1(for="scene_name") Name
         span.ms-1.text-danger *
-    .col-md
+    .col-md-4
         input.form-control#scene_name(type="text" placeholder="Scene Name" name="scene[name]" value=scene.name required)
+    label.col-form-label.col-md-1(for="scene_event_id") Event
+    .col-md-3
+        select.form-select.complex-select2#scene_event_id(name='scene[event_id]')
+            option(
+                value=-1
+                selected=!scene.event_id
+                data-text='Unassigned'
+                data-html='Unassigned'
+            ) Unassigned
+            for event in events
+                option(
+                    value=event.id
+                    selected=scene.event_id===event.id
+                    data-text=event.name
+                    data-html=`${event.name}${(event.start_time < new Date())?'<span class="badge text-bg-info float-end">Past</span>':''}`
+
+                )= event.name
+
     label.col-form-label.col-md-1(for="scene_request_status") Status
         span.ms-1.text-danger *
     .col-md-2
@@ -40,27 +58,26 @@ if (backto)
 
 
 .row.my-2
-    label.col-form-label.col-md-2(for="scene_event_id") Event
-    .col-md
-        select.form-select.complex-select2#scene_event_id(name='scene[event_id]')
-            option(
-                value=-1
-                selected=!scene.event_id
-                data-text='Unassigned'
-                data-html='Unassigned'
-            ) Unassigned
-            for event in events
-                option(
-                    value=event.id
-                    selected=scene.event_id===event.id
-                    data-text=event.name
-                    data-html=`${event.name}${(event.start_time < new Date())?'<span class="badge text-bg-info float-end">Past</span>':''}`
+    label.col-form-label.col-md-1(for="scene_writer_id") Writer
+    .col-md-4
+        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer')
+            option
+            each user in _.sortBy(users, 'name')
+                if user.type !== 'player'
+                    option(value=user.id selected=scene.writer_id===user.id)=user.name
+    label.col-form-label.col-md-1(for="scene_runner_id") Runner
+    .col-md-4
+        select.form-select.select2#scene-scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner')
+            option
+            each user in _.sortBy(users, 'name')
+                if user.type !== 'player'
+                    option(value=user.id selected=scene.runner_id===user.id)=user.name
 
-                )= event.name
+
 
 .row.my-2
     label.col-form-label.col-md-1(for="scene_tags") Tags
-    .col-md
+    .col-md-5
         select.form-select.tag-select2#scene_tags(multiple, name="scene[tags]" data-placeholder="Tags")
             for tag in tags
                 -let selected = false;
@@ -72,7 +89,7 @@ if (backto)
                     option(value=tag selected=true)= tag
 
     label.col-form-label.col-md-2(for="scene_prereqs") Prereq Scenes
-    .col-md
+    .col-md-4
         select.form-select.select2#scene_prereqs(name='scene[prereqs]' multiple)
             option
             each prereq in scenes
@@ -389,8 +406,10 @@ fieldset.my-2.border.p-2.rounded
             .row.mb-3
                 .col
                     h5 Sources &amp; Skills
-                    .alert.alert-info.p-2
-                        | Request additional players who have the requested Sources or Skills.  One matching player will be added per selection.
+                        i.far.fa-question-circle.ms-2(
+                            data-bs-toggle="tooltip"
+                            title="Request additional players who have the requested Sources or Skills.  One matching player will be added per selection."
+                            )
 
                     ul.my-1#scene-source-list.list-group
                         each source in scene.sources

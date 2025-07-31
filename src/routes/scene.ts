@@ -123,7 +123,9 @@ async function showNew(req, res, next){
                 users:[],
                 sources:[],
                 timeslots:[],
-                skills:[]
+                skills:[],
+                writer_id: req.session.activeUser.id,
+                runner_id: req.session.activeUser.id,
             };
 
             res.locals.breadcrumbs = {

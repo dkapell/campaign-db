@@ -62,7 +62,9 @@ const tableFields = [
     'locations_count',
     'staff_url',
     'player_url',
-    'priority'
+    'priority',
+    'writer_id',
+    'runner_id'
 ];
 
 const Scene = new Model('scenes', tableFields, {
@@ -115,6 +117,12 @@ async function fill(data: SceneModel){
                 return sceneId;
             }
         });
+    }
+    if (data.writer_id){
+        data.writer = await models.user.get(data.campaign_id, data.writer_id);
+    }
+    if (data.runner_id){
+        data.runner = await models.user.get(data.campaign_id, data.runner_id);
     }
     return data;
 }

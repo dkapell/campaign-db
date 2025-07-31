@@ -1044,13 +1044,21 @@ create table scenes (
     priority jsonb,
     setup_slots int,
     cleanup_slots int,
+    writer_id int,
+    runner_id int,
     primary key (id),
     CONSTRAINT scenes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT scenes_event_fk FOREIGN KEY (event_id)
         REFERENCES "events" (id) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT scenes_writer_fk FOREIGN KEY (writer_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT scenes_runner_fk FOREIGN KEY (runner_id)
+        REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL
 );
 
 create type scene_element_request_status as enum(

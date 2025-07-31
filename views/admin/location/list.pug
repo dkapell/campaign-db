@@ -27,6 +27,7 @@ block content
                     th Multiple Scenes?
                     th Combat?
                     th Outdoors?
+                    th Special?
                     th Tags
                     if checkPermission('admin')
                         th
@@ -41,6 +42,7 @@ block content
                         td= location.multiple_scenes?'Yes':'No'
                         td= location.combat?'Combat':'Non-Combat'
                         th= location.outdoors?'Outdoors':'Indoors'
+                        th= location.special?'Yes':'No'
                         td
                             each tag in location.tags
                                 .badge.text-bg-info.mx-1= tag.name

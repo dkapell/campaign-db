@@ -59,10 +59,12 @@ if scene.writer_id || scene.runner_id
     .row.my-1
         if scene.writer_id
             .col
-                | Wri: #{scene.writer.name}
+                i.fas.fa-pen-nib.me-1(data-bs-toggle='tooltip' title='Writer')
+                = scene.writer.name
         if scene.runner_id
             .col
-                | Run: #{scene.runner.name}
+                i.fas.fa-clipboard-check.me-1(data-bs-toggle='tooltip' title='Runner')
+                = scene.runner.name
 
 if scheduleType !== 'edit' && scene.description
     .row.mt-1.mb-2

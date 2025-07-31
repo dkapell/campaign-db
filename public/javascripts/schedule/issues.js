@@ -28,7 +28,8 @@ async function showIssuesBtn(e){
             sceneIds.push($(this).data('scene-id'));
         }
     });
-    const url = `/event/${$('#eventId').val()}/scene/validate?`;
+    const eventId = $('#eventId').val();
+    const url = `/event/${eventId}/scene/validate?`;
     const result = await fetch(url + new URLSearchParams({
         scenes: _.uniq(sceneIds)
     }).toString());
@@ -36,7 +37,10 @@ async function showIssuesBtn(e){
     const data = await result.json();
 
     if (data.success){
-
+        data.scenes = data.scenes.map(scene => {
+            scene.event_id = eventId;
+            return scene;
+        });
         const $panel = $('#bottom-panel');
         $panel.attr('timeslot-id', null);
         $panel.attr('type', 'issues');

@@ -54,7 +54,7 @@ async function showNew(req, res, next){
             name: null,
             multiple_scenes: false,
             tags: [],
-            description,
+            description: null,
             special: false,
         };
 

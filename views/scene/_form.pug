@@ -59,15 +59,17 @@ if (backto)
 
 .row.my-2
     label.col-form-label.col-md-1(for="scene_writer_id") Writer
+        span.ms-1.text-danger *
     .col-md-4
-        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer')
+        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required)
             option
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'
                     option(value=user.id selected=scene.writer_id===user.id)=user.name
     label.col-form-label.col-md-1(for="scene_runner_id") Runner
+        span.ms-1.text-danger *
     .col-md-4
-        select.form-select.select2#scene-scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner')
+        select.form-select.select2#scene-scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner' required)
             option
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'

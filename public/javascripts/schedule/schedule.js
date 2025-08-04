@@ -273,6 +273,7 @@ async function updateSceneDetails($scene){
     const data = await result.json();
     data.scheduleType = $('#scheduleType').val();
     data.userType = $('#userType').val();
+    data.allowedEdit = $('#allowedEdit').val() === 'true';
     data.marked = marked;
     data.capitalize = function capitalize(string){
         return string.charAt(0).toUpperCase() + string.slice(1);

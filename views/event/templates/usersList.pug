@@ -27,9 +27,10 @@ if fileredUsers.length
                         data-user-id=user.id
                         data-user-type=user.type==='player'?'player':'staff'
                     )
-                        .row.handle.my-0
-                            .col.handle.text-center
-                                i.fas.fa-grip-lines.handle-icon.text-info
+                        if allowedEdit
+                            .row.handle.my-0
+                                .col.handle.text-center
+                                    i.fas.fa-grip-lines.handle-icon.text-info
                         .row
                             .col
                                 a(href=`/user/${user.id}` target='_blank')

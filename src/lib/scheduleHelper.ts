@@ -527,7 +527,6 @@ async function checkScheduleConfigMatches(campaignId:number, schedule){
 }
 
 async function saveSchedule(eventId: number, name:string=null, keep:boolean=false, force:boolean=false){
-    console.log(force);
     const event = await models.event.get(eventId);
     const current = await models.schedule.current(eventId);
     const doc = {
@@ -542,7 +541,6 @@ async function saveSchedule(eventId: number, name:string=null, keep:boolean=fals
     };
 
     if (current && current.read_only && !force){
-        console.log('nope')
         return;
     }
     return models.schedule.save(doc);

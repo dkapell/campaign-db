@@ -31,6 +31,7 @@ block intro
     input#scheduleType(type='hidden' value='display')
     input#userType(type='hidden' value=checkPermission('event')?'staff':'player')
     input#csrfToken(type='hidden' value=csrfToken)
+    input#allowedEdit(type='hidden' value=checkPermission('admin, scheduler')?'true':'false')
 
 block maincontent
     h5 Schedule

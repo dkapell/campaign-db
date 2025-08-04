@@ -35,6 +35,7 @@ async function showIssuesBtn(e){
     }).toString());
 
     const data = await result.json();
+    data.allowedEdit = $('#allowedEdit').val() === 'true';
 
     if (data.success){
         data.scenes = data.scenes.map(scene => {

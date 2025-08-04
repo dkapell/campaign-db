@@ -134,9 +134,10 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
                 if xAxisType !== 'location'
                     .d-flex.h-100
-                        .flex-shrink-1.handle
-                            .d-flex.align-items-center.h-100
-                                i.fas.fa-grip-lines-vertical.handle-icon.text-info.pe-1
+                        if checkPermission('admin,scheduler')
+                            .flex-shrink-1.handle
+                                .d-flex.align-items-center.h-100
+                                    i.fas.fa-grip-lines-vertical.handle-icon.text-info.pe-1
                         .flex-grow-1
                             .float-end
                                 i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator.ps-1(
@@ -145,15 +146,16 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
                                 )
                             +sceneBody(scene, locationIdx, true)
                 else
-                    .row.my-0
-                        .col
-                            .float-end
-                                i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator(
-                                    title='Suggested'
-                                    data-bs-toggle='tooltip'
-                                )
-                            .handle.text-center
-                                i.fas.fa-grip-lines.handle-icon.text-info
+                    if checkPermission('admin, scheduler')
+                        .row.my-0
+                            .col
+                                .float-end
+                                    i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator(
+                                        title='Suggested'
+                                        data-bs-toggle='tooltip'
+                                    )
+                                .handle.text-center
+                                    i.fas.fa-grip-lines.handle-icon.text-info
                     .vertical
                         +sceneBody(scene, locationIdx, true)
         - locationIdx++
@@ -202,6 +204,11 @@ mixin sceneBody(scene, locationIdx, forScheduler)
                     title='Confirmed'
                     data-bs-toggle='tooltip'
                 )
+                if !checkPermission('admin, scheduler')
+                    i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator.ps-1(
+                        title='Suggested'
+                        data-bs-toggle='tooltip'
+                    )
 
 
     .scene-details.px-1.pb-1.collapse(id=`scene-details-${scene.id}-${locationIdx}`)

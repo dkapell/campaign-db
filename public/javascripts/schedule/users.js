@@ -139,6 +139,7 @@ function formatUsersData(data, type){
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
     data.type = type;
+    data.allowedEdit = $('#allowedEdit').val() === 'true';
     const $panel = $('#bottom-panel');
     $panel.attr('timeslot-id', data.timeslot.id);
     $panel.attr('scenes', JSON.stringify(_.pluck(data.scenes, 'id')));

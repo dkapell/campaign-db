@@ -142,7 +142,6 @@ async function submitPostEventSurveyForm(e){
     e.preventDefault();
     const $form = $(this);
     const submitAction = $form.find('#submit-action').val();
-    console.log(submitAction);
     if (submitAction === 'submit'){
         $form.find('.submit-icon-submit').removeClass('fa-share-square').addClass('fa-sync').addClass('fa-spin');
     } else if (submitAction === 'hide'){

@@ -10,14 +10,15 @@
                     )
                         .card
                             .card-header
-                                button.btn.btn-xs.btn-outline-danger.float-end.unschedule-busy-btn.ms-2(
-                                    role='button'
-                                    data-user-id=user.id
-                                    data-schedule-busy-id=user.busy_id
-                                    data-bs-toggle='tooltip'
-                                    title=`Remove ${user.busy_name} from Attendee`
-                                )
-                                    i.fas.fa-trash
+                                if allowedEdit
+                                    button.btn.btn-xs.btn-outline-danger.float-end.unschedule-busy-btn.ms-2(
+                                        role='button'
+                                        data-user-id=user.id
+                                        data-schedule-busy-id=user.busy_id
+                                        data-bs-toggle='tooltip'
+                                        title=`Remove ${user.busy_name} from Attendee`
+                                    )
+                                        i.fas.fa-trash
                                 strong= user.busy_name
                             .card-body
                                 a(href=`/user/${user.id}` target='_blank')

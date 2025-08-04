@@ -35,7 +35,7 @@ if scene.tags
                 )
                     i.fas.fa-calculator.fa-fw
 
-        if scheduleType === 'edit'
+        if scheduleType === 'edit' && allowedEdit
 
             if (scene.locations.suggested  || scene.locations.confirmed) && (scene.timeslots.suggested || scene.timeslots.confirmed)
                 if scene.status === 'confirmed'
@@ -104,7 +104,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 data-list-type='player'
                 class=userType==='staff'?'':'show'
             )
-                if (scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1)
+                if allowedEdit && ((scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1))
                     li.list-group-item.my-0.p-1
 
                         if scene.players.suggested && scene.players.suggested.length > 1
@@ -150,7 +150,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                     = player.name
                             else
                                 span.p-1= player.name
-                            if scheduleType === 'edit'
+                            if scheduleType === 'edit' && allowedEdit
                                 button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                     role='button'
                                     data-user-id=player.id
@@ -181,21 +181,22 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                     class=userIconClass
                                 )
                                 = player.name
-                            .btn-group.float-end.ms-1(role='group')
-                                button.btn.btn-xs.btn-outline-success.schedule-user-btn(
-                                    role='button'
-                                    data-user-id=player.id
-                                    data-bs-toggle='tooltip'
-                                    title=`Accept Suggestion`
-                                )
-                                    i.fas.fa-user-plus
-                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
-                                    role='button'
-                                    data-user-id=player.id
-                                    data-bs-toggle='tooltip'
-                                    title=`Remove ${player.name} from Scene`
-                                )
-                                    i.fas.fa-user-times
+                            if allowedEdit
+                                .btn-group.float-end.ms-1(role='group')
+                                    button.btn.btn-xs.btn-outline-success.schedule-user-btn(
+                                        role='button'
+                                        data-user-id=player.id
+                                        data-bs-toggle='tooltip'
+                                        title=`Accept Suggestion`
+                                    )
+                                        i.fas.fa-user-plus
+                                    button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
+                                        role='button'
+                                        data-user-id=player.id
+                                        data-bs-toggle='tooltip'
+                                        title=`Remove ${player.name} from Scene`
+                                    )
+                                        i.fas.fa-user-times
                             i.fas.fa-plus-circle.text-warning.float-end.p-1(
                                 title='Suggested'
                                 data-bs-toggle='tooltip'
@@ -236,7 +237,7 @@ if scene.staff
                 data-list-type='staff'
                 id=`scene-staff-${scene.id}-${locationIdx}`
             )
-                if (scene.staff.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.staff.suggested && scene.staff.suggested.length > 1)
+                if allowedEdit && ((scene.staff.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.staff.suggested && scene.staff.suggested.length > 1))
                     li.list-group-item.my-0.p-1
 
                         if scene.staff.suggested && scene.staff.suggested.length > 1
@@ -280,7 +281,7 @@ if scene.staff
                                     = staff.name
                             else
                                 span.p-1= staff.name
-                            if scheduleType === 'edit'
+                            if scheduleType === 'edit' && allowedEdit
                                 button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                     role='button'
                                     data-user-id=staff.id
@@ -312,21 +313,22 @@ if scene.staff
                                     class=userIconClass
                                 )
                                 = staff.name
-                            .btn-group.float-end.ms-1(role='group')
-                                button.btn.btn-xs.btn-outline-success.schedule-user-btn(
-                                    role='button'
-                                    data-user-id=staff.id
-                                    data-bs-toggle='tooltip'
-                                    title=`Accept Suggestion`
-                                )
-                                    i.fas.fa-user-plus
-                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end(
-                                    role='button'
-                                    data-user-id=staff.id
-                                    data-bs-toggle='tooltip'
-                                    title=`Remove ${staff.name} from Scene`
-                                )
-                                    i.fas.fa-user-times
+                            if allowedEdit
+                                .btn-group.float-end.ms-1(role='group')
+                                    button.btn.btn-xs.btn-outline-success.schedule-user-btn(
+                                        role='button'
+                                        data-user-id=staff.id
+                                        data-bs-toggle='tooltip'
+                                        title=`Accept Suggestion`
+                                    )
+                                        i.fas.fa-user-plus
+                                    button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end(
+                                        role='button'
+                                        data-user-id=staff.id
+                                        data-bs-toggle='tooltip'
+                                        title=`Remove ${staff.name} from Scene`
+                                    )
+                                        i.fas.fa-user-times
                             i.fas.fa-plus-circle.text-warning.float-end.p-1(
                                 title='Suggested'
                                 data-bs-toggle='tooltip'

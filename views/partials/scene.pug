@@ -479,7 +479,7 @@ mixin skillEntry(skill)
     strong.align-middle.skill-name= skill.name
     .badge.text-bg-primary.ms-2.skill-source=skill.source.name
 
-mixin issueTable(scenes, simpleTable=false)
+mixin issueTable(scenes, simpleTable=false, allowedEdit=false)
     .table-responsive
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
@@ -500,7 +500,8 @@ mixin issueTable(scenes, simpleTable=false)
                         th Scene
                     th Issue
                     th Status
-                    th
+                    if allowedEdit
+                        th
             tbody
                 each scene in scenes
                     each issue in scene.issues
@@ -531,25 +532,26 @@ mixin issueTable(scenes, simpleTable=false)
                             td= issue.text
                             td
                                 span.badge.text-bg-info.ms-2.ignored-badge Accepted
-                            td.text-end
-                                a.link-underline.link-underline-opacity-0.issue-ignore-btn.ignore-btn.text-success.action-btn(
-                                    data-bs-toggle='tooltip'
-                                    title='Accept/Ignore Issue'
-                                    data-event-id=scene.event_id
-                                    data-issue-id=issue.id
-                                    data-status='ignore'
-                                    href='#'
-                                )
-                                    i.far.fa-square.fa-lg
-                                a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-dark.action-btn(
-                                    data-bs-toggle='tooltip'
-                                    title='Reopen Issue'
-                                    data-event-id=scene.event_id
-                                    data-issue-id=issue.id
-                                    data-status='unignore'
-                                    href='#'
-                                )
-                                    i.far.fa-check-square.fa-lg
+                            if allowedEdit
+                                td.text-end
+                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.ignore-btn.text-success.action-btn(
+                                        data-bs-toggle='tooltip'
+                                        title='Accept/Ignore Issue'
+                                        data-event-id=scene.event_id
+                                        data-issue-id=issue.id
+                                        data-status='ignore'
+                                        href='#'
+                                    )
+                                        i.far.fa-square.fa-lg
+                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-dark.action-btn(
+                                        data-bs-toggle='tooltip'
+                                        title='Reopen Issue'
+                                        data-event-id=scene.event_id
+                                        data-issue-id=issue.id
+                                        data-status='unignore'
+                                        href='#'
+                                    )
+                                        i.far.fa-check-square.fa-lg
 
 
 mixin sceneCard(scene, full=false)
@@ -608,7 +610,7 @@ mixin sceneCard(scene, full=false)
                         .form-check.form-switch.pt-0.form-check-inline
                             input.form-check-input#showIgnoredIssues(type="checkbox")
                             label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
-                        +issueTable([scene], true)
+                        +issueTable([scene], true, checkPermission('admin, scheduler'))
 
 
 

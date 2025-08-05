@@ -244,6 +244,42 @@ async function remove(req, res, next){
     }
 }
 
+async function reserveScheduler(req, res){
+    if (req.campaign.schedule_user_id){
+        if (req.campaign.schedule_user_id === req.session.activeUser.id){
+            return res.json({success:true})
+        }
+        return req.json({success:false, error:`Scheduling is reserved by ${req.campaign.schedule_user.name}`});
+    }
+    try {
+        await req.models.campaign.update(req.campaign.id, {
+            site: req.campaign.site,
+            schedule_user_id:req.session.activeUser.id
+        });
+        res.json({success:true})
+    } catch (err){
+        res.json({success:false, error: err.message});
+    }
+}
+
+async function releaseScheduler(req, res){
+    if (!req.campaign.schedule_user_id ){
+        return res.json({success:true});
+    }
+    if (!req.checkPermission('admin') && req.campaign.schedule_user_id !== req.session.activeUser.id){
+        return req.json({success:false, error:`Scheduling is reserved by ${req.campaign.schedule_user.name}`});
+    }
+    try {
+        await req.models.campaign.update(req.campaign.id, {
+            site: req.campaign.site,
+            schedule_user_id:null
+        });
+        res.json({success:true})
+    } catch (err){
+        res.json({success:false, error: err.message});
+    }
+}
+
 async function checkPermission(req, res, next){
     const id = req.params.id;
     const user = req.session.activeUser;
@@ -260,17 +296,18 @@ async function checkPermission(req, res, next){
 
 const router = express.Router();
 
-router.use(permission('admin'));
 router.use(function(req, res, next){
     res.locals.siteSection='admin';
     next();
 });
 
-router.get('/', list);
+router.get('/', permission('admin'), list);
 router.get('/new', permission('site_admin'), showNew);
-router.get('/:id', checkPermission, showEdit);
+router.get('/:id', permission('admin'), checkPermission, showEdit);
 router.post('/', permission('site_admin'), create);
-router.put('/:id', checkPermission, update);
-router.delete('/:id', checkPermission, remove);
+router.put('/:id', permission('admin'), checkPermission, update);
+router.delete('/:id', permission('admin'), checkPermission, remove);
+router.put('/schedule/reserve', permission('admin, scheduler'), reserveScheduler);
+router.put('/schedule/release', permission('admin, scheduler'), releaseScheduler);
 
 export default router;

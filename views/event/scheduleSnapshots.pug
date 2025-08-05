@@ -54,7 +54,7 @@ block content
                         td.text-end
                             if current
                                 .badge.text-bg-success.mx-1 Current
-                            else
+                            else if currentCampaign.schedule_user_id === activeUser.id
                                 a.btn.btn-outline-danger.btn-xs.action-confirmation-btn.mx-1.schedule-action-btn(
                                     role="button",
                                     url=`/event/${event.id}/schedule/${schedule.id}/restore`

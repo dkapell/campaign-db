@@ -123,6 +123,10 @@ async function updateScene(req, res){
             throw new Error('Invalid Scene');
         }
 
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         let scheduled = false;
 
         const locations = await req.models.location.find({campaign_id:req.campaign.id});
@@ -215,6 +219,10 @@ async function confirmScene(req, res){
             throw new Error('Invalid Scene');
         }
 
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         if (scene.status !== 'scheduled'){
             throw new Error('Scene is not Scheduled');
         }
@@ -258,6 +266,11 @@ async function confirmSceneUsers(req, res){
         if (!scene.status.match(/^(scheduled|confirmed)$/)){
             throw new Error('Scene is not Scheduled');
         }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         if(!type.match(/^(player|staff)$/)){
             throw new Error('Invalid Type');
         }
@@ -307,6 +320,11 @@ async function unconfirmSceneUsers(req, res){
         if (!scene.status.match(/^(scheduled|confirmed)$/)){
             throw new Error('Scene is not Scheduled');
         }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         if(!type.match(/^(player|staff)$/)){
             throw new Error('Invalid Type');
         }
@@ -354,6 +372,11 @@ async function unconfirmScene(req, res){
         if (!scene || scene.campaign_id !== req.campaign.id){
             throw new Error('Invalid Scene');
         }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         if (scene.status !== 'confirmed'){
             throw new Error('Scene is not Confirmed');
         }
@@ -544,6 +567,10 @@ async function updateUser(req, res){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
 
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         const user = await req.models.user.get(req.campaign.id, userId);
 
         if (!user){
@@ -695,6 +722,11 @@ async function runScheduler(req, res){
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         const options: SchedulerOptions = {};
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
@@ -753,6 +785,11 @@ async function clearSchedule(req, res){
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
+        }
+
         const schedulerData = await scheduler.clear(eventId);
         res.json({
             success:true,
@@ -780,6 +817,7 @@ async function updateIssue(req, res){
         if (scene.event_id !== event.id){
             throw new Error('Invalid Event');
         }
+
         switch (status){
             case 'ignore':
                 if (issue.ignored){
@@ -884,6 +922,10 @@ async function restoreScheduleSnapshot(req, res){
 
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
+        }
+
+        if (req.campaign.schedule_user_id !== req.session.activeUser.id){
+            throw new Error('Invalid Schedule Lock');
         }
 
         const schedule = await req.models.schedule.get(scheduleId, {

@@ -134,7 +134,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
                 if xAxisType !== 'location'
                     .d-flex.h-100
-                        if checkPermission('admin,scheduler')
+                        if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id
                             .flex-shrink-1.handle
                                 .d-flex.align-items-center.h-100
                                     i.fas.fa-grip-lines-vertical.handle-icon.text-info.pe-1
@@ -146,7 +146,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
                                 )
                             +sceneBody(scene, locationIdx, true)
                 else
-                    if checkPermission('admin, scheduler')
+                    if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id
                         .row.my-0
                             .col
                                 .float-end
@@ -204,7 +204,7 @@ mixin sceneBody(scene, locationIdx, forScheduler)
                     title='Confirmed'
                     data-bs-toggle='tooltip'
                 )
-                if !checkPermission('admin, scheduler')
+                if !checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id
                     i.fas.fa-plus-circle.text-warning.status-indicator.suggested-indicator.ps-1(
                         title='Suggested'
                         data-bs-toggle='tooltip'

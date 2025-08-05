@@ -610,7 +610,7 @@ mixin sceneCard(scene, full=false)
                         .form-check.form-switch.pt-0.form-check-inline
                             input.form-check-input#showIgnoredIssues(type="checkbox")
                             label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
-                        +issueTable([scene], true, checkPermission('admin, scheduler'))
+                        +issueTable([scene], true, checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id)
 
 
 

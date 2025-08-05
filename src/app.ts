@@ -232,6 +232,9 @@ app.use(async function(req, res, next){
     if (!_.has(campaign, 'user_type_map') || !campaign.user_type_map){
         campaign.user_type_map = config.get('userTypeMap');
     }
+    if (campaign.schedule_user_id){
+        campaign.schedule_user = await req.models.user.get(campaign.id, campaign.schedule_user_id);
+    }
 
     req.campaign = campaign;
 

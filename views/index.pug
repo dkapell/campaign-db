@@ -35,6 +35,19 @@ append content
                 if showTasks
                     h3 Tasks
                     .list-group.mb-2.mb-3
+                        if currentCampaign.schedule_user_id === activeUser.id
+                            a.list-group-item.list-group-item-danger
+                                i.fas.fa-calendar.me-1.fa-fw
+                                | Scheduling Reserved
+                                button.btn.btn-xs.btn-danger.float-end#release-schedule-lock-btn(
+                                    role="button"
+                                    data-bs-toggle="tooltip"
+                                    title="Release lock on Scheduling"
+                                    data-csrf=csrfToken
+                                )
+                                    i.fa.fa-lock-open.me-1
+                                    | Release
+
                         if checkPermission('gm, cp_grant') && pending_cp_grants && currentCampaign.display_cp
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
@@ -183,11 +196,5 @@ append content
                                 +eventListItemPlayer(event)
 
 append scripts
-    script.
-        $(function(){
-            $('[data-bs-toggle="tooltip"]').tooltip({
-                delay: { 'show': 100, 'hide': 100 },
-                placement:'auto'
-            });
-        });
+    script(src='/javascripts/index.js')
 

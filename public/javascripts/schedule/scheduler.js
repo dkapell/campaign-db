@@ -23,6 +23,10 @@ $(function(){
         $(this).tooltip('hide');
         collapseAllScenes();
     });
+
+    $('#reserve-schedule-lock-btn').confirmation({}).on('click', reserveSchedulerLockBtn);
+    $('#release-schedule-lock-btn').confirmation({}).on('click', releaseSchedulerLockBtn);
+
 });
 
 function clearTimeslotHighlight(){
@@ -68,6 +72,54 @@ async function clearUnconfirmedScenes(e){
             .addClass('fa-calendar-times')
             .removeClass('fa-spin')
             .removeClass('fa-sync');
+    } else {
+        showError(data.error);
+    }
+}
+
+async function reserveSchedulerLockBtn(e){
+    e.preventDefault();
+    hideMessages();
+    $(this).find('i.fa')
+        .removeClass('fa-lock')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+    const url = '/admin/campaign/schedule/reserve';
+    const result = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'CSRF-Token': $(this).data('csrf'),
+            'Content-Type': 'application/json'
+        },
+    });
+    const data = await result.json();
+    if (data.success){
+        location.reload();
+    } else {
+        showError(data.error);
+    }
+
+}
+
+async function releaseSchedulerLockBtn(e){
+    e.preventDefault();
+    hideMessages();
+    $(this).find('i.fa')
+        .removeClass('fa-lock-open')
+        .addClass('fa-spin')
+        .addClass('fa-sync');
+    const url = '/admin/campaign/schedule/release';
+    const result = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'CSRF-Token': $(this).data('csrf'),
+            'Content-Type': 'application/json'
+        },
+    });
+    const data = await result.json();
+    if (data.success){
+
+        location.reload();
     } else {
         showError(data.error);
     }

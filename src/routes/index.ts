@@ -22,6 +22,10 @@ async function showIndex(req, res){
             res.locals.showTasks = true;
         }
 
+        if (req.campaign.schedule_user_id === req.session.activeUser.id){
+            res.locals.showTasks = true;
+        }
+
         let post_event_surveys = []
         if (user){
             post_event_surveys = await campaignHelper.getPostEventSurveys(user.id, pastEvents);

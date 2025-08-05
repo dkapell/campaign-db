@@ -7,13 +7,12 @@ import cache from '../lib/cache';
 import Model from '../lib/Model';
 import pluralize from 'pluralize';
 
-
 import imageModel from './image';
 import documentationModel from './documentation';
 
 const models = {
     image: imageModel,
-    documentation: documentationModel
+    documentation: documentationModel,
 };
 
 interface CampaignModel extends IModel {
@@ -80,7 +79,8 @@ const tableFields = [
     'default_setup_slots',
     'default_scene_slots',
     'default_cleanup_slots',
-    'schedule_y_location'
+    'schedule_y_location',
+    'schedule_user_id'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

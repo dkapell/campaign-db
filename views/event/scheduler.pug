@@ -30,7 +30,7 @@ block intro
     input#scheduleType(type='hidden' value='edit')
     input#csrfToken(type='hidden' value=csrfToken)
     input#userType(type='hidden' value='staff')
-    input#allowedEdit(type='hidden' value=checkPermission('admin, scheduler')?'true':'false')
+    input#allowedEdit(type='hidden' value=checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id?'true':'false')
 
 block maincontent
     if new Date(event.end_time) < new Date()
@@ -40,79 +40,113 @@ block maincontent
                     .alert.alert-info
                         i.fa.fa-info-circle.me-2
                         | This event is in the past
+    if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id
+        .row.mb-2
+            .col.px-4.pt-1
+                if currentCampaign.schedule_user_id
+                    .container
+                        .alert.alert-info.py-2
+                            .row
+                                .col
+                                    if currentCampaign.schedule_user_id === activeUser.id
+                                        h5.my-1 You have scheduling reserved
+                                    else
+                                        h5.my-1 Scheduling is reserved by #{currentCampaign.schedule_user.name}
+
+                                if currentCampaign.schedule_user_id === activeUser.id || checkPermission('admin')
+                                    .col.text-end
+                                        button.btn.btn-sm.btn-danger#release-schedule-lock-btn(
+                                            role="button"
+                                            data-bs-toggle="tooltip"
+                                            title="Release lock on Scheduling"
+                                            data-csrf=csrfToken
+                                        )
+                                            i.fa.fa-lock-open.me-1
+                                            | Release Scheduling Lock
+
     .row.mb-2
         .col.px-4.pt-1
             if checkPermission('admin,scheduler')
-                button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
-                    role="button"
-                    data-bs-toggle='tooltip'
-                    title='Confirm all Scheduled Scenes'
-                )
-                    i.fa.fa-calendar-check.me-2
-                    | Confirm Schedule
-                button.btn.btn-sm.btn-outline-warning.me-2#scheduler-show-btn(
-                    type="button"
-                    title='Show/Hide Scheduler Actions'
-                    data-bs-toggle="collapse"
-                    data-bs-target=".schedulerButtons"
-                    aria-expanded="false"
-                    aria-controls="schedulerButtons"
-                )
-                    i.fa.fa-calendar.me-2
-                    span.expand-text.me-1 Show
-                    span.expand-text-shown.me-1 Hide
-                    span.me-2 Autoscheduler
+                if !currentCampaign.schedule_user_id
+                    button.btn.btn-sm.btn-outline-success.me-2#reserve-schedule-lock-btn(
+                        role="button"
+                        data-bs-toggle="tooltip"
+                        title="Reserve Scheduling Lock"
+                        data-csrf=csrfToken
+                    )
+                        i.fas.fa-lock.me-1
+                        | Reserve Scheduling Lock
+                if currentCampaign.schedule_user_id === activeUser.id
+                    button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
+                        role="button"
+                        data-bs-toggle='tooltip'
+                        title='Confirm all Scheduled Scenes'
+                    )
+                        i.fa.fa-calendar-check.me-1
+                        | Confirm Schedule
+                    button.btn.btn-sm.btn-outline-warning.me-2#scheduler-show-btn(
+                        type="button"
+                        title='Show/Hide Scheduler Actions'
+                        data-bs-toggle="collapse"
+                        data-bs-target=".schedulerButtons"
+                        aria-expanded="false"
+                        aria-controls="schedulerButtons"
+                    )
+                        i.fa.fa-calendar.me-1
+                        span.expand-text.me-1 Show
+                        span.expand-text-shown.me-1 Hide
+                        span.me-2 Autoscheduler
 
-                    i.fa.fa-angle-right.ms-2.expand-text
-                    i.fa.fa-angle-left.ms-2.expand-text-shown
+                        i.fa.fa-angle-right.ms-2.expand-text
+                        i.fa.fa-angle-left.ms-2.expand-text-shown
 
-                span.d-inline-block.text-nowrap.overflow-visible
-                    .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip")
-                        button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
-                            role="button"
-                            data-bs-toggle='tooltip'
-                            title='Clear all non-confirmed Scenes'
-                            data-url=`/event/${event.id}/scheduler/clear`
-                            data-csrf=csrfToken
-                        )
-                            i.fa.fa-calendar-times.me-2
-                            | Clear Unconfirmed
-
-                        .btn-group.me-2
-
-                            button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                    span.d-inline-block.text-nowrap.overflow-visible
+                        .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip")
+                            button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
                                 role="button"
                                 data-bs-toggle='tooltip'
-                                title='Run Autoscheduler for all non-confirmed Scenes, placing Required Users Only'
-                                data-url=`/event/${event.id}/scheduler`
-                                data-phase='required'
+                                title='Clear all non-confirmed Scenes'
+                                data-url=`/event/${event.id}/scheduler/clear`
                                 data-csrf=csrfToken
                             )
-                                .text-success
-                                    i.fa.fa-calendar-alt.me-2
-                                    | Required
-                            button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
-                                role="button"
-                                data-bs-toggle='tooltip'
-                                title='Run Autoscheduler for all non-confirmed Scenes, placing Required and Requested Users Only'
-                                data-url=`/event/${event.id}/scheduler`
-                                data-phase='requested'
-                                data-csrf=csrfToken
-                            )
-                                .text-info
-                                    i.fa.fa-calendar-alt.me-2
-                                    | Requested
-                            button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
-                                role="button"
-                                data-bs-toggle='tooltip'
-                                title='Run Autoscheduler for all non-confirmed Scenes, placing All Users'
-                                data-url=`/event/${event.id}/scheduler`
-                                data-phase='all'
-                                data-csrf=csrfToken
-                            )
-                                .text-dark
-                                    i.fa.fa-calendar-alt.me-2
-                                    | All
+                                i.fa.fa-calendar-times.me-1
+                                | Clear Unconfirmed
+
+                            .btn-group.me-2
+
+                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Run Autoscheduler for all non-confirmed Scenes, placing Required Users Only'
+                                    data-url=`/event/${event.id}/scheduler`
+                                    data-phase='required'
+                                    data-csrf=csrfToken
+                                )
+                                    .text-success
+                                        i.fa.fa-calendar-alt.me-1
+                                        | Required
+                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Run Autoscheduler for all non-confirmed Scenes, placing Required and Requested Users Only'
+                                    data-url=`/event/${event.id}/scheduler`
+                                    data-phase='requested'
+                                    data-csrf=csrfToken
+                                )
+                                    .text-info
+                                        i.fa.fa-calendar-alt.me-1
+                                        | Requested
+                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                    role="button"
+                                    data-bs-toggle='tooltip'
+                                    title='Run Autoscheduler for all non-confirmed Scenes, placing All Users'
+                                    data-url=`/event/${event.id}/scheduler`
+                                    data-phase='all'
+                                    data-csrf=csrfToken
+                                )
+                                    .text-dark
+                                        i.fa.fa-calendar-alt.me-1
+                                        | All
 
 
 
@@ -121,7 +155,7 @@ block maincontent
                 data-bs-toggle='tooltip'
                 title='Display all scheduling issues'
             )
-                i.fas.fa-tasks.me-2
+                i.fas.fa-tasks.me-1
                 | Issues
             if checkPermission('admin,scheduler')
                 a.btn.btn-sm.btn-outline-info.me-2.pt-1(

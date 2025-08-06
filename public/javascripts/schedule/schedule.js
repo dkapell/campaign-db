@@ -189,6 +189,8 @@ function updateSlotScenes($slot){
         let rows = xAxisType==='location'?timeslotCount:$('#cellsPerSlot').val();
         let cols = xAxisType==='location'?$('#cellsPerSlot').val():timeslotCount;
 
+        $(`.scene-placeholder[parent-id="${$scene.attr('id')}"]`).remove();
+
         if ($slot.attr('id') === 'unscheduled'){
             $scene.find('.scene-display').addClass('m-1');
 
@@ -209,6 +211,9 @@ function updateSlotScenes($slot){
                     maxRows = rows;
                 }
                 xCounter += Number(cols);
+
+
+
             } else {
                 gridX = $slot.data('pos-x') + xCounter;
                 if ((gridX + timeslotCount) > columnCount){
@@ -238,6 +243,31 @@ function updateSlotScenes($slot){
                     $scene.css('margin', 0);
                     gridX = $slot.data('pos-x') + idx*cols;
                 }
+                if ($scene.data('setup')){
+                    let setup_size = Number($scene.data('setup'));
+                    if (gridY - setup_size < 2) {
+                        setup_size = gridY - 2;
+                    }
+                    const $placeholder = makePlaceholder($scene, `Setup for ${$scene.data('scene-name')}`);
+
+                    $placeholder.appendTo($slot.parent());
+                    $placeholder
+                        .css('grid-row', `${gridY - setup_size} / span ${setup_size}`)
+                        .css('grid-column', `${gridX} / span ${cols}`);
+                }
+                if ($scene.data('cleanup')){
+                    let cleanup_size = Number($scene.data('cleanup'));
+                    const maxRows = $('#locationRows').val();
+                    if (gridY + cleanup_size > maxRows){
+                        cleanup_size = maxRows - gridY +1;
+                    }
+                    const $placeholder = makePlaceholder($scene, `Cleanup for ${$scene.data('scene-name')}`);
+
+                    $placeholder.appendTo($slot.parent());
+                    $placeholder
+                        .css('grid-row', `${gridY + 1} / span ${cleanup_size}`)
+                        .css('grid-column', `${gridX} / span ${cols}`);
+                }
             } else {
                 if ($children.length > $slot.data('children-count')){
 
@@ -256,6 +286,32 @@ function updateSlotScenes($slot){
                     gridY = $slot.data('pos-y') + idx*rows;
                 }
 
+                if ($scene.data('setup')){
+                    let setup_size = Number($scene.data('setup'));
+                    if (gridX - setup_size < 2) {
+                        setup_size = gridX - 2;
+                    }
+                    const $placeholder = makePlaceholder($scene, `Setup for ${$scene.data('scene-name')}`);
+
+                    $placeholder.appendTo($slot.parent());
+                    $placeholder
+                        .css('grid-row', `${gridY} / span ${rows}`)
+                        .css('grid-column', `${gridX - setup_size} / span ${setup_size}`);
+                }
+                if ($scene.data('cleanup')){
+                    let cleanup_size = Number($scene.data('cleanup'));
+                    const maxRows = $('#locationColumns').val();
+                    if (gridX + cleanup_size > maxRows){
+                        cleanup_size = maxRows - gridX +1;
+                    }
+                    const $placeholder = makePlaceholder($scene, `Cleanup for ${$scene.data('scene-name')}`);
+
+                    $placeholder.appendTo($slot.parent());
+                    $placeholder
+                        .css('grid-row', `${gridY} / span ${rows}`)
+                        .css('grid-column', `${gridX + 1} / span ${cleanup_size}`);
+                }
+
             }
         }
         $scene
@@ -265,6 +321,26 @@ function updateSlotScenes($slot){
 
         updateSceneStatus($scene);
     });
+}
+
+function makePlaceholder($parent, title){
+    const $placeholder = $('<div>')
+        .attr('parent-id', $parent.attr('id'))
+        .addClass('scene-placeholder')
+        .addClass('d-flex');
+
+    const $inner = $('<div>')
+        .addClass('m-1')
+        .addClass('p-1')
+        .addClass('bg-white')
+        .addClass('border')
+        .addClass('d-flex')
+        .addClass('flex-grow-1')
+        .addClass('align-items-center')
+        .addClass('justify-content-center');
+    const $title = $('<div>').addClass('d-flex').text(title).appendTo($inner);
+    $inner.appendTo($placeholder);
+    return $placeholder;
 }
 
 async function updateSceneDetails($scene){

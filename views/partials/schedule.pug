@@ -130,6 +130,8 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="true"
+            data-setup=scene.setup_slots
+            data-cleanup=scene.cleanup_slots
         )
             .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
                 if xAxisType !== 'location'

@@ -493,6 +493,92 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
     return stringify(output, {});
 }
 
+async function getSceneStatusCsv(campaignId:number){
+    let scenes = await models.scene.find({campaign_id:campaignId});
+    const events = await models.event.find({campaign_id:campaignId});
+    const futureEvents = events.filter(event => { return event.end_time > new Date(); });
+    scenes = scenes.filter(scene => {
+        if (!scene.event_id){ return true; }
+        if (_.findWhere(futureEvents, {id:scene.event_id} )){
+            return true;
+        }
+        return false;
+    });
+
+    const output = [];
+    const header = [
+        'Name',
+        'Event',
+        'Status',
+        'Writer',
+        'Runner',
+        'Tags',
+        'Timeslot(s)',
+        'Location(s)',
+        'Players',
+        'Staff'
+    ]
+    output.push(header);
+    for (const scene of scenes){
+        const row = [];
+        row.push(scene.name);
+
+        if (scene.event_id){
+            row.push(scene.event.name);
+        } else {
+            row.push(null);
+        }
+        row.push(scene.status);
+
+        if (scene.writer_id){
+            row.push(scene.writer.name);
+        } else {
+            row.push(null)
+        }
+
+        if (scene.runner_id){
+            row.push(scene.runner.name);
+        } else {
+            row.push(null)
+        }
+        row.push(_.pluck(scene.tags, 'name').join(', '));
+
+        const timeslots = [];
+        for (const timeslot of scene.timeslots){
+            if (timeslot.scene_schedule_status.match(/^(confirmed|suggested)$/)){
+                timeslots.push(timeslot.name);
+            }
+        }
+        row.push(timeslots.join(', '));
+
+        const locations = [];
+        for (const location of scene.locations){
+            if (location.scene_schedule_status.match(/^(confirmed|suggested)$/)){
+                locations.push(location.name);
+            }
+        }
+        row.push(locations.join(', '));
+
+        const players = [];
+        const staff = [];
+
+        for (const user of scene.users){
+            if (user.scene_schedule_status.match(/^(confirmed|suggested)$/)){
+                if (user.type === 'player'){
+                    players.push(user.name);
+                } else {
+                    staff.push(user.name);
+                }
+            }
+        }
+        row.push(players.join(', '));
+        row.push(staff.join(', '));
+
+        output.push(row);
+    }
+    return stringify(output, {});
+}
+
 async function checkScheduleConfigMatches(campaignId:number, schedule){
     for (const type of ['timeslot', 'location']){
         const current = await models[type].find({campaign_id:campaignId});
@@ -665,4 +751,5 @@ export default {
     getSchedule,
     removeScheduleScene,
     restoreSchedule,
+    getSceneStatusCsv,
 };

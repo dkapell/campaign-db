@@ -323,7 +323,7 @@ mixin sceneStatusBadge(status)
         when 'postponed'
             .badge.text-bg-danger.mx-1 Postponed
 
-mixin sceneTable(scenes)
+mixin sceneTable(scenes, exportable=false)
     .table-responsive
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
@@ -331,6 +331,8 @@ mixin sceneTable(scenes)
 
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.scene-table(
             style="display: none"
+            class=exportable?'table-exportable':''
+            data-export='/scene?export=true'
             )
             thead
                 tr

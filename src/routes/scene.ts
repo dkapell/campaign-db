@@ -15,6 +15,11 @@ async function list(req, res, next){
         current: 'Scenes'
     };
     try {
+        if (req.query.export){
+            const csvOutput = await scheduleHelper.getSceneStatusCsv(req.campaign.id);
+            res.attachment(`${req.campaign.name} - Scene Status.csv`);
+            return res.end(csvOutput);
+        }
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Scenes';
         res.render('scene/list', { pageTitle: 'Scenes' });

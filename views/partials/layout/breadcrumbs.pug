@@ -1,9 +1,10 @@
-.row.mb-2
-    .col
-        div(class=`${wideMain?'container-fluid':'container'}` role="breadcrumbs")
-            nav(aria-label='breadcrumb')
-                ol.breadcrumb.my-0.py-2
-                    for breadcrumb in breadcrumbs.path
-                        li.breadcrumb-item
-                            a(href=breadcrumb.url)= breadcrumb.name
-                    li.breadcrumb-item.active(aria-current="page")= breadcrumbs.current
+.container-fluid
+    .row.mb-2
+        .col
+            div(class=`${wideMain?'container-fluid':'container'}` role="breadcrumbs")
+                nav(aria-label='breadcrumb')
+                    ol.breadcrumb.my-0.py-2
+                        for breadcrumb in breadcrumbs.path
+                            li.breadcrumb-item
+                                a(href=breadcrumb.url)= breadcrumb.name
+                        li.breadcrumb-item.active(aria-current="page")= breadcrumbs.current

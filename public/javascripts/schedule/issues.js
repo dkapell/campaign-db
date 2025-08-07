@@ -11,6 +11,7 @@ async function showIssuesBtn(e){
     $(this).addClass('active');
     if ($('#bottom-panel').attr('type') === 'issues' &&
         $('#detail-container').hasClass('show')){
+        $(this).removeClass('active');
         closeDetailPanel();
         return;
     }

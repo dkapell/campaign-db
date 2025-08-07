@@ -1,5 +1,49 @@
+* {
+   box-sizing: border-box;
+  }
+
+
 .y-header, .scene-item, .user-item, .busy-item, .scene-placeholder{
   font-size: 0.77rem;
+}
+
+.x-header{
+  grid-area: xheader;
+  position:sticky;
+  top:0;
+  z-index: 50;
+}
+.user-header{
+  grid-area: userheader;
+  position: sticky;
+  top:0;
+  right:0;
+  z-index: 60;
+}
+
+.y-header{
+  grid-area: yheader;
+  position: sticky;
+  left:0;
+  z-index: 50;
+}
+.users-x{
+  grid-area: users;
+  position:sticky;
+  right:0;
+  z-index: 50;
+}
+
+.schedule-legend{
+  grid-area: legend;
+  position: sticky;
+  left:5px;
+
+}
+.unscheduled{
+  grid-area: unscheduled;
+  position: sticky;
+  left:5px;
 }
 
 #unscheduled{

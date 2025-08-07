@@ -28,6 +28,7 @@ async function closeDetailPanel(){
         $('#top-panel')
             .removeClass('d-none')
             .addClass('d-flex')
+
             .animate({height:'100%'}, 200);
 
         $('#detail-container')

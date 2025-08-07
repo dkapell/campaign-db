@@ -2,25 +2,26 @@ doctype html
 html(lang="en").vh-100
     include ./partials/layout/head
 
-    body.h-100.overflow-x-hidden
-        .d-flex.flex-column.vh-100.overflow-y-auto
+    body.h-100
+        .d-flex.flex-column
             nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
                 include ./partials/layout/menu
-            .flex-grow-1.pt-3#main-content
+            .flex-grow-1#main-content
 
                 if wideMain
-                    main.container-fluid.h-100.px-0(role="main")
-                        include ./partials/layout/breadcrumbs
-                        include ./partials/layout/messages
+                    main.container-fluid.px-0.mx-0(role="main")
+                        if !headerOnPage
+                            include ./partials/layout/breadcrumbs
+                            include ./partials/layout/messages
                         block content
 
                 else if fullHeightMain
-                    main.container.h-100.px-0(role="main")
+                    main.container.h-100.px-0.mx-0.position-relative(role="main")
                         include ./partials/layout/breadcrumbs
                         include ./partials/layout/messages
                         block content
                 else
-                    main.container.overflow-hidden.h-100.px-0(role="main")
+                    main.container.overflow-hidden.h-100.px-0.mx-0.position-relative(role="main")
                         include ./partials/layout/breadcrumbs
                         include ./partials/layout/messages
                         block content

@@ -10,6 +10,7 @@ block intro
         let cellsPerSlot = 6;
         let maxScenesPerSlot = 3;
         let rowHeight = 50;
+        const unscheduledColumns = 5;
         if (currentCampaign.schedule_y_location){
             xAxis = timeslots;
             yAxis = locations;
@@ -21,16 +22,17 @@ block intro
         const rows = yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) + (xAxisType!=='location'?2:1);
         const showDayTime = (_.where(timeslots, {nighttime:true})).length;
         const showOutdoors = (_.where(locations, {outdoors:true})).length;
-
-    input#cellsPerSlot(type='hidden' value=cellsPerSlot)
-    input#xAxisType(type='hidden' value=xAxisType)
-    input#locationColumns(type='hidden' value=xAxis.length*(xAxisType==='location'?cellsPerSlot:1) )
-    input#locationRows(type='hidden' value=yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) )
-    input#eventId(type='hidden' value=event.id)
-    input#scheduleType(type='hidden' value='edit')
-    input#csrfToken(type='hidden' value=csrfToken)
-    input#userType(type='hidden' value='staff')
-    input#allowedEdit(type='hidden' value=checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id?'true':'false')
+    #inputs
+        input#cellsPerSlot(type='hidden' value=cellsPerSlot)
+        input#xAxisType(type='hidden' value=xAxisType)
+        input#locationColumns(type='hidden' value=xAxis.length*(xAxisType==='location'?cellsPerSlot:1) )
+        input#locationRows(type='hidden' value=yAxis.length*(xAxisType!=='location'?cellsPerSlot:1) )
+        input#eventId(type='hidden' value=event.id)
+        input#scheduleType(type='hidden' value='edit')
+        input#csrfToken(type='hidden' value=csrfToken)
+        input#userType(type='hidden' value='staff')
+        input#allowedEdit(type='hidden' value=checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id?'true':'false')
+        input#unscheduledCols(type='hidden' value=unscheduledColumns*(xAxisType==='location'?cellsPerSlot:1))
 
 block maincontent
     if new Date(event.end_time) < new Date()
@@ -40,223 +42,267 @@ block maincontent
                     .alert.alert-info
                         i.fa.fa-info-circle.me-2
                         | This event is in the past
+
     if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id
-        .row.mb-2
-            .col.px-4.pt-1
-                if currentCampaign.schedule_user_id
-                    .container
-                        .alert.alert-info.py-2
-                            .row
-                                .col
-                                    if currentCampaign.schedule_user_id === activeUser.id
-                                        h5.my-1 You have scheduling reserved
-                                    else
-                                        h5.my-1 Scheduling is reserved by #{currentCampaign.schedule_user.name}
+        .container
+            .alert.alert-info.py-2
+                .row
+                    .col
+                        if currentCampaign.schedule_user_id === activeUser.id
+                            h5.my-1 You have scheduling reserved
+                        else
+                            h5.my-1 Scheduling is reserved by #{currentCampaign.schedule_user.name}
 
-                                if currentCampaign.schedule_user_id === activeUser.id || checkPermission('admin')
-                                    .col.text-end
-                                        button.btn.btn-sm.btn-danger#release-schedule-lock-btn(
-                                            role="button"
-                                            data-bs-toggle="tooltip"
-                                            title="Release lock on Scheduling"
-                                            data-csrf=csrfToken
-                                        )
-                                            i.fa.fa-lock-open.me-1
-                                            | Release Scheduling Lock
-
-    .row.mb-2
-        .col.px-4.pt-1
-            if checkPermission('admin,scheduler')
-                if !currentCampaign.schedule_user_id
-                    button.btn.btn-sm.btn-outline-success.me-2#reserve-schedule-lock-btn(
-                        role="button"
-                        data-bs-toggle="tooltip"
-                        title="Reserve Scheduling Lock"
-                        data-csrf=csrfToken
-                    )
-                        i.fas.fa-lock.me-1
-                        | Reserve Scheduling Lock
-                if currentCampaign.schedule_user_id === activeUser.id
-                    button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
-                        role="button"
-                        data-bs-toggle='tooltip'
-                        title='Confirm all Scheduled Scenes'
-                    )
-                        i.fa.fa-calendar-check.me-1
-                        | Confirm Schedule
-                    button.btn.btn-sm.btn-outline-warning.me-2#scheduler-show-btn(
-                        type="button"
-                        title='Show/Hide Scheduler Actions'
-                        data-bs-toggle="collapse"
-                        data-bs-target=".schedulerButtons"
-                        aria-expanded="false"
-                        aria-controls="schedulerButtons"
-                    )
-                        i.fa.fa-calendar.me-1
-                        span.expand-text.me-1 Show
-                        span.expand-text-shown.me-1 Hide
-                        span.me-2 Autoscheduler
-
-                        i.fa.fa-angle-right.ms-2.expand-text
-                        i.fa.fa-angle-left.ms-2.expand-text-shown
-
-                    span.d-inline-block.text-nowrap.overflow-visible
-                        .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip")
-                            button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
+                    if currentCampaign.schedule_user_id === activeUser.id || checkPermission('admin')
+                        .col.text-end
+                            button.btn.btn-sm.btn-danger#release-schedule-lock-btn(
                                 role="button"
-                                data-bs-toggle='tooltip'
-                                title='Clear all non-confirmed Scenes'
-                                data-url=`/event/${event.id}/scheduler/clear`
+                                data-bs-toggle="tooltip"
+                                title="Release lock on Scheduling"
                                 data-csrf=csrfToken
                             )
-                                i.fa.fa-calendar-times.me-1
-                                | Clear Unconfirmed
+                                i.fa.fa-lock-open.me-1
+                                | Release Scheduling Lock
 
-                            .btn-group.me-2
+    .container-fluid.h-100#main-frame.position-sticky(style="top:0")
+        .row.mb-2
+            .col.px-4.pt-1
+                if checkPermission('admin,scheduler')
+                    if !currentCampaign.schedule_user_id
+                        button.btn.btn-sm.btn-outline-success.me-2#reserve-schedule-lock-btn(
+                            role="button"
+                            data-bs-toggle="tooltip"
+                            title="Reserve Scheduling Lock"
+                            data-csrf=csrfToken
+                        )
+                            i.fas.fa-lock.me-1
+                            | Reserve Scheduling Lock
+                    if currentCampaign.schedule_user_id === activeUser.id
+                        button.btn.btn-sm.btn-outline-success.me-2#confirm-schedule-btn(
+                            role="button"
+                            data-bs-toggle='tooltip'
+                            title='Confirm all Scheduled Scenes'
+                        )
+                            i.fa.fa-calendar-check.me-1
+                            | Confirm Schedule
+                        button.btn.btn-sm.btn-outline-warning.me-2#scheduler-show-btn(
+                            type="button"
+                            title='Show/Hide Scheduler Actions'
+                            data-bs-toggle="collapse"
+                            data-bs-target=".schedulerButtons"
+                            aria-expanded="false"
+                            aria-controls="schedulerButtons"
+                        )
+                            i.fa.fa-calendar.me-1
+                            span.expand-text.me-1 Show
+                            span.expand-text-shown.me-1 Hide
+                            span.me-2 Autoscheduler
 
-                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                            i.fa.fa-angle-right.ms-2.expand-text
+                            i.fa.fa-angle-left.ms-2.expand-text-shown
+
+                        span.d-inline-block.text-nowrap.overflow-visible
+                            .collapse.collapse-horizontal.schedulerButtons.py-0(style="overflow:clip")
+                                button.btn.btn-sm.btn-outline-warning.me-2#clear-schedule-btn.text-nowrap(
                                     role="button"
                                     data-bs-toggle='tooltip'
-                                    title='Run Autoscheduler for all non-confirmed Scenes, placing Required Users Only'
-                                    data-url=`/event/${event.id}/scheduler`
-                                    data-phase='required'
+                                    title='Clear all non-confirmed Scenes'
+                                    data-url=`/event/${event.id}/scheduler/clear`
                                     data-csrf=csrfToken
                                 )
-                                    .text-success
-                                        i.fa.fa-calendar-alt.me-1
-                                        | Required
-                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
-                                    role="button"
-                                    data-bs-toggle='tooltip'
-                                    title='Run Autoscheduler for all non-confirmed Scenes, placing Required and Requested Users Only'
-                                    data-url=`/event/${event.id}/scheduler`
-                                    data-phase='requested'
-                                    data-csrf=csrfToken
-                                )
-                                    .text-info
-                                        i.fa.fa-calendar-alt.me-1
-                                        | Requested
-                                button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
-                                    role="button"
-                                    data-bs-toggle='tooltip'
-                                    title='Run Autoscheduler for all non-confirmed Scenes, placing All Users'
-                                    data-url=`/event/${event.id}/scheduler`
-                                    data-phase='all'
-                                    data-csrf=csrfToken
-                                )
-                                    .text-dark
-                                        i.fa.fa-calendar-alt.me-1
-                                        | All
+                                    i.fa.fa-calendar-times.me-1
+                                    | Clear Unconfirmed
+
+                                .btn-group.me-2
+
+                                    button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                        role="button"
+                                        data-bs-toggle='tooltip'
+                                        title='Run Autoscheduler for all non-confirmed Scenes, placing Required Users Only'
+                                        data-url=`/event/${event.id}/scheduler`
+                                        data-phase='required'
+                                        data-csrf=csrfToken
+                                    )
+                                        .text-success
+                                            i.fa.fa-calendar-alt.me-1
+                                            | Required
+                                    button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                        role="button"
+                                        data-bs-toggle='tooltip'
+                                        title='Run Autoscheduler for all non-confirmed Scenes, placing Required and Requested Users Only'
+                                        data-url=`/event/${event.id}/scheduler`
+                                        data-phase='requested'
+                                        data-csrf=csrfToken
+                                    )
+                                        .text-info
+                                            i.fa.fa-calendar-alt.me-1
+                                            | Requested
+                                    button.btn.btn-sm.btn-outline-warning.run-scheduler-btn.text-nowrap(
+                                        role="button"
+                                        data-bs-toggle='tooltip'
+                                        title='Run Autoscheduler for all non-confirmed Scenes, placing All Users'
+                                        data-url=`/event/${event.id}/scheduler`
+                                        data-phase='all'
+                                        data-csrf=csrfToken
+                                    )
+                                        .text-dark
+                                            i.fa.fa-calendar-alt.me-1
+                                            | All
 
 
 
-            button.btn.btn-sm.btn-outline-info.me-2#show-issues-btn.pt-1(
-                role="button"
-                data-bs-toggle='tooltip'
-                title='Display all scheduling issues'
-            )
-                i.fas.fa-tasks.me-1
-                | Issues
-            if checkPermission('admin,scheduler')
-                a.btn.btn-sm.btn-outline-info.me-2.pt-1(
-                    href=`/event/${event.id}/schedules`
+                button.btn.btn-sm.btn-outline-info.me-2#show-issues-btn.pt-1(
+                    role="button"
                     data-bs-toggle='tooltip'
-                    title='Manage Snapshots'
+                    title='Display all scheduling issues'
                 )
-                    i.fas.fa-history
-            button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn.pt-1(
-                role="button"
-                data-bs-toggle='tooltip'
-                title='Close all Scene Details'
-            )
-                i.fas.fa-eye-slash
-            .badge.text-bg-warning.fs-6.rounded-pill.ms-3#validatingIndicator Validating
+                    i.fas.fa-tasks.me-1
+                    | Issues
+                if checkPermission('admin,scheduler')
+                    a.btn.btn-sm.btn-outline-info.me-2.pt-1(
+                        href=`/event/${event.id}/schedules`
+                        data-bs-toggle='tooltip'
+                        title='Manage Snapshots'
+                    )
+                        i.fas.fa-history
+                button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn.pt-1(
+                    role="button"
+                    data-bs-toggle='tooltip'
+                    title='Close all Scene Details'
+                )
+                    i.fas.fa-eye-slash
+                .badge.text-bg-warning.fs-6.rounded-pill.ms-3#validatingIndicator Validating
 
-        .col-md-auto.pe-3
-            select.form-select.complex-select2#schedule-user-picker(
-                data-allow-clear="true"
-                data-placeholder='Filter by Attendee'
-            )
-                option
-                for attendance in event.attendees
-                    if attendance.attending
-                        - const type = capitalize(attendance.user.typeForDisplay)
-                        option(
-                            value=attendance.user.id
-                            title=attendance.user.name
-                            data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                            data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                        ) #{capitalize(attendance.user.name)} (#{type})
+            .col-md-auto.pe-3.pt-1
+                select.form-select.form-select-sm.complex-select2#schedule-user-picker(
+                    data-allow-clear="true"
+                    data-placeholder='Filter by Attendee'
+                )
+                    option
+                    for attendance in event.attendees
+                        if attendance.attending
+                            - const type = capitalize(attendance.user.typeForDisplay)
+                            option(
+                                value=attendance.user.id
+                                title=attendance.user.name
+                                data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                            ) #{capitalize(attendance.user.name)} (#{type})
+            -
+                const tags = [];
+                for (const scene of scenes){
+                    for (const tag of scene.tags){
+                        tags.push(tag.name);
+                    }
+                }
+            if tags.length
+                .col-md-auto.me-3.pt-1
+                    select.form-select.form-select-sm.complex-select2#schedule-tag-picker(
+                            data-placeholder='Filter by Tag'
+                        )
+                            option
+                            option(
+                                value="-1"
+                                data-text='<i>All</i>'
+                                data-html='<i>All</i>'
+                            ) All
+                            for tag in _.uniq(tags.sort())
+                                option(
+                                    title=tag
+                                    data-text=`<span class="badge text-bg-info">${tag}</span>`
+                                    data-html=`<span class="badge text-bg-info">${tag}</span>`
+                                    value=tag
+                                )= tag
+
+
+        .container.my-0
+            .row.my-0
+                .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
+                    i.fas.fa-info.me-2
+
+                    span.alert-text
+
+                    #schedulerProgress.progress-stacked.my-2.d-none
+                        #schedulerProgressBarDone.progress(role='progressbar' area-label='Complete' aria-valuenow="0", aria-valuemin="0" aria-valuemax="100" style="width: 0%")
+                            .progress-bar
+                        #schedulerProgressBarInProcess.progress(role='progressbar' area-label='In Progress' aria-valuenow="0", aria-valuemin="0" aria-valuemax="100" style="width: 0%")
+                            .progress-bar.bg-warning
+                    button.btn-close(type="button" aria-label="Close")
+
+            .row.my-0
+                .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
+                    i.fa.fa-exclamation-triangle.me-2
+
+                    span.alert-text
+                    button.btn-close(type="button" aria-label="Close")
+
+
+
         -
-            const tags = [];
-            for (const scene of scenes){
-                for (const tag of scene.tags){
-                    tags.push(tag.name);
+            const gridTemplateAreas = [];
+            const bodyColumns = xAxis.length*(xAxisType==='location'?cellsPerSlot:1)
+            const bodyRows = yAxis.length*(xAxisType!=='location'?cellsPerSlot:1)
+            const header = ['.'];
+            for (let i = 0; i < bodyColumns; i++){
+                header.push('xheader');
+            }
+            header.push('userheader');
+            gridTemplateAreas.push(header.join(' '));
+
+            for (let i = 0; i < bodyRows; i++){
+                const row = ['yheader'];
+                for (let j = 0; j < bodyColumns; j++){
+                    row.push('body');
+                }
+                row.push('user');
+                gridTemplateAreas.push(row.join(' '));
+            }
+
+            const legend = ['legendheader'];
+            for (let i = 0; i < bodyColumns; i++){
+                if (i < 5 * cellsPerSlot){
+                    legend.push('legend');
+                } else {
+                    legend.push('.');
                 }
             }
-        if tags.length
-            .col-md-auto.pe-3
-                select.form-select.complex-select2#schedule-tag-picker(
-                        data-placeholder='Filter by Tag'
-                    )
-                        option
-                        option(
-                            value="-1"
-                            data-text='<i>All</i>'
-                            data-html='<i>All</i>'
-                        ) All
-                        for tag in _.uniq(tags.sort())
-                            option(
-                                title=tag
-                                data-text=`<span class="badge text-bg-info">${tag}</span>`
-                                data-html=`<span class="badge text-bg-info">${tag}</span>`
-                                value=tag
-                            )= tag
-
-
-    .container.my-0
-        .row.my-0
-            .col.my-2.alert.alert-success.alert-dismissible#schedule-success(style='display:none')
-                i.fas.fa-info.me-2
-
-                span.alert-text
-
-                #schedulerProgress.progress-stacked.my-2.d-none
-                    #schedulerProgressBarDone.progress(role='progressbar' area-label='Complete' aria-valuenow="0", aria-valuemin="0" aria-valuemax="100" style="width: 0%")
-                        .progress-bar
-                    #schedulerProgressBarInProcess.progress(role='progressbar' area-label='In Progress' aria-valuenow="0", aria-valuemin="0" aria-valuemax="100" style="width: 0%")
-                        .progress-bar.bg-warning
-                button.btn-close(type="button" aria-label="Close")
-
-        .row.my-0
-            .col.my-2.alert.alert-warning.alert-dismissible#schedule-alert(style='display:none')
-                i.fa.fa-exclamation-triangle.me-2
-
-                span.alert-text
-                button.btn-close(type="button" aria-label="Close")
-
-
-
-
-    .row.my-2
-        #schedule-container-grid.d-grid.col.overflow-y-scroll(
-            style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
+            legend.push('.')
+            gridTemplateAreas.push(legend.join(' '));
+            const unscheduled = ['.']
+            for (let i = 0; i < bodyColumns; i++){
+                if (i < unscheduledColumns * cellsPerSlot){
+                    unscheduled.push('unscheduled');
+                } else {
+                    unscheduled.push('.')
+                }
+            }
+            unscheduled.push('.')
+            gridTemplateAreas.push(unscheduled.join(' '));
+            let gridTemplateAreaText = '';
+            for (const row of gridTemplateAreas){
+                gridTemplateAreaText += `"${row}" `
+            }
+        #schedule-container-grid.d-grid.col.overflow-y-auto.mx-0.px-0.pb-2(
+            style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto); grid-template-areas: ${gridTemplateAreaText}; height:95%;`
         )
+            div.bg-white.x-header.top-left.position-sticky(
+                style=`grid-row: 1; grid-column: 1; left:0; top:0; z-index:60`
+            )
 
             each xItem, idx in xAxis
                 -
                     const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
                 if xAxisType === 'location'
-                    div.location-header.text-center.align-bottom.mb-1.schedule-cell(
+                    div.location-header.text-center.align-bottom.pb-1.x-header.schedule-cell.bg-white.border-start.border-bottom(
                         id=`location-${xItem.id}-header`
                         data-location-id=xItem.id
-                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
+                        style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px;`
                     )
                         +locationName(xItem, showOutdoors)
                         div.text-start.px-2
                             +locationTags(xItem)
                 else
-                    div.timeslot-header.text-center.align-bottom.mb-1.schedule-cell(
+                    div.timeslot-header.text-center.align-bottom.pb-1.x-header.schedule-cell.border-start.border-bottom(
                         id=`timeslot-${xItem.id}-header`
                         data-timeslot-id=xItem.id
                         style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
@@ -266,7 +312,7 @@ block maincontent
                             +timeslotName(xItem, false, 'unscheduled', showDayTime)
 
             if xAxisType === 'location'
-                div.users-header.text-center(
+                div.users-header.text-center.bg-white.user-header.border-start.pb-1.border-bottom(
                     style=`grid-row: 1; grid-column: -2`)
                     strong Users
 
@@ -274,7 +320,7 @@ block maincontent
                 -
                     const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
                 if xAxisType === 'location'
-                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap(
+                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap.bg-white.border-top(
                         id=`timeslot-${yItem.id}-header`
                         data-timeslot-id=yItem.id
                         style=`grid-row:${posY}; grid-column: 1`
@@ -282,7 +328,7 @@ block maincontent
                         span.flex-fill.text-center
                             +timeslotName(yItem, false, 'unscheduled', showDayTime)
                 else
-                    div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap(
+                    div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap.bg-white.border-top(
                         id=`location-${yItem.id}-header`
                         data-location-id=yItem.id
                         style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1; min-width:180px`
@@ -315,7 +361,7 @@ block maincontent
                         span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
                 if xAxisType === 'location'
-                    div.users-cell.align-items-center.d-flex.text-center.px-1(
+                    div.users-cell.align-items-center.d-flex.text-center.ps-1.pe-2.bg-white.users-x.border-top.border-start(
                         style=`grid-row: ${row+2}; grid-column: -2`
                         data-timeslot-id=yItem.id
                     )
@@ -326,36 +372,37 @@ block maincontent
                 each xItem, idx in xAxis
                     -
                         const posXstart = (idx) + 2;
-                    div.users-cell.align-items-center.d-flex.text-center.px-1.border-start.border-end.justify-content-center(
+                    div.users-cell.align-items-center.d-flex.text-center.px-2.border-start.border-end.justify-content-center(
                         style=`grid-row: ${rows} / span ${cellsPerSlot}; grid-column: ${posXstart}`
                         data-timeslot-id=xItem.id
                     )
                         +timeslotButtons(xItem)
 
-            div(style=`grid-row: ${rows + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
-                #schedule-legend.my-2.d-grid(
+            div.schedule-legend.my-2(style=`grid-row: ${rows + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${5*cellsPerSlot}`)
+
+                #schedule-legend.d-grid(
                     style=`grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto);`
                 )
-                        .bg-warning-subtle.px-2.py-1.border Weak Match
-                            div.ms-2
-                                span Location
-                                strong.mx-1 AND
-                                span Timeslot Requested
-                        .bg-info-subtle.px-2.py-1.border Strong Match
-                            div.ms-2
-                                span Location
-                                strong.mx-1 OR
-                                span Timeslot Required
-                        .bg-success-subtle.px-2.py-1.border Suggested
-                            div.ms-2
-                                span Location
-                                strong.mx-1 AND
-                                span Timeslot Required
-                        .bg-danger-subtle.px-2.py-1.border Rejected
-                            div.ms-2
-                                span Location
-                                strong.mx-1 OR
-                                span Timeslot Rejected
+                    .bg-warning-subtle.px-2.py-1.border Weak Match
+                        div.ms-2
+                            span Location
+                            strong.mx-1 AND
+                            span Timeslot Requested
+                    .bg-info-subtle.px-2.py-1.border Strong Match
+                        div.ms-2
+                            span Location
+                            strong.mx-1 OR
+                            span Timeslot Required
+                    .bg-success-subtle.px-2.py-1.border Suggested
+                        div.ms-2
+                            span Location
+                            strong.mx-1 AND
+                            span Timeslot Required
+                    .bg-danger-subtle.px-2.py-1.border Rejected
+                        div.ms-2
+                            span Location
+                            strong.mx-1 OR
+                            span Timeslot Rejected
 
             -
                 const maxHeight = _.max(scenes, scene => {
@@ -363,14 +410,15 @@ block maincontent
                     return 0;
                 });
 
-            div( style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}`)
+            div.unscheduled.mb-2.bg-white(
+                 style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${unscheduledColumns*(xAxisType==='location'?cellsPerSlot:1)}; z-index:40`)
 
                 #unscheduled.schedule-cell.schedule-slot.border(
                     data-location-id='none'
                     data-timeslot-id='none'
                     data-pos-x=1
                     data-pos-y=2
-                    style=`grid-template-columns: repeat(${xAxis.length*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: minmax(${rowHeight}px, auto); min-height: ${rowHeight}px`
+                    style=`grid-template-columns: repeat(${unscheduledColumns*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: minmax(${rowHeight}px, auto); min-height: ${rowHeight}px`
                 )
                     div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 10')
                         span.float-start.text-dark(style='z-index:0') Unscheduled Scenes
@@ -378,7 +426,7 @@ block maincontent
             each scene in scenes
                 +sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
-
+append styles
     link(rel='stylesheet' href='/stylesheets/schedule.css')
 append scripts
     script(src='https://cdn.jsdelivr.net/npm/async@3.2.6/dist/async.min.js')

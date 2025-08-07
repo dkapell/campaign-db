@@ -194,7 +194,7 @@ function updateSlotScenes($slot){
         if ($slot.attr('id') === 'unscheduled'){
             $scene.find('.scene-display').addClass('m-1');
 
-            const columnCount = $('#locationColumns').val();
+            const columnCount = Number($('#unscheduledCols').val());
             $scene.appendTo($slot);
 
             if (xAxisType === 'location'){
@@ -548,7 +548,7 @@ function showError(message){
     $('#schedule-alert').addClass('show');
     const $container= $('#top-panel');
     $container.animate({
-        scrollTop:  $container.scrollTop() + ($('#schedule-alert').position().top - $container.position().top)
+        scrollTop:  $container.scrollTop() + ($('#schedule-alert').position().top - $container.position().top) - 72
     }, 100);
 }
 
@@ -565,7 +565,7 @@ function showSuccess(message){
     $('#schedule-success').addClass('show');
     const $container= $('#top-panel');
     $container.animate({
-        scrollTop:  $container.scrollTop() + ($('#schedule-success').position().top - $container.position().top)
+        scrollTop:  $container.scrollTop() + ($('#schedule-success').position().top - $container.position().top - 72)
     }, 100);
 }
 
@@ -577,7 +577,7 @@ function scrollToSlot(timeslotId, locationId){
     if ($($cell).length){
         const $container = $('#top-panel');
         $container.animate({
-            scrollTop:  $container.scrollTop() + ($cell.position().top - $container.position().top) - 0,
+            scrollTop:  $container.scrollTop() + ($cell.position().top - $container.position().top) - 72,
             scrollLeft:  $container.scrollLeft() + ($cell.position().left - $container.position().left) - 240
         }, 100);
     }
@@ -592,7 +592,7 @@ function scrollToTimeslot(timeslotId){
         const $container= $('#top-panel');
         if ($('xAxisType' === 'location')){
             $container.animate({
-                scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - 50
+                scrollTop:  $container.scrollTop() + ($header.position().top - $container.position().top) - (50+72)
 
             }, 100);
         } else {

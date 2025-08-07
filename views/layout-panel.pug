@@ -4,10 +4,13 @@ block content
 
     block intro
 
-    .d-flex.flex-column.h-100.p-0
-        .screen-container.d-flex.flex-column#top-panel.px-2.mb-4(
+    .d-flex.flex-column.p-0(style='height: 100dvh;')
+        .screen-container.d-flex.flex-column.px-0.pb-4#top-panel(
             min-size=30
+
         )
+            include ./partials/layout/breadcrumbs
+            include ./partials/layout/messages
             block maincontent
 
         .content-resizer.d-none.position-absolute.bottom-0.w-100#detail-container(
@@ -58,15 +61,15 @@ block content
                     .d-block
                         div(data-bs-theme="dark")
                             button.float-end.btn-close.resizer-close(area-label="close" type="button")
-                        .row.py-2
+                        .row.py-2.mx-0
                             .col
                                 h5.offcanvas-title.title
-                        .row.panel-loading
+                        .row.panel-loading.mx-0
                             .col
                                 .text-center.my-1
                                     .spinner-border.m-auto(role="status" style="width: 2rem; height: 2rem;")
                                         .visually-hidden Loading
-                        .row.pb-2
+                        .row.pb-2.mx-0
                             .col
                                 .content(style='display:none')
 

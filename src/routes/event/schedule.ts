@@ -47,6 +47,7 @@ async function showScheduler(req, res, next){
             current: 'Scheduler'
         };
         res.locals.wideMain = true;
+        res.locals.headerOnPage = true;
         res.locals.title += ` ${event.name} - Scheduler`;
         res.render('event/scheduler');
 
@@ -94,6 +95,7 @@ async function showSchedule(req, res, next){
             current: 'Schedule'
         };
         res.locals.wideMain = true;
+        res.locals.headerOnPage = true;
         res.locals.title += ` ${event.name} - Schedule`;
         res.render('event/schedule');
 

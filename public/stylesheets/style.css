@@ -1,7 +1,4 @@
 html: {height: 100% }
-body {
-  font-size: .9rem;
-}
 
 body, html {
     margin: 0;
@@ -9,6 +6,15 @@ body, html {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+}
+
+body {
+  font-size: .9rem;
+  padding-top:72px;
+}
+
+#main-content{
+  height: 100dvh;
 }
 
 * {

@@ -216,10 +216,10 @@ function updateSlotScenes($slot){
 
             } else {
                 gridX = $slot.data('pos-x') + xCounter;
-                if ((gridX + timeslotCount) > columnCount){
+                if ((gridX + timeslotCount) > columnCount+1){
                     gridX = $slot.data('pos-x');
                     xCounter = 0;
-                    gridY++;
+                    gridY+=Number($('#cellsPerSlot').val());
                 }
                 xCounter += timeslotCount;
             }

@@ -26,6 +26,10 @@ $(function(){
 
     $('#reserve-schedule-lock-btn').confirmation({}).on('click', reserveSchedulerLockBtn);
     $('#release-schedule-lock-btn').confirmation({}).on('click', releaseSchedulerLockBtn);
+    setTimeout( () => {
+        $('.unscheduled').css('left', $('#topleft').width());
+        $('.schedule-legend').css('left', $('#topleft').width());
+    }, 100);
 
 });
 

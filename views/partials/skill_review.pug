@@ -16,16 +16,19 @@ mixin reviewSkillDoc(skill, showActions)
     li.media.py-3.ps-3(class=!showActions?'border-bottom':'')
         .media-body
             .row.mt-0
-                h3.h5
-                    a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=review` data-bs-toggle='tooltip' title='Edit Skill')
-                        if skill.name==='TBD'
-                            i.skill-name Unnamed Skill
-                            if (skill.cost)
-                                span.skill-cost.ms-2 (#{skill.cost} cp)
-                        else
-                            span.skill-name= skill.name
-                            if (skill.cost)
+                .col
+                    h3.h5.d-inline
+                        span.badge.float-end(class=`bg-${skill.status.class?skill.status.class:'info'}`)= skill.status.name
+                        a.text-reset.skill-name(href=`/skill/${skill.id}/edit?backto=review` data-bs-toggle='tooltip' title='Edit Skill')
+                            if skill.name==='TBD'
+                                i.skill-name Unnamed Skill
+                                if (skill.cost)
                                     span.skill-cost.ms-2 (#{skill.cost} cp)
+                            else
+                                span.skill-name= skill.name
+                                if (skill.cost)
+                                        span.skill-cost.ms-2 (#{skill.cost} cp)
+
 
             .skill-source.my-1
                 strong= skill.source.name

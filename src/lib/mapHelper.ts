@@ -16,11 +16,12 @@ function timeout(ms) {
 async function build(mapId:number): Promise<void> {
     let map = await models.map.get(mapId);
     const s3Stream = uploadHelper.getStream(map.image.upload);
-    await buildTiles(map, s3Stream);
+    const uploads = {};
+    await buildTiles(map, s3Stream, uploads);
     await async.until(
-        async ()=> {return !uploadHelper.uploadCount;},
+        async ()=> {return !(_.keys(uploads)).length;},
         async ()=> {
-            await timeout(2000);
+            await timeout(200);
         }
     );
     map = await models.map.get(mapId);
@@ -46,7 +47,7 @@ async function countPCVisible(campaignId: number): Promise<number> {
     return models.map.count({campaign_id:campaignId, display_to_pc:true});
 };
 
-function buildTiles(map, inStream){
+function buildTiles(map, inStream, uploads){
     const tileifier = sharp().tile({
         size: 512,
         basename: 'tile'
@@ -60,9 +61,10 @@ function buildTiles(map, inStream){
             parseStream.pause();
             //await limiter.removeTokens(1);
             const bucket: string = config.get('aws.assetBucket');
+            uploads[filename] = 'uploading'
             await uploadHelper.upload(bucket, getTileKey(map.id, map.uuid, filename), entry);
+            delete uploads[filename];
             parseStream.resume();
-
         });
 
     return pipeline(

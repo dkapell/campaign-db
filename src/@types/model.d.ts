@@ -59,6 +59,17 @@ interface UploadModel extends ModelData{
 
 }
 
+interface MapModel extends ModelData{
+    id?:number
+    campaign_id?:number
+    uuid?:string
+    name?:string
+    description?:string
+    status?:string
+    display_to_pc?:boolean
+    image_id?:number
+}
+
 interface ImageModel extends ModelData{
     id:number,
     name:string,

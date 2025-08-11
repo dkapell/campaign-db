@@ -1,10 +1,16 @@
 #!/app/.heroku/node/bin/node
 'use strict';
 import mapHelper from '../lib/mapHelper';
-import models from '../lib/models';
+import mapModel from '../models/map';
+import campaignModel from '../models/campaign';
+
+const models = {
+    campaign: campaignModel,
+    map: mapModel
+};
 
 (async function main() {
-    const maps = await models.map.find({status:'new'});
+    const maps: MapModel[] = await models.map.find({status:'new'});
     for (const map of maps){
         const campaign = await models.campaign.get(map.campaign_id);
         console.log(`Working on ${map.name} for ${campaign.name}`);

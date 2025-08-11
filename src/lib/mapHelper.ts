@@ -20,7 +20,7 @@ async function build(mapId:number): Promise<void> {
     await async.until(
         async ()=> {return !uploadHelper.uploadCount;},
         async ()=> {
-            await timeout(200);
+            await timeout(2000);
         }
     );
     map = await models.map.get(mapId);

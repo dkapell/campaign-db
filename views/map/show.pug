@@ -9,7 +9,7 @@ block content
             .col !{marked.parse(map.description,  {breaks: true})}
     .row
         .col
-            #toolbarDiv(class=`${checkPermission(gm)?'':'py-4'}`)
+            #toolbarDiv(class=`${checkPermission('gm')?'':'py-4'}`)
                 .float-end.align-middle.mb-2
                     if checkPermission('gm')
                         a.btn.btn-sm.btn-outline-info(href=map.image.upload.url) Download Full Image #{map.image.upload.sizePrint}

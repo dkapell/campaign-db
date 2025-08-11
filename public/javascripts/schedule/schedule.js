@@ -7,6 +7,10 @@ $(function(){
         hideMessages();
     });
 
+     $('#schedule-success .btn-close').on('click', ()=>{
+        hideMessages();
+    });
+
     $('.issue-icon[data-bs-toggle="popover"]').popover({
         trigger: 'hover',
         delay: { 'show': 300, 'hide': 100 },

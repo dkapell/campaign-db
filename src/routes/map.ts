@@ -2,8 +2,8 @@ import express from 'express';
 import _ from 'underscore';
 import permission from '../lib/permission';
 import mapHelper from '../lib/mapHelper';
-import uuid from 'uuid';
 
+import { v4 as uuidv4 } from 'uuid';
 
 async function list(req, res, next){
     res.locals.breadcrumbs = {
@@ -150,7 +150,7 @@ async function create(req, res){
 
     req.session.mapData = map;
     map.campaign_id = req.campaign.id;
-    map.uuid = uuid.v4();
+    map.uuid = uuidv4();
     map.status = 'new';
 
     for (const field of ['display_to_pc', 'image_id']){

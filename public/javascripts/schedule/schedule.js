@@ -7,7 +7,7 @@ $(function(){
         hideMessages();
     });
 
-     $('#schedule-success .btn-close').on('click', ()=>{
+    $('#schedule-success .btn-close').on('click', ()=>{
         hideMessages();
     });
 

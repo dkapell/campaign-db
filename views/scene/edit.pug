@@ -1,6 +1,8 @@
 extends ../layout
 include ../partials/editor
 include ../partials/scene
+include ../partials/image
+
 
 block content
     .row
@@ -13,7 +15,7 @@ block content
                         input(type="hidden", name='_csrf',value=csrfToken)
                         input(type="hidden", name='scene[id]',value=scene.id)
                         include ./_form.pug
-
+    +imageModal()
 append scripts
     script(src='/javascripts/validator.js')
     script(src='/javascripts/scene.js')

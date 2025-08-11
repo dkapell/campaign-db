@@ -30,6 +30,7 @@ mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors
                         content=location.description
                     )
                         i.fas.fa-info.fa-fw
+                +sceneLocationImage(location)
                 +locationTags(location)
 
 
@@ -161,6 +162,7 @@ mixin locationName(location, showOutdoors)
     else
         i.fas.fa-map-marker-alt.me-1
     strong=location.name
+
     if location.description
         button.btn.btn-outline-info.btn-xs.ms-1.location-info(
             type="button"
@@ -169,6 +171,22 @@ mixin locationName(location, showOutdoors)
             content=location.description
         )
             i.fas.fa-info.fa-fw
+
+
+mixin sceneLocationImage(location)
+    if location.image
+        - const content = `<img class="img-fluid image-container" src="${location.image.thumbnailUrl}">`;
+        a.btn.btn-outline-info.btn-xs.mx-1.img-display-btn(
+            tabindex="0"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-content=content
+            data-bs-html="true"
+            title=`${location.name} (expand)`
+            data-imageurl=location.image.upload.url
+            data-imagename=location.image.upload.name
+        )
+            i.fas.fa-fw.fa-image
 
 
 mixin sceneUserInput(user, request_status, schedule_status, details)

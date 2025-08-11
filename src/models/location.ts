@@ -6,9 +6,11 @@ import database from '../lib/database';
 
 
 import tagModel from './tag';
+import imageModel from './image';
 
 const models = {
-    tag: tagModel
+    tag: tagModel,
+    image: imageModel
 }
 
 const tableFields = [
@@ -20,7 +22,8 @@ const tableFields = [
     'multiple_scenes',
     'combat',
     'special',
-    'outdoors'
+    'outdoors',
+    'image_id'
 ];
 
 const Location = new Model('locations', tableFields, {
@@ -31,7 +34,9 @@ const Location = new Model('locations', tableFields, {
 
 async function fill(record){
     record.tags = await getTags(record.id);
-
+    if (record.image_id){
+        record.image = await models.image.get(record.image_id);
+    }
     return record;
 }
 

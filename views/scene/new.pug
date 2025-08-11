@@ -1,6 +1,7 @@
 extends ../layout
 include ../partials/editor
 include ../partials/scene
+include ../partials/image
 
 block content
     .row
@@ -11,6 +12,7 @@ block content
                     form.form.needs-validation(method="POST" action="/scene" novalidate)
                         input(type="hidden", name='_csrf',value=csrfToken)
                         include ./_form.pug
+    +imageModal()
 
 append scripts
     script(src='/javascripts/validator.js')

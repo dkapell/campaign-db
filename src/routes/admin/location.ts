@@ -68,6 +68,7 @@ async function showNew(req, res, next){
         };
 
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'location'});
+        res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
 
         if (_.has(req.session, 'locationData')){
             res.locals.location = req.session.locationData;
@@ -101,6 +102,7 @@ async function showEdit(req, res, next){
             ],
             current: 'Edit: ' + location.name
         };
+        res.locals.images = await req.models.image.find({campaign_id:req.campaign.id, type:'content'});
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'location'});
         res.locals.title += ` - Edit Location - ${location.name}`;
         res.render('admin/location/edit');
@@ -120,6 +122,12 @@ async function create(req, res){
             location[field] = false;
         }
     }
+    for (const field of ['image_id']){
+        if (!_.has(location, field) || Number(location[field]) === -1){
+            location[field] = null;
+        }
+    }
+
     if (!location.tags){
         location.tags = [];
     } else if(!_.isArray(location.tags)){
@@ -156,6 +164,11 @@ async function update(req, res){
     for (const field of ['multiple_scenes', 'combat', 'outdoors', 'special']){
         if (!_.has(location, field)){
             location[field] = false;
+        }
+    }
+    for (const field of ['image_id']){
+        if (!_.has(location, field) || Number(location[field]) === -1){
+            location[field] = null;
         }
     }
     if (!location.tags){

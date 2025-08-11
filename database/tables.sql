@@ -1009,6 +1009,7 @@ create table locations(
     combat boolean default false,
     outdoors boolean default false,
     special boolean default false,
+    image_id int,
     primary key(id),
     CONSTRAINT locations_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

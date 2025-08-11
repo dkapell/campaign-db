@@ -1,4 +1,5 @@
 extends ../../layout
+include ../../partials/image
 
 block content
     a.btn.btn-outline-success.my-2(href='/admin/location/new')
@@ -29,6 +30,7 @@ block content
                     th Outdoors?
                     th Special?
                     th Tags
+                    th Image
                     if checkPermission('admin')
                         th
 
@@ -46,7 +48,20 @@ block content
                         td
                             each tag in location.tags
                                 .badge.text-bg-info.mx-1= tag.name
-                        
+                        td
+                            if location.image
+                                - const content = `<img class="img-fluid image-container" src="${location.image.thumbnailUrl}">`;
+                                a.btn.btn-outline-info.btn-xs.me-1.img-display-btn.action-btn(
+                                    tabindex="0"
+                                    role="button"
+                                    data-bs-toggle="popover"
+                                    data-bs-content=content
+                                    data-bs-html="true"
+                                    title=`${location.name} (expand)`
+                                    data-imageurl=location.image.upload.url
+                                    data-imagename=location.image.upload.name
+                                )
+                                    i.fas.fa-image
                         if checkPermission('admin')
                             td.text-end
                                 a.btn.btn-outline-danger.btn-xs.delete-btn.mx-2(
@@ -57,7 +72,7 @@ block content
                                 )
                                     i.fas.fa-trash.fa-fw
 
-
+    +imageModal()
 
 append scripts
     script(src='/javascripts/data-table.js')
@@ -66,6 +81,10 @@ append scripts
             $('[data-bs-toggle="tooltip"]').tooltip({
                 delay: { 'show': 500, 'hide': 100 },
                 placement:'auto'
+            });
+            $('body').popover({
+                trigger: 'hover',
+                selector: '[data-bs-toggle="popover"]'
             });
         });
 

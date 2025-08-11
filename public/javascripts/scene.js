@@ -5,6 +5,10 @@ $(function(){
         minimumResultsForSearch: 7,
         width:'resolve'
     });
+    $('body').popover({
+        trigger: 'hover',
+        selector: '[data-bs-toggle="popover"]'
+    });
     $('[data-bs-toggle="tooltip"]').tooltip();
     $('.complex-select2').each(function(e){
         const $select = $(this);

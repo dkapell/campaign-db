@@ -54,6 +54,11 @@ async function prepEntries(glossary_entries, is_gm:boolean, campaignId:number){
                 anchor: await format(entry.content, true, is_gm, allEntries, campaignId),
                 entry: await format(entry.content, false, is_gm, allEntries, campaignId),
             };
+        } else {
+            entry.content = {
+                anchor:'<p><i>No Content</i></p>',
+                entry: '<p><i>No Content</i></p>'
+           }
         }
         return entry;
     });

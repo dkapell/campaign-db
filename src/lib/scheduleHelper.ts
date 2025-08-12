@@ -5,6 +5,7 @@ import async from 'async';
 import stringify from 'csv-stringify-as-promised';
 import validator from './scheduler/validator';
 import {DateTime} from 'luxon';
+import removeMd from 'remove-markdown';
 
 function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
@@ -508,6 +509,7 @@ async function getSceneStatusCsv(campaignId:number){
     const output = [];
     const header = [
         'Name',
+        'Player-Facing Name',
         'Event',
         'Status',
         'Writer',
@@ -516,13 +518,19 @@ async function getSceneStatusCsv(campaignId:number){
         'Timeslot(s)',
         'Location(s)',
         'Players',
-        'Staff'
+        'Staff',
+        'Schedule Note',
+        'Staff Writeup'
     ]
     output.push(header);
     for (const scene of scenes){
         const row = [];
         row.push(scene.name);
-
+        if (scene.player_name){
+            row.push(scene.player_name);
+        } else {
+            row.push(null);
+        }
         if (scene.event_id){
             row.push(scene.event.name);
         } else {
@@ -573,6 +581,18 @@ async function getSceneStatusCsv(campaignId:number){
         }
         row.push(players.join(', '));
         row.push(staff.join(', '));
+
+        if (scene.printout_note){
+            row.push(removeMd(scene.printout_note))
+        } else {
+            row.push(null);
+        }
+
+        if (scene.staff_url){
+            row.push(scene.staff_url);
+        } else {
+            row.push(null);
+        }
 
         output.push(row);
     }

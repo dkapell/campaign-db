@@ -348,7 +348,7 @@ mixin sceneTable(scenes, exportable=false)
                 .visually-hidden Table is Loading
 
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.scene-table(
-            style="display: none"
+            style="display: none; font-size:0.85rem"
             class=exportable?'table-exportable':''
             data-export='/scene?export=true'
             )
@@ -358,6 +358,7 @@ mixin sceneTable(scenes, exportable=false)
                     th Event
                     th(data-priority="1") Name
                     th Status
+                    th Writer
                     th Timeslot
                     th Location
                     th Players
@@ -398,6 +399,9 @@ mixin sceneTable(scenes, exportable=false)
                         td= scene.name
                         td
                             +sceneStatusBadge(scene.status)
+                        td
+                            if scene.writer
+                                =scene.writer.name
                         td
                             if timeslotsConfirmed.length
                                 = (_.pluck(timeslotsConfirmed, 'name')).join(', ')

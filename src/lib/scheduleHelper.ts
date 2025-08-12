@@ -21,8 +21,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         timeslot_count: scene.timeslot_count,
         locations_count: scene.locations_count,
         player_url: scene.player_url,
-        description: scene.description
-
+        description: scene.description,
+        printout_note: scene.printout_note
     };
 
 

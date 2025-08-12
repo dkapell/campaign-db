@@ -71,6 +71,11 @@ if scheduleType !== 'edit' && scene.description
         .col
             p.mb-1!= marked.parseInline(scene.description, {breaks:true})
 
+if scheduleType !== 'edit' && scene.printout_note
+    .row.mt-1.mb-2
+        .col
+            p.mb-1!= marked.parseInline(scene.printout_note, {breaks:true})
+
 if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed.length
     .row.my-1
         .col

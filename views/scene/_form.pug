@@ -138,7 +138,11 @@ fieldset.my-2.border.p-2.rounded
                 +markdownEditor('Description (Player-Visible)', 'scene_description', 'scene[description]', 5, 75, scene.description, true)
         .row.my-2
             .col-md
+                +markdownEditor('Schedule Printout Note (Player-Visible)', 'printout_note', 'scene[printout_note]', 3, 50, scene.printout_note, true)
+        .row.my-2
+            .col-md
                 +markdownEditor('Scheduling Notes (Staff-Only)', 'scene_schedule_notes', 'scene[schedule_notes]', 3, 50, scene.schedule_notes, false)
+
 
 .row.my-3
     .col-md

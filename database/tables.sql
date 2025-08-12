@@ -1034,6 +1034,7 @@ create table scenes (
     status scene_status not null default 'new',
     description text,
     schedule_notes text,
+    printout_note text,
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
     prereqs jsonb,

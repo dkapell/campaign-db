@@ -48,6 +48,7 @@ const tableFields = [
     'status',
     'description',
     'schedule_notes',
+    'printout_note',
     'timeslot_count',
     'setup_slots',
     'cleanup_slots',

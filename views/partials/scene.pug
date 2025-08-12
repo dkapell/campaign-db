@@ -739,6 +739,15 @@ mixin sceneCard(scene, full=false)
 
                         p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.description, {breaks:true})
 
+            if scene.printout_note
+                .row.my-1
+                    .col
+                        if !scene.description
+                            strong Details
+                                if full
+                                    span.ms-1 (Player-Visible)
+                        p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.printout_note, {breaks:true})
+
             if full && scene.schedule_notes
                 .row.my-1
                     .col

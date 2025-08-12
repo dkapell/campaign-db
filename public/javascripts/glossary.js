@@ -102,7 +102,14 @@ async function deleteGlossaryEntry(e){
     e.stopPropagation();
     const $this = $(this);
     const url = $this.attr('url');
-    const result = await fetch(url, {method:'DELETE', redirect:'manual'});
+    const csrfToken = $this.data('csrf');
+    const result = await fetch(url, {
+        method:'DELETE',
+        redirect:'manual',
+        headers: {
+            'CSRF-Token': csrfToken
+        }
+    });
     if($this.attr('data-back')){
         location = $this.attr('data-back');
     } else {

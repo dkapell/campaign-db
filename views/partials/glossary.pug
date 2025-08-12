@@ -28,7 +28,9 @@ mixin typeMenu(type, data)
     nav.nav.flex-column.toc-entry.nav-fill
         a.d-block.menu-type-header.menu-link( href=`#type-${type.replace(/\W+/g, '_')}` )= capitalize(type)
         nav.flex-column.toc-entry.type-section.ps-2(id=`menu-type-${type.replace(/\W+/g, '_')}`)
-            each entryList, tag in data.tags
+            - const tags = (_.keys(data.tags)).sort();
+            each tag in tags
+                - const entryList = data.tags[tag]
                 +tagMenu(tag, entryList)
             if data.notags.length
                 +tagMenu('not tagged', data.notags, true)

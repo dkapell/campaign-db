@@ -1,5 +1,5 @@
 /* globals async scenedetailsTemplate confirmSceneBtn unconfirmSceneBtn unconfirmAllSceneUsersBtn updateUsersPanel */
-/* globals updateTimeslotUsersCount
+/* globals updateTimeslotUsersCount unscheduleSceneBtn */
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel marked */
 let isValidatingScenes = 0;
 $(function(){
@@ -367,6 +367,7 @@ async function updateSceneDetails($scene){
         });
         if (typeof confirmSceneBtn !== 'undefined'){
             $scene.find('.confirm-scene-btn').on('click', confirmSceneBtn);
+            $scene.find('.unschedule-scene-btn').confirmation().on('click', unscheduleSceneBtn);
             $scene.find('.unconfirm-scene-btn').on('click', unconfirmSceneBtn);
             $scene.find('.unconfirm-all-scene-users-btn').on('click', unconfirmAllSceneUsersBtn);
         }

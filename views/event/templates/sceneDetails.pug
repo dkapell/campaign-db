@@ -48,13 +48,21 @@ if scene.tags
                         | Unconfirm Placement
 
                 else
-                    button.btn.btn-outline-success.btn-xs.confirm-scene-btn(
+                    button.btn.btn-outline-success.btn-xs.confirm-scene-btn.me-1(
                         role=button
                         data-bs-toggle='tooltip'
                         title='Confirm Time/Location'
                     )
                         i.fas.fa-check-circle.me-1
                         | Confirm Placement
+
+                    button.btn.btn-outline-danger.btn-xs.unschedule-scene-btn(
+                        role=button
+                        data-bs-toggle='tooltip'
+                        title='Unschedule Scene'
+                    )
+                        i.fas.fa-calendar-times.me-1
+                        | Unschedule
 if scene.writer_id || scene.runner_id
     .row.my-1
         if scene.writer_id

@@ -1,4 +1,4 @@
-/* globals validateAllScenes updateSlotScenes updateSceneStatus updateSceneDetails */
+/* globals validateAllScenes updateSlotScenes updateSceneStatus updateSceneDetails collapseScenes */
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 $(function(){
     $('.scene-item-draggable').draggable({
@@ -146,6 +146,30 @@ async function unconfirmSceneBtn(e){
         unconfirmScene($scene);
     });
     $(this).tooltip('hide');
+}
+
+async function unscheduleSceneBtn(e){
+    e.preventDefault();
+    $(this).tooltip('hide');
+    const $scene = $(this).closest('.scene-item');
+
+    hideMessages();
+    collapseScenes([$scene.data('scene-id')]);
+
+    const $old = $(`#${$scene.attr('cell')}`);
+
+    $scene.attr('cell', 'unscheduled');
+
+    const $slot = $('#unscheduled');
+    $scene.appendTo($slot);
+
+    await updateSlotScenes($slot);
+    await updateSlotScenes($old);
+
+    await recordScheduleUpdate($scene, $slot);
+
+    await validateAllScenes();
+
 }
 
 async function confirmScene($scene){

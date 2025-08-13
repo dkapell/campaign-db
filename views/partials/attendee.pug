@@ -239,7 +239,7 @@ mixin attendeeTable(attendees, type)
 
                         if checkPermission('contrib, registration view') && type === 'player'
                             if event.cost
-                                td.text-nowrap
+                                td
                                     -
                                         let selectedAddons = 0;
                                         let paidAddons = 0;
@@ -256,29 +256,29 @@ mixin attendeeTable(attendees, type)
                                         }
 
                                     if attendee.paid && !(selectedAddons - paidAddons)
-                                        span.badge.text-bg-success.me-1(
+                                        span.badge.text-bg-success.me-2(
                                             data-bs-toggle='tooltip'
                                             title='Fully Paid'
                                         ) Paid
                                     else if attendee.paid
 
-                                        span.badge.text-bg-warning.me-1(
+                                        span.badge.text-bg-warning.me-2(
                                             data-bs-toggle='tooltip'
                                             title='Outstanding Addons'
                                         ) Partial
                                     else if  selectedAddons && !(selectedAddons - paidAddons)
-                                        span.badge.text-bg-warning.me-1(
+                                        span.badge.text-bg-warning.me-2(
                                             data-bs-toggle='tooltip'
                                             title='Outstanding Event Payment'
                                         ) Partial
                                     else
-                                        span.badge.text-bg-danger.me-1(
+                                        span.badge.text-bg-danger.me-2(
                                             data-bs-toggle='tooltip'
                                             title='Unpaid'
                                         ) Unpaid
 
-                                    .float-end
-                                        +showAddons(attendee, 'player')
+
+                                    +showAddons(attendee, 'player')
 
                             td
                                 if attendee.character

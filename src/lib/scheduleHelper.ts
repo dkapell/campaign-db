@@ -6,6 +6,8 @@ import stringify from 'csv-stringify-as-promised';
 import validator from './scheduler/validator';
 import {DateTime} from 'luxon';
 import removeMd from 'remove-markdown';
+import scheduleReportRenderer from './renderer/schedule_report';
+
 
 function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
@@ -773,6 +775,10 @@ async function restoreSchedule(scheduleId:number){
     return saveSchedule(event.id, schedule.name);
 }
 
+async function reportPdf(eventId, reportName, reportConfig){
+    return scheduleReportRenderer(eventId, reportName, reportConfig);
+}
+
 export default {
     validateScene: validator,
     formatScene,
@@ -789,4 +795,5 @@ export default {
     removeScheduleScene,
     restoreSchedule,
     getSceneStatusCsv,
+    reportPdf
 };

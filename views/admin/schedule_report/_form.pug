@@ -1,0 +1,27 @@
+.row.my-2
+    .col
+        if schedule_report.id
+            label.control-label(for="schedule_report_name") Name
+            input.form-control(type="text",placeholder="Name",name="schedule_report[name]",value=schedule_report.name,id='schedule_report_name',disabled)
+        else
+            label.control-label(for="schedule_report_name") Name
+            select.form-control.select2#schedule_report_name(
+                name="schedule_report[name]"
+                data-placeholder='Report Name'
+                )
+                option
+                each name in reports
+                    option(value=name selected=schedule_report.name===name data-config=reports[name])=name
+        
+if schedule_report.id
+    .row.my-2
+        .col
+            label.control-label(for="schedule_report_config") Configuration
+            +jsonEditor('schedule_report_config', 'schedule_report[config]', 10, 500, schedule_report.config)
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= schedule_report.id?'Update':'Create'
+        a.btn.btn-link(href="/admin/schedule_report") Cancel
+
+

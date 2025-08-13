@@ -16,11 +16,6 @@ const colors = {
     dark: '#7b8a8b'
 };
 
-interface CharacterSheetTextOptions{
-    font?:string
-    nowrap?:boolean
-    align?:string
-}
 
 async function renderCharacter(characters: CharacterData[], options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {

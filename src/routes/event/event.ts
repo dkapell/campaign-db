@@ -70,6 +70,7 @@ async function show(req, res, next){
             }).map((attendance) => {
                 return surveyHelper.formatPostEventModel(attendance, event);
             });
+            res.locals.schedule_reports = _.pluck(await req.models.schedule_report.find({campaign_id:req.campaign.id}), 'name');
         } else {
             res.locals.post_event_surveys = [];
         }
@@ -94,7 +95,7 @@ async function show(req, res, next){
 
             };
             for (const attendance of event.attendees) {
-                if (attendance.not_attending){ continue; }
+                if (!attendance.attending){ continue; }
                 if (attendance.paid) {
                     res.locals.income.event.raw += event.cost;
                     res.locals.income.event.count++;
@@ -599,6 +600,7 @@ router.get('/:id/scheduler', permission('gm'), scheduleRoutes.showScheduler);
 router.get('/:id/schedule', scheduleRoutes.showSchedule);
 router.get('/:id/schedules', permission('gm'), scheduleRoutes.listScheduleSnapshots);
 router.get('/:id/schedule/export', scheduleRoutes.exportSchedule);
+router.get('/:id/schedule/report/:name', permission('contrib'), scheduleRoutes.getReport);
 router.get('/:id/scene/validate', permission('contrib'), scheduleRoutes.validateScenes);
 router.get('/:id/timeslot', permission('contrib'), scheduleRoutes.getUsersPerTimeslot);
 router.get('/:id/timeslot/:timeslotId', permission('contrib'), scheduleRoutes.getUsersAtTimeslot);

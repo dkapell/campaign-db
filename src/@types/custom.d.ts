@@ -139,3 +139,8 @@ interface SchedulerOutput{
     processTime?:number
 }
 
+interface CharacterSheetTextOptions{
+    font?:string
+    nowrap?:boolean
+    align?:string
+}

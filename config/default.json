@@ -109,6 +109,30 @@
             "character": 2
         },
         "keepVersions":50
+    },
+    "scheduleReports": {
+        "player": {
+            "titlePrefix": "Schedule",
+            "extraTitle": null,
+            "columns": 2,
+            "timeslotDisplay": "label",
+            "font": {
+                "title": { "name":null, "scale": 1},
+                "header": { "name":null, "scale": 1},
+                "body": { "name":null, "scale": 1}
+            },
+            "scene": {
+                "location": false,
+                "description": false,
+                "printout note": true
+            }
+        },
+        "scenes": {
+
+        }
+
     }
+
+
 
 }

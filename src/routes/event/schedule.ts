@@ -996,6 +996,34 @@ async function removeScheduleSnapshot(req, res, next){
 
 }
 
+async function getReport(req, res, next){
+    const eventId = req.params.id;
+    const reportName = req.params.name;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+        const report = await req.models.schedule_report.findOne({campaign_id: req.campaign.id, name:reportName});
+        if (!report){
+            throw new Error('Invalid Report');
+        }
+        const pdf = await scheduleHelper.reportPdf(event.id, report.name, report.config);
+
+        pdf.pipe(res);
+        res.set('Content-Type', 'application/pdf');
+        const filename = `${event.name.replace(/\//,'_')} - ${reportName}.pdf`
+        res.attachment(filename);
+        pdf.end();
+
+
+    } catch (err){
+        next(err);
+    }
+
+}
+
 export default {
     showScheduler,
     showSchedule,
@@ -1020,4 +1048,5 @@ export default {
     restoreScheduleSnapshot,
     saveScheduleSnapshot,
     removeScheduleSnapshot,
+    getReport,
 };

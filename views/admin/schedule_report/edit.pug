@@ -1,0 +1,26 @@
+extends ../../layout
+include ../../partials/editor
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header= 'Edit Schedule Report: ' + schedule_report.name
+                .card-body
+                    form.form.needs-validation(method="POST" action="/admin/schedule_report/" + schedule_report.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='schedule_report[id]',value=schedule_report.id)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script.
+        $(function(){
+
+            $('.select2').select2({
+                theme:'bootstrap-5',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+        });

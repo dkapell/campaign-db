@@ -77,6 +77,7 @@ import adminTimeslotRouter from './routes/admin/timeslot';
 import adminLocationRouter from './routes/admin/location';
 import adminTagRouter from './routes/admin/tag';
 import adminScheduleBusyTypeRouter from './routes/admin/schedule_busy_type';
+import adminScheduleReportRouter from './routes/admin/schedule_report';
 
 const app = express();
 
@@ -392,6 +393,7 @@ app.use('/admin/timeslot', adminTimeslotRouter);
 app.use('/admin/location', adminLocationRouter);
 app.use('/admin/tag', adminTagRouter);
 app.use('/admin/schedule_busy_type', adminScheduleBusyTypeRouter);
+app.use('/admin/schedule_report', adminScheduleReportRouter);
 
 
 // catch 404 and forward to error handler

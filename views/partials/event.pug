@@ -114,7 +114,7 @@ mixin eventListItemStaff(event)
             else
                 i.fas.fa-fw.fa-calendar.me-1(data-bs-toggle="tooltip" title='Not Open for Registration')
             = event.name
-        .col-auto.text-end
+        .col-auto.text-end.text-nowrap
             +eventDate(event.start_time, event.end_time)
 
     .row
@@ -160,7 +160,7 @@ mixin eventListItemPlayer(event)
             else
                 span.badge.text-bg-danger Not Registered
 
-        .col.text-end
+        .col.text-end.text-nowrap
             +eventDate(event.start_time, event.end_time)
     .row
         .col-md-10

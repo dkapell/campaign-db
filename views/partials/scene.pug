@@ -452,7 +452,7 @@ mixin sceneTable(scenes, exportable=false)
 mixin playerEntry(user)
     if checkPermission('contrib')
         if user.character
-            a.me-2(href=`character/${user.character.id}`)
+            a.me-2(href=`/character/${user.character.id}`)
                 i.far.fa-user.me-1
                 = user.character.name
             span.me-0 (

@@ -239,7 +239,7 @@ mixin attendeeTable(attendees, type)
 
                         if checkPermission('contrib, registration view') && type === 'player'
                             if event.cost
-                                td
+                                td.text-nowrap
                                     -
                                         let selectedAddons = 0;
                                         let paidAddons = 0;

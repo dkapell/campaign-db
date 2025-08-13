@@ -129,11 +129,11 @@ async function show(req, res, next){
                             res.locals.income.addons.addons[addonName].orders += attendance_addon.addon.cost;
                         }
                     } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
-                        res.locals.income.addons.outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.outstanding += attendance_addon.addon.cost;
                         res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
                         res.locals.income.addons.addons[addonName].count++;
                     } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
-                        res.locals.income.addons.outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.outstanding += attendance_addon.addon.cost;
                         res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
                         res.locals.income.addons.addons[addonName].count++;
                     }

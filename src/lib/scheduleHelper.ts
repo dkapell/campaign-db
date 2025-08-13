@@ -519,6 +519,8 @@ async function getSceneStatusCsv(campaignId:number){
         'Location(s)',
         'Players',
         'Staff',
+        'Required Players',
+        'Required Staff',
         'Schedule Note',
         'Staff Writeup'
     ]
@@ -581,6 +583,21 @@ async function getSceneStatusCsv(campaignId:number){
         }
         row.push(players.join(', '));
         row.push(staff.join(', '));
+
+        const requiredPlayers = [];
+        const requiredStaff = [];
+        for (const user of scene.users) {
+            if (user.scene_request_status === 'required') {
+                if (user.type === 'player') {
+                    requiredPlayers.push(user.name);
+                }
+                else {
+                    requiredStaff.push(user.name);
+                }
+            }
+        }
+        row.push(requiredPlayers.join(', '));
+        row.push(requiredStaff.join(', '));
 
         if (scene.printout_note){
             row.push(removeMd(scene.printout_note))

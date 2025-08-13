@@ -15,7 +15,7 @@ include ../../partials/scene
                 i.fa.fa-download.me-1
                 | Export Player CSV
 
-            if checkPermission('contrib') && event.schedule_status === 'player visible'
+            if checkPermission('contrib') && event.schedule_status !== 'private'
                 if _.indexOf(schedule_reports, 'player') !== -1
                     button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-pdf-export-btn(
                         data-export=`/event/${event.id}/schedule/report/player`

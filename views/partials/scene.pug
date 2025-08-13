@@ -209,7 +209,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                         name=`scene[users][id-${user.id}][request_status]`
                         id=`scene-users-${user.type}-${user.id}-request-status`
                     )
-                        +sceneStatusRequestOptions(request_status)
+                        +sceneStatusUserRequestOptions(request_status)
                 else
                     input(
                         type='hidden'
@@ -217,7 +217,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                         value=request_status
                     )
 
-                    +sceneItemRequestText(request_status)
+                    +sceneUserRequestText(request_status)
                     .float-end
                         +sceneItemScheduleBadge(schedule_status)
         if (user.type !== 'player')
@@ -289,6 +289,17 @@ mixin sceneItemRequestText(request_status)
         when 'requested'
             span.text-info Requested
         when 'required'
+            span.text-primary Preferred
+        when 'rejected'
+            span.text-danger Rejected
+        default
+            span.text-dark None
+
+mixin sceneUserRequestText(request_status)
+    case request_status
+        when 'requested'
+            span.text-info Requested
+        when 'required'
             span.text-primary Required
         when 'rejected'
             span.text-danger Rejected
@@ -308,6 +319,23 @@ mixin sceneStatusRequestOptions(status)
     each value in ['none', 'requested', 'required', 'rejected']
         -
             let badgeClass = 'dark';
+            let badgeName = capitalize(value);
+            switch (value){
+                case 'requested': badgeClass = 'info'; break;
+                case 'required': badgeClass = 'primary'; badgeName = 'Preferred'; break;
+                case 'rejected': badgeClass = 'danger'; break;
+            }
+        option(
+            value=value
+            selected=value===status
+            data-text=`<span class="text-${badgeClass}">${badgeName}</span>`
+            data-html=`<span class="text-${badgeClass}">${badgeName}</span>`
+            )= badgeName
+
+mixin sceneStatusUserRequestOptions(status)
+    each value in ['none', 'requested', 'required', 'rejected']
+        -
+            let badgeClass = 'dark';
             switch (value){
                 case 'requested': badgeClass = 'info'; break;
                 case 'required': badgeClass = 'primary'; break;
@@ -320,12 +348,13 @@ mixin sceneStatusRequestOptions(status)
             data-html=`<span class="text-${badgeClass}">${capitalize(value)}</span>`
             )= capitalize(value)
 
-mixin sceneStatusBadge(status)
+
+mixin sceneStatusBadge(status, forPlayer=false)
     case status
         when 'requested'
             .badge.text-bg-info.mx-1 Requested
         when 'required'
-            .badge.text-bg-primary.mx-1 Required
+            .badge.text-bg-primary.mx-1 #{forPlayer?'Required':'Preferred'}
         when 'suggested'
             .badge.text-bg-warning.mx-1 Suggested
         when 'confirmed'
@@ -702,7 +731,11 @@ mixin sceneCard(scene, full=false)
                     if locationsByRequest[status]
                         .row.my-1
                             .col
-                                strong.me-2 Location(s) #{capitalize(status)}:
+                                strong.me-2 Location(s)
+                                    if status === 'required'
+                                        |  Preferred:
+                                    else
+                                        |  #{capitalize(status)}:
                                 each location, lidx in locationsByRequest[status]
                                     = location.name
                                     if lidx < locationsByRequest[status].length-1
@@ -718,7 +751,11 @@ mixin sceneCard(scene, full=false)
                     if timeslotsByRequest[status]
                         .row.my-1
                             .col
-                                strong.me-2 Timeslot(s) #{capitalize(status)}:
+                                strong.me-2 Timeslot(s)
+                                    if status === 'required'
+                                        |  Preferred:
+                                    else
+                                        |  #{capitalize(status)}:
                                 each location, lidx in timeslotsByRequest[status]
                                     = location.name
                                     if lidx < timeslotsByRequest[status].length-1
@@ -772,7 +809,7 @@ mixin sceneCard(scene, full=false)
                                     each user in scene.players[status]
                                         li
                                             if status !== 'confirmed'
-                                                +sceneStatusBadge(status)
+                                                +sceneStatusBadge(status, true)
                                             +playerEntry(user)
 
                             if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
@@ -780,7 +817,7 @@ mixin sceneCard(scene, full=false)
                                  each requestStatus in _.keys(playersByRequestStatus)
                                     each user in playersByRequestStatus[requestStatus]
                                         li
-                                            +sceneStatusBadge(requestStatus)
+                                            +sceneStatusBadge(requestStatus, true)
                                             +playerEntry(user)
 
 
@@ -800,7 +837,7 @@ mixin sceneCard(scene, full=false)
                                     each user in scene.staff[status]
                                         li
                                             if status !== 'confirmed'
-                                                +sceneStatusBadge(status)
+                                                +sceneStatusBadge(status, true)
                                             +staffEntry(user)
 
                             if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
@@ -808,7 +845,7 @@ mixin sceneCard(scene, full=false)
                                  each requestStatus in _.keys(staffByRequestStatus)
                                     each user in staffByRequestStatus[requestStatus]
                                         li
-                                            +sceneStatusBadge(requestStatus)
+                                            +sceneStatusBadge(requestStatus, true)
                                             +staffEntry(user)
             if full && (_.keys(scene.sources).length || _.keys(scene.skills).length)
                 .row

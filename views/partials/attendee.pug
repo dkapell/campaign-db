@@ -48,7 +48,10 @@ mixin attendeeListItem(attendee, type)
                             }
                         }
                     if unpaidAddons
-                        span.badge.text-bg-warning.ms-2 Unpaid
+                        span.badge.text-bg-warning.ms-2(
+                            data-bs-toggle="tooltip"
+                            title="Outstanding Addons"
+                        ) Unpaid
 
                 if checkPermission('contrib, registration view') && attendee.user.type === 'player' && event.cost
                     .float-end
@@ -235,7 +238,10 @@ mixin attendeeTable(attendees, type)
                                         }
                                     }
                                 if unpaidAddons
-                                    span.badge.text-bg-warning.ms-2 Unpaid
+                                    span.badge.text-bg-warning.ms-2(
+                                        data-bs-toggle="tooltip"
+                                        title="Outstanding Addons"
+                                    ) Unpaid
 
                         if checkPermission('contrib, registration view') && type === 'player'
                             if event.cost

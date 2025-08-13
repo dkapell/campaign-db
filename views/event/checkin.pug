@@ -93,10 +93,44 @@ block content
                                                             = documentation.name
                                         td(data-priority=3)= attendee.character.name
                                         td(data-priority=4)
-                                            if attendee.paid
-                                                .badge.text-bg-success Yes
+
+                                            -
+                                                let selectedAddons = 0;
+                                                let paidAddons = 0;
+                                                if (attendee.addons){
+                                                    for (const addon of attendee.addons){
+                                                        if (addon.addon.charge_player){
+                                                            selectedAddons++;
+                                                        }
+                                                        if (addon.addon.charge_player && addon.paid){
+                                                            paidAddons++;
+
+                                                        }
+                                                    }
+                                                }
+
+                                            if attendee.paid && !(selectedAddons - paidAddons)
+                                                span.badge.text-bg-success.me-2(
+                                                    data-bs-toggle='tooltip'
+                                                    title='Fully Paid'
+                                                ) Paid
+                                            else if attendee.paid
+
+                                                span.badge.text-bg-warning.me-2(
+                                                    data-bs-toggle='tooltip'
+                                                    title='Outstanding Addons'
+                                                ) Partial
+                                            else if  selectedAddons && !(selectedAddons - paidAddons)
+                                                span.badge.text-bg-warning.me-2(
+                                                    data-bs-toggle='tooltip'
+                                                    title='Outstanding Event Payment'
+                                                ) Partial
                                             else
-                                                .badge.text-bg-danger No
+                                                span.badge.text-bg-danger.me-2(
+                                                    data-bs-toggle='tooltip'
+                                                    title='Unpaid'
+                                                ) Unpaid
+
                                         if event.addons
                                             each addon in event.addons
                                                 if addon.available_to_player && addon.on_checkin
@@ -180,6 +214,18 @@ block content
                                                             else
                                                                 i.fa.fa-times-circle.me-1
                                                             = documentation.name
+                                            -
+                                                let unpaidAddons = 0;
+                                                if (attendee.addons){
+                                                    for (const addon of attendee.addons){
+                                                        if (addon.addon.charge_staff && !addon.paid){
+                                                            unpaidAddons++;
+
+                                                        }
+                                                    }
+                                                }
+                                            if unpaidAddons
+                                                span.badge.text-bg-warning.ms-2 Unpaid
                                         if event.addons
                                             each addon in event.addons
                                                 if addon.available_to_staff && addon.on_checkin

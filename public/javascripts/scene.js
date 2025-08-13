@@ -406,8 +406,8 @@ function addSceneSource(e){
 
     $new.find('.form-select').each(function(e) {
         const $input = $(this);
-        $input.attr('name', `scene[sources][${source.id}]`);
-        $input.attr('id', `scene-sources-${source.id}`);
+        $input.attr('name', `scene[sources][${source.id}][request_status]`);
+        $input.attr('id', `scene-sources-${source.id}-request-status`);
     });
     $new.find('.scene-status-select').select2({
         theme:'bootstrap-5',
@@ -455,8 +455,8 @@ function addSceneSkill(e){
 
     $new.find('.form-select').each(function(e) {
         const $input = $(this);
-        $input.attr('name', `scene[skills][${skill.id}]`);
-        $input.attr('id', `scene-skills-${skill.id}`);
+        $input.attr('name', `scene[skills][${skill.id}][request_status]`);
+        $input.attr('id', `scene-skills-${skill.id}-request-status`);
     });
     $new.find('.scene-status-select').select2({
         theme:'bootstrap-5',

@@ -225,7 +225,10 @@ block content
                                                     }
                                                 }
                                             if unpaidAddons
-                                                span.badge.text-bg-warning.ms-2 Unpaid
+                                                span.badge.text-bg-warning.ms-2(
+                                                    data-bs-toggle="tooltip"
+                                                    title="Outstanding Addons"
+                                                ) Unpaid
                                         if event.addons
                                             each addon in event.addons
                                                 if addon.available_to_staff && addon.on_checkin

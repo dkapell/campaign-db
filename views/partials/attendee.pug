@@ -277,7 +277,8 @@ mixin attendeeTable(attendees, type)
                                             title='Unpaid'
                                         ) Unpaid
 
-                                    +showAddons(attendee, 'player')
+                                    .float-end
+                                        +showAddons(attendee, 'player')
 
                             td
                                 if attendee.character

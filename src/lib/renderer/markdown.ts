@@ -102,6 +102,7 @@ interface RenderOptions{
     paragraphGap?: number
     font?:string
     getHeight?: boolean
+    width?:number
 }
 
 interface NodeAttrs {

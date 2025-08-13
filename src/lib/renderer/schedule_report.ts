@@ -87,7 +87,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             for (const timeslot of schedule){
                 let timeslotName = timeslot.name;
                 if (options.timeslotDisplay === 'label' && timeslot.display_name){
-                    timeslotName = timeslot.display_name
+                    timeslotName = timeslot.display_name as string
                 }
                 doc
                     .font('Header Font Bold')

@@ -53,21 +53,40 @@ mixin attendeeListItem(attendee, type)
                 if checkPermission('contrib, registration view') && attendee.user.type === 'player' && event.cost
                     .float-end
                         -
-                            let unpaidAddons = 0;
+                            let selectedAddons = 0;
+                            let paidAddons = 0;
                             if (attendee.addons){
                                 for (const addon of attendee.addons){
-                                    if (addon.addon.charge_player && !addon.paid){
-                                        unpaidAddons++;
+                                    if (addon.addon.charge_player){
+                                        selectedAddons++;
+                                    }
+                                    if (addon.addon.charge_player && addon.paid){
+                                        paidAddons++;
 
                                     }
                                 }
                             }
-                        if attendee.paid && !unpaidAddons
-                            span.badge.text-bg-success.me-1 Paid
-                        else if (!attendee.paid && !unpaidAddons) || (attendee.paid && unpaidAddons)
-                            span.badge.text-bg-warning.me-1 Partial
+                        if attendee.paid && !(selectedAddons - paidAddons)
+                            span.badge.text-bg-success.me-1(
+                                data-bs-toggle='tooltip'
+                                title='Fully Paid'
+                            ) Paid
+                        else if attendee.paid
+
+                            span.badge.text-bg-warning.me-1(
+                                data-bs-toggle='tooltip'
+                                title='Outstanding Addons'
+                            ) Partial
+                        else if  selectedAddons && !(selectedAddons - paidAddons)
+                            span.badge.text-bg-warning.me-1(
+                                data-bs-toggle='tooltip'
+                                title='Outstanding Event Payment'
+                            ) Partial
                         else
-                            span.badge.text-bg-danger.me-1 Unpaid
+                            span.badge.text-bg-danger.me-1(
+                                data-bs-toggle='tooltip'
+                                title='Unpaid'
+                            ) Unpaid
 
 
                 if new Date(event.end_time) < Date.now()
@@ -222,21 +241,41 @@ mixin attendeeTable(attendees, type)
                             if event.cost
                                 td
                                     -
-                                        let unpaidAddons = 0;
+                                        let selectedAddons = 0;
+                                        let paidAddons = 0;
                                         if (attendee.addons){
                                             for (const addon of attendee.addons){
-                                                if (addon.addon.charge_player && !addon.paid){
-                                                    unpaidAddons++;
+                                                if (addon.addon.charge_player){
+                                                    selectedAddons++;
+                                                }
+                                                if (addon.addon.charge_player && addon.paid){
+                                                    paidAddons++;
 
                                                 }
                                             }
                                         }
-                                    if attendee.paid && !unpaidAddons
-                                        span.badge.text-bg-success.me-1 Paid
-                                    else if (!attendee.paid && !unpaidAddons) || (attendee.paid && unpaidAddons)
-                                        span.badge.text-bg-warning.me-1 Partial
+
+                                    if attendee.paid && !(selectedAddons - paidAddons)
+                                        span.badge.text-bg-success.me-1(
+                                            data-bs-toggle='tooltip'
+                                            title='Fully Paid'
+                                        ) Paid
+                                    else if attendee.paid
+
+                                        span.badge.text-bg-warning.me-1(
+                                            data-bs-toggle='tooltip'
+                                            title='Outstanding Addons'
+                                        ) Partial
+                                    else if  selectedAddons && !(selectedAddons - paidAddons)
+                                        span.badge.text-bg-warning.me-1(
+                                            data-bs-toggle='tooltip'
+                                            title='Outstanding Event Payment'
+                                        ) Partial
                                     else
-                                        span.badge.text-bg-danger.me-1 Unpaid
+                                        span.badge.text-bg-danger.me-1(
+                                            data-bs-toggle='tooltip'
+                                            title='Unpaid'
+                                        ) Unpaid
 
                                     +showAddons(attendee, 'player')
 

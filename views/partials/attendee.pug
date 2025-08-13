@@ -36,11 +36,36 @@ mixin attendeeListItem(attendee, type)
                 if type !== 'player'
                     span.badge.text-bg-info.ms-2(class=!checkPermission('contrib')?'float-end':'')
                         =capitalize(attendee.user.typeForDisplay)
+                if checkPermission('contrib, registration view') && type !== 'player'
+                    -
+                        let unpaidAddons = 0;
+                        if (attendee.addons){
+                            for (const addon of attendee.addons){
+                                if (addon.addon.charge_staff && !addon.paid){
+                                    unpaidAddons++;
+
+                                }
+                            }
+                        }
+                    if unpaidAddons
+                        span.badge.text-bg-warning.ms-2 Unpaid
 
                 if checkPermission('contrib, registration view') && attendee.user.type === 'player' && event.cost
                     .float-end
-                        if attendee.paid
+                        -
+                            let unpaidAddons = 0;
+                            if (attendee.addons){
+                                for (const addon of attendee.addons){
+                                    if (addon.addon.charge_player && !addon.paid){
+                                        unpaidAddons++;
+
+                                    }
+                                }
+                            }
+                        if attendee.paid && !unpaidAddons
                             span.badge.text-bg-success.me-1 Paid
+                        else if (!attendee.paid && !unpaidAddons) || (attendee.paid && unpaidAddons)
+                            span.badge.text-bg-warning.me-1 Partial
                         else
                             span.badge.text-bg-danger.me-1 Unpaid
 
@@ -179,14 +204,39 @@ mixin attendeeTable(attendees, type)
                                                 else
                                                     i.fa.fa-times-circle.me-1
                                                 = documentation.name
+                            if checkPermission('contrib, registration view') && type !== 'player'
+                                -
+                                    let unpaidAddons = 0;
+                                    if (attendee.addons){
+                                        for (const addon of attendee.addons){
+                                            if (addon.addon.charge_staff && !addon.paid){
+                                                unpaidAddons++;
+
+                                            }
+                                        }
+                                    }
+                                if unpaidAddons
+                                    span.badge.text-bg-warning.ms-2 Unpaid
 
                         if checkPermission('contrib, registration view') && type === 'player'
                             if event.cost
                                 td
-                                    if attendee.paid
-                                        span.badge.text-bg-success.me-1 Yes
+                                    -
+                                        let unpaidAddons = 0;
+                                        if (attendee.addons){
+                                            for (const addon of attendee.addons){
+                                                if (addon.addon.charge_player && !addon.paid){
+                                                    unpaidAddons++;
+
+                                                }
+                                            }
+                                        }
+                                    if attendee.paid && !unpaidAddons
+                                        span.badge.text-bg-success.me-1 Paid
+                                    else if (!attendee.paid && !unpaidAddons) || (attendee.paid && unpaidAddons)
+                                        span.badge.text-bg-warning.me-1 Partial
                                     else
-                                        span.badge.text-bg-danger.me-1 No
+                                        span.badge.text-bg-danger.me-1 Unpaid
 
                                     +showAddons(attendee, 'player')
 

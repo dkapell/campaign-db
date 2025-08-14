@@ -10,6 +10,9 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     if (!_.has(options, 'margin')){
         options.margin = 36;
     }
+    if (!_.has(options, 'boldStrokeWidth')){
+        options.boldStrokeWidth = 0.1;
+    }
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
 
     const event = await models.event.get(eventId);
@@ -33,6 +36,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
     switch (reportName){
         case 'player': await playerReport(); break;
+        case 'scenes': await scenesReport(); break;
     }
 
     return doc;
@@ -51,15 +55,16 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         }
 
         async function renderHeader(attendee){
-            doc.strokeColor('#000000')
-                .fillColor('#000000');
+
             const headerText = `${options.titlePrefix}: ${attendee.character.name}`;
             doc
+                .lineWidth(options.boldStrokeWidth)
                 .font('Title Font Bold')
                 .fontSize(24 * options.font.title.scale)
                 .text(headerText, options.margin, options.margin, {
                     width:doc.page.width - (options.margin*2),
-                    align:'center'
+                    align:'center',
+                    stroke:options.font.header.strokeForBold, fill:true
                 });
 
             if (options.extraTitle){
@@ -72,7 +77,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         .fontSize(20 * options.font.title.scale)
                         .text(fieldData.value, {
                             width:doc.page.width - (options.margin*2),
-                            align:'center'
+                            align:'center',
+                            stroke:false, fill:true
                         });
                 };
 
@@ -92,7 +98,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 doc
                     .font('Header Font Bold')
                     .fontSize(18 * options.font.header.scale)
-                    .text(timeslotName, {width:columnWidth})
+                    .text(timeslotName, {width:columnWidth, stroke:options.font.header.strokeForBold, fill:true})
                 doc.x += options.indent;
                 for (const scene of timeslot.scenes){
 
@@ -106,6 +112,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         .fontSize(20 * options.font.body.scale)
                         .text(sceneName, {
                             width:columnWidth - options.indent,
+                            stroke:false, fill:true
                         });
 
 
@@ -116,6 +123,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         doc.moveDown(0.5);
                         markdown(doc, scene.description, {
                             width:columnWidth - options.indent,
+                            stroke:false, fill:true
                         });
                     }
 
@@ -126,6 +134,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         doc.moveDown(0.5);
                         markdown(doc, scene.printout_note, {
                             width:columnWidth - options.indent,
+                            stroke:false, fill:true
                         });
                     }
                 }
@@ -135,6 +144,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         .fontSize(20 * options.font.body.scale)
                         .text(timeslot.schedule_busy.name, {
                             width:columnWidth - options.indent,
+                            stroke:false, fill:true
                         });
                 }
                 doc.x -= options.indent;
@@ -144,8 +154,225 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 }
             }
         }
+    }
 
+    async function scenesReport(){
+        const scenes = await models.scene.find({event_id:eventId}); // status?
+        for (let scene of scenes){
+            scene = await scheduleHelper.formatScene(scene);
+            doc.addPage();
+            for (const section of options.sections){
+                switch (section.type){
+                    case 'header': renderHeader(scene, section); break;
+                    case 'name': renderName(scene, section); break;
+                    case 'timeslot': renderTimeslot(scene, section); break;
+                    case 'location': renderLocation(scene, section); break;
+                    case 'players': renderPlayers(scene, section); break;
+                    case 'description': renderDescription(scene, section); break;
+                    case 'printout note': renderPrintoutNote(scene, section); break;
+                }
+            }
+        }
+        return doc;
+
+        function renderHeader(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc
+                .font('Title Font Bold')
+                .fontSize(24 * options.font.title.scale)
+                .text(sectionOptions.title, options.margin, options.margin, {
+                    width:doc.page.width - (options.margin*2),
+                    align:sectionOptions.align?sectionOptions:'center',
+                    stroke:options.font.header.strokeForBold,
+                    fill:true
+                });
+            doc.moveDown(0.5);
+        }
+
+        function renderName(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionOptions.name?sectionOptions.name:'Scene Name'}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true});
+
+            let sceneName = scene.name;
+            if (scene.player_name){
+                sceneName = scene.player_name;
+            }
+            doc
+                .font('Body Font')
+                .fontSize(18 * options.font.body.scale)
+                .text(sceneName, {stroke:false, fill:true});
+
+            doc.moveDown(0.5);
+
+        }
+
+        function renderTimeslot(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.margin;
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionOptions.name?sectionOptions.name:'Timeslot(s)'}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+
+            const timeslots = [];
+            if (scene.timeslots.confirmed){
+                for (const timeslot of scene.timeslots.confirmed){
+                    if (sectionOptions.display === 'label' && timeslot.display_name){
+                        timeslots.push(timeslot.display_name);
+                    } else {
+                        timeslots.push(timeslot.name);
+                    }
+                }
+            }
+            if (scene.timeslots.suggested){
+                for (const timeslot of scene.timeslots.suggested){
+                    if (sectionOptions.display === 'label' && timeslot.display_name){
+                        timeslots.push(timeslot.display_name);
+                    } else {
+                        timeslots.push(timeslot.name);
+                    }
+                }
+            }
+            doc
+                .font('Body Font')
+                .fontSize(18 * options.font.body.scale)
+                .text(timeslots.join(', '), {stroke:false, fill:true, indent:-options.margin});
+            doc.x -= options.margin;
+            doc.moveDown(0.5);
+
+        }
+
+        function renderLocation(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.margin;
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionOptions.name?sectionOptions.name:'Location(s)'}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+
+            const locations = [];
+            if (scene.locations.confirmed){
+                for (const location of scene.locations.confirmed){
+                    if (sectionOptions.display === 'label' && location.display_name){
+                        locations.push(location.display_name);
+                    } else {
+                        locations.push(location.name);
+                    }
+                }
+            }
+            if (scene.locations.suggested){
+                for (const location of scene.locations.suggested){
+                    if (sectionOptions.display === 'label' && location.display_name){
+                        locations.push(location.display_name);
+                    } else {
+                        locations.push(location.name);
+                    }
+                }
+            }
+            doc
+                .font('Body Font')
+                .fontSize(18 * options.font.body.scale)
+                .text(locations.join(', '), {stroke:false, fill:true, indent:-options.margin});
+            doc.x -= options.margin;
+
+            doc.moveDown(0.5);
+        }
+
+        function renderPlayers(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.margin;
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionOptions.name?sectionOptions.name:'Players(s)'}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+
+            const players = [];
+            if (scene.players.confirmed){
+                for (const player of scene.players.confirmed){
+                    if (sectionOptions.characters){
+                        players.push(player.character.name);
+                    } else {
+                        players.push(player.name);
+                    }
+                }
+            }
+            if (scene.players.suggested){
+                for (const player of scene.players.suggested){
+                    if (sectionOptions.characters){
+                        players.push(player.character.name);
+                    } else {
+                        players.push(player.name);
+                    }
+                }
+            }
+            doc
+                .font('Body Font')
+                .fontSize(18 * options.font.body.scale)
+                .text(players.join(', '), {stroke:false, fill:true, indent:-options.margin});
+            doc.x -= options.margin;
+            doc.moveDown(0.5);
+
+        }
+
+        function renderDescription(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            if (!scene.description){ return; }
+            if (sectionOptions.name !== ''){
+                doc
+                    .font('Header Font Bold')
+                    .fontSize(18 * options.font.header.scale)
+                    .text(`${sectionOptions.name?sectionOptions.name:'Description'}: `,
+                        {stroke:options.font.header.strokeForBold, fill:true});
+            }
+            if (!sectionOptions.noIndent){
+                doc.x += options.margin;
+            }
+            markdown(doc, scene.description.replace(/\n/g, '\n\n'), {stroke:false, fill:true, noLinks:true});
+            if (!sectionOptions.noIndent){
+                doc.x -= options.margin;
+            }
+            doc.moveDown(0.5);
+        }
+
+        function renderPrintoutNote(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            if (!scene.printout_note){ return; }
+            if (sectionOptions.name !== ''){
+                doc
+                    .font('Header Font Bold')
+                    .fontSize(18 * options.font.header.scale)
+                    .text(`${sectionOptions.name?sectionOptions.name:'Note'}: `,
+                        {stroke:options.font.header.strokeForBold, fill:true});
+            }
+            doc.x += options.margin;
+            markdown(doc, scene.printout_note, {stroke:false, fill:true, noLinks:true});
+            doc.x -= options.margin;
+            doc.moveDown(0.5);
+
+        }
     }
 }
 
 export default renderReport;
+

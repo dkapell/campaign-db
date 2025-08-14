@@ -22,6 +22,12 @@ include ../../partials/scene
                     )
                         i.fa.fa-download.me-1
                         | Player Schedule PDF
+                if _.indexOf(schedule_reports, 'scenes') !== -1
+                    button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-pdf-export-btn(
+                        data-export=`/event/${event.id}/schedule/report/scenes`
+                    )
+                        i.fa.fa-download.me-1
+                        | Scenes PDF
 
             a.btn.btn-sm.btn-outline-info(
                 href=`/event/${event.id}/schedule`

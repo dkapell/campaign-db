@@ -103,6 +103,10 @@ interface RenderOptions{
     font?:string
     getHeight?: boolean
     width?:number
+    stroke?:boolean
+    fill?:boolean
+    noLinks?:boolean
+    indent?:number
 }
 
 interface NodeAttrs {

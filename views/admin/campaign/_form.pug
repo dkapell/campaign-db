@@ -276,6 +276,14 @@ if fonts.length
 
         #character-sheet-container.collapse(aria-labeledby='character-sheet-heading')
             .row.my-2
+                label.col-form-label.col-md-3(for="campaign_character_sheet_template") Character Sheet Template
+                .col
+                    select.form-select.select2#campaign_character_sheet_template(name="campaign[character_sheet_template]" data-placeholder='Character Sheet Template')
+                        option
+                        for template in characterSheetTemplates
+                            option(value=template selected=campaign.character_sheet_template===template)
+                                =capitalize(template)
+            .row.my-2
                 label.col-form-label.col-md-3(for="campaign_default_character_sheet_title_font_id") Character Sheet Title Font
                 .col
                     select.form-select.select2#campaign_character_sheet_title_font_id(name="campaign[character_sheet_title_font_id]" data-placeholder='Title Font')

@@ -72,6 +72,7 @@ async function showNew(req, res){
         character_sheet_body_font_scale: 1,
         character_sheet_header_font_scale: 1,
         character_sheet_title_font_scale: 1,
+        character_sheet_template:null,
         translation_scale: 1,
         player_gallery: false,
         schedule_users: true,
@@ -91,6 +92,7 @@ async function showNew(req, res){
         current: 'New'
     };
     res.locals.themes = _.keys(config.get('themes'));
+    res.locals.characterSheetTemplates = config.get('characterSheet.templates');
     if (_.has(req.session, 'campaignData')){
         res.locals.campaign = req.session.campaignData;
         delete req.session.campaignData;
@@ -127,6 +129,7 @@ async function showEdit(req, res, next){
         res.locals.websiteImages = await req.models.image.find({campaign_id:id, type:'website'});
         res.locals.faviconImages = await req.models.image.find({campaign_id:id, type:'favicon'});
         res.locals.fonts = await req.models.font.find({campaign_id:req.campaign.id, type:'google'});
+        res.locals.characterSheetTemplates = config.get('characterSheet.templates');
         res.locals.themes = _.keys(config.get('themes'));
         res.render('admin/campaign/edit');
     } catch(err){

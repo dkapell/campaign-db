@@ -128,9 +128,50 @@
             }
         },
         "scenes": {
-
+            "font": {
+                "title": { "name":null, "scale": 1},
+                "header": { "name":null, "scale": 1},
+                "body": { "name":null, "scale": 1}
+            },
+            "sections": [
+                {
+                    "type": "header",
+                    "title": "Scene"
+                },
+                {
+                    "type": "name",
+                    "name": null
+                },
+                {
+                    "type": "timeslot",
+                    "name": null,
+                    "display": "label"
+                },
+                {
+                    "type": "location",
+                    "name": null
+                },
+                {
+                    "type": "players",
+                    "name": null,
+                    "characters": true
+                },
+                {
+                    "type": "description",
+                    "name": null
+                },
+                {
+                    "type": "printout note",
+                    "name": null
+                }
+            ]
         }
-
+    },
+    "characterSheet":{
+        "templates": [
+            "scifi",
+            "default"
+        ]
     }
 
 

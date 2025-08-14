@@ -65,6 +65,7 @@ interface CharacterSheetOptions {
     titleScale?:number
     headerScale?:number
     bodyScale?:number
+    template?:string
 }
 
 interface SurveyField {

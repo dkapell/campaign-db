@@ -76,6 +76,7 @@ create table campaigns (
     character_sheet_body_font_scale float default 1,
     character_sheet_header_font_scale float default 1,
     character_sheet_title_font_scale float default 1,
+    character_sheet_template varchar(20),
     player_gallery boolean default false,
     stripe_account_id varchar(80),
     stripe_account_ready boolean default false,

@@ -31,6 +31,10 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
     const campaign = await models.campaign.get(characters[0].campaign_id);
 
+    if (!_.has(options, 'template')){
+        options.template = campaign.character_sheet_template
+    }
+
     const fontOptions = {
         useDefaults: false,
         titleFontId: campaign.character_sheet_title_font_id,
@@ -459,7 +463,24 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         doc.strokeColor('#000000')
             .fillColor('#000000');
 
-        doc.rect(options.margin, options.margin, doc.page.width - options.margin*2, doc.page.height - options.margin*2).stroke();
+        switch (options.template){
+            case 'scifi':
+                doc
+                    .moveTo(options.margin, options.margin)
+                    .lineTo(doc.page.width - (options.margin *2), options.margin)
+                    .lineTo(doc.page.width - options.margin, options.margin * 2)
+                    .lineTo(doc.page.width - options.margin, doc.page.height - options.margin)
+                    .lineTo(options.margin * 2, doc.page.height - options.margin)
+                    .lineTo(options.margin, doc.page.height - (options.margin *2))
+                    .lineTo(options.margin, options.margin)
+                    .stroke();
+                    break;
+
+
+            default:
+                doc.rect(options.margin, options.margin, doc.page.width - options.margin*2, doc.page.height - options.margin*2).stroke();
+                break
+        }
 
         const dateStr = moment().format('lll');
         const xPos = options.margin + 2

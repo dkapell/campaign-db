@@ -71,6 +71,7 @@ const tableFields = [
     'character_sheet_title_font_scale',
     'character_sheet_header_font_scale',
     'character_sheet_body_font_scale',
+    'character_sheet_template',
     'translation_scale',
     'player_gallery',
     'stripe_account_id',

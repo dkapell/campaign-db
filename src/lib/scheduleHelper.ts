@@ -473,7 +473,7 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
         const row = [character?character.name:attendance.user.name, attendance.user.name];
         for (const timeslot of schedule){
             const userScenes = [];
-            if (timeslot.schedule_busy){
+            if (timeslot.schedule_busy && timeslot.schedule_busy.type.display_to_player){
                 userScenes.push(timeslot.schedule_busy.name)
             }
             for (const scene of timeslot.scenes){

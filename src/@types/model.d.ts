@@ -448,6 +448,16 @@ interface SceneTimeslotModel extends ModelData{
     request_status?:string
 }
 
+interface ScheduleBusyTypeModel extends ModelData{
+    id: number
+    campaign_id?: number
+    name?:string
+    description?:string
+    display_to_player?:boolean
+    available_to_player?:boolean
+    available_to_staff?:boolean
+}
+
 interface ScheduleBusyModel extends ModelData{
     id: number
     timeslot_id: number
@@ -455,6 +465,7 @@ interface ScheduleBusyModel extends ModelData{
     event_id: number
     type_id: number
     name?: string
+    type?: ScheduleBusyTypeModel
 }
 
 interface SceneIssueModel extends ModelData{

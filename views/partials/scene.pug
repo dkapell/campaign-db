@@ -443,7 +443,7 @@ mixin sceneTable(scenes, exportable=false)
                                 if timeslotsSuggested.length !== scene.timeslot_count
                                     span.ms-1 (#{scene.timeslot_count} Requested)
                             else
-                                | #{scene.timeslot_count} Requested
+                                | Unscheduled (#{scene.timeslot_count})
 
                         td
                             if locationsConfirmed.length
@@ -457,7 +457,7 @@ mixin sceneTable(scenes, exportable=false)
                                 if locationsSuggested.length !== scene.locations_count
                                     span.ms-1 (#{scene.locations_count} Requested)
                             else
-                                | #{scene.locations_count} Requested
+                                | Unscheduled (#{scene.locations_count})
                         td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
                         td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
                         td.text-end

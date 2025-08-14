@@ -86,6 +86,8 @@ create table campaigns (
     default_cleanup_slots int not null default 0,
     schedule_y_location boolean default false,
     schedule_user_id int,
+    scene_default_description text,
+    scene_default_printout_note text,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE

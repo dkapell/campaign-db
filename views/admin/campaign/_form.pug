@@ -458,6 +458,12 @@ if campaign.display_schedule
                     .form-check.form-switch
                         input.form-check-input#campaign_schedule_users(type="checkbox", name="campaign[schedule_players]", checked=campaign.schedule_players)
                         label.form-check-label(for="campaign_schedule_players") Schedule Players in the Event Scheduler
+            .row.my-2
+                .col-md
+                    +markdownEditor('Default Scene Description', 'campaign_default_scene_description', 'campaign[scene_default_description]', 5, 75, campaign.scene_default_description, true)
+            .row.my-2
+                .col-md
+                    +markdownEditor('Default Scene Schedule Printout Note', 'campaign_default_scene_printout_note', 'campaign[scene_default_printout_note]', 3, 50, campaign.scene_default_printout_note, true)
 
 //- Translations
 if campaign.display_translations && fonts.length

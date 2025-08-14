@@ -81,7 +81,9 @@ const tableFields = [
     'default_scene_slots',
     'default_cleanup_slots',
     'schedule_y_location',
-    'schedule_user_id'
+    'schedule_user_id',
+    'scene_default_description',
+    'scene_default_printout_note'
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

@@ -214,6 +214,11 @@ async function showEdit(req, res, next){
         users = await async.map(users, async(user)=>{
             if (user.type === 'player'){
                 user.character = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});
+                if (user.character){
+                    const character = new Character({id:user.character.id});
+                    await character.init();
+                    user.character = await character.data();
+                }
             }
             return user;
         });

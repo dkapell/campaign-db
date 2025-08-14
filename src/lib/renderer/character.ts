@@ -485,7 +485,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         const dateStr = moment().format('lll');
         const xPos = options.margin + 2
         const yPos = firstPage?doc.page.height - (options.margin + 10*options.bodyScale):options.margin +2;
-        const width = doc.page.width - (options.margin*2 + 4);
+        const width = doc.page.width - (options.margin*2 + 4) - ((options.template === 'scifi' && !firstPage)?options.margin:0);
 
         doc.font('Body Font').fontSize(8*options.bodyScale).text( dateStr, xPos, yPos, {
             width: width,

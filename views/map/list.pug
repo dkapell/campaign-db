@@ -32,7 +32,11 @@ block content
                         td= map.name
                         td
                             .badge(class=`text-bg-${map.display_to_pc?'success':'warning'}`)=map.display_to_pc?'Yes':'No'
-                        td= map.description
+                        td.text-wrap
+                            if map.description.length>83
+                                | !{marked.parseInline(map.description.substr(0, 80)+'...')}
+                            else
+                                | !{marked.parseInline(map.description)}
                         td= map.image?map.image.upload.name:'None'
                         
                         if checkPermission('gm')

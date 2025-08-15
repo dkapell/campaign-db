@@ -37,6 +37,7 @@ async function showNew(req, res){
         description: null,
         site: null,
         theme: 'Flatly',
+        theme_dark_mode: false,
         css: null,
         default_to_player: false,
         display_map: 'disabled',
@@ -157,7 +158,8 @@ async function create(req, res){
         'display_schedule',
         'player_gallery',
         'schedule_players',
-        'schedule_y_location'
+        'schedule_y_location',
+        'theme_dark_mode'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
@@ -193,7 +195,8 @@ async function update(req, res){
         'display_schedule',
         'player_gallery',
         'schedule_players',
-        'schedule_y_location'
+        'schedule_y_location',
+        'theme_dark_mode'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;

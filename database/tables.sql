@@ -33,6 +33,7 @@ create table campaigns (
     favicon_id int,
     site varchar(255) unique,
     theme varchar(80),
+    theme_dark_mode: boolean default false,
     css text,
     created_by int,
     default_site boolean default false,

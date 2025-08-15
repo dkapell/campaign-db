@@ -27,6 +27,7 @@ const tableFields = [
     'image_id',
     'favicon_id',
     'theme',
+    'theme_dark_mode',
     'css',
     'created_by',
     'created',

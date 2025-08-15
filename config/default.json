@@ -52,6 +52,10 @@
             "dir": "superhero",
             "description": "The brave and the blue"
         },
+        "Yeti":{
+            "dir": "yeti",
+            "description": "A friendly foundation"
+        },
         "Bootstrap Default":{
             "default": true,
             "description": "Default bootstrap theme"

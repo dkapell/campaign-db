@@ -10,7 +10,8 @@ mixin timeslotButtons(timeslot)
         i.fas.fa-user-check.fa-fw
         span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-success.user-count
 
-    button.btn.btn-outline-dark.unscheduled-players-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+    button.btn.btn-outline-secondary.unscheduled-players-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+        style='z-index:100'
         role='button'
         data-bs-toggle='tooltip'
         title='Unscheduled Players'
@@ -20,8 +21,8 @@ mixin timeslotButtons(timeslot)
 
     )
         i.fas.fa-user.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
-    button.btn.btn-outline-dark.unscheduled-staff-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
+    button.btn.btn-outline-secondary.unscheduled-staff-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
         role='button'
         data-bs-toggle='tooltip'
         title='Unscheduled Staff'
@@ -30,7 +31,7 @@ mixin timeslotButtons(timeslot)
         data-panel-type='list'
     )
         i.fas.fa-users.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-dark.user-count
+        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
     button.btn.btn-outline-info.all-users-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
         role='button'
         data-bs-toggle='tooltip'
@@ -77,7 +78,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="false"
         )
-            .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
+            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 +sceneBody(scene, locationIdx, false)
         - locationIdx++
 
@@ -133,7 +134,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-setup=scene.setup_slots
             data-cleanup=scene.cleanup_slots
         )
-            .scene-display.m-1.px-1.pb-0.bg-white.border.d-block.flex-grow-1
+            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 if xAxisType !== 'location'
                     .d-flex.h-100
                         if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id
@@ -233,5 +234,5 @@ mixin nullBusyItem(xAxisType, cellsPerSlot)
         data-scheduler="false"
         data-busy="true"
     )
-        .scene-display.m-1.px-1.pb-0.bg-white.border.border-info.d-block.flex-grow-1
+        .scene-display.m-1.px-1.pb-0.bg-body.border.border-info.d-block.flex-grow-1
             strong.text-body.title

@@ -336,7 +336,7 @@ function makePlaceholder($parent, title){
     const $inner = $('<div>')
         .addClass('m-1')
         .addClass('p-1')
-        .addClass('bg-white')
+        .addClass('bg-body')
         .addClass('border')
         .addClass('d-flex')
         .addClass('flex-grow-1')

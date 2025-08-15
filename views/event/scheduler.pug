@@ -302,7 +302,7 @@ block maincontent
         #schedule-container-grid.d-grid.col.overflow-y-auto.mx-0.px-0.pb-2(
             style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto); grid-template-areas: ${gridTemplateAreaText}; max-height:95%;`
         )
-            div.bg-white.x-header.top-left.position-sticky#topleft(
+            div.bg-body.x-header.top-left.position-sticky#topleft(
                 style=`grid-row: 1; grid-column: 1; left:0; top:0; z-index:60`
             )
 
@@ -310,7 +310,7 @@ block maincontent
                 -
                     const posXstart = (idx * (xAxisType==='location'?cellsPerSlot:1)) + 2;
                 if xAxisType === 'location'
-                    div.location-header.text-center.align-bottom.pb-1.x-header.schedule-cell.bg-white.border-start.border-bottom(
+                    div.location-header.text-center.align-bottom.pb-1.x-header.schedule-cell.bg-body.border-start.border-bottom(
                         id=`location-${xItem.id}-header`
                         data-location-id=xItem.id
                         style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px;`
@@ -319,7 +319,7 @@ block maincontent
                         div.text-start.px-2
                             +locationTags(xItem)
                 else
-                    div.timeslot-header.text-center.align-bottom.pb-1.x-header.schedule-cell.border-start.bg-white.border-bottom(
+                    div.timeslot-header.text-center.align-bottom.pb-1.x-header.schedule-cell.border-start.bg-body.border-bottom(
                         id=`timeslot-${xItem.id}-header`
                         data-timeslot-id=xItem.id
                         style=`grid-row: 1; grid-column: ${posXstart} / span ${(xAxisType==='location'?cellsPerSlot:1)}; min-width:240px`
@@ -329,7 +329,7 @@ block maincontent
                             +timeslotName(xItem, false, 'unscheduled', showDayTime)
 
             if xAxisType === 'location'
-                div.users-header.text-center.bg-white.user-header.border-start.pb-1.border-bottom(
+                div.users-header.text-center.bg-body.user-header.border-start.pb-1.border-bottom(
                     style=`grid-row: 1; grid-column: -2`)
                     strong Users
 
@@ -337,7 +337,7 @@ block maincontent
                 -
                     const posY = (row * (xAxisType!=='location'?cellsPerSlot:1)) + 2 ;
                 if xAxisType === 'location'
-                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap.bg-white.border-top.border-end(
+                    div.timeslot-header.schedule-cell.d-flex.align-items-center.align-center.y-header.px-2.text-nowrap.bg-body.border-top.border-end(
                         id=`timeslot-${yItem.id}-header`
                         data-timeslot-id=yItem.id
                         style=`grid-row:${posY}; grid-column: 1`
@@ -345,7 +345,7 @@ block maincontent
                         span.flex-fill.text-center
                             +timeslotName(yItem, false, 'unscheduled', showDayTime)
                 else
-                    div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap.bg-white.border-top.border-end(
+                    div.timeslot-header.schedule-cell.text-center.align-bottom.schedule-cell.y-header.px-2.text-nowrap.bg-body.border-top.border-end(
                         id=`location-${yItem.id}-header`
                         data-location-id=yItem.id
                         style=`grid-row:${posY} / span ${cellsPerSlot}; grid-column: 1; min-width:200px`
@@ -378,7 +378,7 @@ block maincontent
                         span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
                 if xAxisType === 'location'
-                    div.users-cell.align-items-center.d-flex.text-center.ps-1.pe-2.bg-white.users-x.border-top.border-start(
+                    div.users-cell.align-items-center.d-flex.text-center.ps-1.pe-2.bg-body.users-x.border-top.border-start(
                         style=`grid-row: ${row+2}; grid-column: -2`
                         data-timeslot-id=yItem.id
                     )
@@ -386,7 +386,7 @@ block maincontent
 
 
             if xAxisType !== 'location'
-                div.bg-white.y-header.position-sticky(
+                div.bg-body.y-header.position-sticky(
                     style=`grid-row:${rows} / span ${cellsPerSlot}; grid-column: 1; left:0; top:0; z-index:60`
                 )
 
@@ -431,7 +431,7 @@ block maincontent
                     return 0;
                 });
 
-            div.unscheduled.mb-2.bg-white(
+            div.unscheduled.mb-2.bg-body(
                 style=`grid-row: ${rows + 1 + (xAxisType==='location'?1:cellsPerSlot)}; grid-column: 2 / span ${unscheduledColumns*(xAxisType==='location'?cellsPerSlot:1)}; z-index:40`)
 
 

@@ -91,7 +91,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
                 const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
                 const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
-            a.scene-player-header.d-block.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+            a.scene-player-header.d-block.text-body-secondary.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
                 role='button'
                 href=`#scene-player-${scene.id}-${locationIdx}`
                 title=`Show/Hide Players`
@@ -143,7 +143,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 if scene.players.confirmed
                     each player in scene.players.confirmed
                         -
-                            let userIconClass = 'text-dark fa-user'
+                            let userIconClass = 'text-body-secondary fa-user'
                             if (player.scene_request_status === 'requested'){
                                 userIconClass = 'text-info fa-user-check'
                             } else if (player.scene_request_status === 'required'){
@@ -178,7 +178,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                 if scene.players.suggested
                     each player in scene.players.suggested
                         -
-                            let userIconClass = 'text-dark fa-user'
+                            let userIconClass = 'text-body-secondary fa-user'
                             if (player.scene_request_status === 'requested'){
                                 userIconClass = 'text-info fa-user-check'
                             } else if (player.scene_request_status === 'required'){
@@ -222,7 +222,7 @@ if scene.staff
                 const confirmedStaffCount = scene.staff.confirmed?scene.staff.confirmed.length:0;
                 const suggestedStaffCount = scene.staff.suggested?scene.staff.suggested.length:0;
                 const currentStaffCount = suggestedStaffCount + confirmedStaffCount;
-            a.scene-staff-header.d-block.text-dark.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+            a.scene-staff-header.d-block.text-body-secondary.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
                 role='button'
                 href=`#scene-staff-${scene.id}-${locationIdx}`
                 title=`Show/Hide Staff`
@@ -275,7 +275,7 @@ if scene.staff
                 if scene.staff.confirmed
                     each staff in scene.staff.confirmed
                         -
-                            let userIconClass = 'text-dark fa-user'
+                            let userIconClass = 'text-body-secondary fa-user'
                             if (staff.scene_request_status === 'requested'){
                                 userIconClass = 'text-info fa-user-check'
                             } else if (staff.scene_request_status === 'required'){
@@ -310,7 +310,7 @@ if scene.staff
                 if scene.staff.suggested
                     each staff in scene.staff.suggested
                         -
-                            let userIconClass = 'text-dark fa-user'
+                            let userIconClass = 'text-body-secondary fa-user'
                             if (staff.scene_request_status === 'requested'){
                                 userIconClass = 'text-info fa-user-check'
                             } else if (staff.scene_request_status === 'required'){

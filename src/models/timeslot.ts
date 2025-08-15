@@ -23,9 +23,11 @@ async function fill(data){
     const dayStr = data.day.charAt(0).toUpperCase() + data.day.slice(1);
     let afternoon = false;
     let hour = data.start_hour;
+    if (data.start_hour > 11){
+        afternoon = true;
+    }
     if (data.start_hour > 12){
         hour -= 12;
-        afternoon = true;
     }
 
     data.startStr = `${hour}:${String(data.start_minute).padStart(2, '0')}${afternoon?'pm':'am'}`;

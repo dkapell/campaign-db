@@ -11,7 +11,7 @@ if fileredUsers.length
                 ul.list-inline.mb-0#schedule-busy-types-list
                     each schedule_busy_type in schedule_busy_types
                         if type === 'all' || schedule_busy_type.available_to_player && type==='player' || schedule_busy_type.available_to_staff && type==='staff'
-                            li.schedule-busy-type-item.border.list-inline-item.py-2.px-4.align-top.bg-white.m-1(
+                            li.schedule-busy-type-item.border.list-inline-item.py-2.px-4.align-top.bg-body.m-1(
                                 data-schedule-busy-type-id=schedule_busy_type.id
                                 data-available-to-player=schedule_busy_type.available_to_player?'true':'false'
                                 data-available-to-staff=schedule_busy_type.available_to_staff?'true':'false'
@@ -23,7 +23,7 @@ if fileredUsers.length
             ul.list-inline.mb-0#users-panel-list
                 each user in fileredUsers
 
-                    li.user-item.m-1.border.list-inline-item.rounded.px-1.pb-1.align-top.bg-white(
+                    li.user-item.m-1.border.list-inline-item.rounded.px-1.pb-1.align-top.bg-body(
                         data-user-id=user.id
                         data-user-type=user.type==='player'?'player':'staff'
                     )

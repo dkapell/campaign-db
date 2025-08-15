@@ -348,8 +348,10 @@ fieldset.my-2.border.p-2.rounded
 
                                             const sources = _.where(user.character.sources, {required:false});
                                             for (const source of sources){
-                                                tagString += `<span class="badge text-bg-primary mx-1">${source.name}</span>`
-                                                search.push(source.name)
+                                                if (source.type.on_scene_user_picker){
+                                                    tagString += `<span class="badge text-bg-primary mx-1">${source.name}</span>`
+                                                    search.push(source.name)
+                                                }
                                             }
                                         }
                                     option(
@@ -360,6 +362,9 @@ fieldset.my-2.border.p-2.rounded
                                         data-text=`${user.name}${characterString}`
                                         data-html=`${user.name}${characterString}<br>${tagString}`
                                         data-search=search.join(' ')
+                                        data-exclusive=user.id
+                                        data-container='scene-player-list'
+
                                     ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
                         button.btn.btn-outline-dark.add-user-btn Request
         .row.mb-3
@@ -414,6 +419,8 @@ fieldset.my-2.border.p-2.rounded
                                     data-text=`${user.name} <span class="badge text-bg-primary ms-1">${type}</span>`
                                     data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${user.name}${tagString}`
                                     data-search=`${user.name} ${type} ${_.pluck(user.tags, 'name').join(' ')}`
+                                    data-exclusive=user.id
+                                    data-container='scene-staff-list'
                                 ) #{capitalize(user.name)} (#{type})
                     button.btn.btn-outline-dark.add-user-btn Request
 
@@ -446,6 +453,8 @@ fieldset.my-2.border.p-2.rounded
                                         title=source.name
                                         data-text=`${source.name} <span class="badge text-bg-primary ms-1">${type}</span>`
                                         data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${source.name}`
+                                        data-exclusive=source.id
+                                        data-container='scene-source-list'
                                     ) #{capitalize(source.name)} (#{type})
                         button.btn.btn-outline-dark#add-source-btn Request
                     .input-group.mt-1
@@ -460,6 +469,8 @@ fieldset.my-2.border.p-2.rounded
                                         title=skill.name
                                         data-text=`${skill.name} <span class="badge text-bg-primary ms-1">${skill.source.name}</span>`
                                         data-html=`<span class="text-primary"><strong>${skill.source.name}</strong>:</span> ${skill.name}`
+                                        data-exclusive=skill.id
+                                        data-container='scene-skill-list'
                                     ) #{skill.name} (#{skill.source.name})
                         button.btn.btn-outline-dark#add-skill-btn Request
 .row.my-2

@@ -131,6 +131,7 @@ create table skill_source_types(
     max_sources     int,
     display_on_sheet  boolean default true,
     display_in_header  boolean default false,
+    on_scene_user_picker boolean default true,
     primary key (id),
     CONSTRAINT skill_source_types_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

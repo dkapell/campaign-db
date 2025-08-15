@@ -26,6 +26,8 @@ block content
                     th Max Sources
                     th Display on Sheet
                     th Display in Header
+                    if currentCampaign.display_schedule && currentCampaign.schedule_players
+                        th On Scene User Picker
                     th
 
             tbody
@@ -46,6 +48,10 @@ block content
                             .badge(class=`text-bg-${skill_source_type.display_on_sheet?'success':'warning'}`)=skill_source_type.display_on_sheet?'Yes':'No'
                         td
                             .badge(class=`text-bg-${skill_source_type.display_in_header?'success':'warning'}`)=skill_source_type.display_in_header?'Yes':'No'
+                        if currentCampaign.display_schedule && currentCampaign.schedule_players
+                            td
+                                .badge(class=`text-bg-${skill_source_type.on_scene_user_picker?'success':'warning'}`)=skill_source_type.on_scene_user_picker?'Yes':'No'
+
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-2(
                                     role="button",

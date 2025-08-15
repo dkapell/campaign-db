@@ -10,7 +10,8 @@ const tableFields = [
     'num_free',
     'max_sources',
     'display_on_sheet',
-    'display_in_header'
+    'display_in_header',
+    'on_scene_user_picker'
 ];
 
 const SkillSourceType = new Model('skill_source_types', tableFields, {

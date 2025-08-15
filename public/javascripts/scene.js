@@ -20,6 +20,12 @@ $(function(){
                 return markup;
             },
             templateResult: function(data) {
+                if ($(data.element).data('exclusive')) {
+                    const id = $(data.element).data('exclusive');
+                    const $elements = $(`#${$(data.element).data('container')}`)
+                        .find(`[exclusive-id="${id}"]`);
+                    if ($elements.length){ return null; }
+                }
                 return $(data.element).data('html');
             },
             templateSelection: function(data) {
@@ -41,6 +47,12 @@ $(function(){
                 return markup;
             },
             templateResult: function(data) {
+                if ($(data.element).data('exclusive')) {
+                    const id = $(data.element).data('exclusive');
+                    const $elements = $(`#${$(data.element).data('container')}`)
+                        .find(`[exclusive-id="${id}"]`);
+                    if ($elements.length){ return null; }
+                }
                 return $(data.element).data('html');
             },
             templateSelection: function(data) {
@@ -329,6 +341,7 @@ function addSceneRunnerUser(e){
 function addSceneUserRow($container, user, type, value){
     const $new = $('#scene-user-new').clone();
     $new.attr('id', `scene-user-${user.id}`);
+    $new.attr('exclusive-id', user.id);
     $new.find('.user-name').text(user.name);
     $new.find('.user-type').text(type);
     if (user.type === 'player'){
@@ -401,6 +414,7 @@ function addSceneSource(e){
     }
     const $new = $('#scene-source-new').clone();
     $new.attr('id', `scene-source-${source.id}`);
+    $new.attr('exclusive-id', source.id);
     $new.find('.source-name').text(source.name);
     $new.find('.source-type').text(type);
 
@@ -450,6 +464,7 @@ function addSceneSkill(e){
     }
     const $new = $('#scene-skill-new').clone();
     $new.attr('id', `scene-skill-${skill.id}`);
+    $new.attr('exclusive-id', skill.id);
     $new.find('.skill-name').text(skill.name);
     $new.find('.skill-source').text(source);
 

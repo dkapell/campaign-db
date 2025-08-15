@@ -52,7 +52,8 @@ async function showNew(req, res, next){
             name: null,
             num_free: 0,
             display_on_sheet: true,
-            display_in_header: false
+            display_in_header: false,
+            on_scene_user_picker: true,
         };
         res.locals.breadcrumbs = {
             path: [
@@ -108,7 +109,7 @@ async function create(req, res){
     req.session.skill_source_typeData = skill_source_type;
     skill_source_type.campaign_id = req.campaign.id;
 
-    for (const field of ['display_in_header', 'display_on_sheet']){
+    for (const field of ['display_in_header', 'display_on_sheet', 'on_scene_user_picker']){
         if (!_.has(skill_source_type, field)){
             skill_source_type[field] = false;
         }
@@ -135,7 +136,7 @@ async function update(req, res){
     const skill_source_type = req.body.skill_source_type;
     req.session.skill_source_typeData = skill_source_type;
 
-    for (const field of ['display_in_header', 'display_on_sheet']){
+    for (const field of ['display_in_header', 'display_on_sheet', 'on_scene_user_picker']){
         if (!_.has(skill_source_type, field)){
             skill_source_type[field] = false;
         }

@@ -190,7 +190,7 @@ mixin sceneLocationImage(location)
 
 
 mixin sceneUserInput(user, request_status, schedule_status, details)
-    li.list-group-item.scene-user(id=`scene-user-${user.id}`)
+    li.list-group-item.scene-user(id=`scene-user-${user.id}` exclusive-id=user.id)
         .row
             .col-md-7
                 -
@@ -231,7 +231,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                     )
 
 mixin sceneSourceInput(source, request_status, schedule_status)
-    li.list-group-item.scene-source(id=`scene-source-${source.id}`)
+    li.list-group-item.scene-source(id=`scene-source-${source.id}` exclusive-id=source.id)
         .row
             .col-md-7
                 -
@@ -258,7 +258,7 @@ mixin sceneSourceInput(source, request_status, schedule_status)
                         +sceneItemScheduleBadge(schedule_status)
 
 mixin sceneSkillInput(skill, request_status, schedule_status)
-    li.list-group-item.scene-skill(id=`scene-skill-${skill.id}`)
+    li.list-group-item.scene-skill(id=`scene-skill-${skill.id}` exclusive-id=skill.id)
         .row
             .col-md-7
                 -

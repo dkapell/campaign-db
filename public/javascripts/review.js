@@ -8,7 +8,7 @@ $(function(){
 async function approveSkill(e){
     e.preventDefault();
     const skillId = $(this).data('skillid');
-    const csrfToken = $(this).data('csrfToken');
+    const csrfToken = $(this).data('csrf');
     const url = `/skill/${skillId}/review`;
     const request = await fetch(url, {
         method:'POST',
@@ -36,7 +36,7 @@ async function saveSkillComment(e){
     const $this = $(this);
     $this.attr('disabled', true);
     const skillId = $this.data('skillid');
-    const csrfToken = $this.data('csrfToken');
+    const csrfToken = $this.data('csrf');
     const content = $this.closest('.review-skill').find('.skill-comment').val();
     const url = `/skill/${skillId}/review`;
     const request = await fetch(url, {

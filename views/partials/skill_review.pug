@@ -117,7 +117,7 @@ mixin reviewSkillDoc(skill, showActions)
 
 mixin reviewSkillActions(skill)
     .skill-actions.my-2.ps-3.pb-2.border-bottom
-        button.btn.btn-sm.btn-outline-success.me-2.skill-approve-btn(data-skillid=skill.id data-csrfToken=csrfToken)
+        button.btn.btn-sm.btn-outline-success.me-2.skill-approve-btn(data-skillid=skill.id data-csrf=csrfToken)
             i.fa.fas.fa-thumbs-up.me-1
             | Approve
         button.btn.btn-sm.btn-outline-info.me-2(
@@ -134,7 +134,7 @@ mixin reviewSkillActions(skill)
         aria-labelledby=`skill-comment-btn-${skill.id}`
     )
         textarea.form-control.skill-comment
-        button.btn.btn-sm.btn-outline-success.skill-comment-save.mt-1.me-2(data-skillid=skill.id  data-csrfToken=csrfToken type="submit") Save Comment
+        button.btn.btn-sm.btn-outline-success.skill-comment-save.mt-1.me-2(data-skillid=skill.id  data-csrf=csrfToken type="submit") Save Comment
         a.btn.btn-sm.btn-outline-danger.skill-comment-cancel.mt-1(
             data-csrfToken=csrfToken
             data-bs-toggle="collapse"

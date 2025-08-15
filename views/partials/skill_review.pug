@@ -23,11 +23,11 @@ mixin reviewSkillDoc(skill, showActions)
                             if skill.name==='TBD'
                                 i.skill-name Unnamed Skill
                                 if (skill.cost)
-                                    span.skill-cost.ms-2 (#{skill.cost} cp)
+                                    span.skill-cost.ms-2 (#{skill.cost} #{currentCampaign.renames.cp.singular})
                             else
                                 span.skill-name= skill.name
                                 if (skill.cost)
-                                        span.skill-cost.ms-2 (#{skill.cost} cp)
+                                        span.skill-cost.ms-2 (#{skill.cost} #{currentCampaign.renames.cp.singular})
 
 
             .skill-source.my-1
@@ -68,11 +68,12 @@ mixin reviewSkillDoc(skill, showActions)
                     -
                         const provides = skill.provides.map( (provider) => {
                             let str = capitalize(provider.type);
-                            str += ': ';
-                            if (provider.name){
-                                str += `${provider.name}: `
+                            if (provider.name && provider.name !== ''){
+                                str += `: ${provider.name}`
                             }
-                            str += provider.value;
+                            if (provider.value && provider.value !== ''){
+                                str += `: ${provider.value}`;
+                            }
                             return str;
                         });
                     span.skill-provides= provides.join(', ')

@@ -164,7 +164,39 @@
                     "type": "printout note",
                     "name": null
                 }
-            ]
+            ],
+        },
+        "scenelabels":{
+            "font": {
+                "title": { "name":null, "scale": 1},
+                "header": { "name":null, "scale": 1},
+                "body": { "name":null, "scale": 1}
+            },
+            "margins":{
+                "top": 32.5,
+                "bottom": 32.5,
+                "left": 11.5,
+                "right": 11.5
+            },
+            "innerMargin": 18,
+            "gutter": {
+                "horizontal": 11.5,
+                "vertical": 0
+            },
+            "indent": 18,
+            "rows": 3,
+            "columns": 2,
+            "sections": [
+                "name",
+                "responsible",
+                "location",
+                "timeslot",
+                "users"
+            ],
+            "listAfter":{
+                "players": 12,
+                "staff":8
+            }
         }
     },
     "characterSheet":{

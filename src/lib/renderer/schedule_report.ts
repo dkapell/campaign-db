@@ -1,6 +1,7 @@
 'use strict';
 import PDFDocument from 'pdfkit';
 import _ from 'underscore';
+import moment from 'moment';
 import models from '../models';
 import markdown from './markdown';
 import pdfHelper from '../pdfHelper';
@@ -9,6 +10,9 @@ import scheduleHelper from '../scheduleHelper';
 async function renderReport(eventId:number, reportName:string, options): Promise<PDFKit.PDFDocument>{
     if (!_.has(options, 'margin')){
         options.margin = 36;
+    }
+     if (!_.has(options, 'indent')){
+        options.indent = options.margin;
     }
     if (!_.has(options, 'boldStrokeWidth')){
         options.boldStrokeWidth = 0.1;
@@ -37,6 +41,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     switch (reportName){
         case 'player': await playerReport(); break;
         case 'scenes': await scenesReport(); break;
+        case 'scenelabels': await sceneLabelsReport(); break;
     }
 
     return doc;
@@ -157,9 +162,9 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     }
 
     async function scenesReport(){
-        const scenes = await models.scene.find({event_id:eventId}); // status?
+        const scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
         for (let scene of scenes){
-            scene = await scheduleHelper.formatScene(scene);
+            scene = scheduleHelper.formatScene(scene);
             doc.addPage();
             for (const section of options.sections){
                 switch (section.type){
@@ -235,15 +240,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     }
                 }
             }
-            if (scene.timeslots.suggested){
-                for (const timeslot of scene.timeslots.suggested){
-                    if (sectionOptions.display === 'label' && timeslot.display_name){
-                        timeslots.push(timeslot.display_name);
-                    } else {
-                        timeslots.push(timeslot.name);
-                    }
-                }
-            }
+
             doc
                 .font('Body Font')
                 .fontSize(18 * options.font.body.scale)
@@ -274,15 +271,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     }
                 }
             }
-            if (scene.locations.suggested){
-                for (const location of scene.locations.suggested){
-                    if (sectionOptions.display === 'label' && location.display_name){
-                        locations.push(location.display_name);
-                    } else {
-                        locations.push(location.name);
-                    }
-                }
-            }
+
             doc
                 .font('Body Font')
                 .fontSize(18 * options.font.body.scale)
@@ -306,15 +295,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             const players = [];
             if (scene.players.confirmed){
                 for (const player of scene.players.confirmed){
-                    if (sectionOptions.characters){
-                        players.push(player.character.name);
-                    } else {
-                        players.push(player.name);
-                    }
-                }
-            }
-            if (scene.players.suggested){
-                for (const player of scene.players.suggested){
                     if (sectionOptions.characters){
                         players.push(player.character.name);
                     } else {
@@ -370,6 +350,350 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc.x -= options.margin;
             doc.moveDown(0.5);
 
+        }
+    }
+
+    async function sceneLabelsReport(){
+        const scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
+        if (scenes.length){
+            doc.addPage({margins:options.margins});
+        }
+        if (!_.has(options, 'listAfter')){
+            options.listAfter = {players: 12, staff:8 }
+        }
+        if (!_.has(options.listAfter, 'players')){
+            options.listAfter.players = 12
+        }
+        if (!_.has(options.listAfter, 'staff')){
+            options.listAfter.staff = 8
+        }
+
+        const pageWidth = doc.page.width - (options.margins.right + options.margins.left);
+        const cellWidth = (pageWidth - (options.gutter.horizontal * (options.columns - 1)))/options.columns;
+        const pageHeight = doc.page.height - (options.margins.top + options.margins.bottom);
+        const cellHeight = (pageHeight - (options.gutter.vertical * (options.rows - 1)))/options.rows;
+        const cellContentsWidth = cellWidth - (options.innerMargin * 2);
+        let currentColumn = 0;
+        let currentRow = 0;
+        let first = true;
+
+        for (let scene of scenes){
+            scene = scheduleHelper.formatScene(scene);
+            if (!first && currentColumn === 0 && currentRow === 0){
+                doc.addPage({margins:options.margins});
+            }
+            first = false;
+            const x = options.margins.left + (cellWidth * currentColumn) + (currentColumn * options.gutter.horizontal);
+            const y = options.margins.top + (cellHeight * currentRow) + (currentRow * options.gutter.vertical);
+            doc.x = x + options.innerMargin
+            doc.y = y + options.innerMargin
+            doc.strokeColor('#eeeeee').rect(x, y, cellWidth, cellHeight).stroke();
+
+            const dateStr = moment(event.start_time).format('ll');
+
+            doc
+                .font('Body Font')
+                .fontSize(8*options.font.body.scale)
+                .text( dateStr, x+4, y+4, {
+                    width: cellWidth-8,
+                    align:'right'
+                });
+            doc
+                .font('Body Font')
+                .fontSize(8*options.font.body.scale)
+                .text(event.name, x+4, y+4, {
+                    width: cellWidth-8,
+                    align:'left'
+                });
+
+            doc.x = x + options.innerMargin
+            doc.y = y + options.innerMargin
+
+            for (const section of options.sections){
+                switch (section){
+                    case 'name': renderName(scene); break;
+                    case 'responsible': renderResponsible(scene); break;
+                    case 'timeslot': renderTimeslot(scene); break;
+                    case 'location': renderLocation(scene); break;
+                    case 'users': renderUsers(scene); break;
+                    case 'players': renderPlayers(scene); break;
+                    case 'staff': renderStaff(scene); break;
+                }
+            }
+            if (currentColumn+1 < options.columns){
+                currentColumn++;
+            } else if (currentRow+1 < options.rows) {
+                currentColumn = 0;
+                currentRow++;
+            } else {
+                currentColumn = 0;
+                currentRow = 0;
+            }
+        }
+        return doc;
+
+        function renderName(scene){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc
+                .font('Title Font Bold')
+                .fontSize(14 * options.font.title.scale)
+                .text(scene.name, {
+                    width:cellContentsWidth,
+                    align:'center',
+                    stroke:options.font.header.strokeForBold,
+                    fill:true
+                });
+            doc.moveDown(0.25);
+        }
+        function renderResponsible(scene){
+            const sectionY = doc.y;
+            const sectionX = doc.x;
+            const sectionWidth = (cellContentsWidth - 18) / 2
+
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            if (scene.writer){
+                doc
+                    .font('Header Font Bold')
+                    .fontSize(10 * options.font.header.scale)
+                    .text('Writer: ', doc.x, doc.y,
+                        {continued:true, stroke:options.font.header.strokeForBold, fill:true, width:sectionWidth});
+
+                doc
+                    .font('Body Font')
+                    .fontSize(10 * options.font.body.scale)
+                    .text(scene.writer.name, {stroke:false, fill:true, width:sectionWidth});
+            }
+            if (scene.runner){
+                doc
+                    .font('Header Font Bold')
+                    .fontSize(10 * options.font.header.scale)
+                    .text('Runner: ', doc.x + sectionWidth + 19, sectionY,
+                        {continued:true, stroke:options.font.header.strokeForBold, fill:true, width:sectionWidth});
+
+                doc
+                    .font('Body Font')
+                    .fontSize(10 * options.font.body.scale)
+                    .text(scene.runner.name, {stroke:false, fill:true, width:sectionWidth});
+            }
+            doc.x = sectionX;
+            doc.moveDown(0.25);
+        }
+        function renderTimeslot(scene){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.indent;
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Timeslot(s): ', {
+                    continued:true,
+                    stroke:options.font.header.strokeForBold,
+                    fill:true,
+                    indent:-options.indent,
+                    width:cellContentsWidth - options.indent
+                });
+
+            const timeslots = [];
+            if (scene.timeslots.confirmed){
+                for (const timeslot of scene.timeslots.confirmed){
+                    if (options.timeslotDisplay === 'label' && timeslot.display_name){
+                        timeslots.push(timeslot.display_name);
+                    } else {
+                        timeslots.push(timeslot.name);
+                    }
+                }
+            }
+            doc
+                .font('Body Font')
+                .fontSize(10 * options.font.body.scale)
+                .text(timeslots.join(', '), {stroke:false, fill:true, indent:-options.indent});
+            doc.x -= options.indent;
+            doc.moveDown(0.25);
+
+        }
+
+        function renderLocation(scene){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.indent;
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Locations(s): ', {
+                    continued:true,
+                    stroke:options.font.header.strokeForBold,
+                    fill:true,
+                    indent:-options.indent,
+                    width:cellContentsWidth - options.indent
+                });
+
+            const locations = [];
+            if (scene.locations.confirmed){
+                for (const location of scene.locations.confirmed){
+                    locations.push(location.name);
+
+                }
+            }
+            doc
+                .font('Body Font')
+                .fontSize(10 * options.font.body.scale)
+                .text(locations.join(', '), {
+                    stroke:false,
+                    fill:true,
+                    indent:-options.indent,
+                });
+            doc.x -= options.indent;
+            doc.moveDown(0.25);
+
+        }
+        function renderUsers(scene){
+            const sectionY = doc.y;
+            const sectionX = doc.x;
+            const sectionWidth = (cellContentsWidth - 18) / 2
+
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Players', doc.x, doc.y,
+                    {stroke:options.font.header.strokeForBold, fill:true, width:sectionWidth});
+            if (scene.players.confirmed){
+                for (const player of scene.players.confirmed){
+                    doc
+                        .font('Body Font')
+                        .fontSize(10 * options.font.body.scale)
+                        .text(player.name, {stroke:false, fill:true, width:sectionWidth});
+                }
+            }
+            const playerY = doc.y;
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Staff', doc.x + sectionWidth + 18, sectionY,
+                    {stroke:options.font.header.strokeForBold, fill:true, width:sectionWidth});
+
+            if (scene.staff.confirmed){
+                for (const staff of scene.staff.confirmed){
+                    doc
+                        .font('Body Font')
+                        .fontSize(10 * options.font.body.scale)
+                        .text(staff.name, {stroke:false, fill:true, width:sectionWidth});
+                }
+            }
+            doc.x = sectionX;
+            doc.y = Math.max(doc.y, playerY);
+            doc.moveDown(0.25)
+        }
+
+        function renderPlayers(scene){
+            const sectionX = doc.x;
+            const sectionWidth = (cellContentsWidth - 18) / 2
+
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Players', doc.x, doc.y,
+                    {stroke:options.font.header.strokeForBold, fill:true});
+
+
+            const players = [];
+            if (scene.players.confirmed){
+                if (scene.players.confirmed.length > options.listAfter.players){
+                    for (const player of scene.players.confirmed){
+                        players.push(player.name)
+                    }
+
+                } else {
+
+                    for (const player of scene.players.confirmed){
+                        const itemY = doc.y;
+                        doc
+                            .font('Body Font')
+                            .fontSize(10 * options.font.body.scale)
+                            .text(player.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        doc
+                            .font('Body Font')
+                            .fontSize(10 * options.font.body.scale)
+                            .text(player.character.name, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
+                    }
+                }
+            }
+            if (players.length){
+                doc
+                    .font('Body Font')
+                    .fontSize(10 * options.font.body.scale)
+                    .text(players.join(', '), sectionX, doc.y, {stroke:false, fill:true, width:cellContentsWidth});
+            }
+
+            doc.x = sectionX;
+            doc.moveDown(0.25)
+        }
+
+        function renderStaff(scene){
+            const sectionX = doc.x;
+            const sectionWidth = (cellContentsWidth - 18) / 2
+
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(10 * options.font.header.scale)
+                .text('Staff', doc.x, doc.y,
+                    {stroke:options.font.header.strokeForBold, fill:true});
+
+            const staffList = [];
+
+            if (scene.staff.confirmed){
+                if (scene.staff.confirmed.length > options.listAfter.staff){
+                    for (const staff of scene.staff.confirmed){
+                        if (staff.npc){
+                            staffList.push(`${staff.name} (${staff.npc})`);
+                        } else {
+                            staffList.push(staff.name);
+                        }
+                    }
+
+                } else {
+                    for (const staff of scene.staff.confirmed){
+                        const itemY = doc.y;
+                        doc
+                            .font('Body Font')
+                            .fontSize(10 * options.font.body.scale)
+                            .text(staff.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        if (staff.npc){
+                            doc
+                                .font('Body Font')
+                                .fontSize(10 * options.font.body.scale)
+                                .text(staff.npc, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        }
+                    }
+                }
+            }
+            if (staffList.length){
+                doc
+                    .font('Body Font')
+                    .fontSize(10 * options.font.body.scale)
+                    .text(staffList.join(', '), sectionX, doc.y, {stroke:false, fill:true, width:cellContentsWidth});
+            }
+
+            doc.x = sectionX;
+            doc.moveDown(0.25)
         }
     }
 }

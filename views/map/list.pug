@@ -33,8 +33,8 @@ block content
                         td
                             .badge(class=`text-bg-${map.display_to_pc?'success':'warning'}`)=map.display_to_pc?'Yes':'No'
                         td.text-wrap
-                            if map.description.length>83
-                                | !{marked.parseInline(map.description.substr(0, 80)+'...')}
+                            if map.description.length>123
+                                | !{marked.parseInline(map.description.substr(0, 120)+'...')}
                             else
                                 | !{marked.parseInline(map.description)}
                         td= map.image?map.image.upload.name:'None'

@@ -337,6 +337,8 @@ async function update(req, res){
 
 async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
     const scene = req.body.scene;
+    delete scene.created;
+    scene.updated = new Date();
     for (const field of ['display_to_pc']){
         if (!_.has(scene, field)){
             scene[field] = false;

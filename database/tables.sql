@@ -1057,6 +1057,8 @@ create table scenes (
     cleanup_slots int,
     writer_id int,
     runner_id int,
+    created timestamp with time zone DEFAULT now(),
+    updated timestamp with time zone DEFAULT now(),
     primary key (id),
     CONSTRAINT scenes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

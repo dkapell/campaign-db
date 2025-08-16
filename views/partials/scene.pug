@@ -377,22 +377,23 @@ mixin sceneTable(scenes, exportable=false)
                 .visually-hidden Table is Loading
 
         table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.scene-table(
-            style="display: none; font-size:0.85rem"
+            style="display: none; font-size:0.75rem"
             class=exportable?'table-exportable':''
             data-export='/scene?export=true'
             )
             thead
                 tr
                     th
-                    th Event
+                    th(data-priority="1") Event
                     th(data-priority="1") Name
-                    th Status
-                    th Writer
-                    th Timeslot
-                    th Location
+                    th(data-priority="2") Status
+                    th(data-priority="4") Writer
+                    th(data-priority="3") Timeslot
+                    th(data-priority="3") Location
                     th Players
                     th Staff
-                    th
+                    th Updated
+                    th(data-priority="1")
 
 
             tbody
@@ -460,6 +461,8 @@ mixin sceneTable(scenes, exportable=false)
                                 | Unscheduled (#{scene.locations_count})
                         td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
                         td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
+                        td(data-sort=scene.updated.getTime() style='font-size:0.7rem')
+                            =moment(scene.updated).format('lll')
                         td.text-end
                             a.btn.btn-outline-info.btn-xs.action-btn.mx-1(
                                 href=`/scene/${scene.id}/edit?backto=list`
@@ -909,3 +912,9 @@ mixin sceneCard(scene, full=false)
                             data-bs-toggle='tooltip'
                         )
                             i.fas.fa-eye
+                .float-end.text-end(style='font-size:0.7rem')
+                    span.me-1 Created:
+                    =moment(scene.created).format('lll')
+                    br
+                    span.me-1 Updated:
+                    =moment(scene.updated).format('lll')

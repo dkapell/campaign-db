@@ -49,6 +49,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.writer = scene.writer;
         output.runner_id = scene.runner_id;
         output.runner = scene.runner;
+        output.created = scene.created;
+        output.updated = scene.updated;
     }
 
     if (scene.score){

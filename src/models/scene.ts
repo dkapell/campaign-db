@@ -65,7 +65,9 @@ const tableFields = [
     'player_url',
     'priority',
     'writer_id',
-    'runner_id'
+    'runner_id',
+    'created',
+    'updated'
 ];
 
 const Scene = new Model('scenes', tableFields, {

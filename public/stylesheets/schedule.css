@@ -58,7 +58,7 @@ html, body {
 }
 .schedule-slot{
   z-index: -1;
-  background-color: rgba(var(--bs-light-rgb), 0.75);
+  /*background-color: rgba(var(--bs-light-rgb), 0.75);*/
 }
 .handle {
   cursor: grab;

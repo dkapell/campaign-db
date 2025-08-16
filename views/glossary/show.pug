@@ -6,7 +6,7 @@ block content
     h2.d-inline.align-middle Glossary - #{glossary_entry.name}
     for tag in glossary_entry.tags
         a(href=`/glossary/tag/${tag.id}/${tag.name}`)
-            h2.badge.badge-dark.mx-1= tag.name
+            h2.badge.text-bg-info.mx-1= tag.name
     if checkPermission('gm')
         a.btn.btn-sm.btn-outline-info.ms-2(href=`/glossary/${glossary_entry.id}/edit`)
             i.fas.fa-edit.me-1

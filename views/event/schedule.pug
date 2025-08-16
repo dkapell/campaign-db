@@ -145,7 +145,7 @@ block maincontent
                             const timeslot = xAxisType==='location'?yItem:xItem
                             const location = xAxisType==='location'?xItem:yItem
 
-                        div.schedule-cell.schedule-slot.border.overflow-visible(
+                        div.schedule-cell.schedule-slot.border.overflow-visible.bg-body-secondary(
                             id=`cell-timeslot-${timeslot.id}-location-${location.id}`
                             data-location-id=location.id
                             data-timeslot-id=timeslot.id
@@ -180,8 +180,8 @@ block maincontent
                                 option(
                                     value=attendance.user.id
                                     title=attendance.user.name
-                                    data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                    data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                    data-text=`<span class="${attendance.user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                    data-html=`<span class="${attendance.user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                                 ) #{capitalize(attendance.user.name)} (#{type})
                 -
                     const tags = [];

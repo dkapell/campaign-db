@@ -37,12 +37,13 @@ if (backto)
             each status in ['new', 'ready', 'scheduled', 'confirmed', 'postponed']
 
                 -
-                    let badgeClass = 'dark';
+                    let badgeClass = 'secondary';
+                    let textClass = 'body'
                     switch (status){
-                        case 'ready': badgeClass = 'info'; break;
-                        case 'scheduled': badgeClass = 'warning'; break;
-                        case 'confirmed': badgeClass = 'success'; break;
-                        case 'postponed': badgeClass = 'danger'; break;
+                        case 'ready': badgeClass = 'info'; textClass = 'info'; break;
+                        case 'scheduled': badgeClass = 'warning'; textClass = 'warning'; break;
+                        case 'confirmed': badgeClass = 'success'; textClass = 'success'; break;
+                        case 'postponed': badgeClass = 'danger'; textClass = 'danger'; break;
                     }
                     if ((status === 'scheduled' || status === 'confirmed') && !checkPermission('admin')){
                         badgeClass += ' disabled'
@@ -51,7 +52,7 @@ if (backto)
                     value=status
                     selected=status===scene.status
                     data-text=`<span class="badge text-bg-${badgeClass}">${capitalize(status)}</span>`
-                    data-html=`<span class="text-${badgeClass}">${capitalize(status)}</span>`
+                    data-html=`<span class="text-${textClass}">${capitalize(status)}</span>`
                     disabled=(status === 'scheduled' || status === 'confirmed' ) && !checkPermission('admin')
                 )= capitalize(status)
 
@@ -329,7 +330,7 @@ fieldset.my-2.border.p-2.rounded
                             if user.type === 'player'
                                 +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
                         +sceneUserInput({id:'new', typeForDisplay:'placeholder'}, 'requested', 'unscheduled')
-                    .input-group
+                    .input-group.input-group-sm
                         select.form-select.complex-search-select2.scene-user-picker#scene-player-picker(data-placeholder='Player')
                             option
                             each user in users
@@ -366,7 +367,7 @@ fieldset.my-2.border.p-2.rounded
                                         data-container='scene-player-list'
 
                                     ) #{capitalize(user.name)}: #{_.pluck(user.tags, 'name').join(', ')}
-                        button.btn.btn-outline-dark.add-user-btn Request
+                        button.btn.btn-outline-primary.add-user-btn Request
         .row.mb-3
             .col.scene-user-picker-container
                 .row.mb-2
@@ -400,7 +401,7 @@ fieldset.my-2.border.p-2.rounded
                     each user in scene.users
                         if user.type !== 'player'
                             +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status, user.scene_details)
-                .input-group
+                .input-group.input-group-sm
                     select.form-select.complex-search-select2.scene-user-picker#scene-staff-picker(data-placeholder='Staff')
                         option
                         each user in users
@@ -422,7 +423,7 @@ fieldset.my-2.border.p-2.rounded
                                     data-exclusive=user.id
                                     data-container='scene-staff-list'
                                 ) #{capitalize(user.name)} (#{type})
-                    button.btn.btn-outline-dark.add-user-btn Request
+                    button.btn.btn-outline-primary.add-user-btn Request
 
         if currentCampaign.schedule_players
             .row.mb-3
@@ -440,7 +441,7 @@ fieldset.my-2.border.p-2.rounded
                             +sceneSkillInput(skill, skill.scene_request_status, skill.scene_schedule_status)
                     +sceneSourceInput({id:'new', type:{name:'placeholder'}}, 'requested', 'unscheduled')
                     +sceneSkillInput({id:'new', source:{name:'placeholder'}}, 'requested', 'unscheduled')
-                    .input-group
+                    .input-group.input-group-sm
                         select.form-select.complex-select2#scene-source-picker(data-placeholder='Source')
                             option
                             each source in sources
@@ -456,8 +457,8 @@ fieldset.my-2.border.p-2.rounded
                                         data-exclusive=source.id
                                         data-container='scene-source-list'
                                     ) #{capitalize(source.name)} (#{type})
-                        button.btn.btn-outline-dark#add-source-btn Request
-                    .input-group.mt-1
+                        button.btn.btn-outline-primary#add-source-btn Request
+                    .input-group.mt-1.input-group-sm
                         select.form-select.complex-select2#scene-skill-picker(data-placeholder='Skill')
                             option
                             each skill in skills
@@ -472,7 +473,7 @@ fieldset.my-2.border.p-2.rounded
                                         data-exclusive=skill.id
                                         data-container='scene-skill-list'
                                     ) #{skill.name} (#{skill.source.name})
-                        button.btn.btn-outline-dark#add-skill-btn Request
+                        button.btn.btn-outline-primary#add-skill-btn Request
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= scene.id?'Update':'Create'

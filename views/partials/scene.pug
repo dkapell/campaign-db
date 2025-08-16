@@ -293,7 +293,7 @@ mixin sceneItemRequestText(request_status)
         when 'rejected'
             span.text-danger Rejected
         default
-            span.text-dark None
+            span.text-black None
 
 mixin sceneUserRequestText(request_status)
     case request_status
@@ -304,12 +304,12 @@ mixin sceneUserRequestText(request_status)
         when 'rejected'
             span.text-danger Rejected
         default
-            span.text-dark None
+            span.text-black None
 
 mixin sceneItemScheduleBadge(schedule_status)
     case schedule_status
         when 'unscheduled'
-            .badge.text-bg-dark Unscheduled
+            .badge.text-bg-black Unscheduled
         when 'suggested'
             .badge.text-bg-warning Suggested
         when 'confirmed'
@@ -318,7 +318,7 @@ mixin sceneItemScheduleBadge(schedule_status)
 mixin sceneStatusRequestOptions(status)
     each value in ['none', 'requested', 'required', 'rejected']
         -
-            let badgeClass = 'dark';
+            let badgeClass = 'body-secondary';
             let badgeName = capitalize(value);
             switch (value){
                 case 'requested': badgeClass = 'info'; break;
@@ -335,7 +335,7 @@ mixin sceneStatusRequestOptions(status)
 mixin sceneStatusUserRequestOptions(status)
     each value in ['none', 'requested', 'required', 'rejected']
         -
-            let badgeClass = 'dark';
+            let badgeClass = 'body-secondary';
             switch (value){
                 case 'requested': badgeClass = 'info'; break;
                 case 'required': badgeClass = 'primary'; break;
@@ -366,7 +366,7 @@ mixin sceneStatusBadge(status, forPlayer=false)
         when 'ready'
             .badge.text-bg-info.mx-1 Ready
         when 'new'
-            .badge.text-bg-dark.mx-1 New
+            .badge.text-bg-secondary.mx-1 New
         when 'postponed'
             .badge.text-bg-danger.mx-1 Postponed
 
@@ -596,7 +596,7 @@ mixin issueTable(scenes, simpleTable=false, allowedEdit=false)
                                         href='#'
                                     )
                                         i.far.fa-square.fa-lg
-                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-dark.action-btn(
+                                    a.link-underline.link-underline-opacity-0.issue-ignore-btn.unignore-btn.text-primary.action-btn(
                                         data-bs-toggle='tooltip'
                                         title='Reopen Issue'
                                         data-event-id=scene.event_id

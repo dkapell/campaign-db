@@ -84,7 +84,7 @@
             const theme = $('html').attr('data-bs-theme');
             let textClass = '';
             if (theme === 'dark') {
-                textClass = 'text-bg-light';
+                textClass = 'bg-body-secondary';
             }
 
             let messageHtml = '';

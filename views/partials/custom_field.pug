@@ -107,7 +107,7 @@ mixin dropdownOptionEditor(option, id)
                 button.ms-1.btn.btn-sm.btn-outline-danger.remove-option-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Option' data-bs-placement="right")
                     i.fas.fa-trash.fa-fw
         .row.my-1
-            .col.p-0.bg-light.ms-1
+            .col.p-0.bg-body-seconday.ms-1
                 .float-end
                     button.btn.btn-xs.btn-primary.details-toggle-btn(aria-expanded='true' style=!option.description?'display:none':'' data-bs-toggle='tooltip' title='Show/Hide Details')
                         i.fa.fa-chevron-up
@@ -158,7 +158,7 @@ mixin customFieldModal()
 mixin customFieldEntry(field, type, data)
     if (field.display_to_pc && field.editable_by_pc) || checkPermission('contrib')
         .row.my-2
-            .col.text-bg-light.py-2.mx-2.rounded
+            .col.bg-body-secondary.py-2.mx-2.rounded
                 - const current = _.findWhere(data, {custom_field_id:field.id})
                 case field.type
                     when 'text'
@@ -200,7 +200,7 @@ mixin customFieldEntry(field, type, data)
                         else
                             label.control-label= field.name
 
-                            div.bg-light.border.rounded.p-2!=current.value?marked.parseInline(current.value, {breaks: true}):''
+                            div.bg-body-secondary.border.rounded.p-2!=current.value?marked.parseInline(current.value, {breaks: true}):''
                     when 'boolean'
                         .form-check.form-switch
                             input.form-check-input(

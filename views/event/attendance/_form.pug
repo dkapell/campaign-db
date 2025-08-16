@@ -15,8 +15,8 @@ if checkPermission('gm')
                         data-type=user.type
                         selected=Number(attendance.user_id)===user.id
                         title=user.name
-                        data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
-                        data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-text=`<span class="${user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-html=`<span class="${user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                     ) #{capitalize(user.name)} (#{type})
 else if checkPermission('registration edit')
     input#attendance_user_id(type="hidden" value=attendance.user.type)

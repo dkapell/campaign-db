@@ -362,7 +362,7 @@ block maincontent
                         const timeslot = xAxisType==='location'?yItem:xItem
                         const location = xAxisType==='location'?xItem:yItem
 
-                    div.schedule-cell.schedule-slot.border.overflow-visible(
+                    div.schedule-cell.schedule-slot.border.overflow-visible.bg-body-secondary(
                         id=`cell-timeslot-${timeslot.id}-location-${location.id}`
                         data-location-id=location.id
                         data-timeslot-id=timeslot.id

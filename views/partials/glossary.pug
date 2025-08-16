@@ -72,7 +72,7 @@ mixin entryLayout(entry, anchor)
             a.me-3(href=`/glossary/${entry.id}/${querystring.escape(entry.name)}`)= entry.name
             for tag in entry.tags
                 a(href=`/glossary/tag/${tag.id}/${tag.name}`)
-                    span.badge.text-bg-secondary.mx-1= tag.name
+                    span.badge.text-bg-info.mx-1= tag.name
             if checkPermission('contrib')
                 .float-end.text-end
                     if checkPermission('gm')

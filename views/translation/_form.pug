@@ -101,13 +101,13 @@ if (backto)
             .card-header Text Preview
                 .float-end.col-lg-3
                     .input-group.input-group-sm
-                        a.btn.btn-outline-dark#preview_back(class=!translation.preview?'disabled':'')
+                        a.btn.btn-outline-primary#preview_back(class=!translation.preview?'disabled':'')
                             i.fa.fa-caret-left.fa-fw
                         select.form-select.select2.form-select-sm#translation_preview(name="translation[preview]")
                             - let idx = 0;
                             while idx < translation.allText.length
                                 option(value=idx selected=idx===translation.preview)=idx++
-                        a.btn.btn-outline-dark#preview_forward
+                        a.btn.btn-outline-primary#preview_forward
                             i.fa.fa-caret-right.fa-fw
 
             .card-body

@@ -23,7 +23,7 @@ if possibleSkills.length
 
 
 .row.my-2.p-1
-    .col.border.rounded.bg-light.p-2.overflow-auto#skill-description(style=character_skill.id?'':'height:200px')
+    .col.border.rounded.bg-body-secondary.p-2.overflow-auto#skill-description(style=character_skill.id?'':'height:200px')
         if character_skill.id
             +characterSkill(character_skill, false, true, true)
 

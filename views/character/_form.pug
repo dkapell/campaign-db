@@ -10,8 +10,8 @@ if checkPermission('contrib')
                         value=user.id
                         selected=Number(character.user_id)===user.id
                         title=user.name
-                        data-text=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
-                        data-html=`<span class="${user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-text=`<span class="${user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
+                        data-html=`<span class="${user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${user.name}`
                     ) #{capitalize(user.name)} (#{type})
 .row.my-2
     .col

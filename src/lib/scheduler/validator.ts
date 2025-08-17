@@ -165,7 +165,6 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
     }
 
     if (timeslots.timeslots.length){
-        const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
         const myTimeslotIdx = _.findIndex(allTimeslots, {id: timeslots.timeslots[0].id});
 
         for (const prereq of scene.prereqs){

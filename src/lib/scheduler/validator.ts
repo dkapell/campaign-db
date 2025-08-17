@@ -43,10 +43,12 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
     }
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
+    const time0 = (new Date()).getTime();
+    console.error(`vs - 0 -  ${time0 - start}`)
     const reservedTimeslots = await getReservedSceneTimeslots(scene);
 
     const time1 = (new Date()).getTime();
-    console.error(`vs - 1 -  ${time1 - start}`)
+    console.error(`vs - 1 -  ${time1 - time0}`)
     for (const checkScene of eventScenes){
         if (checkScene.id === scene.id){
             continue;

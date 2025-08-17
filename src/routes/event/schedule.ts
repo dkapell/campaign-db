@@ -428,7 +428,7 @@ async function validateScenes(req, res){
         console.log(`validating ${sceneIds.length} scenes`);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
-        const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
+        const scenes = await async.mapLimit(sceneIds, 1, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {

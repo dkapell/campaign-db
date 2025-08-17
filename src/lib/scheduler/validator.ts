@@ -32,7 +32,7 @@ interface IssueRecord{
     text: string
 }
 
-async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null, attendees:AttendeeModel[] = null): Promise<SceneIssueModel[]> {
+async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null, attendees:AttendanceModel[] = null): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
     const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){

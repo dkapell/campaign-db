@@ -819,7 +819,7 @@ mixin sceneCard(scene, full=false)
                         ul.list-unstyled
                             each status in ['confirmed', 'suggested']
                                 if scene.players[status]
-                                    each user in scene.players[status]
+                                    each user in _.sortBy(scene.players[status], (user)=>{return user.character.name})
                                         li
                                             if status !== 'confirmed'
                                                 +sceneStatusBadge(status, true)
@@ -828,7 +828,7 @@ mixin sceneCard(scene, full=false)
                             if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
                                 - const playersByRequestStatus = _.groupBy(scene.players.unscheduled, 'scene_request_status');
                                  each requestStatus in _.keys(playersByRequestStatus)
-                                    each user in playersByRequestStatus[requestStatus]
+                                    each user in  _.sortBy(playersByRequestStatus[requestStatus], (user)=>{return user.character.name})
                                         li
                                             +sceneStatusBadge(requestStatus, true)
                                             +playerEntry(user)
@@ -851,7 +851,7 @@ mixin sceneCard(scene, full=false)
                         ul.list-unstyled
                             each status in ['confirmed', 'suggested']
                                 if scene.staff[status]
-                                    each user in scene.staff[status]
+                                    each user in _.sortBy(scene.staff[status], 'name')
                                         li
                                             if status !== 'confirmed'
                                                 +sceneStatusBadge(status, true)
@@ -860,7 +860,7 @@ mixin sceneCard(scene, full=false)
                             if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
                                 - const staffByRequestStatus = _.groupBy(scene.staff.unscheduled, 'scene_request_status');
                                  each requestStatus in _.keys(staffByRequestStatus)
-                                    each user in staffByRequestStatus[requestStatus]
+                                    each user in _.sortBy(staffByRequestStatus[requestStatus], 'name')
                                         li
                                             +sceneStatusBadge(requestStatus, true)
                                             +staffEntry(user)

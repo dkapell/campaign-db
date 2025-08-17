@@ -321,9 +321,11 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
         });
     }
 
+    const attendees = await models.attdance.find({event_id:scene.event_id, attending:true});
+
     for (const user of scene.users){
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
-            if (! await models.attendance.findOne({user_id:user.id, event_id:scene.event_id, attending:true})){
+            if (! _.findWhere(attendees, {id:user.id})){
                 issues.push({
                     code: 'missing-req-attendee',
                     text: `${user.name} is required, but not attending this event`
@@ -336,6 +338,8 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
             }
         }
     }
+    const time55 = (new Date()).getTime();
+    console.error(`vs - 5.5 -  ${time55 - time5}`)
 
     if (scene.runner_id){
         const sceneUser = _.findWhere(scene.users, {id:scene.runner_id});
@@ -347,7 +351,7 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
         }
     }
     const time6 = (new Date()).getTime();
-    console.error(`vs - 6 -  ${time6 - time5}`)
+    console.error(`vs - 6 -  ${time6 - time55}`)
 
     await saveSceneIssues(scene.id, issues);
 

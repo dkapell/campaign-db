@@ -680,22 +680,38 @@ async function saveSchedule(eventId: number, name:string=null, keep:boolean=fals
 }
 
 async function getSchedule(eventId:number){
+    const start = (new Date()).getTime();
     const event = await models.event.get(eventId);
+
     const schedule = await models.schedule.current(eventId);
+    let now = (new Date()).getTime();
+    if (now - start > 1000){
+        console.error(`gs - Get Schedule took over 1000ms: ${now - start}`)
+    }
+
     if (schedule){
         if (schedule.read_only || await checkScheduleConfigMatches(event.campaign_id, schedule)){
             return schedule;
+        }
+        now = (new Date()).getTime();
+            if (now - start > 1000){
+            console.error(`gs - schedule check took over 1000ms: ${now - start}`)
         }
 
         const scenes = schedule.scenes.filter(scene => {
             return scene.status === 'scheduled' || scene.status === 'confirmed';
         });
 
+
         if (scenes.length){
             schedule.read_only = true;
             await models.schedule.update(schedule.id, schedule);
             event.schedule_read_only = true;
             await models.event.update(event.id, event);
+        }
+        now = (new Date()).getTime();
+            if (now - start > 1000){
+            console.error(`gs - save took over 1000ms: ${now - start}`)
         }
         return schedule;
     }

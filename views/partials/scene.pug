@@ -834,7 +834,7 @@ mixin sceneCard(scene, full=false)
                                             +playerEntry(user)
                             - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
 
-                            if scene.player_count_max - playerCount > 0
+                            if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0
                                 li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
 
 

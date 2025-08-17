@@ -70,7 +70,7 @@ block content
                             if user.site_admin
                                 .badge.text-bg-success.ms-2 Site Admin
                             if user.tags.length
-                                a.btn.btn-outline-info.btn-xs.ms-2.float-end(
+                                a.btn.btn-outline-info.btn-xs.me-1.ms-2.float-end(
                                     href='#'
                                     data-bs-toggle='tooltip'
                                     title=_.pluck(user.tags, 'name').join(', ')

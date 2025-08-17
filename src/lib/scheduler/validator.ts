@@ -43,9 +43,10 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
     }
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
+    const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
     const time0 = (new Date()).getTime();
     console.error(`vs - 0 -  ${time0 - start}`)
-    const reservedTimeslots = await getReservedSceneTimeslots(scene);
+    const reservedTimeslots = await getReservedSceneTimeslots(scene, allTimeslots);
 
     const time1 = (new Date()).getTime();
     console.error(`vs - 1 -  ${time1 - time0}`)
@@ -55,7 +56,7 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
         }
         const checkLocations = getSelectedLocations(checkScene);
         const checkTimeslots = getSceneTimeslots(checkScene);
-        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene);
+        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene, allTimeslots);
 
         for (const timeslot of checkTimeslots.timeslots){
             if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
@@ -423,8 +424,7 @@ async function getFullSceneTimeslots(scene:SceneModel): Promise<{type:string, ti
 }
 
 
-async function getReservedSceneTimeslots(scene:SceneModel): Promise<{type:string, timeslots:TimeslotModel[]}>{
-    const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+async function getReservedSceneTimeslots(scene:SceneModel, allTimeslots:TimeslotModel[]): Promise<{type:string, timeslots:TimeslotModel[]}>{
 
     const timeslots = getSceneTimeslots(scene);
     if (timeslots.type === 'none'){

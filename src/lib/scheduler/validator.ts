@@ -32,7 +32,7 @@ interface IssueRecord{
     text: string
 }
 
-async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null): Promise<SceneIssueModel[]> {
+async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null, attendees:AttendeeModel[] = null): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
     const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
@@ -46,6 +46,12 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
     if (!allTimeslots){
         allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
     }
+
+    if (!attendees){
+        console.log('getting attendees')
+        attendees = await models.attendance.find({event_id:scene.event_id, attending:true});
+    }
+
     const time0 = (new Date()).getTime();
     console.error(`vs - 0 -  ${time0 - start}`)
     const reservedTimeslots = await getReservedSceneTimeslots(scene, allTimeslots);
@@ -320,8 +326,6 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
             text: 'Unconfirmed Staff'
         });
     }
-
-    const attendees = await models.attdance.find({event_id:scene.event_id, attending:true});
 
     for (const user of scene.users){
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){

@@ -429,13 +429,14 @@ async function validateScenes(req, res){
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
         const allTimeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        const attendees = event.attendees.filter(attendee => {return attendee.attending});
         const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {
                 name: scene.name,
                 id: scene.id,
-                issues: await scheduleHelper.validateScene(scene, eventScenes, allTimeslots)
+                issues: await scheduleHelper.validateScene(scene, eventScenes, allTimeslots, attendees)
             }
         })
         const postValidate = (new Date()).getTime();

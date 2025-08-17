@@ -371,6 +371,10 @@ interface SceneModel extends ModelData{
     score?:number
     prereq_of?:number[]
     assign_players?:boolean
+    runner_id?:number
+    writer_id?:number
+    runner?:CampaignUser
+    writer?:CampaignUser
 }
 
 interface FormattedSourceModel{
@@ -424,6 +428,10 @@ interface FormattedSceneModel extends ModelData{
     duration?:number
     npc?:string
     assign_players?:boolean
+    runner_id?:number
+    writer_id?:number
+    runner?:CampaignUser
+    writer?:CampaignUser
 }
 
 interface SceneUserModel extends ModelData{

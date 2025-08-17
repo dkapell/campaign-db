@@ -24,7 +24,7 @@ const issueList = {
     'unconfirmed-staff': 'info',
     'missing-req-user': 'warning',
     'missing-req-attendee': 'warning',
-
+    'missing-runner': 'warning'
 }
 
 interface IssueRecord{
@@ -317,6 +317,16 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
                     text: `${user.name} is required, but not assigned`
                 });
             }
+        }
+    }
+
+    if (scene.runner_id){
+        const sceneUser = _.findWhere(scene.users, {id:scene.runner_id});
+        if (!sceneUser || !sceneUser.scene_schedule_status.match(/^(confirmed|suggested)$/)){
+            issues.push({
+                code: 'missing-runner',
+                text: `${scene.runner.name} is running this scene, but not assigned to it.`
+            });
         }
     }
 

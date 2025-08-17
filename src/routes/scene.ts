@@ -386,6 +386,18 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
         scene[field] = records;
     }
 
+    if (scene.runner_id){
+        const runnerUser = _.findWhere(scene.users, {id: scene.runner_id});
+        if (!runnerUser) {
+            scene.users.push({
+                id: scene.runner_id,
+                scene_request_status: 'required'
+            });
+        } else {
+            runnerUser.scene_request_status = 'required';
+        }
+    }
+
     if (current) {
         for (const user of current.users){
             if (!_.findWhere(scene.users, {id:''+user.id})){

@@ -426,7 +426,16 @@ mixin sceneTable(scenes, exportable=false)
                                     = scene.event.name
                             else
                                 i Unassigned
-                        td= scene.name
+                        td(data-search=`${scene.name} ${_.pluck(scene.tags, 'name').join(', ')}`)
+                            = scene.name
+                            if scene.tags.length
+                                a.btn.btn-outline-info.btn-xs.me-1.ms-2.float-end(
+                                    href='#'
+                                    data-bs-toggle='tooltip'
+                                    title=_.pluck(scene.tags, 'name').join(', ')
+                                )
+                                    i.fas.fa-tag
+
                         td
                             +sceneStatusBadge(scene.status)
                         td

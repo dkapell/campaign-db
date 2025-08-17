@@ -268,18 +268,18 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
 
     userCounts.players.total = userCounts.players.confirmed + userCounts.players.suggested;
     userCounts.staff.total = userCounts.staff.confirmed + userCounts.staff.suggested;
-    if (userCounts.players.total < scene.player_count_min){
+    if (scene.assign_players && userCounts.players.total < scene.player_count_min){
         issues.push({
             code: 'not-enough-players',
             text: 'Not enough Players'
         });
-    } else if (userCounts.players.total > scene.player_count_max){
+    } else if (scene.assign_players && userCounts.players.total > scene.player_count_max){
         issues.push({
             code: 'too-many-players',
             text: 'Too many Players'
         });
     }
-    if (userCounts.players.suggested){
+    if (scene.assign_players && userCounts.players.suggested){
         issues.push({
             code: 'unconfirmed-players',
             text: 'Unconfirmed Players'

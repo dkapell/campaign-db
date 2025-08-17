@@ -370,6 +370,7 @@ interface SceneModel extends ModelData{
     tags?:TagModel[]
     score?:number
     prereq_of?:number[]
+    assign_players?:boolean
 }
 
 interface FormattedSourceModel{
@@ -422,6 +423,7 @@ interface FormattedSceneModel extends ModelData{
     start?:string
     duration?:number
     npc?:string
+    assign_players?:boolean
 }
 
 interface SceneUserModel extends ModelData{

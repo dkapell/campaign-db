@@ -54,6 +54,7 @@ const tableFields = [
     'cleanup_slots',
     'display_to_pc',
     'prereqs',
+    'assign_players',
     'player_count_min',
     'player_count_max',
     'staff_count_min',

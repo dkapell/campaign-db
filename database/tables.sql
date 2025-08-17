@@ -1043,6 +1043,7 @@ create table scenes (
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
     prereqs jsonb,
+    assign_players boolean default true,
     player_count_min int,
     player_count_max int,
     staff_count_min int,

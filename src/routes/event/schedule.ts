@@ -586,6 +586,9 @@ async function updateUser(req, res){
             if (!scene || scene.campaign_id !== req.campaign.id){
                 throw new Error('Invalid Scene');
             }
+            if (user.type === 'player' && !scene.assign_players){
+                throw new Error('Can not assign players to this scene');
+            }
 
             const scene_user = await req.models.scene_user.findOne({scene_id:scene.id, user_id:user.id});
             if (scene_user){

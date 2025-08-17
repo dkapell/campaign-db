@@ -20,12 +20,14 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         event_id: scene.event_id,
         event: scene.event,
         status: scene.status,
+        player_count_max: scene.player_count_max,
         display_to_pc: scene.display_to_pc,
         timeslot_count: scene.timeslot_count,
         locations_count: scene.locations_count,
         player_url: scene.player_url,
         description: scene.description,
-        printout_note: scene.printout_note
+        printout_note: scene.printout_note,
+        assign_players: scene.assign_players
     };
 
 
@@ -36,7 +38,6 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.player_name = scene.player_name;
         output.schedule_notes = scene.schedule_notes;
         output.player_count_min = scene.player_count_min;
-        output.player_count_max = scene.player_count_max;
         output.staff_count_min = scene.staff_count_min;
         output.staff_count_max = scene.staff_count_max;
         output.combat_staff_count_min = scene.combat_staff_count_min;
@@ -412,19 +413,24 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
             });
             const sceneNames = [];
             for (const scene of slotScenes){
+                let sceneName = scene.name;
                 if (csvType === 'staff'){
-                    let sceneName = scene.name;
                     if (scene.player_name){
                         sceneName += ` (${scene.player_name})`
                     }
-                    sceneNames.push(sceneName);
                 } else if (scene.display_to_pc){
                     if (scene.player_name){
-                        sceneNames.push(scene.player_name);
-                    } else {
-                        sceneNames.push(scene.name)
+                        sceneName = scene.player_name
                     }
                 }
+                let playerCount = 0;
+                playerCount += scene.players.confirmed?scene.players.confirmed.length:0;
+                playerCount += scene.players.suggested?scene.players.suggested.length:0;
+
+                if (scene.player_count_max-playerCount>0){
+                    sceneName += ' +';
+                }
+                sceneNames.push(sceneName);
             }
             row.push(sceneNames.join(', '))
         }

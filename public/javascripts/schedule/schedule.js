@@ -4,11 +4,11 @@
 let isValidatingScenes = 0;
 $(function(){
     $('#schedule-alert .btn-close').on('click', ()=>{
-        hideMessages();
+        hideAlertMessage();
     });
 
     $('#schedule-success .btn-close').on('click', ()=>{
-        hideMessages();
+        hideSuccessMessage();
     });
 
     $('.issue-icon[data-bs-toggle="popover"]').popover({
@@ -61,6 +61,8 @@ $(function(){
 
     $('#schedule-user-picker').on('change', userPickerSelect);
     $('#highlight-user-scenes').on('change', highlightUserScenesToggle);
+    $('#highlight-open-scenes').on('change', highlightOpenScenesToggle);
+
 
     $('.complex-select2').each(function(e){
         const $select = $(this);
@@ -558,8 +560,14 @@ function showError(message){
 }
 
 function hideMessages(){
+    hideAlertMessage();
+    hideSuccessMessage();
+}
+function hideAlertMessage(){
     $('#schedule-alert').removeClass('show');
     $('#schedule-alert').hide();
+}
+function hideSuccessMessage(){
     $('#schedule-success').removeClass('show');
     $('#schedule-success').hide();
 }
@@ -619,12 +627,17 @@ function highlightUserScenesToggle(){
     highlightUserSchedule(userId);
 }
 
+function highlightOpenScenesToggle(){
+    highlightOpenScenes($(this).is(':checked'));
+}
+
 async function highlightUserSchedule(userId){
-    $('.scene-name').removeClass('fw-bold');
     $('.busy-item').remove();
 
     if (!userId){
-        $('.scene-item').removeClass('disabled');
+        $('.scene-item').removeClass('disabled-user');
+        $('.scene-item').removeClass('highlighed-user');
+        $('.scene-placeholder').removeClass('disabled-user');
     } else {
         const eventId = $('#eventId').val();
 
@@ -634,13 +647,16 @@ async function highlightUserSchedule(userId){
         }
         const result = await fetch(url);
         const data = await result.json();
-        $('.scene-item').addClass('disabled');
+        $('.scene-item').addClass('disabled-user');
+        $('.scene-placeholder').addClass('disabled');
+        $('.scene-placeholder').addClass('disabled-user');
 
         if (data.success){
             for (const timeslot of data.schedule){
 
                 for (const scene of timeslot.scenes){
-                    $(`.scene-item[data-scene-id=${scene.id}]`).removeClass('disabled');
+                    $(`.scene-item[data-scene-id=${scene.id}]`).addClass('highlighed-user');
+                    $(`.scene-item[data-scene-id=${scene.id}]`).removeClass('disabled-user');
                     $(`.scene-item[data-scene-id=${scene.id}]`).find('.scene-name').addClass('fw-bold');
                 }
                 if (timeslot.schedule_busy){
@@ -651,8 +667,54 @@ async function highlightUserSchedule(userId){
             showError(data.error);
         }
     }
+    updateHighlights();
 }
 
+function highlightOpenScenes(show){
+
+    if (!show){
+        $('.scene-item').removeClass('disabled-open');
+        $('.scene-item').removeClass('highlighed-open');
+        $('.scene-placeholder').removeClass('disabled-open');
+        $('.busy-item').removeClass('disabled');
+    } else {
+        $('.scene-item').addClass('disabled-open');
+        $('.scene-placeholder').addClass('disabled');
+        $('.busy-item').addClass('disabled');
+        $('.scene-placeholder').addClass('disabled-open');
+        $('.busy-item').addClass('disabled-open');
+        $('.scene-item[data-open="true"]').each(function(){
+            $(this).removeClass('disabled-open');
+            $(this).addClass('highlighed-open');
+            $(this).find('.scene-name').addClass('fw-bold');
+        });
+    }
+    updateHighlights();
+}
+
+function updateHighlights(){
+
+    $('.scene-item').each(function(){
+        if ($(this).hasClass('highlighed-open') && !$(this).hasClass('disabled-user') ||
+            $(this).hasClass('highlighed-user') && !$(this).hasClass('disabled-open')){
+            $(this).removeClass('disabled');
+            $(this).find('.scene-name').addClass('fw-bold');
+
+        } else if ($(this).hasClass('disabled-open') || $(this).hasClass('disabled-user')){
+            $(this).addClass('disabled');
+            $(this).find('.scene-name').removeClass('fw-bold');
+        } else {
+            $(this).removeClass('disabled');
+            $(this).find('.scene-name').removeClass('fw-bold');
+        }
+    });
+    $('.scene-placeholder').each(function(){
+        if ($(this).hasClass('disabled-open') || $(this).hasClass('disabled-user')){
+            return;
+        }
+        $(this).removeClass('disabled');
+    });
+}
 
 function addScheduleBusy(text, timeslotId){
     const xAxisType = $('#xAxisType').val();

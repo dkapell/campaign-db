@@ -111,6 +111,8 @@ $(function(){
     $('#scene_display_to_pc').on('change', updateBadges);
     updateBadges();
 
+    $('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
+
     $('.location-info[data-bs-toggle="popover"]').popover({
         trigger: 'hover',
         delay: { 'show': 300, 'hide': 100 },
@@ -500,6 +502,14 @@ function addSceneSkill(e){
 function updateSceneSkill(e){
     if ($(this).val() === 'none'){
         $(this).closest('.scene-skill').remove();
+    }
+}
+
+function updatePlayerSelectionDisplay(e){
+    if ($(this).prop('checked')){
+        $('#player-assignment-section').removeClass('d-none');
+    } else {
+        $('#player-assignment-section').addClass('d-none');
     }
 }
 

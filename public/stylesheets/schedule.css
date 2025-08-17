@@ -121,7 +121,9 @@ html, body {
 
 .scene-item.disabled,
 .scene-item.tag-disabled,
-.schedule-busy-type-item.disabled
+.schedule-busy-type-item.disabled,
+.scene-placeholder.disabled,
+.busy-item.disabled
 {
   opacity: 33%
 }

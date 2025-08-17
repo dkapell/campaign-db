@@ -45,7 +45,7 @@ if scene.tags
                         title='Unconfirm Time/Location'
                     )
                         i.fas.fa-plus-circle.me-1
-                        | Unconfirm Placement
+                        | Unconfirm
 
                 else
                     button.btn.btn-outline-success.btn-xs.confirm-scene-btn.me-1(
@@ -54,7 +54,7 @@ if scene.tags
                         title='Confirm Time/Location'
                     )
                         i.fas.fa-check-circle.me-1
-                        | Confirm Placement
+                        | Confirm
 
                     button.btn.btn-outline-danger.btn-xs.unschedule-scene-btn(
                         role=button
@@ -87,73 +87,109 @@ if scheduleType !== 'edit' && scene.printout_note
 if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed.length
     .row.my-1
         .col
-            -
-                const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
-                const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
-                const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
-            a.scene-player-header.d-block.text-body-secondary.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
-                role='button'
-                href=`#scene-player-${scene.id}-${locationIdx}`
-                title=`Show/Hide Players`
-                data-bs-toggle='collapse'
-                aria-expanded=userType==="staff"?"false":"true"
-                aria-controls=`scene-player-${scene.id}-${locationIdx}`
-            )
+            if scene.assign_players
+                -
+                    const confirmedPlayerCount = scene.players.confirmed?scene.players.confirmed.length:0;
+                    const suggestedPlayerCount = scene.players.suggested?scene.players.suggested.length:0;
+                    const currentPlayerCount = confirmedPlayerCount + suggestedPlayerCount;
+                a.scene-player-header.d-block.text-body-secondary.link-underline-info.link-offset-1.link-underline-opacity-25.link-underline-opacity-100-hover(
+                    role='button'
+                    href=`#scene-player-${scene.id}-${locationIdx}`
+                    title=`Show/Hide Players`
+                    data-bs-toggle='collapse'
+                    aria-expanded=userType==="staff"?"false":"true"
+                    aria-controls=`scene-player-${scene.id}-${locationIdx}`
+                )
 
-                span.me-1= userType==='staff'?'Players':'Characters'
-                if _.has(scene, 'player_count_min')
-                    if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
-                        span.text-danger.me-1=currentPlayerCount
-                    else
-                        span.me-1=currentPlayerCount
-                    span of (#{scene.player_count_min}-#{scene.player_count_max})
+                    span.me-1= userType==='staff'?'Players':'Characters'
+                    if _.has(scene, 'player_count_min')
+                        if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
+                            span.text-danger.me-1=currentPlayerCount
+                        else
+                            span.me-1=currentPlayerCount
+                        span of (#{scene.player_count_min}-#{scene.player_count_max})
 
-                span.ps-2.float-end
-                    i.fa.fa-chevron-up
-                    i.fa.fa-chevron-down
+                    span.ps-2.float-end
+                        i.fa.fa-chevron-up
+                        i.fa.fa-chevron-down
 
-            ul.list-group.collapse.scene-user-list.scene-player-list(
-                id=`scene-player-${scene.id}-${locationIdx}`
-                data-list-type='player'
-                class=userType==='staff'?'':'show'
-            )
-                if allowedEdit && ((scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1))
-                    li.list-group-item.my-0.p-1
+                ul.list-group.collapse.scene-user-list.scene-player-list(
+                    id=`scene-player-${scene.id}-${locationIdx}`
+                    data-list-type='player'
+                    class=userType==='staff'?'':'show'
+                )
+                    if allowedEdit && ((scene.players.confirmed && scene.status !== 'confirmed' && scheduleType === 'edit') || (scene.players.suggested && scene.players.suggested.length > 1))
+                        li.list-group-item.my-0.p-1
 
-                        if scene.players.suggested && scene.players.suggested.length > 1
-                            button.btn.btn-xs.btn-outline-success.confirm-all-scene-users-btn.me-1(
-                                role='button'
-                                data-bs-toggle='tooltip'
-                                data-type='player'
-                                title='Confirm all Suggested Players'
-                            )
-                                i.fas.fa-check-circle.me-1
-                                | Confirm
+                            if scene.players.suggested && scene.players.suggested.length > 1
+                                button.btn.btn-xs.btn-outline-success.confirm-all-scene-users-btn.me-1(
+                                    role='button'
+                                    data-bs-toggle='tooltip'
+                                    data-type='player'
+                                    title='Confirm all Suggested Players'
+                                )
+                                    i.fas.fa-check-circle.me-1
+                                    | Confirm
 
-                        if scheduleType === 'edit' && scene.players.confirmed && scene.status !== 'confirmed'
-                            button.btn.btn-xs.btn-outline-warning.unconfirm-all-scene-users-btn.me-1(
-                                role='button'
-                                data-bs-toggle='tooltip'
-                                data-type='player'
-                                title='Unconfirm all Confirmed Players'
-                            )
-                                i.fas.fa-plus-circle.me-1
-                                | Unconfirm
+                            if scheduleType === 'edit' && scene.players.confirmed && scene.status !== 'confirmed'
+                                button.btn.btn-xs.btn-outline-warning.unconfirm-all-scene-users-btn.me-1(
+                                    role='button'
+                                    data-bs-toggle='tooltip'
+                                    data-type='player'
+                                    title='Unconfirm all Confirmed Players'
+                                )
+                                    i.fas.fa-plus-circle.me-1
+                                    | Unconfirm
+                    - let playerCount = 0
+                    if scene.players.confirmed
+                        - playerCount += scene.players.confirmed.length
+                        each player in scene.players.confirmed
+                            -
+                                let userIconClass = 'text-body-secondary fa-user'
+                                if (player.scene_request_status === 'requested'){
+                                    userIconClass = 'text-info fa-user-check'
+                                } else if (player.scene_request_status === 'required'){
+                                    userIconClass = 'text-success fa-user-plus'
+                                } else if (player.scene_request_status === 'rejected'){
+                                    userIconClass = 'text-danger fa-user-times'
+                                }
 
-                if scene.players.confirmed
-                    each player in scene.players.confirmed
-                        -
-                            let userIconClass = 'text-body-secondary fa-user'
-                            if (player.scene_request_status === 'requested'){
-                                userIconClass = 'text-info fa-user-check'
-                            } else if (player.scene_request_status === 'required'){
-                                userIconClass = 'text-success fa-user-plus'
-                            } else if (player.scene_request_status === 'rejected'){
-                                userIconClass = 'text-danger fa-user-times'
-                            }
-
-                        li.list-group-item.my-0.p-0
-                            if scheduleType === 'edit'
+                            li.list-group-item.my-0.p-0
+                                if scheduleType === 'edit'
+                                    a.p-1(href=`/user/${player.id}` target='_blank')
+                                        i.fas.me-1(
+                                            data-bs-toggle='tooltip'
+                                            title= capitalize(player.scene_request_status)
+                                            class=userIconClass
+                                        )
+                                        = player.name
+                                else
+                                    span.p-1= player.name
+                                if scheduleType === 'edit' && allowedEdit
+                                    button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
+                                        role='button'
+                                        data-user-id=player.id
+                                        data-bs-toggle='tooltip'
+                                        title=`Remove ${player.name} from Scene`
+                                    )
+                                        i.fas.fa-user-times
+                                i.fas.fa-check-circle.text-success.float-end.p-1(
+                                    title='Confirmed'
+                                    data-bs-toggle='tooltip'
+                                )
+                    if scene.players.suggested
+                        - playerCount += scene.players.suggested.length
+                        each player in scene.players.suggested
+                            -
+                                let userIconClass = 'text-body-secondary fa-user'
+                                if (player.scene_request_status === 'requested'){
+                                    userIconClass = 'text-info fa-user-check'
+                                } else if (player.scene_request_status === 'required'){
+                                    userIconClass = 'text-success fa-user-plus'
+                                } else if (player.scene_request_status === 'rejected'){
+                                    userIconClass = 'text-danger fa-user-times'
+                                }
+                            li.list-group-item.my-0.p-0
                                 a.p-1(href=`/user/${player.id}` target='_blank')
                                     i.fas.me-1(
                                         data-bs-toggle='tooltip'
@@ -161,59 +197,36 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                         class=userIconClass
                                     )
                                     = player.name
-                            else
-                                span.p-1= player.name
-                            if scheduleType === 'edit' && allowedEdit
-                                button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
-                                    role='button'
-                                    data-user-id=player.id
+                                if allowedEdit
+                                    .btn-group.float-end.ms-1(role='group')
+                                        button.btn.btn-xs.btn-outline-success.schedule-user-btn(
+                                            role='button'
+                                            data-user-id=player.id
+                                            data-bs-toggle='tooltip'
+                                            title=`Accept Suggestion`
+                                        )
+                                            i.fas.fa-user-plus
+                                        button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
+                                            role='button'
+                                            data-user-id=player.id
+                                            data-bs-toggle='tooltip'
+                                            title=`Remove ${player.name} from Scene`
+                                        )
+                                            i.fas.fa-user-times
+                                i.fas.fa-plus-circle.text-warning.float-end.p-1(
+                                    title='Suggested'
                                     data-bs-toggle='tooltip'
-                                    title=`Remove ${player.name} from Scene`
                                 )
-                                    i.fas.fa-user-times
-                            i.fas.fa-check-circle.text-success.float-end.p-1(
-                                title='Confirmed'
-                                data-bs-toggle='tooltip'
-                            )
-                if scene.players.suggested
-                    each player in scene.players.suggested
+                    if scene.player_count_max - playerCount > 0
                         -
-                            let userIconClass = 'text-body-secondary fa-user'
-                            if (player.scene_request_status === 'requested'){
-                                userIconClass = 'text-info fa-user-check'
-                            } else if (player.scene_request_status === 'required'){
-                                userIconClass = 'text-success fa-user-plus'
-                            } else if (player.scene_request_status === 'rejected'){
-                                userIconClass = 'text-danger fa-user-times'
+                            let shortName = userType==='staff'?'Player':'Character';
+                            if (scene.player_count_max - playerCount > 1){
+                                shortName += 's';
                             }
                         li.list-group-item.my-0.p-0
-                            a.p-1(href=`/user/${player.id}` target='_blank')
-                                i.fas.me-1(
-                                    data-bs-toggle='tooltip'
-                                    title= capitalize(player.scene_request_status)
-                                    class=userIconClass
-                                )
-                                = player.name
-                            if allowedEdit
-                                .btn-group.float-end.ms-1(role='group')
-                                    button.btn.btn-xs.btn-outline-success.schedule-user-btn(
-                                        role='button'
-                                        data-user-id=player.id
-                                        data-bs-toggle='tooltip'
-                                        title=`Accept Suggestion`
-                                    )
-                                        i.fas.fa-user-plus
-                                    button.btn.btn-xs.btn-outline-danger.unschedule-user-btn(
-                                        role='button'
-                                        data-user-id=player.id
-                                        data-bs-toggle='tooltip'
-                                        title=`Remove ${player.name} from Scene`
-                                    )
-                                        i.fas.fa-user-times
-                            i.fas.fa-plus-circle.text-warning.float-end.p-1(
-                                title='Suggested'
-                                data-bs-toggle='tooltip'
-                            )
+                            span.p-1 +#{scene.player_count_max - playerCount} #{shortName}
+            else
+                | No Players Assigned
 
 if scene.staff
     .row.my-1

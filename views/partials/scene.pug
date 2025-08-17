@@ -459,7 +459,11 @@ mixin sceneTable(scenes, exportable=false)
                                     span.ms-1 (#{scene.locations_count} Requested)
                             else
                                 | Unscheduled (#{scene.locations_count})
-                        td #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
+                        td
+                            if scene.assign_players
+                                | #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})
+                            else
+                                | None
                         td #{scene.staff_count_min} - #{scene.staff_count_max} (#{staff.length})
                         td(data-sort=scene.updated.getTime() style='font-size:0.7rem')
                             =moment(scene.updated).format('lll')
@@ -798,8 +802,14 @@ mixin sceneCard(scene, full=false)
                         strong Schedule Notes
                         p.my-1.ps-4!=marked.parseInline(scene.schedule_notes, {breaks:true})
 
+            if full && !scene.assign_players
+                .row.my-1
+                    .col
+                        strong Assign Players
+                        span.ms-2 No
+
             .row.my-1
-                if _.keys(scene.players).length
+                if _.keys(scene.players).length && scene.assign_players
                     .col-lg-8
                         h5 Characters
                         if full && checkPermission('event')
@@ -822,6 +832,10 @@ mixin sceneCard(scene, full=false)
                                         li
                                             +sceneStatusBadge(requestStatus, true)
                                             +playerEntry(user)
+                            - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
+
+                            if scene.player_count_max - playerCount > 0
+                                li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
 
 
 

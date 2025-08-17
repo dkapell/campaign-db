@@ -158,15 +158,17 @@ function formatUsersData(data, type){
         delay: { 'show': 300, 'hide': 100 },
     });
     for (const scene of data.scenes){
-        $(`.scene-item[data-scene-id=${scene.id}]`).addClass('scene-item-droppable');
-        $(`.scene-item[data-scene-id=${scene.id}]`).each(function(){
-            const $scene = $(this);
-            if ($scene.find('.scene-details').hasClass('show')){
-                updateSceneDetails($scene);
-            } else {
-                $scene.find('.scene-details').collapse('show');
-            }
-        });
+        if (type !== 'player' || scene.assign_players){
+            $(`.scene-item[data-scene-id=${scene.id}]`).addClass('scene-item-droppable');
+            $(`.scene-item[data-scene-id=${scene.id}]`).each(function(){
+                const $scene = $(this);
+                if ($scene.find('.scene-details').hasClass('show')){
+                    updateSceneDetails($scene);
+                } else {
+                    $scene.find('.scene-details').collapse('show');
+                }
+            });
+        }
     }
 
     $panel.find('.content').find('.unschedule-busy-btn').on('click', unschedulBusyUserBtn);
@@ -206,7 +208,7 @@ function startDragUser($user, data){
     $('.scene-item').each( function() {
         const sceneId = $(this).data('scene-id');
         const scene = _.findWhere(data.scenes, {id:Number(sceneId)});
-        if (scene){
+        if (scene && ($user.data('user-type') !== 'player' || scene.assign_players) ){
             const scene_user = _.findWhere(scene.users, {id:userId});
             if (scene_user){
                 const $sceneDisplay = $(this).find('.scene-display');

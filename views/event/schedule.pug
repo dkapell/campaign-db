@@ -56,11 +56,15 @@ block maincontent
 
     if !checkPermission('contrib')
         .container
-            .row-my-2
+            .row.my-2.border.rounded.p-2
                 .col
                     .form-check.form-switch
                         input.form-check-input#highlight-user-scenes(type="checkbox")
                         label.form-check-label(for="highlight-user-scenes") Highlight my Scenes
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#highlight-open-scenes(type="checkbox")
+                        label.form-check-label(for="highlight-open-scenes") Highlight Scenes with openings
 
     .container-fluid
         .row.my-2.p-0

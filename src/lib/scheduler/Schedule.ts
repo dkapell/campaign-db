@@ -576,7 +576,7 @@ class Schedule extends Readable {
         let requestedPlayers = [];
         let requestedStaff = [];
         if (status === 'any'){
-            if (!options.skipPlayers){
+            if (!options.skipPlayers && scene.assign_players){
                 const allPlayers = await this.allAttendeeIds('player');
                 const rejectedPlayers = scene.desiredPlayers('rejected');
                 requestedPlayers = _.shuffle(allPlayers.filter(id => {
@@ -599,7 +599,7 @@ class Schedule extends Readable {
 
         let happiness = 0;
 
-        if (!options.skipPlayers){
+        if (!options.skipPlayers && scene.assign_players){
             for (const userId of requestedPlayers){
                 // reject if we have enough users
                 if (scene.currentPlayers.length >= maxPlayers){

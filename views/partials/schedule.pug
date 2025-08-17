@@ -53,7 +53,11 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             return location.scene_schedule_status === 'confirmed';
         });
 
-        let locationIdx = 0
+        let locationIdx = 0;
+        let playerCount = (scene.users.filter(user => {
+            return (user.type==='player' && user.scene_schedule_status.match(/^(confirmed|suggested)$/) );
+        })).length;
+
     while locationIdx < scene.locations_count
         -
             let cell = 'unscheduled'
@@ -77,6 +81,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="false"
+            data-open=(scene.player_count_max - playerCount > 0)?'true':'false'
         )
             .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 +sceneBody(scene, locationIdx, false)
@@ -103,6 +108,10 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
         }
 
         let locationIdx = 0
+
+        let playerCount = (scene.users.filter(user => {
+            return (user.type==='player' && user.scene_schedule_status.match(/^(confirmed|suggested)$/) );
+        })).length;
     while locationIdx < scene.locations_count
         -
             let cell = 'unscheduled'
@@ -133,6 +142,8 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-scheduler="true"
             data-setup=scene.setup_slots
             data-cleanup=scene.cleanup_slots
+            data-assign-players=scene.assign_players?'true':'false'
+            data-open=(scene.player_count_max - playerCount > 0)?'false':'true'
         )
             .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 if xAxisType !== 'location'

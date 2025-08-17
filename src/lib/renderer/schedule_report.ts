@@ -2,6 +2,7 @@
 import PDFDocument from 'pdfkit';
 import _ from 'underscore';
 import moment from 'moment';
+import pluralize from 'pluralize';
 import models from '../models';
 import markdown from './markdown';
 import pdfHelper from '../pdfHelper';
@@ -282,15 +283,15 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         }
 
         function renderPlayers(scene, sectionOptions){
+            if (!scene.assign_players){
+                return;
+            }
             doc.strokeColor('#000000')
                 .fillColor('#000000')
                 .lineWidth(options.boldStrokeWidth);
             doc.x += options.margin;
-            doc
-                .font('Header Font Bold')
-                .fontSize(18 * options.font.header.scale)
-                .text(`${sectionOptions.name?sectionOptions.name:'Players(s)'}: `,
-                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+            let sectionName = sectionOptions.name?sectionOptions.name:'Player';
+            let shortName = sectionOptions.shortName?sectionOptions.shortName:'Player';
 
             const players = [];
             if (scene.players.confirmed){
@@ -301,7 +302,26 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         players.push(player.name);
                     }
                 }
+                if (players.length > 1){
+                    sectionName = pluralize.plural(sectionName);
+                }
+
+                if (scene.player_count_max - scene.players.confirmed.length > 0){
+                    if (scene.player_count_max - scene.players.confirmed.length > 1){
+                        shortName = pluralize.plural(shortName);
+                    }
+                    players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
+
+                }
+
             }
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionName}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+
             doc
                 .font('Body Font')
                 .fontSize(18 * options.font.body.scale)
@@ -559,14 +579,20 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
             doc.strokeColor('#000000')
                 .fillColor('#000000')
-                .lineWidth(options.boldStrokeWidth);
+                    .lineWidth(options.boldStrokeWidth);
 
             doc
                 .font('Header Font Bold')
                 .fontSize(10 * options.font.header.scale)
                 .text('Players', doc.x, doc.y,
                     {stroke:options.font.header.strokeForBold, fill:true, width:sectionWidth});
-            if (scene.players.confirmed){
+            if (!scene.assign_players){
+                doc
+                    .font('Body Font')
+                    .fontSize(10 * options.font.body.scale)
+                    .text('No Players Assigned', {stroke:false, fill:true, width:sectionWidth});
+
+            } else if (scene.players.confirmed){
                 for (const player of scene.players.confirmed){
                     doc
                         .font('Body Font')
@@ -609,34 +635,60 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 .text('Players', doc.x, doc.y,
                     {stroke:options.font.header.strokeForBold, fill:true});
 
-
-            const players = [];
-            if (scene.players.confirmed){
-                if (scene.players.confirmed.length > options.listAfter.players){
-                    for (const player of scene.players.confirmed){
-                        players.push(player.name)
-                    }
-
-                } else {
-
-                    for (const player of scene.players.confirmed){
-                        const itemY = doc.y;
-                        doc
-                            .font('Body Font')
-                            .fontSize(10 * options.font.body.scale)
-                            .text(player.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
-                        doc
-                            .font('Body Font')
-                            .fontSize(10 * options.font.body.scale)
-                            .text(player.character.name, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
-                    }
-                }
-            }
-            if (players.length){
+            if (!scene.assign_players){
                 doc
                     .font('Body Font')
                     .fontSize(10 * options.font.body.scale)
-                    .text(players.join(', '), sectionX, doc.y, {stroke:false, fill:true, width:cellContentsWidth});
+                    .text('No Players Assigned', {stroke:false, fill:true, width:sectionWidth});
+
+            } else {
+
+                const players = [];
+                if (scene.players.confirmed){
+                    if (scene.players.confirmed.length > options.listAfter.players){
+                        for (const player of scene.players.confirmed){
+                            players.push(player.name)
+                        }
+                        if (scene.player_count_max - scene.players.confirmed.length > 0){
+                            let shortName = 'Player'
+                            if (scene.player_count_max - scene.players.confirmed.length > 1){
+                                shortName = pluralize.plural(shortName);
+                            }
+                            players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
+                        }
+
+                    } else {
+                        for (const player of scene.players.confirmed){
+                            const itemY = doc.y;
+                            doc
+                                .font('Body Font')
+                                .fontSize(10 * options.font.body.scale)
+                                .text(player.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+                            doc
+                                .font('Body Font')
+                                .fontSize(10 * options.font.body.scale)
+                                .text(player.character.name, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        }
+                        if (scene.player_count_max - scene.players.confirmed.length > 0){
+                            const itemY = doc.y;
+                            let shortName = 'Player'
+                            if (scene.player_count_max - scene.players.confirmed.length > 1){
+                                shortName = pluralize.plural(shortName);
+                            }
+                            doc
+                                .font('Body Font')
+                                .fontSize(10 * options.font.body.scale)
+                                .text(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        }
+
+                    }
+                }
+                if (players.length){
+                    doc
+                        .font('Body Font')
+                        .fontSize(10 * options.font.body.scale)
+                        .text(players.join(', '), sectionX, doc.y, {stroke:false, fill:true, width:cellContentsWidth});
+                }
             }
 
             doc.x = sectionX;

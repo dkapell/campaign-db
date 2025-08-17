@@ -55,6 +55,10 @@ class ScheduleScene  {
     get status(): string{
         return this.data.status;
     }
+    get assign_players(): boolean{
+        return this.data.assign_players;
+    }
+
     get prereqs(){
         if (typeof this.data.prereqs === 'string'){
             return JSON.parse(this.data.prereqs);

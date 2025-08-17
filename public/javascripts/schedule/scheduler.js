@@ -171,6 +171,7 @@ async function runSchedulerBtn(e){
         for (const line of lines) {
             try {
                 runningText += line;
+                if (runningText === '') { continue; }
                 let obj = JSON.parse(runningText);
                 if (obj.type === 'summary'){
                     data = obj;
@@ -205,6 +206,7 @@ async function runSchedulerBtn(e){
                 runningText = '';
             } catch (e) {
                 console.error(e);
+                console.log(runningText);
             }
         }
     }

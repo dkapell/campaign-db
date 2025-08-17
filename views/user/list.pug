@@ -61,7 +61,7 @@ block content
                 for user in users
                     tr.clickable-row(data-click-object='user' data-click-id=user.id data-type=user.type)
                         td.dtr-expand
-                        td
+                        td(data-search=`${user.name} ${_.pluck(user.tags, 'name').join(', ')}`)
                             a(href='/user/' + user.id)= user.name
                             if user.sso_name
                                 small.ms-2
@@ -69,6 +69,13 @@ block content
                                     span.ms1 : #{user.sso_name}
                             if user.site_admin
                                 .badge.text-bg-success.ms-2 Site Admin
+                            if user.tags.length
+                                a.btn.btn-outline-info.btn-xs.ms-2(
+                                    href='#'
+                                    data-bs-toggle='tooltip'
+                                    title=_.pluck(user.tags, 'name').join(', ')
+                                )
+                                    i.fas.fa-tag
                         td= user.email
                         td= capitalize(user.type)
                             if user.permissions.length

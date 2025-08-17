@@ -681,22 +681,25 @@ async function saveSchedule(eventId: number, name:string=null, keep:boolean=fals
 
 async function getSchedule(eventId:number){
     const start = (new Date()).getTime();
+    let last = 0;
     const event = await models.event.get(eventId);
 
     const schedule = await models.schedule.current(eventId);
     let now = (new Date()).getTime();
-    if (now - start > 1000){
-        console.error(`gs - Get Schedule took over 1000ms: ${now - start}`)
-    }
+    console.error(`gs - Get Schedule took ${now - start}`)
+    last = now;
 
     if (schedule){
         if (schedule.read_only || await checkScheduleConfigMatches(event.campaign_id, schedule)){
+            now = (new Date()).getTime();
+            console.error(`gs - schedule check took ${now - last}`)
+            console.error(`gs took ${now - start}`)
+            last = now
             return schedule;
         }
         now = (new Date()).getTime();
-            if (now - start > 1000){
-            console.error(`gs - schedule check took over 1000ms: ${now - start}`)
-        }
+        console.error(`gs - schedule check took ${now - last}`)
+        last = now
 
         const scenes = schedule.scenes.filter(scene => {
             return scene.status === 'scheduled' || scene.status === 'confirmed';
@@ -710,9 +713,8 @@ async function getSchedule(eventId:number){
             await models.event.update(event.id, event);
         }
         now = (new Date()).getTime();
-            if (now - start > 1000){
-            console.error(`gs - save took over 1000ms: ${now - start}`)
-        }
+        console.error(`gs - save took ${now - last}`)
+        console.error(`gs took ${now - start}`)
         return schedule;
     }
     return {

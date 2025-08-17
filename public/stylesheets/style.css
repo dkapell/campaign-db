@@ -293,7 +293,7 @@ body
     .select2-results__options
     .select2-results__option.select2-results__option--highlighted {
     color: var(--bs-body-color);
-    background-color: var(--bs-light-bg-subtle) !important;
+    background-color: var(--bs-secondary-bg) !important;
 }
 body
     .select2-container--bootstrap-5

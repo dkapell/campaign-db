@@ -34,6 +34,7 @@ interface IssueRecord{
 
 async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
+    const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
     }
@@ -44,6 +45,8 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
     const timeslots = getSceneTimeslots(scene);
     const reservedTimeslots = await getReservedSceneTimeslots(scene);
 
+    const time1 = (new Date()).getTime();
+    console.error(`vs - 1 -  ${time1 - start}`)
     for (const checkScene of eventScenes){
         if (checkScene.id === scene.id){
             continue;
@@ -108,6 +111,9 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             }
         }
     }
+    const time3 = (new Date()).getTime();
+    console.error(`vs - 3 -  ${time3 - time1}`)
+
     for (const location of locations.locations){
         switch (location.scene_request_status){
             case 'rejected':
@@ -183,6 +189,9 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             }
         }
     }
+    const time4 = (new Date()).getTime();
+        console.error(`vs - 4 -  ${time4 - time3}`)
+
     const userCounts = {
         players: {
             confirmed:0,
@@ -265,6 +274,9 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             }
         }
     }
+    const time5 = (new Date()).getTime();
+    console.error(`vs - 5 -  ${time5 - time4}`)
+
 
     userCounts.players.total = userCounts.players.confirmed + userCounts.players.suggested;
     userCounts.staff.total = userCounts.staff.confirmed + userCounts.staff.suggested;
@@ -329,6 +341,8 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
             });
         }
     }
+    const time6 = (new Date()).getTime();
+    console.error(`vs - 6 -  ${time6 - time5}`)
 
     await saveSceneIssues(scene.id, issues);
 

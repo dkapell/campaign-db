@@ -411,10 +411,9 @@ async function validateScenes(req, res){
         }
 
         const schedule = await scheduleHelper.getSchedule(event.id);
-        const now = (new Date()).getTime();
-        if (now - start > 1000){
-            console.error('Get Schedule took over 1000ms')
-        }
+        const postgetSchedule = (new Date()).getTime();
+        console.error(`Get Schedule took ${postgetSchedule - start}`)
+
 
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
@@ -423,7 +422,7 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
-        const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
+        const scenes = await async.map(sceneIds, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {
@@ -432,6 +431,8 @@ async function validateScenes(req, res){
                 issues: await scheduleHelper.validateScene(scene, eventScenes)
             }
         })
+        const postValidate = (new Date()).getTime();
+        console.error(`validate took ${postValidate - postgetSchedule}`)
         res.json({success:true, scenes:scenes});
     } catch(err) {
         res.json({success:false, error:err.message});

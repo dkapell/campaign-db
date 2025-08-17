@@ -428,13 +428,14 @@ async function validateScenes(req, res){
         console.log(`validating ${sceneIds.length} scenes`);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
-        const scenes = await async.mapLimit(sceneIds, 1, async(sceneId) => {
+        const allTimeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {
                 name: scene.name,
                 id: scene.id,
-                issues: await scheduleHelper.validateScene(scene, eventScenes)
+                issues: await scheduleHelper.validateScene(scene, eventScenes, allTimeslots)
             }
         })
         const postValidate = (new Date()).getTime();

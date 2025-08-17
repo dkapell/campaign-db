@@ -32,7 +32,7 @@ interface IssueRecord{
     text: string
 }
 
-async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): Promise<SceneIssueModel[]> {
+async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
     const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
@@ -43,7 +43,9 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = []): P
     }
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
-    const allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+    if (!allTimeslots){
+        allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+    }
     const time0 = (new Date()).getTime();
     console.error(`vs - 0 -  ${time0 - start}`)
     const reservedTimeslots = await getReservedSceneTimeslots(scene, allTimeslots);

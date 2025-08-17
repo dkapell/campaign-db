@@ -411,6 +411,7 @@ async function validateScenes(req, res){
         }
 
         const schedule = await scheduleHelper.getSchedule(event.id);
+        const now = (new Date()).getTime();
         if (now - start > 1000){
             console.error('Get Schedule took over 1000ms')
         }
@@ -422,10 +423,6 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
-        const now = (new Date()).getTime();
-        if (now - start > 1000){
-            console.error('Validate Start took over 1000ms')
-        }
         const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }

@@ -30,9 +30,14 @@ async function showScheduler(req, res, next){
             }
             return true;
         });
-        const eventScenes = await req.models.scene.find({event_id:event.id});
-        res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
+        //const eventScenes = await req.models.scene.find({event_id:event.id});
+        /*res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
             scene.issues = await scheduleHelper.validateScene(scene, eventScenes);
+            return scene;
+        });
+        */
+        res.locals.scenes = scenes.map(scene => {
+            scene.issues = [];
             return scene;
         });
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
@@ -423,7 +428,7 @@ async function validateScenes(req, res){
         console.log(`validating ${sceneIds.length} scenes`);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
-        const scenes = await async.map(sceneIds, async(sceneId) => {
+        const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {

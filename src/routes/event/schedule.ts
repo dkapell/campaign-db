@@ -411,6 +411,10 @@ async function validateScenes(req, res){
         }
 
         const schedule = await scheduleHelper.getSchedule(event.id);
+        if (now - start > 1000){
+            console.error('Get Schedule took over 1000ms')
+        }
+
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }

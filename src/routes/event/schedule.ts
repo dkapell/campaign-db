@@ -403,6 +403,7 @@ async function unconfirmScene(req, res){
 async function validateScenes(req, res){
     const eventId = req.params.id;
     try{
+        const start = (new Date()).getTime();
         const event = await req.models.event.get(eventId);
 
         if (!event || event.campaign_id !== req.campaign.id){
@@ -417,6 +418,10 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
         const eventScenes = await req.models.scene.find({event_id:eventId});
+        const now = (new Date()).getTime();
+        if (now - start > 1000){
+            console.error('Validate Start took over 1000ms')
+        }
         const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }

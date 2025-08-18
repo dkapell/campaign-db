@@ -264,9 +264,11 @@ async function getEventScenes(eventId:number): Promise<FormattedSceneModel[]>{
     return scenes.map(scene=> {return formatScene(scene); });
 }
 
-async function getScenesAtTimeslot(eventId:number, timeslotId:number): Promise<FormattedSceneModel[]>{
-    const scenes = await getEventScenes(eventId)
-    return async.filter(scenes, async(scene) => {
+async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:FormattedSceneModel[] = null): Promise<FormattedSceneModel[]>{
+    if (!scenes){
+        scenes = await getEventScenes(eventId);
+    }
+    return scenes.filter(scene => {
         if (_.findWhere(scene.timeslots.confirmed, {id:timeslotId})){
             return true;
         } else if (_.findWhere(scene.timeslots.suggested, {id:timeslotId})){
@@ -296,12 +298,16 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
                 statuses.push({type: 'scene', sceneId:scene.id, status:record.scene_schedule_status});
             }
         }
-
-        const schedule_busys = await models.schedule_busy.find({
-            event_id: eventId,
-            user_id: user.id,
-            timeslot_id: timeslotId
-        })
+        let schedule_busys:ScheduleBusyModel[] = [];
+        if (_.has(data, 'schedule_busys')){
+            schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
+        } else {
+            schedule_busys = await models.schedule_busy.find({
+                event_id: eventId,
+                user_id: user.id,
+                timeslot_id: timeslotId
+            })
+        }
 
         for (const schedule_busy of schedule_busys){
             statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled'})

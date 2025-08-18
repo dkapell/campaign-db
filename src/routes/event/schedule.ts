@@ -547,11 +547,14 @@ async function getUsersPerTimeslot(req, res){
             return user;
         });
 
+        const allScenes = await scheduleHelper.getEventScenes(event.id);
         const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        const scheduleBusys = await req.models.schedule_busy.find({event_id:event.id})
         const output = await async.mapLimit(timeslots, 5, async(timeslot) => {
             const data :  GetUsersAtTimeslotCache = {
                 users: eventUsers,
-                scenes: await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id)
+                scenes: await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id, allScenes),
+                schedule_busys: scheduleBusys
             };
 
             let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);

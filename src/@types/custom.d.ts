@@ -147,8 +147,8 @@ interface CharacterSheetTextOptions{
 }
 
 interface ValidationCache{
-    eventScenes?: SceneModel[]
-    allTimeslots?: TimeslotModel[]
+    scenes?: SceneModel[]
+    timeslots?: TimeslotModel[]
     attendees?: AttendanceModel[]
-    scheduleBusys?: ScheduleBusyModel[]
+    schedule_busys?: ScheduleBusyModel[]
 }

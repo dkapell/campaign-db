@@ -32,7 +32,7 @@ interface IssueRecord{
     text: string
 }
 
-async function validateScene(scene:SceneModel, validationCache:ValidationCache = {}): Promise<SceneIssueModel[]> {
+async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
@@ -40,20 +40,31 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
 
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
-    const eventScenes = _.has(validationCache, 'eventScenes')?validationCache.eventScenes:await models.scene.find({event_id:scene.event_id});
-    const allTimeslots = _.has(validationCache, 'allTimeslots')?validationCache.allTimeslots:await models.timeslot.find({campaign_id:scene.campaign_id});
-    const attendees = _.has(validationCache, 'attendees')?validationCache.attendees:await models.attendance.find({event_id:scene.event_id, attending:true});
-    const scheduleBusys = _.has(validationCache, 'scheduleBusys')?validationCache.scheduleBusys:await models.schedule_busy.find({event_id:scene.event_id});
+    if (!_.has(data, 'scenes')){
+        data.scenes = await models.scene.find({event_id:scene.event_id});
+    }
 
-    const reservedTimeslots = await getReservedSceneTimeslots(scene, allTimeslots);
+    if (!_.has(data, 'timeslots')){
+        data.timeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
+    }
 
-    for (const checkScene of eventScenes){
+    if (!_.has(data, 'data.attendees')){
+        data.attendees = await models.attendance.find({event_id:scene.event_id, attending:true});
+    }
+
+    if (!_.has(data, 'schedule_busys')){
+        data.schedule_busys = await models.schedule_busy.find({event_id:scene.event_id});
+    }
+
+    const reservedTimeslots = await getReservedSceneTimeslots(scene, data.timeslots);
+
+    for (const checkScene of data.scenes){
         if (checkScene.id === scene.id){
             continue;
         }
         const checkLocations = getSelectedLocations(checkScene);
         const checkTimeslots = getSceneTimeslots(checkScene);
-        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene, allTimeslots);
+        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene, data.timeslots);
 
         for (const timeslot of checkTimeslots.timeslots){
             if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
@@ -152,16 +163,22 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
     }
 
     if (timeslots.timeslots.length){
-        const myTimeslotIdx = _.findIndex(allTimeslots, {id: timeslots.timeslots[0].id});
+        const myTimeslotIdx = _.findIndex(data.timeslots, {id: timeslots.timeslots[0].id});
 
         for (const prereq of scene.prereqs){
             let prereqScene = null;
             if (typeof prereq === 'string'){
                 continue;
             } else if (typeof prereq === 'number'){
-                prereqScene = await models.scene.get(prereq);
+                prereqScene = _.findWhere(data.scenes, {id:prereq});
+                if (!prereqScene){
+                    prereqScene = await models.scene.get(prereq);
+                }
             } else {
-                prereqScene = await models.scene.get(prereq.id);
+                prereqScene = _.findWhere(data.scenes, {id:prereq.id});
+                if (!prereqScene){
+                    prereqScene = await models.scene.get(prereq.id);
+                }
             }
 
             if (!prereqScene.event_id || prereqScene.status === 'ready'){
@@ -176,7 +193,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
                 });
             } else {
                 const prereqTimeslots = getSceneTimeslots(prereqScene);
-                const prereqTimeslotIdx = _.findIndex(allTimeslots, {id: prereqTimeslots.timeslots[0].id});
+                const prereqTimeslotIdx = _.findIndex(data.timeslots, {id: prereqTimeslots.timeslots[0].id});
                 if (prereqTimeslotIdx >= myTimeslotIdx){
                     issues.push({
                         code: 'prereq-after',
@@ -216,7 +233,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
         }
         if (user.scene_schedule_status === 'confirmed' || user.scene_schedule_status === 'suggested'){
             for (const timeslot of timeslots.timeslots){
-                const concurentScenes = eventScenes.filter(checkScene => {
+                const concurentScenes = data.scenes.filter(checkScene => {
                     if (checkScene.id === scene.id){
                         return false
                     }
@@ -259,7 +276,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
                     }
                 }
 
-                const schedule_busys = _.where(scheduleBusys, {user_id:user.id, timeslot_id:timeslot.id})
+                const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslot.id})
                 if (schedule_busys.length){
                     issues.push({
                         code: 'user-dbl-busy',
@@ -310,7 +327,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
 
     for (const user of scene.users){
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
-            if (! _.findWhere(attendees, {user_id:user.id})){
+            if (! _.findWhere(data.attendees, {user_id:user.id})){
                 issues.push({
                     code: 'missing-req-attendee',
                     text: `${user.name} is required, but not attending this event`

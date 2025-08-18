@@ -424,9 +424,9 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
         const validationCache: ValidationCache = {
-            allTimeslots: schedule.timeslots,
-            eventScenes: schedule.scenes,
-            scheduleBusys: schedule.schedule_busies,
+            timeslots: schedule.timeslots,
+            scenes: schedule.scenes,
+            schedule_busys: schedule.schedule_busies,
             attendees: event.attendees.filter(attendee => {return attendee.attending})
         };
 

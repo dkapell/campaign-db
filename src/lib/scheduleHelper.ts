@@ -686,27 +686,21 @@ async function getSchedule(eventId:number){
 
     if (schedule){
         if (schedule.read_only || await checkScheduleConfigMatches(event.campaign_id, schedule)){
-            console.log('returning because schedule is fine')
             return schedule;
         }
-        console.log('schedule has changed');
 
         const scenes = schedule.scenes.filter(scene => {
             return scene.status === 'scheduled' || scene.status === 'confirmed';
         });
 
-
         if (scenes.length){
-            console.log('has scenes');
             schedule.read_only = true;
             await models.schedule.update(schedule.id, schedule);
             event.schedule_read_only = true;
             await models.event.update(event.id, event);
         }
-        console.log('returning');
         return schedule;
     }
-    console.log('no schedule found')
     return {
         name: 'live',
         read_only: false,

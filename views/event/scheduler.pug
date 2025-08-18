@@ -303,7 +303,7 @@ block maincontent
             style=`grid-template-columns: repeat(${columns}, 1fr); grid-auto-rows: minmax(${rowHeight}px, auto); grid-template-areas: ${gridTemplateAreaText}; max-height:95%;`
         )
             div.bg-body.x-header.top-left.position-sticky#topleft(
-                style=`grid-row: 1; grid-column: 1; left:0; top:0; z-index:60`
+                style=`grid-row: 1; grid-column: 1; left:0; top:0; z-index:60; clip-path: inset(0 0 0 0)`
             )
 
             each xItem, idx in xAxis

@@ -648,6 +648,7 @@ async function highlightUserSchedule(userId){
         const result = await fetch(url);
         const data = await result.json();
         $('.scene-item').addClass('disabled-user');
+        $('.scene-item').removeClass('highlighed-user');
         $('.scene-placeholder').addClass('disabled');
         $('.scene-placeholder').addClass('disabled-user');
 
@@ -679,6 +680,7 @@ function highlightOpenScenes(show){
         $('.busy-item').removeClass('disabled');
     } else {
         $('.scene-item').addClass('disabled-open');
+        $('.scene-item').removeClass('highlighed-open');
         $('.scene-placeholder').addClass('disabled');
         $('.busy-item').addClass('disabled');
         $('.scene-placeholder').addClass('disabled-open');

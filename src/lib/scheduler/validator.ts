@@ -310,7 +310,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
 
     for (const user of scene.users){
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
-            if (! _.findWhere(attendees, {id:user.id})){
+            if (! _.findWhere(attendees, {user_id:user.id})){
                 issues.push({
                     code: 'missing-req-attendee',
                     text: `${user.name} is required, but not attending this event`

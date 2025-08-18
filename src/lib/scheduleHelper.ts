@@ -246,7 +246,7 @@ function formatUser(user){
     return doc;
 }
 
-async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
+async function getEventUsers(eventId:number): Promise<AttendanceModel[]>{
     const event = await models.event.get(eventId);
     const attendances = await models.attendance.find({event_id:eventId, attending:true});
     return async.map(attendances, async(attendance) => {
@@ -276,14 +276,18 @@ async function getScenesAtTimeslot(eventId:number, timeslotId:number): Promise<F
     });
 }
 
-async function getUsersAtTimeslot(eventId:number, timeslotId:number): Promise<CampaignUser[]>{
-    const users = await getEventUsers(eventId);
-    const scenes = await getScenesAtTimeslot(eventId, timeslotId);
+async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUsersAtTimeslotCache = {}): Promise<CampaignUser[]>{
+    if (!_.has(data, 'users')){
+        data.users = await getEventUsers(eventId);
+    }
+    if (!_.has(data, 'scenes')){
+        data.scenes = await getScenesAtTimeslot(eventId, timeslotId);
+    }
 
-    return async.map(users, async(user) => {
+    return async.map(data.users, async(user) => {
         const statuses = [];
 
-        for (const scene of scenes){
+        for (const scene of data.scenes){
             if (scene.usersByStatus && _.findWhere(scene.usersByStatus.confirmed, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.confirmed, {id:user.id});
                 statuses.push({type:'scene', sceneId:scene.id, status:record.scene_schedule_status});

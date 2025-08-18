@@ -539,10 +539,23 @@ async function getUsersPerTimeslot(req, res){
             throw new Error('Invalid Event');
         }
 
-        const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        const output = await async.map(timeslots, async(timeslot) => {
+        let eventUsers = event.attendees.filter(attendee => { return attendee.attending; })
+        eventUsers = await async.map(eventUsers, async(user) => {
+            if (user.type === 'player'){
+                user.character = await req.models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
+            }
+            return user;
+        });
 
-            let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id);
+        const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
+        const output = await async.mapLimit(timeslots, 5, async(timeslot) => {
+            const data :  GetUsersAtTimeslotCache = {
+                users: eventUsers,
+                scenes: await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id)
+            };
+
+            let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);
+
             if (req.query.type && req.query.type.match(/^(player|staff)$/)){
                 users = users.filter(user => {
                     if (req.query.type === 'player'){
@@ -554,9 +567,7 @@ async function getUsersPerTimeslot(req, res){
             }
             users = users.map(scheduleHelper.formatUser);
 
-            const scenes = await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id);
-
-            return {users:users, timeslot:timeslot, scenes: scenes};
+            return {users:users, timeslot:timeslot, scenes: data.scenes};
         });
         res.json({success:true, timeslots:output});
     } catch(err) {

@@ -22,7 +22,7 @@ async function showIndex(req, res){
             res.locals.showTasks = true;
         }
 
-        if (req.campaign.schedule_user_id === req.session.activeUser.id){
+        if (req.session.activeUser && req.campaign.schedule_user_id === req.session.activeUser.id){
             res.locals.showTasks = true;
         }
 

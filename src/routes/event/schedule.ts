@@ -540,16 +540,17 @@ async function getUsersPerTimeslot(req, res){
         }
 
         let eventUsers = event.attendees.filter(attendee => { return attendee.attending; })
-        eventUsers = await async.map(eventUsers, async(user) => {
-            if (user.type === 'player'){
-                user.character = await req.models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
+        eventUsers = await async.map(eventUsers, async(attendance) => {
+            if (attendance.user.type === 'player'){
+                attendance.user.character = await req.models.character.findOne({campaign_id:event.campaign_id, user_id:attendance.user.id, active:true});
             }
-            return user;
+            return attendance.user;
         });
 
         const allScenes = await scheduleHelper.getEventScenes(event.id);
         const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        const scheduleBusys = await req.models.schedule_busy.find({event_id:event.id})
+        const scheduleBusys = await req.models.schedule_busy.find({event_id:event.id});
+
         const output = await async.mapLimit(timeslots, 5, async(timeslot) => {
             const data :  GetUsersAtTimeslotCache = {
                 users: eventUsers,
@@ -558,7 +559,7 @@ async function getUsersPerTimeslot(req, res){
             };
 
             let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);
-
+            console.log(users[0])
             if (req.query.type && req.query.type.match(/^(player|staff)$/)){
                 users = users.filter(user => {
                     if (req.query.type === 'player'){

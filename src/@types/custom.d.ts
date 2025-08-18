@@ -154,7 +154,7 @@ interface ValidationCache{
 }
 
 interface GetUsersAtTimeslotCache{
-    users?: AttendanceModel[]
+    users?: CampaignUser[]
     scenes?: FormattedSceneModel[]
     schedule_busys?: ScheduleBusyModel[]
 }

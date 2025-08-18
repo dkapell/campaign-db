@@ -246,7 +246,7 @@ function formatUser(user){
     return doc;
 }
 
-async function getEventUsers(eventId:number): Promise<AttendanceModel[]>{
+async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
     const event = await models.event.get(eventId);
     const attendances = await models.attendance.find({event_id:eventId, attending:true});
     return async.map(attendances, async(attendance) => {
@@ -285,8 +285,13 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
     if (!_.has(data, 'scenes')){
         data.scenes = await getScenesAtTimeslot(eventId, timeslotId);
     }
+    if (!_.has(data, 'schedule_busys')){
+        data.schedule_busys = await models.schedule_busy.find({event_id:eventId});
+    }
 
-    return async.map(data.users, async(user) => {
+    const users = JSON.parse(JSON.stringify(data.users));
+
+    return users.map(user => {
         const statuses = [];
 
         for (const scene of data.scenes){
@@ -298,16 +303,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
                 statuses.push({type: 'scene', sceneId:scene.id, status:record.scene_schedule_status});
             }
         }
-        let schedule_busys:ScheduleBusyModel[] = [];
-        if (_.has(data, 'schedule_busys')){
-            schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
-        } else {
-            schedule_busys = await models.schedule_busy.find({
-                event_id: eventId,
-                user_id: user.id,
-                timeslot_id: timeslotId
-            })
-        }
+        let schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
 
         for (const schedule_busy of schedule_busys){
             statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled'})

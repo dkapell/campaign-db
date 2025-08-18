@@ -15,6 +15,7 @@ async function showScheduler(req, res, next){
 
         const schedule = await scheduleHelper.getSchedule(event.id);
         if (schedule.read_only){
+            console.log('schedule is read only');
             req.flash('Schedule Config has changed, Event is read-only');
             return res.redirect(`/event/${event.id}`)
         }

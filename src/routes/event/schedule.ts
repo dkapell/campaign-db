@@ -427,16 +427,21 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
         console.log(`validating ${sceneIds.length} scenes`);
 
-        const eventScenes = await req.models.scene.find({event_id:eventId});
-        const allTimeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        const attendees = event.attendees.filter(attendee => {return attendee.attending});
+        const validationCache = {
+            eventScenes: await req.models.scene.find({event_id:eventId}),
+            allTimeslots: await req.models.timeslot.find({campaign_id:req.campaign.id}),
+            attendees: event.attendees.filter(attendee => {return attendee.attending}),
+            scheduleBusys: await req.models.schedule_busy.find({event_id:event.id})
+        }
+
+
         const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
             const scene = await req.models.scene.get(sceneId);
             if (!scene) { return null; }
             return {
                 name: scene.name,
                 id: scene.id,
-                issues: await scheduleHelper.validateScene(scene, eventScenes, allTimeslots, attendees)
+                issues: await scheduleHelper.validateScene(scene, validationCache)
             }
         })
         const postValidate = (new Date()).getTime();

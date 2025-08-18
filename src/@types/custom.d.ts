@@ -145,3 +145,10 @@ interface CharacterSheetTextOptions{
     nowrap?:boolean
     align?:string
 }
+
+interface ValidationCache{
+    eventScenes?: SceneModel[]
+    allTimeslots?: TimeslotModel[]
+    attendees?: AttendanceModel[]
+    scheduleBusys?: ScheduleBusyModel[]
+}

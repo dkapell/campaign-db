@@ -32,25 +32,19 @@ interface IssueRecord{
     text: string
 }
 
-async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], allTimeslots:TimeslotModel[] = null, attendees:AttendanceModel[] = null): Promise<SceneIssueModel[]> {
+async function validateScene(scene:SceneModel, validationCache:ValidationCache = {}): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
     const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
     }
-    if (!eventScenes){
-        eventScenes = await models.scene.find({event_id:scene.event_id});
-    }
+
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
-    if (!allTimeslots){
-        allTimeslots = await models.timeslot.find({campaign_id:scene.campaign_id});
-    }
-
-    if (!attendees){
-        console.log('getting attendees')
-        attendees = await models.attendance.find({event_id:scene.event_id, attending:true});
-    }
+    const eventScenes = _.has(validationCache, 'eventScenes')?validationCache.eventScenes:await models.scene.find({event_id:scene.event_id});
+    const allTimeslots = _.has(validationCache, 'allTimeslots')?validationCache.allTimeslots:await models.timeslot.find({campaign_id:scene.campaign_id});
+    const attendees = _.has(validationCache, 'attendees')?validationCache.attendees:await models.attendance.find({event_id:scene.event_id, attending:true});
+    const scheduleBusys = _.has(validationCache, 'scheduleBusys')?validationCache.scheduleBusys:await models.schedule_busys.find({event_id:scene.event_id});
 
     const time0 = (new Date()).getTime();
     console.error(`vs - 0 -  ${time0 - start}`)
@@ -274,7 +268,7 @@ async function validateScene(scene:SceneModel, eventScenes:SceneModel[] = [], al
                     }
                 }
 
-                const schedule_busys = await models.schedule_busy.find({event_id:scene.event_id, user_id:user.id, timeslot_id:timeslot.id});
+                const schedule_busys = _.where(scheduleBusys, {user_id:user.id, timeslot_id:timeslot.id})
                 if (schedule_busys.length){
                     issues.push({
                         code: 'user-dbl-busy',

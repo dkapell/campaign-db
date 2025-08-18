@@ -427,12 +427,20 @@ async function validateScenes(req, res){
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
         console.log(`validating ${sceneIds.length} scenes`);
 
-        const validationCache = {
+        const validationCache: ValidationCache = await async.parallel({
+            eventScenes: async () => { return req.models.scene.find({event_id:eventId}) },
+            allTimeslots: async () => { return req.models.timeslot.find({campaign_id:req.campaign.id}) },
+            scheduleBusys: async() => { return req.models.schedule_busy.find({event_id:event.id}) }
+        });
+        validationCache.attendees = event.attendees.filter(attendee => {return attendee.attending});
+        /*const validationCache = {
             eventScenes: await req.models.scene.find({event_id:eventId}),
             allTimeslots: await req.models.timeslot.find({campaign_id:req.campaign.id}),
             attendees: event.attendees.filter(attendee => {return attendee.attending}),
             scheduleBusys: await req.models.schedule_busy.find({event_id:event.id})
-        }
+        }*/
+        const postData = (new Date()).getTime();
+        console.error(`data gather took ${postData - postgetSchedule}`)
 
 
         const scenes = await async.mapLimit(sceneIds, 5, async(sceneId) => {
@@ -445,7 +453,7 @@ async function validateScenes(req, res){
             }
         })
         const postValidate = (new Date()).getTime();
-        console.error(`validate took ${postValidate - postgetSchedule}`)
+        console.error(`validate took ${postValidate - postData}`)
         res.json({success:true, scenes:scenes});
     } catch(err) {
         res.json({success:false, error:err.message});

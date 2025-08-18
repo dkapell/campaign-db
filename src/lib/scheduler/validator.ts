@@ -34,7 +34,6 @@ interface IssueRecord{
 
 async function validateScene(scene:SceneModel, validationCache:ValidationCache = {}): Promise<SceneIssueModel[]> {
     const issues: IssueRecord[] = [];
-    const start = (new Date()).getTime();
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
     }
@@ -46,12 +45,8 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
     const attendees = _.has(validationCache, 'attendees')?validationCache.attendees:await models.attendance.find({event_id:scene.event_id, attending:true});
     const scheduleBusys = _.has(validationCache, 'scheduleBusys')?validationCache.scheduleBusys:await models.schedule_busy.find({event_id:scene.event_id});
 
-    const time0 = (new Date()).getTime();
-    console.error(`vs - 0 -  ${time0 - start}`)
     const reservedTimeslots = await getReservedSceneTimeslots(scene, allTimeslots);
 
-    const time1 = (new Date()).getTime();
-    console.error(`vs - 1 -  ${time1 - time0}`)
     for (const checkScene of eventScenes){
         if (checkScene.id === scene.id){
             continue;
@@ -116,8 +111,6 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
             }
         }
     }
-    const time3 = (new Date()).getTime();
-    console.error(`vs - 3 -  ${time3 - time1}`)
 
     for (const location of locations.locations){
         switch (location.scene_request_status){
@@ -193,8 +186,6 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
             }
         }
     }
-    const time4 = (new Date()).getTime();
-        console.error(`vs - 4 -  ${time4 - time3}`)
 
     const userCounts = {
         players: {
@@ -278,9 +269,6 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
             }
         }
     }
-    const time5 = (new Date()).getTime();
-    console.error(`vs - 5 -  ${time5 - time4}`)
-
 
     userCounts.players.total = userCounts.players.confirmed + userCounts.players.suggested;
     userCounts.staff.total = userCounts.staff.confirmed + userCounts.staff.suggested;
@@ -335,8 +323,6 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
             }
         }
     }
-    const time55 = (new Date()).getTime();
-    console.error(`vs - 5.5 -  ${time55 - time5}`)
 
     if (scene.runner_id){
         const sceneUser = _.findWhere(scene.users, {id:scene.runner_id});
@@ -347,8 +333,6 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
             });
         }
     }
-    const time6 = (new Date()).getTime();
-    console.error(`vs - 6 -  ${time6 - time55}`)
 
     await saveSceneIssues(scene.id, issues);
 

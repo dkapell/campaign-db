@@ -786,6 +786,16 @@ mixin sceneCard(scene, full=false)
                                 =prereq.name
                             if pidx < scene.prereqs.length-1
                                 span.ms-0.me-2 ,
+            if scene.coreqs && scene.coreqs.length
+                .row.my-1
+                    .col
+                        strong.me-2 Co-reqs
+                        each coreq, pidx in scene.coreqs
+                            a(href=`/scene/${coreq.id}`)
+                                i.fas.fa-theater-masks.me-1
+                                =coreq.name
+                            if pidx < scene.coreqs.length-1
+                                span.ms-0.me-2 ,
 
             if scene.description
                 .row.my-1
@@ -816,6 +826,18 @@ mixin sceneCard(scene, full=false)
                     .col
                         strong Assign Players
                         span.ms-2 No
+
+            if full && scene.for_anyone
+                .row.my-1
+                    .col
+                        strong For "Anyone"
+                        span.ms-2 Yes
+
+            if full && scene.non_exclusive
+                .row.my-1
+                    .col
+                        strong Non-Exclusive
+                        span.ms-2 Yes
 
             .row.my-1
                 if _.keys(scene.players).length && scene.assign_players

@@ -141,19 +141,28 @@ async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
     scenes = scoreScenes(scenes);
     for (const scene of scenes){
         for (const prereq of scene.prereqs){
-            const prereqId = getPrereqId(prereq);
-            const prereqScene = _.findWhere(scenes, {id:prereqId});
+            const id = getReqId(prereq);
+            const prereqScene = _.findWhere(scenes, {id:id});
             if (!_.has(prereqScene, 'prereq_of')){
                 prereqScene.prereq_of = []
             }
             prereqScene.prereq_of.push(scene.id);
         }
 
+        for (const coreq of scene.coreqs){
+            const id = getReqId(coreq);
+            const coreqScene = _.findWhere(scenes, {id:id});
+            if (!_.has(coreqScene, 'coreq_of')){
+                coreqScene.coreq_of = []
+            }
+            coreqScene.coreq_of.push(scene.id);
+        }
+
     }
     return scenes;
 }
 
-function getPrereqId(prereq:string|number|SceneModel):number{
+function getReqId(prereq:string|number|SceneModel):number{
     if (typeof prereq === 'number'){
         return prereq;
     } else if (typeof prereq === 'string'){
@@ -172,13 +181,22 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
                 scene.score += 5
             }
             for (const prereq of scene.prereqs){
-                const prereqId = getPrereqId(prereq);
+                const prereqId = getReqId(prereq);
                 const prereqScene = _.findWhere(scenes, {id:prereqId});
                 if (prereqScene && (scene.score >= prereqScene.score)){
 
                     prereqScene.score = scene.score + 1;
                 }
             }
+
+            for (const coreq of scene.coreqs){
+                const coreqId = getReqId(coreq);
+                const coreqScene = _.findWhere(scenes, {id:coreqId});
+                if (coreqScene && (scene.score >= coreqScene.score)){
+                    coreqScene.score = scene.score;
+                }
+            }
+
             return scene;
         })
 

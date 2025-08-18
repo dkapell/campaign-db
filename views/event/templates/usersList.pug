@@ -38,6 +38,8 @@ if fileredUsers.length
                                     span.user-name.me-1=user.name
                                 if user.type !== 'player'
                                     .badge.text-bg-primary.mx-1.float-end=capitalize(user.typeForDisplay)
+                                if user.non_exclusive
+                                    .badge.text-bg-primary.mx-1.float-end Non-Exclusive
 
                                 if user.type === 'player' && user.tags.length < 4
                                     .float-end

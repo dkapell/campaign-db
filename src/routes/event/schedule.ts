@@ -459,6 +459,7 @@ async function getUsersAtTimeslot(req, res){
         if (!timeslot || timeslot.campaign_id !== req.campaign.id){
             throw new Error('Invalid Timeslot');
         }
+
         let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id);
         if (req.query.type && req.query.type.match(/^(player|staff)$/)){
             users = users.filter(user => {

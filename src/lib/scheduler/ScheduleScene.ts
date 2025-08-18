@@ -59,12 +59,26 @@ class ScheduleScene  {
     get assign_players(): boolean{
         return this.data.assign_players;
     }
+    get for_anyone(): boolean{
+        return this.data.for_anyone;
+    }
+
+    get non_exclusive(): boolean{
+        return this.data.non_exclusive;
+    }
 
     get prereqs(){
         if (typeof this.data.prereqs === 'string'){
             return JSON.parse(this.data.prereqs);
         } else {
             return this.data.prereqs;
+        }
+    }
+    get coreqs(){
+        if (typeof this.data.coreqs === 'string'){
+            return JSON.parse(this.data.coreqs);
+        } else {
+            return this.data.coreqs;
         }
     }
     get total_happiness(): number {

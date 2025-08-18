@@ -1,8 +1,11 @@
-if scene.tags
+if scene.tags || scene.non_exclusive
     .row.my-1
         .col
-            each tag in scene.tags
-                span.badge.text-bg-info.me-1=tag
+            if scene.tags
+                each tag in scene.tags
+                    span.badge.text-bg-info.me-1=tag
+            if scene.non_exclusive
+                span.badge.text-bg-primary.me-1 Non-Exclusive
 .row.my-1
     .col
         if userType === 'staff'
@@ -74,6 +77,7 @@ if scene.writer_id || scene.runner_id
                 i.fas.fa-clipboard-check.me-1(data-bs-toggle='tooltip' title='Runner')
                 = scene.runner.name
 
+
 if scheduleType !== 'edit' && scene.description
     .row.mt-1.mb-2
         .col
@@ -103,11 +107,16 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
 
                     span.me-1= userType==='staff'?'Players':'Characters'
                     if _.has(scene, 'player_count_min')
-                        if currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max
+                        if (currentPlayerCount < scene.player_count_min || currentPlayerCount > scene.player_count_max) && !scene.for_anyone
                             span.text-danger.me-1=currentPlayerCount
                         else
                             span.me-1=currentPlayerCount
-                        span of (#{scene.player_count_min}-#{scene.player_count_max})
+                        if scene.for_anyone
+                            span + Anyone
+                        else
+                            span of (#{scene.player_count_min}-#{scene.player_count_max})
+
+
 
                     span.ps-2.float-end
                         i.fa.fa-chevron-up
@@ -217,7 +226,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                     title='Suggested'
                                     data-bs-toggle='tooltip'
                                 )
-                    if scene.player_count_max - playerCount > 0
+                    if scene.player_count_max - playerCount > 0 && !scene.for_anyone
                         -
                             let shortName = userType==='staff'?'Player':'Character';
                             if (scene.player_count_max - playerCount > 1){
@@ -225,6 +234,9 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                             }
                         li.list-group-item.my-0.p-0
                             span.p-1 +#{scene.player_count_max - playerCount} #{shortName}
+                    if scene.for_anyone
+                        li.list-group-item.my-0.p-0
+                            span.p-1 + Anyone
             else
                 | No Players Assigned
 

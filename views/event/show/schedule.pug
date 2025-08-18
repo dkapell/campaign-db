@@ -96,6 +96,7 @@ include ../../partials/scene
                                                     aria-selected="false"
                                                     role="tab"
                                                     type="button"
+                                                    class=scene.non_exclusive&&!checkPermission('event')?'fst-italic':''
                                                 )
 
                                                     if checkPermission('event')

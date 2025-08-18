@@ -371,6 +371,7 @@ interface SceneModel extends ModelData{
     tags?:TagModel[]
     score?:number
     prereq_of?:number[]
+    coreq_of?:number[]
     assign_players?:boolean
     runner_id?:number
     writer_id?:number

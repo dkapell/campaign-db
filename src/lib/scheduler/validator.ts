@@ -293,11 +293,13 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                         }
 
                         if (timeslotSceneUser.scene_schedule_status === 'confirmed'){
-                            if (user.type === 'player' && !timeslotScene.non_exclusive){
-                                issues.push({
-                                    code: 'player-dbl-book',
-                                    text: `${user.name} is also booked for ${timeslotScene.name}`
-                                });
+                            if (user.type === 'player'){
+                                 if (!timeslotScene.non_exclusive){
+                                    issues.push({
+                                        code: 'player-dbl-book',
+                                        text: `${user.name} is also booked for ${timeslotScene.name}`
+                                    });
+                                }
                             } else {
                                 issues.push({
                                     code: 'staff-dbl-book',
@@ -305,11 +307,13 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                                 });
                             }
                         } else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
-                            if (user.type === 'player' && !timeslotScene.non_exclusive){
-                                issues.push({
-                                    code: 'player-dbl-book',
-                                    text: `${user.name} is also suggested for ${timeslotScene.name}`
-                                });
+                            if (user.type === 'player'){
+                                if (!timeslotScene.non_exclusive){
+                                    issues.push({
+                                        code: 'player-dbl-book',
+                                        text: `${user.name} is also suggested for ${timeslotScene.name}`
+                                    });
+                                }
                             } else {
                                 issues.push({
                                     code: 'staff-dbl-book',
@@ -333,7 +337,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
 
     userCounts.players.total = userCounts.players.confirmed + userCounts.players.suggested;
     userCounts.staff.total = userCounts.staff.confirmed + userCounts.staff.suggested;
-    if (scene.assign_players && userCounts.players.total < scene.player_count_min){
+    if (scene.assign_players && userCounts.players.total < scene.player_count_min && !scene.for_anyone){
         issues.push({
             code: 'not-enough-players',
             text: 'Not enough Players'

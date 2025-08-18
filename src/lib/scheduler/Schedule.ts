@@ -264,6 +264,12 @@ class Schedule extends Readable {
                 scenesProcessed++;
                 const scene = queue.next();
                 if (scene.schedule_status === 'users fill skills'){
+
+                    if (scene.for_anyone){ // Do not put extra users into For Anyone scenes
+                        scene.schedule_status = 'done';
+                        continue;
+                    }
+
                     // Fill to min with any user
                     let happiness = 0;
                     try {
@@ -606,7 +612,7 @@ class Schedule extends Readable {
                 result.all.push(userId);
                 for (const scene of scenes){
                     if (type === 'player'){
-                        if (_.indexOf(scene.currentPlayers, userId) !== -1){
+                        if (_.indexOf(scene.currentPlayers, userId) !== -1 && !scene.non_exclusive){
                             free = false;
                             break;
                         }

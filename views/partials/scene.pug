@@ -635,6 +635,7 @@ mixin sceneCard(scene, full=false)
                             = scene.player_name
                         else
                             = scene.name
+
                 if full && checkPermission('event')
                     .col.text-end.text-md-center
                         if scene.display_to_pc
@@ -662,6 +663,11 @@ mixin sceneCard(scene, full=false)
 
 
         .card-body.position-relative
+            if !checkPermission('event') &&  scene.non_exclusive
+                .row.my-1
+                    .col
+                        strong Non-Exclusive
+
             if full && checkPermission('gm')
                 .position-absolute.top-0.end-0.pe-3.pt-3
                     a.btn.btn-sm.btn-outline-primary(
@@ -683,7 +689,7 @@ mixin sceneCard(scene, full=false)
 
 
 
-            if scene.player_name
+            if checkPermission('event') && scene.player_name
                 .row.my-1
                     .col
                         strong.me-2 Player-Facing Name:
@@ -865,8 +871,10 @@ mixin sceneCard(scene, full=false)
                                             +playerEntry(user)
                             - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
 
-                            if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0
+                            if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0 && !scene.for_anyone
                                 li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
+                            if scene.for_anyone
+                                li + Anyone
 
 
 
@@ -950,16 +958,17 @@ mixin sceneCard(scene, full=false)
                         | Group Report
 
                 if !full && checkPermission('contrib')
-                    .float-end
+                    .float-end.ms-1
                         a.btn.btn-sm.btn-outline-info(
                             href=`/scene/${scene.id}`
                             title="View Scene"
                             data-bs-toggle='tooltip'
                         )
                             i.fas.fa-eye
-                .float-end.text-end(style='font-size:0.7rem')
-                    span.me-1 Created:
-                    =moment(scene.created).format('lll')
-                    br
-                    span.me-1 Updated:
-                    =moment(scene.updated).format('lll')
+                if checkPermission('event')
+                    .float-end.text-end(style='font-size:0.7rem')
+                        span.me-1 Created:
+                        =moment(scene.created).format('lll')
+                        br
+                        span.me-1 Updated:
+                        =moment(scene.updated).format('lll')

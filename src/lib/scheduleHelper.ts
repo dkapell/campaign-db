@@ -253,7 +253,8 @@ function formatUser(user){
         typeForDisplay: user.typeForDisplay,
         schedule_status: user.schedule_status,
         schedule_scene_id: user.schedule_scene_id,
-        busy: user.busy
+        busy: user.busy,
+        non_exclusive: user.non_exclusive
     };
     if (user.character){
         doc.character = {
@@ -310,22 +311,37 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
     const users = JSON.parse(JSON.stringify(data.users));
 
     return users.map(user => {
-        const statuses = [];
+        let statuses = [];
+        user.non_exclusive = false;
 
         for (const scene of data.scenes){
             if (scene.usersByStatus && _.findWhere(scene.usersByStatus.confirmed, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.confirmed, {id:user.id});
-                statuses.push({type:'scene', sceneId:scene.id, status:record.scene_schedule_status});
+                statuses.push({
+                    type:'scene',
+                    sceneId:scene.id,
+                    status:record.scene_schedule_status,
+                    busy: !(user.type === 'player' && scene.non_exclusive)
+                });
+                if (user.type === 'player' && scene.non_exclusive){ user.non_exclusive = true; }
             } else if (scene.usersByStatus && _.findWhere(scene.usersByStatus.suggested, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.suggested, {id:user.id});
-                statuses.push({type: 'scene', sceneId:scene.id, status:record.scene_schedule_status});
+                statuses.push({
+                    type: 'scene',
+                    sceneId:scene.id,
+                    status:record.scene_schedule_status,
+                    busy: !(user.type === 'player' && scene.non_exclusive)
+                });
+                if (user.type === 'player' && scene.non_exclusive){ user.non_exclusive = true; }
             }
         }
         const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
 
         for (const schedule_busy of schedule_busys){
-            statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled'})
+            statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled', busy:true})
         }
+
+        statuses = _.where(statuses, {busy:true});
 
         if (!statuses.length){
             user.schedule_status = 'unscheduled';

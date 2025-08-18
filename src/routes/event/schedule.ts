@@ -408,7 +408,6 @@ async function unconfirmScene(req, res){
 async function validateScenes(req, res){
     const eventId = req.params.id;
     try{
-        const start = (new Date()).getTime();
         const event = await req.models.event.get(eventId);
 
         if (!event || event.campaign_id !== req.campaign.id){
@@ -416,16 +415,12 @@ async function validateScenes(req, res){
         }
 
         const schedule = await scheduleHelper.getSchedule(event.id);
-        const postgetSchedule = (new Date()).getTime();
-        console.error(`Get Schedule took ${postgetSchedule - start}`)
-
 
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
-        console.log(`validating ${sceneIds.length} scenes`);
 
         const validationCache: ValidationCache = {
             allTimeslots: schedule.timeslots,
@@ -443,8 +438,6 @@ async function validateScenes(req, res){
                 issues: await scheduleHelper.validateScene(scene, validationCache)
             }
         })
-        const postValidate = (new Date()).getTime();
-        console.error(`validate took ${postValidate - postgetSchedule}`)
         res.json({success:true, scenes:scenes});
     } catch(err) {
         res.json({success:false, error:err.message});

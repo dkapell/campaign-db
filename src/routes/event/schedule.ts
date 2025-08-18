@@ -85,7 +85,7 @@ async function showSchedule(req, res, next){
         });
 
         res.locals.scenes = await async.mapLimit(scenes, 5, async (scene) => {
-            scene.issues = await scheduleHelper.validateScene(scene, schedule.scenes);
+            scene.issues = [];
             return scene;
         });
         res.locals.locations = schedule.locations;

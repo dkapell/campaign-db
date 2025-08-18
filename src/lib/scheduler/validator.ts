@@ -44,7 +44,7 @@ async function validateScene(scene:SceneModel, validationCache:ValidationCache =
     const eventScenes = _.has(validationCache, 'eventScenes')?validationCache.eventScenes:await models.scene.find({event_id:scene.event_id});
     const allTimeslots = _.has(validationCache, 'allTimeslots')?validationCache.allTimeslots:await models.timeslot.find({campaign_id:scene.campaign_id});
     const attendees = _.has(validationCache, 'attendees')?validationCache.attendees:await models.attendance.find({event_id:scene.event_id, attending:true});
-    const scheduleBusys = _.has(validationCache, 'scheduleBusys')?validationCache.scheduleBusys:await models.schedule_busys.find({event_id:scene.event_id});
+    const scheduleBusys = _.has(validationCache, 'scheduleBusys')?validationCache.scheduleBusys:await models.schedule_busy.find({event_id:scene.event_id});
 
     const time0 = (new Date()).getTime();
     console.error(`vs - 0 -  ${time0 - start}`)

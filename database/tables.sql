@@ -1043,6 +1043,7 @@ create table scenes (
     timeslot_count int not null default 1,
     display_to_pc boolean default true,
     prereqs jsonb,
+    coreqs jsonb,
     assign_players boolean default true,
     player_count_min int,
     player_count_max int,
@@ -1060,6 +1061,8 @@ create table scenes (
     runner_id int,
     created timestamp with time zone DEFAULT now(),
     updated timestamp with time zone DEFAULT now(),
+    for_anyone boolean default false,
+    non_exclusive boolean default false,
     primary key (id),
     CONSTRAINT scenes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE

@@ -24,7 +24,10 @@ const issueList = {
     'unconfirmed-staff': 'info',
     'missing-req-user': 'warning',
     'missing-req-attendee': 'warning',
-    'missing-runner': 'warning'
+    'missing-runner': 'warning',
+    'coreq-not-sched': 'info',
+    'coreq-diff-event': 'info',
+    'coreq-diff-time': 'warning'
 }
 
 interface IssueRecord{
@@ -188,7 +191,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                 });
             } else if (prereqScene.event_id !== scene.event_id){
                 issues.push({
-                    code: 'prereq-dif-event',
+                    code: 'prereq-diff-event',
                     text: `Prereq ${prereqScene.name} is scheduled for a different event`
                 });
             } else {
@@ -198,6 +201,44 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                     issues.push({
                         code: 'prereq-after',
                         text: `Prereq ${prereqScene.name} is scheduled after this scene`
+                    });
+                }
+            }
+        }
+
+        for (const coreq of scene.coreqs){
+            let coreqScene = null;
+            if (typeof coreq === 'string'){
+                continue;
+            } else if (typeof coreq === 'number'){
+                coreqScene = _.findWhere(data.scenes, {id:coreq});
+                if (!coreqScene){
+                    coreqScene = await models.scene.get(coreq);
+                }
+            } else {
+                coreqScene = _.findWhere(data.scenes, {id:coreq.id});
+                if (!coreqScene){
+                    coreqScene = await models.scene.get(coreq.id);
+                }
+            }
+
+            if (!coreqScene.event_id || coreqScene.status === 'ready'){
+                issues.push({
+                    code: 'coreq-not-sched',
+                    text: `Co-req ${coreqScene.name} is not scheduled`
+                });
+            } else if (coreqScene.event_id !== scene.event_id){
+                issues.push({
+                    code: 'coreq-diff-event',
+                    text: `Co-req ${coreqScene.name} is scheduled for a different event`
+                });
+            } else {
+                const coreqTimeslots = getSceneTimeslots(coreqScene);
+                const coreqTimeslotIdx = _.findIndex(data.timeslots, {id: coreqTimeslots.timeslots[0].id});
+                if (coreqTimeslotIdx !== myTimeslotIdx){
+                    issues.push({
+                        code: 'coreq-diff-time',
+                        text: `Co-req ${coreqScene.name} is scheduled at a different time`
                     });
                 }
             }
@@ -232,56 +273,59 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
             }
         }
         if (user.scene_schedule_status === 'confirmed' || user.scene_schedule_status === 'suggested'){
-            for (const timeslot of timeslots.timeslots){
-                const concurentScenes = data.scenes.filter(checkScene => {
-                    if (checkScene.id === scene.id){
-                        return false
-                    }
-                    const checkTimeslots = getSceneTimeslots(checkScene);
-                    if (_.findWhere(checkTimeslots.timeslots, {id:timeslot.id})){
-                        return true;
-                    }
-                    return false;
-                });
-
-                for (const timeslotScene of concurentScenes){
-                    const timeslotSceneUser = _.findWhere(timeslotScene.users, {id:user.id});
-                    if (!timeslotSceneUser){
-                        continue
-                    }
-                    if (timeslotSceneUser.scene_schedule_status === 'confirmed'){
-                        if (user.type === 'player'){
-                            issues.push({
-                                code: 'player-dbl-book',
-                                text: `${user.name} is also booked for ${timeslotScene.name}`
-                            });
-                        } else {
-                            issues.push({
-                                code: 'staff-dbl-book',
-                                text: `${user.name} is also booked for ${timeslotScene.name}`
-                            });
+            if (!(user.type === 'player' && scene.non_exclusive)){
+                for (const timeslot of timeslots.timeslots){
+                    const concurentScenes = data.scenes.filter(checkScene => {
+                        if (checkScene.id === scene.id){
+                            return false
                         }
-                    } else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
-                        if (user.type === 'player'){
-                            issues.push({
-                                code: 'player-dbl-book',
-                                text: `${user.name} is also suggested for ${timeslotScene.name}`
-                            });
-                        } else {
-                            issues.push({
-                                code: 'staff-dbl-book',
-                                text: `${user.name} is also suggested for ${timeslotScene.name}`
-                            });
+                        const checkTimeslots = getSceneTimeslots(checkScene);
+                        if (_.findWhere(checkTimeslots.timeslots, {id:timeslot.id})){
+                            return true;
                         }
-                    }
-                }
-
-                const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslot.id})
-                if (schedule_busys.length){
-                    issues.push({
-                        code: 'user-dbl-busy',
-                        text: `${user.name} is also busy with ${(_.pluck(schedule_busys, 'name')).join(', ')}`
+                        return false;
                     });
+
+                    for (const timeslotScene of concurentScenes){
+                        const timeslotSceneUser = _.findWhere(timeslotScene.users, {id:user.id});
+                        if (!timeslotSceneUser){
+                            continue
+                        }
+
+                        if (timeslotSceneUser.scene_schedule_status === 'confirmed'){
+                            if (user.type === 'player' && !timeslotScene.non_exclusive){
+                                issues.push({
+                                    code: 'player-dbl-book',
+                                    text: `${user.name} is also booked for ${timeslotScene.name}`
+                                });
+                            } else {
+                                issues.push({
+                                    code: 'staff-dbl-book',
+                                    text: `${user.name} is also booked for ${timeslotScene.name}`
+                                });
+                            }
+                        } else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
+                            if (user.type === 'player' && !timeslotScene.non_exclusive){
+                                issues.push({
+                                    code: 'player-dbl-book',
+                                    text: `${user.name} is also suggested for ${timeslotScene.name}`
+                                });
+                            } else {
+                                issues.push({
+                                    code: 'staff-dbl-book',
+                                    text: `${user.name} is also suggested for ${timeslotScene.name}`
+                                });
+                            }
+                        }
+                    }
+
+                    const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslot.id})
+                    if (schedule_busys.length){
+                        issues.push({
+                            code: 'user-dbl-busy',
+                            text: `${user.name} is also busy with ${(_.pluck(schedule_busys, 'name')).join(', ')}`
+                        });
+                    }
                 }
             }
         }

@@ -27,7 +27,10 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         player_url: scene.player_url,
         description: scene.description,
         printout_note: scene.printout_note,
-        assign_players: scene.assign_players
+        assign_players: scene.assign_players,
+        non_exclusive: scene.non_exclusive,
+        for_anyone: scene.for_anyone
+
     };
 
 
@@ -70,6 +73,21 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
                 }
             } else {
                 return prereq;
+            }
+        });
+    }
+    if (!forPlayer && scene.coreqs && typeof scene.coreqs !== 'string'){
+        output.coreqs = scene.coreqs.map((coreq:SceneModel)=> {
+            if (typeof coreq === 'object'){
+                return {
+                    id: coreq.id,
+                    name: coreq.name,
+                    status: coreq.status,
+                    event: typeof coreq.event === 'object'?coreq.event.name:null,
+                    event_id: coreq.event_id
+                }
+            } else {
+                return coreq;
             }
         });
     }

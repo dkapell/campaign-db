@@ -80,7 +80,7 @@ if (backto)
 
 .row.my-2
     label.col-form-label.col-md-1(for="scene_tags") Tags
-    .col-md-5
+    .col-md-3
         select.form-select.tag-select2#scene_tags(multiple, name="scene[tags]" data-placeholder="Tags")
             for tag in tags
                 -let selected = false;
@@ -91,14 +91,27 @@ if (backto)
                 if isNaN(tag) && !_.isObject(tag)
                     option(value=tag selected=true)= tag
 
-    label.col-form-label.col-md-2(for="scene_prereqs") Prereq Scenes
-    .col-md-4
+    label.col-form-label.col-md-1(for="scene_coreqs") Co-reqs
+        i.far.fa-question-circle.ms-1(data-bs-toggle='tooltip' title='Scenes that should be scheduled at the same time as this scene')
+    .col-md-3
+        select.form-select.select2#scene_coreqs(name='scene[coreqs]' multiple)
+            option
+            each coreq in scenes
+                if scene.id && coreq.id === scene.id
+                    - continue;
+                -
+                    let selected = false;
+                    if (_.indexOf(scene.coreqs, coreq.id) !== -1){ selected = true }
+                    if (_.findWhere(scene.coreqs, {id: coreq.id})){ selected = true }
+                option(value=coreq.id selected=selected)=coreq.name
+
+    label.col-form-label.col-md-1(for="scene_prereqs") Prereqs
+        i.far.fa-question-circle.ms-1(data-bs-toggle='tooltip' title='Scenes that should be scheduled earlier in the event than this scene')
+    .col-md-3
         select.form-select.select2#scene_prereqs(name='scene[prereqs]' multiple)
             option
             each prereq in scenes
                 if scene.id && prereq.id === scene.id
-                    - continue;
-                if prereq.event_id && new Date(prereq.event.end_time) < new Date()
                     - continue;
                 -
                     let selected = false;
@@ -316,11 +329,36 @@ fieldset.my-2.border.p-2.rounded
             .row.mb-3
                 .col.scene-user-picker-container
                     h5 Players
-                    .row-my-1
-                        .form-check.form-switch
-                            input.form-check-input#scene_assign_players(type="checkbox", name="scene[assign_players]", checked=scene.assign_players)
-                            label.form-check-label(for="scene_assign_players") Assign Players
+                    .row.my-1
+                        .col
+                            .form-check.form-switch
+                                input.form-check-input#scene_assign_players(type="checkbox", name="scene[assign_players]", checked=scene.assign_players)
+                                label.form-check-label(for="scene_assign_players") Assign Players
+                                    i.far.fa-question-circle.ms-1(
+                                        data-bs-toggle='tooltip'
+                                        title='Assign specific players to this scene'
+                                    )
+
+                        .col
+                            .form-check.form-switch
+                                input.form-check-input#scene_for_anyone(type="checkbox", name="scene[for_anyone]", checked=scene.for_anyone)
+                                label.form-check-label(for="scene_for_anyone") For "Anyone"
+                                    i.far.fa-question-circle.ms-1(
+                                        data-bs-toggle='tooltip'
+                                        title='Have this scene show up on the \'Anyone\' section of the schedule'
+                                    )
+
                     #player-assignment-section.d-none
+                        .row.my-1
+                            .col
+                                .form-check.form-switch
+                                    input.form-check-input#scene_non_exclusive(type="checkbox", name="scene[non_exclusive]", checked=scene.non_exclusive)
+                                    label.form-check-label(for="scene_non_exclusive") Non-Exclusive
+                                        i.far.fa-question-circle.ms-1(
+                                            data-bs-toggle='tooltip'
+                                            title='Players can be double-booked for this scene'
+                                        )
+
                         .row.my-1
                             label.col-form-label.col-xl(for="scene_player_count") Total Player Count
                                 span.ms-1.text-danger *

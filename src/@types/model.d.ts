@@ -335,7 +335,7 @@ interface LocationModel extends ModelData{
     scene_schedule_status?:string
 }
 
-type scenePrereq = number|SceneModel
+type sceneReq = number|SceneModel
 
 interface SceneModel extends ModelData{
     id?:number
@@ -350,7 +350,8 @@ interface SceneModel extends ModelData{
     setup_slots?:number
     cleanup_slots?:number
     display_to_pc?:boolean
-    prereqs?:scenePrereq[]|string
+    prereqs?:sceneReq[]|string
+    coreqs?:sceneReq[]|string
     player_count_min?:number
     player_count_max?:number
     staff_count_min?:number
@@ -375,6 +376,8 @@ interface SceneModel extends ModelData{
     writer_id?:number
     runner?:CampaignUser
     writer?:CampaignUser
+    for_anyone?:boolean
+    non_exclusive?:booleam
 }
 
 interface FormattedSourceModel{
@@ -405,7 +408,8 @@ interface FormattedSceneModel extends ModelData{
     setup_slots?:number
     cleanup_slots?:number
     display_to_pc?:boolean
-    prereqs?:scenePrereq[]|string
+    prereqs?:sceneReq[]|string
+    coreqs?:sceneReq[]|string
     player_count?:number
     staff_count?:number
     combat_staff_count?:number
@@ -432,6 +436,8 @@ interface FormattedSceneModel extends ModelData{
     writer_id?:number
     runner?:CampaignUser
     writer?:CampaignUser
+    for_anyone?:boolean
+    non_exclusive?:booleam
 }
 
 interface SceneUserModel extends ModelData{

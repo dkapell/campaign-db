@@ -133,6 +133,8 @@ async function showNew(req, res, next){
                 sources:[],
                 timeslots:[],
                 skills:[],
+                for_anyone:false,
+                non_exclusive:false,
                 writer_id: req.session.activeUser.id,
                 runner_id: req.session.activeUser.id,
             };
@@ -167,7 +169,16 @@ async function showNew(req, res, next){
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
+        const scenes = await req.models.scene.find({campaign_id:req.campaign.id}, {postSelect:async (data)=>{return data;}});
+        res.locals.scenes = (await async.map(scenes, async (scene) => {
+            if (scene.event_id){
+                scene.event = await req.models.event.get(scene.event_id, {postSelect:async (data)=>{return data;}});
+            }
+            return scene;
+        })).filter(scene => {
+            if (scene.event_id && new Date(scene.event.end_time) < new Date()) { return false; }
+            return true;
+        });
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
         res.locals.events = (await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}})).reverse();
 
@@ -228,7 +239,16 @@ async function showEdit(req, res, next){
         res.locals.locations = await req.models.location.find({campaign_id:req.campaign.id});
         res.locals.sources = await req.models.skill_source.find({campaign_id:req.campaign.id});
         res.locals.timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id});
-        res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
+        const scenes = await req.models.scene.find({campaign_id:req.campaign.id}, {postSelect:async (data)=>{return data;}});
+        res.locals.scenes = (await async.map(scenes, async (scene) => {
+            if (scene.event_id){
+                scene.event = await req.models.event.get(scene.event_id, {postSelect:async (data)=>{return data;}});
+            }
+            return scene;
+        })).filter(scene => {
+            if (scene.event_id && new Date(scene.event.end_time) < new Date()) { return false; }
+            return true;
+        });
         res.locals.tags = await req.models.tag.find({campaign_id:req.campaign.id, type:'scene'});
         res.locals.events = (await req.models.event.find({campaign_id:req.campaign.id, deleted:false}, {postSelect:async (data)=>{return data;}})).reverse();
 
@@ -340,7 +360,7 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
     const scene = req.body.scene;
     delete scene.created;
     scene.updated = new Date();
-    for (const field of ['display_to_pc', 'assign_players']){
+    for (const field of ['display_to_pc', 'assign_players', 'for_anyone', 'non_exclusive']){
         if (!_.has(scene, field)){
             scene[field] = false;
         }
@@ -351,7 +371,7 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
         }
     }
 
-    for (const field of ['tags', 'prereqs']){
+    for (const field of ['tags', 'prereqs', 'coreqs']){
         if (!scene[field]){
             scene[field] = [];
         } else if(!_.isArray(scene[field])){

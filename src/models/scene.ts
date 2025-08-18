@@ -54,6 +54,7 @@ const tableFields = [
     'cleanup_slots',
     'display_to_pc',
     'prereqs',
+    'coreqs',
     'assign_players',
     'player_count_min',
     'player_count_max',
@@ -67,6 +68,8 @@ const tableFields = [
     'priority',
     'writer_id',
     'runner_id',
+    'non_exclusive',
+    'for_anyone',
     'created',
     'updated'
 ];
@@ -113,15 +116,18 @@ async function fill(data: SceneModel){
     if (data.event_id){
         data.event = await models.event.get(data.event_id, {postSelect:async (data)=>{return data;}});
     }
-    if (typeof data.prereqs !== 'string'){
-        data.prereqs = await async.map(data.prereqs as scenePrereq[], async(sceneId) => {
-            if (typeof sceneId === 'number') {
-                return Scene.get(sceneId);
-            } else {
-                return sceneId;
-            }
-        });
+    for (const type of ['prereqs', 'coreqs']){
+        if (typeof data[type] !== 'string'){
+            data[type] = await async.map(data[type] as sceneReq[], async(sceneId) => {
+                if (typeof sceneId === 'number') {
+                    return Scene.get(sceneId);
+                } else {
+                    return sceneId;
+                }
+            });
+        }
     }
+
     if (data.writer_id){
         data.writer = await models.user.get(data.campaign_id, data.writer_id);
     }
@@ -147,6 +153,12 @@ async function preSave(data: SceneModel): Promise<SceneModel>{
             data.prereqs = _.pluck(data.prereqs, 'id');
         }
         data.prereqs = JSON.stringify(data.prereqs);
+    }
+    if (typeof data.coreqs === 'object'){
+        if (data.coreqs.length && typeof data.coreqs[0] === 'object'){
+            data.coreqs = _.pluck(data.coreqs, 'id');
+        }
+        data.coreqs = JSON.stringify(data.coreqs);
     }
     return data;
 }

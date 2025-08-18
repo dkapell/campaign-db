@@ -69,7 +69,8 @@ block content
                                     span.ms1 : #{user.sso_name}
                             if user.site_admin
                                 .badge.text-bg-success.ms-2 Site Admin
-                            if user.tags.length
+
+                            if checkPermission('gm') && user.tags.length
                                 a.btn.btn-outline-info.btn-xs.me-1.ms-2.float-end(
                                     href='#'
                                     data-bs-toggle='tooltip'

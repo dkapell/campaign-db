@@ -192,14 +192,22 @@ function scoreScene(scene:SceneModel): SceneModel{
 
     scene.score += (scene.locations_count * Number(config.get('scheduler.score.locations_count')));
     scene.score -= scene.locations.filter(location => {
-        return location.scene_request_status !== 'none';
+        if (location.scene_request_status === 'rejected') { return false;}
+        if (location.scene_request_status === 'none') { return false;}
+        return true;
     }).length;
 
     scene.score += (scene.timeslot_count * Number(config.get('scheduler.score.timeslot_count')));
     scene.score += scene.setup_slots * Number(config.get('scheduler.score.timeslot_count'));
     scene.score += scene.cleanup_slots * Number(config.get('scheduler.score.timeslot_count'));
     scene.score -= scene.timeslots.filter(timeslot => {
-        return timeslot.scene_request_status !== 'none';
+        if (timeslot.scene_request_status === 'rejected') { return false;}
+        if (timeslot.scene_request_status === 'none') { return false;}
+        return true;
+    }).length;
+
+    scene.score += scene.users.filter(user => {
+        return user.scene_request_status === 'required'
     }).length;
 
     scene.score += scene.player_count_max;

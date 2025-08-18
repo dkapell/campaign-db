@@ -46,6 +46,9 @@ Schedule.save = async function save(data:ModelData): Promise<number|null>{
     if (current.length){
         maxVal = _.max(_.pluck(current, 'version'));
     }
+    data.version = maxVal+1;
+    const id = await this.create(data);
+
     const maxVersions: number = config.get('scheduler.keepVersions') ;
     let saved = 0;
     for (const item of current){
@@ -56,8 +59,7 @@ Schedule.save = async function save(data:ModelData): Promise<number|null>{
         }
         await this.delete(item.id);
     }
-    data.version = maxVal+1;
-    return this.create(data);
+    return id;
 }
 
 Schedule.current = async function current(event_id:number): Promise<ModelData>{

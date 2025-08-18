@@ -559,7 +559,6 @@ async function getUsersPerTimeslot(req, res){
             };
 
             let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);
-            console.log(users[0])
             if (req.query.type && req.query.type.match(/^(player|staff)$/)){
                 users = users.filter(user => {
                     if (req.query.type === 'player'){

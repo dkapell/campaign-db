@@ -33,6 +33,7 @@ class Schedule extends Readable {
     protected cache: ScheduleCache;
     protected scheduleResult: SchedulerResult = {};
     issues: string[] = [];
+    global_hapiness = 0;
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
         super({
@@ -66,7 +67,7 @@ class Schedule extends Readable {
     }
 
     get happiness():number{
-        let happiness = 0;
+        let happiness = this.global_hapiness;
         for (const scene of this.scenes){
             happiness+= scene.total_happiness;
         }
@@ -326,11 +327,14 @@ class Schedule extends Readable {
             }
         }
 
-
+        for (const timeslot of await this.cache.timeslots()){
+            this.global_hapiness -= (await this.usersAvailable([timeslot.id], 'player')).available.length * Number(config.get('scheduler.happiness.players_unscheduled'));
+            this.global_hapiness -= (await this.usersAvailable([timeslot.id], 'staff')).available.length * Number(config.get('scheduler.happiness.staff_unscheduled'));
+        }
         const totalDuration = (new Date()).getTime() - start;
         this.push({
             type: 'status',
-            message: `${schedulerIdx}: finished in ${totalDuration}ms: ${this.happiness}`,
+            message: `${schedulerIdx}: finished in ${totalDuration}ms: ${this.happiness} ${this.global_hapiness}`,
             duration: totalDuration
         });
         this.scheduleResult = {

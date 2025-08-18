@@ -110,7 +110,9 @@
             "scheduled": 25,
             "users_requested": 2,
             "users": 1,
-            "character": 2
+            "character": 2,
+            "players_unscheduled": 2,
+            "staff_unscheduled": 1
         },
         "keepVersions":50
     },

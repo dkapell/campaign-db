@@ -763,7 +763,7 @@ async function runScheduler(req, res){
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
         }
-        const schedulerStream = scheduler.run(eventId, {phase:'all'});
+        const schedulerStream = scheduler.run(eventId, options);
 
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Transfer-Encoding', 'chunked'); // Important for streaming

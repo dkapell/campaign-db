@@ -157,102 +157,176 @@ class Schedule extends Readable {
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
         }
+
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
             const scene = queue.next();
-            switch (scene.schedule_status){
-                case 'new': { // -> slotted
-                    const slotResult = await this.findSlot(scene);
-                    if (slotResult.slotted){
-                        scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
-                        scene.schedule_status = 'slotted';
-                        queue.enqueue(scene.id);
+            if (scene.schedule_status === 'new'){
+                const slotResult = await this.findSlot(scene);
+                if (slotResult.slotted){
+                    scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
+                    scene.schedule_status = 'slotted';
+                    queue.enqueue(scene.id);
 
-                    } else if (slotResult.conflicts && slotResult.conflicts.length){
-                        for (const id of slotResult.conflicts){
-                            queue.enqueue(id, true);
-                        }
-                        queue.enqueue(scene.id, true);
-                    } else {
-                        unscheduled++;
+                } else if (slotResult.conflicts && slotResult.conflicts.length){
+                    for (const id of slotResult.conflicts){
+                        queue.enqueue(id, true);
                     }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
-
-                    //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-                    break;
+                    queue.enqueue(scene.id, true);
+                } else {
+                    unscheduled++;
                 }
-                case 'slotted': // -> users requested min
-                    // if required only, skip remaining steps
-                    if (options.phase === 'required'){
-                        scene.schedule_status = 'done';
-                        break;
-                    }
+                this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+
+                //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+            }
+            this.addScene(scene)
+        }
+
+        if (options.phase !== 'required'){
+            queue.restart();
+            while (queue.length && scenesProcessed < maxScenesPerRun){
+                scenesProcessed++;
+                const scene = queue.next();
+                if (scene.schedule_status === 'slotted'){
                     // fill to min with requested users
-                    scene.happiness += await this.fillUsers(scene, 'requested', false, options);
-                    scene.schedule_status = 'users requested min';
+                    let happiness = 0
+                    try {
+                        happiness = await this.fillUsers(scene, {status: 'requested', single:true}, options);
+                    } catch (err){
+                        if (err.message !== 'Out of users'){
+                            throw err;
+                        }
+                    }
+                    if (!happiness){
+                        scene.schedule_status = 'users requested min';
+                    }
+                    scene.happiness += happiness;
                     queue.enqueue(scene.id);
                     this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
 
                     //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-
-                    break;
-                case 'users requested min': // -> users requested min
+                }
+                this.addScene(scene);
+            }
+            queue.restart();
+            while (queue.length && scenesProcessed < maxScenesPerRun){
+                scenesProcessed++;
+                const scene = queue.next();
+                if (scene.schedule_status === 'users requested min'){
                     // Fill to max with requested users
-                    scene.happiness += await this.fillUsers(scene, 'requested', true, options);
-                    scene.schedule_status = 'users requested max';
+                    let happiness = 0
+                    try {
+                        happiness = await this.fillUsers(scene, {status: 'requested', max:true, single:true}, options);
+                    } catch (err){
+                        if (err.message !== 'Out of users'){
+                            throw err;
+                        }
+                    }
+                    if (!happiness){
+                        scene.schedule_status = 'users requested max';
+                    }
+                    scene.happiness += happiness
                     queue.enqueue(scene.id);
                     this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
 
                     //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                }
+                this.addScene(scene);
+            }
+            queue.restart();
+            while (queue.length && scenesProcessed < maxScenesPerRun){
+                scenesProcessed++;
+                const scene = queue.next();
+                if (scene.schedule_status === 'users requested max'){
 
-                    break;
-                case 'users requested max': // -> users fill skills
                     // Fill to max with users that fill requested sources and skills
                     scene.happiness += await this.fillByCharacter(scene, options);
                     scene.schedule_status = 'users fill skills'
                     if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
-                        queue.enqueue(scene.id);
+                        scene.schedule_status = 'users fill skills'
                     } else {
                         scene.schedule_status = 'done';
                     }
                     this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
 
                     //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-
-                    break;
-                case 'users fill skills': // -> users fill min
-                    // If requested only, skip remaining steps
-                    if (options.phase === 'requested'){
-                        scene.schedule_status = 'done';
-                        break;
-                    }
-
-                    // Fill to min with any user
-                    scene.happiness += await this.fillUsers(scene, 'any', false, options);
-                    scene.schedule_status = 'users fill min';
-
-                    if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
-                        queue.enqueue(scene.id);
-                    } else {
-                        scene.schedule_status = 'done';
-                    }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
-
-                    //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-
-                    break;
-
-                case 'users fill min': // -> done
-                    // Fill to max with any available user
-                    scene.happiness += await this.fillUsers(scene, 'any', true, options);
-                    scene.schedule_status = 'done'
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
-
-                    //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-                    break;
+                }
+                this.addScene(scene);
             }
-            this.addScene(scene);
+
         }
+
+        if (options.phase === 'all'){
+            queue.restart();
+            while (queue.length && scenesProcessed < maxScenesPerRun){
+                scenesProcessed++;
+                const scene = queue.next();
+                if (scene.schedule_status === 'users fill skills'){
+                    // Fill to min with any user
+                    let happiness = 0;
+                    try {
+                        happiness += await this.fillUsers(scene, {status: 'any', single:true}, options);
+                    } catch (err){
+                        if (err.message !== 'Out of users'){
+                            throw err;
+                        }
+                    }
+
+                    if (!happiness){
+                        scene.schedule_status = 'done';
+                    } else {
+                        scene.happiness += happiness;
+                        if (scene.currentStaff.length < scene.staff_count.min || scene.currentPlayers.length < scene.player_count.min){
+                            queue.enqueue(scene.id);
+                        } else if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
+                            scene.schedule_status = 'users fill min';
+                            queue.enqueue(scene.id);
+                        } else {
+                            scene.schedule_status = 'done';
+                        }
+                    }
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                }
+                this.addScene(scene);
+            }
+            queue.restart();
+            while (queue.length && scenesProcessed < maxScenesPerRun){
+                scenesProcessed++;
+                const scene = queue.next();
+                if (scene.schedule_status === 'users fill min'){
+                    // Fill to max with any available user
+                    let happiness = 0;
+                    try{
+                        happiness += await this.fillUsers(scene, {status: 'any', max: true, single:true}, options);
+                    } catch (err){
+                        if (err.message !== 'Out of users'){
+                            throw err;
+                        }
+                    }
+
+                    if (!happiness){
+                        scene.schedule_status = 'done'
+                    } else {
+                        scene.happiness += happiness;
+                        if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
+                            queue.enqueue(scene.id);
+                        } else {
+                            scene.schedule_status = 'done';
+                        }
+                    }
+
+                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+
+
+                }
+                this.addScene(scene);
+            }
+        }
+
+
         const totalDuration = (new Date()).getTime() - start;
         this.push({
             type: 'status',
@@ -444,8 +518,6 @@ class Schedule extends Readable {
                 const startTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
                 checkScene: for (const timeslotId of sceneTimeslots){
 
-                //checkScene: for(let tIdx = 0; tIdx < scene.timeslot_count; tIdx++){
-                    //const timeslot = timeslots[startTimeslotIdx+tIdx]
                     const slotScenes = (await this.getSlotScenes(timeslotId, locationId)).filter(slotScene=>{
                         return slotScene.id !== scene.id;
                     });
@@ -541,12 +613,12 @@ class Schedule extends Readable {
                         }
                     }
                 }
-
-                if(await models.schedule_busy.findOne({
-                    event_id:event.id,
+                const schedule_busy = _.findWhere(await this.cache.schedule_busys(),{
+                    event_id: event.id,
                     user_id: userId,
-                    timeslot_id:timeslotId
-                })){
+                    timeslot_id: timeslotId
+                });
+                if(schedule_busy){
                     free = false;
                 }
 
@@ -567,15 +639,19 @@ class Schedule extends Readable {
         return result;
     }
 
-    protected async fillUsers(scene:ScheduleScene, status:string, max:boolean, options:SchedulerOptions):Promise<number>{
+    protected async fillUsers(scene:ScheduleScene, fillOptions:SchedulerFillUserOptions, options:SchedulerOptions):Promise<number>{
 
-        const usersAvailable = {
+        const available = {
             players: await this.usersAvailable(scene.currentTimeslots, 'player'),
             staff: await this.usersAvailable(scene.currentTimeslots, 'staff'),
         };
+        if (available.players.available.length + available.staff.available.length === 0){
+            throw new Error('Out of users');
+        }
+
         let requestedPlayers = [];
         let requestedStaff = [];
-        if (status === 'any'){
+        if (fillOptions.status === 'any'){
             if (!options.skipPlayers && scene.assign_players){
                 const allPlayers = await this.allAttendeeIds('player');
                 const rejectedPlayers = scene.desiredPlayers('rejected');
@@ -590,12 +666,12 @@ class Schedule extends Readable {
             }));
 
         } else {
-            requestedPlayers = _.shuffle(scene.desiredPlayers(status));
-            requestedStaff = _.shuffle(scene.desiredStaff(status));
+            requestedPlayers = _.shuffle(scene.desiredPlayers(fillOptions.status));
+            requestedStaff = _.shuffle(scene.desiredStaff(fillOptions.status));
         }
 
-        const maxPlayers = max?scene.player_count.max:scene.player_count.min;
-        const maxStaff = max?scene.staff_count.max:scene.staff_count.min;
+        const maxPlayers = fillOptions.max?scene.player_count.max:scene.player_count.min;
+        const maxStaff = fillOptions.max?scene.staff_count.max:scene.staff_count.min;
 
         let happiness = 0;
 
@@ -611,9 +687,12 @@ class Schedule extends Readable {
                 }
 
                 // accept if they're available
-                if (_.indexOf(usersAvailable.players.available, userId) !== -1){
+                if (_.indexOf(available.players.available, userId) !== -1){
                     scene.addPossiblePlayer(userId);
                     happiness++;
+                    if (fillOptions.single){
+                        break;
+                    }
                 }
             }
         }
@@ -630,12 +709,16 @@ class Schedule extends Readable {
             }
 
             // accept if they're available
-            if (_.indexOf(usersAvailable.staff.available, userId) !== -1){
+            if (_.indexOf(available.staff.available, userId) !== -1){
                 scene.addPossibleStaff(userId);
                 happiness++;
+                if (fillOptions.single){
+                    break;
+                }
             }
         }
-        if (status === 'requested'){
+
+        if (fillOptions.status === 'requested'){
             return happiness * Number(config.get('scheduler.happiness.users_requested'));
         }
         return happiness * Number(config.get('scheduler.happiness.users'));

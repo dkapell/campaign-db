@@ -130,6 +130,12 @@ interface SchedulerOptions{
    phase?:'all'|'requested'|'required'
 }
 
+interface SchedulerFillUserOptions{
+    status:string
+    max?:boolean
+    single?:boolean
+}
+
 interface SchedulerOutput{
     schedule: Schedule
     attempts?: number

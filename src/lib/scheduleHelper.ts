@@ -303,7 +303,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
                 statuses.push({type: 'scene', sceneId:scene.id, status:record.scene_schedule_status});
             }
         }
-        let schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
+        const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslotId});
 
         for (const schedule_busy of schedule_busys){
             statuses.push({type: 'busy', name:schedule_busy.type.name, status:'scheduled'})

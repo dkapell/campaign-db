@@ -11,6 +11,7 @@ class ScheduleCache {
         locations: [],
         event: null,
         characters: [],
+        schedule_busys:[]
     };
 
     constructor(campaignId:number, eventId:number = null){
@@ -70,13 +71,26 @@ class ScheduleCache {
         });
         return this.cache.characters;
     }
+    async schedule_busys(): Promise<ScheduleBusyModel[]>{
+        if (this.cache.schedule_busys.length){
+            return this.cache.schedule_busys;
+        }
+        if (this.event_id){
+            this.cache.schedule_busys = await models.schedule_busy.find({event_id:this.event_id})
+        } else {
+            this.cache.schedule_busys = await models.schedule_busy.find({campaign_id:this.campaign_id})
+        }
+
+        return this.cache.schedule_busys;
+    }
 
     async fill(){
         await async.parallel([
             async() => {this.event()},
             async() => {this.timeslots()},
             async() => {this.locations()},
-            async() => {this.characters()}
+            async() => {this.characters()},
+            async() => {this.schedule_busys()}
         ]);
     }
 

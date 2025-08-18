@@ -18,6 +18,7 @@ class ScheduleScene  {
     score: number;
     happiness: number;
     schedule_status: string;
+
     private data: SceneModel;
     private current: CurrentSchedule = {
         locations: [],

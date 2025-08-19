@@ -265,11 +265,6 @@ class Schedule extends Readable {
                 const scene = queue.next();
                 if (scene.schedule_status === 'users fill skills'){
 
-                    if (scene.for_anyone){ // Do not put extra users into For Anyone scenes
-                        scene.schedule_status = 'done';
-                        continue;
-                    }
-
                     // Fill to min with any user
                     let happiness = 0;
                     try {
@@ -281,7 +276,7 @@ class Schedule extends Readable {
                     }
 
                     if (!happiness){
-                        scene.schedule_status = 'done';
+                        scene.schedule_status = 'users fill min';
                     } else {
                         scene.happiness += happiness;
                         if (scene.currentStaff.length < scene.staff_count.min || scene.currentPlayers.length < scene.player_count.min){
@@ -662,7 +657,7 @@ class Schedule extends Readable {
         let requestedPlayers = [];
         let requestedStaff = [];
         if (fillOptions.status === 'any'){
-            if (!options.skipPlayers && scene.assign_players){
+            if (!options.skipPlayers && scene.assign_players && !scene.for_anyone){
                 const allPlayers = await this.allAttendeeIds('player');
                 const rejectedPlayers = scene.desiredPlayers('rejected');
                 requestedPlayers = _.shuffle(allPlayers.filter(id => {
@@ -683,7 +678,7 @@ class Schedule extends Readable {
         const maxPlayers = fillOptions.max?scene.player_count.max:scene.player_count.min;
         const maxStaff = fillOptions.max?scene.staff_count.max:scene.staff_count.min;
 
-        let happiness = 0;
+        let placedUsers = 0;
 
         if (!options.skipPlayers && scene.assign_players){
             for (const userId of requestedPlayers){
@@ -699,7 +694,7 @@ class Schedule extends Readable {
                 // accept if they're available
                 if (_.indexOf(available.players.available, userId) !== -1){
                     scene.addPossiblePlayer(userId);
-                    happiness++;
+                    placedUsers++;
                     if (fillOptions.single){
                         break;
                     }
@@ -713,7 +708,7 @@ class Schedule extends Readable {
                 break;
             }
 
-            // Rehect if we already have this user
+            // Reject if we already have this user
             if (_.indexOf(scene.currentStaff, userId) !== -1 ){
                 continue;
             }
@@ -721,7 +716,7 @@ class Schedule extends Readable {
             // accept if they're available
             if (_.indexOf(available.staff.available, userId) !== -1){
                 scene.addPossibleStaff(userId);
-                happiness++;
+                placedUsers++;
                 if (fillOptions.single){
                     break;
                 }
@@ -729,9 +724,9 @@ class Schedule extends Readable {
         }
 
         if (fillOptions.status === 'requested'){
-            return happiness * Number(config.get('scheduler.happiness.users_requested'));
+            return placedUsers * Number(config.get('scheduler.happiness.users_requested'));
         }
-        return happiness * Number(config.get('scheduler.happiness.users'));
+        return placedUsers * Number(config.get('scheduler.happiness.users'));
     }
 
     protected async fillByCharacter(scene: ScheduleScene, options:SchedulerOptions): Promise<number>{

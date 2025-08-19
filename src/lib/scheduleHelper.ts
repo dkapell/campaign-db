@@ -404,7 +404,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
             if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
                 (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
             ){
-                const formattedScene = formatScene(scene);
+                const formattedScene = formatScene(scene, forPlayer);
                 const userRecord = _.findWhere(formattedScene.users, {id:userId});
                 if (userRecord && userRecord.npc){
                     formattedScene.npc = userRecord.npc
@@ -467,7 +467,7 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
                 playerCount += scene.players.confirmed?scene.players.confirmed.length:0;
                 playerCount += scene.players.suggested?scene.players.suggested.length:0;
 
-                if (scene.player_count_max-playerCount>0){
+                if (scene.player_count_max-playerCount>0 || scene.for_anyone){
                     sceneName += ' +';
                 }
                 sceneNames.push(sceneName);

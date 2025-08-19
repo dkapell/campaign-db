@@ -5,7 +5,10 @@ if scene.tags || scene.non_exclusive
                 each tag in scene.tags
                     span.badge.text-bg-info.me-1=tag
             if scene.non_exclusive
-                span.badge.text-bg-primary.me-1 Non-Exclusive
+                if userType=== 'player'
+                    span.badge.text-bg-info.me-1= nonExclusiveName
+                else
+                    span.badge.text-bg-primary.me-1 Non-Exclusive
 .row.my-1
     .col
         if userType === 'staff'
@@ -182,10 +185,11 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                         title=`Remove ${player.name} from Scene`
                                     )
                                         i.fas.fa-user-times
-                                i.fas.fa-check-circle.text-success.float-end.p-1(
-                                    title='Confirmed'
-                                    data-bs-toggle='tooltip'
-                                )
+                                if userType !== 'player'
+                                    i.fas.fa-check-circle.text-success.float-end.p-1(
+                                        title='Confirmed'
+                                        data-bs-toggle='tooltip'
+                                    )
                     if scene.players.suggested
                         - playerCount += scene.players.suggested.length
                         each player in scene.players.suggested

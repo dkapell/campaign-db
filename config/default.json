@@ -77,7 +77,8 @@
         "post_event_survey": "Post Event Survey",
         "pes": "PES",
         "character_point": "Character Point",
-        "cp": "CP"
+        "cp": "CP",
+        "non_exclusive": "Non-Exclusve"
     },
     "userTypeMap": {
         "admin": { "name": "core staff", "order": 0 },

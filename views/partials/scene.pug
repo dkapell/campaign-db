@@ -666,7 +666,7 @@ mixin sceneCard(scene, full=false)
             if !checkPermission('event') &&  scene.non_exclusive
                 .row.my-1
                     .col
-                        strong Non-Exclusive
+                        strong= currentCampaign.renames.non_exclusive.singular
 
             if full && checkPermission('gm')
                 .position-absolute.top-0.end-0.pe-3.pt-3

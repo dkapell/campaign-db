@@ -72,7 +72,7 @@ include ../../partials/scene
                 tbody(role='tablist')
                     each timeslot in schedule
                         tr
-                            td
+                            td.text-nowrap
                                 = timeslot.name
                                 if timeslot.type === 'meal'
                                     i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)

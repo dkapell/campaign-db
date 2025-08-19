@@ -81,7 +81,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="false"
-            data-open=(scene.player_count_max - playerCount > 0)?'true':'false'
+            data-open=(scene.player_count_max - playerCount > 0 || scene.for_anyone)?'true':'false'
         )
             .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 +sceneBody(scene, locationIdx, false)
@@ -143,7 +143,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-setup=scene.setup_slots
             data-cleanup=scene.cleanup_slots
             data-assign-players=scene.assign_players?'true':'false'
-            data-open=(scene.player_count_max - playerCount > 0)?'false':'true'
+            data-open=(scene.player_count_max - playerCount > 0 || scene.for_anyone)?'false':'true'
         )
             .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 if xAxisType !== 'location'

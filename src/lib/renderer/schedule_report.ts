@@ -114,7 +114,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     }
 
                     doc
-                        .font('Body Font')
+                        .font(scene.non_exclusive?'Body Font Italic':'Body Font')
                         .fontSize(20 * options.font.body.scale)
                         .text(sceneName, {
                             width:columnWidth - options.indent,
@@ -306,12 +306,15 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     sectionName = pluralize.plural(sectionName);
                 }
 
-                if (scene.player_count_max - scene.players.confirmed.length > 0){
+                if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
                     if (scene.player_count_max - scene.players.confirmed.length > 1){
                         shortName = pluralize.plural(shortName);
                     }
                     players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
 
+                }
+                if (scene.for_anyone){
+                    players.push('Anyone');
                 }
 
             }
@@ -649,12 +652,15 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         for (const player of scene.players.confirmed){
                             players.push(player.name)
                         }
-                        if (scene.player_count_max - scene.players.confirmed.length > 0){
+                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
                             let shortName = 'Player'
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);
                             }
                             players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
+                        }
+                        if (scene.for_anyone){
+                            players.push('+ Anyone');
                         }
 
                     } else {
@@ -669,8 +675,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                                 .fontSize(10 * options.font.body.scale)
                                 .text(player.character.name, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
                         }
-                        if (scene.player_count_max - scene.players.confirmed.length > 0){
-                            const itemY = doc.y;
+                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
                             let shortName = 'Player'
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);
@@ -678,7 +683,13 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                             doc
                                 .font('Body Font')
                                 .fontSize(10 * options.font.body.scale)
-                                .text(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+                                .text(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`, sectionX, doc.y, {stroke:false, fill:true, width:sectionWidth});
+                        }
+                        if (scene.for_anyone){
+                            doc
+                                .font('Body Font')
+                                .fontSize(10 * options.font.body.scale)
+                                .text('+ Anyone', sectionX, doc.y, {stroke:false, fill:true, width:sectionWidth});
                         }
 
                     }

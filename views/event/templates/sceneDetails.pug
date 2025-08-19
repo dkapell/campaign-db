@@ -155,7 +155,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                     - let playerCount = 0
                     if scene.players.confirmed
                         - playerCount += scene.players.confirmed.length
-                        each player in scene.players.confirmed
+                        each player in _.sortBy(scene.players.confirmed, 'name')
                             -
                                 let userIconClass = 'text-body-secondary fa-user'
                                 if (player.scene_request_status === 'requested'){
@@ -169,7 +169,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                             li.list-group-item.my-0.p-0
                                 if scheduleType === 'edit'
                                     a.p-1(href=`/user/${player.id}` target='_blank')
-                                        i.fas.me-1(
+                                        i.fas.me-1.fa-fw(
                                             data-bs-toggle='tooltip'
                                             title= capitalize(player.scene_request_status)
                                             class=userIconClass
@@ -192,7 +192,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                     )
                     if scene.players.suggested
                         - playerCount += scene.players.suggested.length
-                        each player in scene.players.suggested
+                        each player in _.sortBy(scene.players.suggested, 'name')
                             -
                                 let userIconClass = 'text-body-secondary fa-user'
                                 if (player.scene_request_status === 'requested'){
@@ -204,7 +204,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                 }
                             li.list-group-item.my-0.p-0
                                 a.p-1(href=`/user/${player.id}` target='_blank')
-                                    i.fas.me-1(
+                                    i.fas.me-1.fa-fw(
                                         data-bs-toggle='tooltip'
                                         title= capitalize(player.scene_request_status)
                                         class=userIconClass

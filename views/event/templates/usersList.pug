@@ -21,7 +21,7 @@ if fileredUsers.length
     .row
         .col
             ul.list-inline.mb-0#users-panel-list
-                each user in fileredUsers
+                each user in _.sortBy(fileredUsers, 'name')
 
                     li.user-item.m-1.border.list-inline-item.rounded.px-1.pb-1.align-top.bg-body(
                         data-user-id=user.id

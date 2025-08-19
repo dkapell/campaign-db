@@ -140,6 +140,7 @@ function formatUsersData(data, type){
     };
     data.type = type;
     data.allowedEdit = $('#allowedEdit').val() === 'true';
+    //data._ = _;
     const $panel = $('#bottom-panel');
     $panel.attr('timeslot-id', data.timeslot.id);
     $panel.attr('scenes', JSON.stringify(_.pluck(data.scenes, 'id')));

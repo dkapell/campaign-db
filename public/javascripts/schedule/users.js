@@ -181,7 +181,7 @@ function formatUsersData(data, type){
     }
 
     $panel.find('#userPickerTabs').on('shown.bs.tab', function(e){
-        localStorage.setItem(userPickerTabStorageId, $(e.target).attr('id'));
+        localStorage.setItem(userPickerTabStorageIdg, $(e.target).attr('id'));
     });
 
     $panel.find('.user-item').draggable({

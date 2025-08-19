@@ -126,9 +126,9 @@ async function updateUsersPanel(timeslotId, type){
 }
 
 function formatUsersData(data, type){
-    let title = `Unscheduled Players at ${data.timeslot.name}`;
+    let title = `Players at ${data.timeslot.name}`;
     if (type === 'staff'){
-        title = `Unscheduled Staff at ${data.timeslot.name}`;
+        title = `Staff at ${data.timeslot.name}`;
     } else if (type === 'all'){
         title = `All Attendees at ${data.timeslot.name}`;
     } else if (type === 'busy-all'){

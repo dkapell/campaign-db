@@ -1,7 +1,14 @@
 'use strict';
 import _ from 'underscore';
 import config from 'config';
+import database from '../lib/database';
 import Model from  '../lib/Model';
+
+import eventModel from './event';
+
+const models = {
+    event: eventModel
+};
 
 const tableFields = [
     'id',
@@ -37,6 +44,15 @@ async function preSave(data:ModelData): Promise<ModelData>{
 }
 
 Schedule.save = async function save(data:ModelData): Promise<number|null>{
+    const event = await models.event.get(data.event_id, {postSelect: (data) => { return data;}});
+
+    const client = await database.connect();
+    try{
+        await client.query('select pg_advisory_lock($1, $2)', [event.campaign_id, event.id]);
+    } catch(err){
+        console.trace(err);
+        throw err;
+    }
     const current = await this.find({
         event_id: data.event_id
     }, {
@@ -59,6 +75,8 @@ Schedule.save = async function save(data:ModelData): Promise<number|null>{
         }
         await this.delete(item.id);
     }
+    await client.query('select pg_advisory_unlock($1, $2)', [event.campaign_id, event.id]);
+    await client.release(true);
     return id;
 }
 

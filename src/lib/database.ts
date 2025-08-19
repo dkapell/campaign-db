@@ -59,4 +59,8 @@ function end(){
     pool.end();
 };
 
-export default { query, end }
+async function connect(){
+    return pool.connect();
+}
+
+export default { query, connect, end }

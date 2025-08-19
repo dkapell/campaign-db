@@ -174,6 +174,16 @@ function formatUsersData(data, type){
 
     $panel.find('.content').find('.unschedule-busy-btn').on('click', unschedulBusyUserBtn);
 
+    const userPickerTabStorageId = `cdb-user-picker-tab-tab-${$('#eventId').val()}`;
+    const selectedTab = localStorage.getItem(userPickerTabStorageId);
+    if (selectedTab) {
+        $panel.find(`#${selectedTab}`).tab('show');
+    }
+
+    $panel.find('#userPickerTabs').on('shown.bs.tab', function(e){
+        localStorage.setItem(userPickerTabStorageId, $(e.target).attr('id'));
+    });
+
     $panel.find('.user-item').draggable({
         snap:'.scene-item-droppable',
         handle: '.handle',

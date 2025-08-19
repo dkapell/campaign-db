@@ -335,7 +335,7 @@ class Schedule extends Readable {
         const totalDuration = (new Date()).getTime() - start;
         this.push({
             type: 'status',
-            message: `${schedulerIdx}: finished in ${totalDuration}ms: ${this.happiness} ${this.global_hapiness}`,
+            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed}`,
             duration: totalDuration
         });
         this.scheduleResult = {

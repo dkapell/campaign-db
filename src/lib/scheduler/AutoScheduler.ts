@@ -33,6 +33,10 @@ class AutoScheduler extends Readable{
         const start =  (new Date()).getTime();
         const event = await models.event.get(eventId);
         const eventScenes = await models.scene.find({event_id:eventId});
+        this.push({
+            type: 'scheduler status',
+            status: 'Starting AutoScheduler'
+        });
 
         const unassignedScenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
             return !scene.event_id || scene.event_id === eventId || _.indexOf(_.pluck(eventScenes, 'id'), scene.id) !== -1;

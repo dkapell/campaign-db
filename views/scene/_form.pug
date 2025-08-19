@@ -369,7 +369,7 @@ fieldset.my-2.border.p-2.rounded
                                     input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max min=0)
 
                         ul.my-1.list-group.scene-user-list#scene-player-list
-                            each user in _.sortBy(scene.users, 'name')
+                            each user in scene.users
                                 if user.type === 'player'
                                     +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status)
                             +sceneUserInput({id:'new', typeForDisplay:'placeholder'}, 'requested', 'unscheduled')
@@ -441,7 +441,7 @@ fieldset.my-2.border.p-2.rounded
                             .input-group-text to
                             input.form-control#scene_combat_staff_count_min(type="number" placeholder="Max" name="scene[combat_staff_count_max]" value=scene.combat_staff_count_max min=0)
                 ul.my-1.list-group.scene-user-list#scene-staff-list
-                    each user in _.sortBy(scene.users, 'name')
+                    each user in scene.users
                         if user.type !== 'player'
                             +sceneUserInput(user, user.scene_request_status, user.scene_schedule_status, user.scene_details)
                 .input-group.input-group-sm

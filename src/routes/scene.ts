@@ -210,6 +210,7 @@ async function showEdit(req, res, next){
         if (_.has(req.session, 'sceneData')){
             res.locals.scene = await prepForm(req);
         }
+        res.locals.scene.users.sort(scheduleHelper.sceneItemSorter);
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -291,6 +292,7 @@ async function prepForm(req){
         record.scene_details = item.scene_details;
         return record;
     });
+
     scene.sources = await async.map(scene.sources, async (item) => {
         const record = await req.models.skill_source.get(item.id);
         record.scene_request_status = item.scene_request_status;

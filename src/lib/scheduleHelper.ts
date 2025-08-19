@@ -9,6 +9,15 @@ import removeMd from 'remove-markdown';
 import scheduleReportRenderer from './renderer/schedule_report';
 
 
+const statusOrder = ['required', 'requested', 'rejected', 'none'];
+
+function sceneItemSorter(a, b){
+    if (a.scene_request_status !== b.scene_request_status){
+        return _.indexOf(statusOrder, a.scene_request_status) - _.indexOf(statusOrder, b.scene_request_status)
+    }
+    return a.name.localeCompare(b.name);
+}
+
 function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
         return {};
@@ -30,7 +39,6 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         assign_players: scene.assign_players,
         non_exclusive: scene.non_exclusive,
         for_anyone: scene.for_anyone
-
     };
 
 
@@ -512,6 +520,29 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
         playerHeader.push(null)
     }
     output.push(playerHeader);
+    /*
+    const anyoneRow = ['Anyone'];
+    let anyoneScenes = false;
+    const anyoneSchedule = await getAnyoneSchedule(event.id);
+    for (const timeslot of anyoneSchedule){
+        const userScenes = [];
+        if (timeslot.schedule_busy){
+            userScenes.push(timeslot.schedule_busy.name)
+        }
+        for (const scene of timeslot.scenes){
+            let sceneName = scene.name
+            const userRecord = _.findWhere(scene.users, {id:attendance.user_id});
+            if (userRecord && userRecord.npc){
+                sceneName += ` (${userRecord.npc})`;
+            }
+            userScenes.push(sceneName);
+        }
+        anyoneRow.push(userScenes.join(', '))
+    }
+    if (anyoneScenes){
+        output.push(anyoneRow);
+    }
+*/
     for (const attendance of event.attendees){
         if (!attendance.attending){ continue; }
         if (attendance.user.type !== 'player') { continue; }
@@ -845,5 +876,6 @@ export default {
     removeScheduleScene,
     restoreSchedule,
     getSceneStatusCsv,
-    reportPdf
+    reportPdf,
+    sceneItemSorter
 };

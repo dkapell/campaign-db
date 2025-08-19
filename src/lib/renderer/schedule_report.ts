@@ -97,6 +97,9 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             const columnWidth = (doc.page.width - (options.margin*2) - ((options.columns -1) * options.margin * 0.5)) / options.columns
             const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true);
             for (const timeslot of schedule){
+                if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
+                    continue;
+                }
                 let timeslotName = timeslot.name;
                 if (options.timeslotDisplay === 'label' && timeslot.display_name){
                     timeslotName = timeslot.display_name as string

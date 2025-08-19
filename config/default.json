@@ -132,7 +132,8 @@
                 "location": false,
                 "description": false,
                 "printout note": true
-            }
+            },
+            "ignoreTimeslots":[]
         },
         "scenes": {
             "font": {

@@ -46,6 +46,7 @@
     },
     "scheduler":{
         "runs": "SCHEDULER_RUNS",
-        "keepVersions": "SCHEDULER_KEEP_VERSIONS"
+        "keepVersions": "SCHEDULER_KEEP_VERSIONS",
+        "maxScenesPerRun": "SCHEDULER_MAX_SCENES"
     }
 }

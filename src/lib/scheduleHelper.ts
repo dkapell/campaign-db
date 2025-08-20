@@ -432,8 +432,45 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
     });
 }
 
+async function getAnyoneSchedule(eventId:number, forPlayer:boolean=false, showUnconfirmed:boolean=false): Promise<TimeslotModel[]> {
+    const event = await models.event.get(eventId);
+    if (!event) { throw new Error('Invalid Event'); }
+
+    if (forPlayer){
+        showUnconfirmed = false;
+    }
+
+    const schedule = await getSchedule(eventId);
+
+    const timeslots = schedule.timeslots;
+
+    const scenes = schedule.scenes.filter(scene => {
+        if (showUnconfirmed && !scene.status.match(/^(confirmed|scheduled)$/)){
+            return false;
+        } else if (scene.status !== 'confirmed'){
+            return false;
+        }
+        return scene.for_anyone;
+    });
+
+    return async.map(timeslots, async (timeslot: TimeslotModel)=>{
+        timeslot.scenes = [];
+
+        for (const scene of scenes){
+            if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
+                (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
+            ){
+                timeslot.scenes.push(formatScene(scene, forPlayer));
+            }
+        }
+
+        return timeslot;
+    });
+}
+
 async function getCsv(eventId:number, csvType:string):Promise<string>{
     const event = await models.event.get(eventId);
+    const campaign = await models.campaign.get(event.campaign_id);
 
     const schedule = await models.schedule.current(eventId);
 
@@ -450,7 +487,7 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
     }
     output.push(header);
     for(const location of locations){
-        const row = [location.name];
+        const row = [location.name, null];
         const locationScenes = scenes.filter(scene => {
             return !!(scene.locations.confirmed && _.findWhere(scene.locations.confirmed, {id:location.id}));
         });
@@ -520,33 +557,27 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
         playerHeader.push(null)
     }
     output.push(playerHeader);
-    /*
-    const anyoneRow = ['Anyone'];
+
+    const anyoneRow = ['Anyone', null];
     let anyoneScenes = false;
-    const anyoneSchedule = await getAnyoneSchedule(event.id);
+    const anyoneSchedule = await getAnyoneSchedule(event.id, csvType==='player');
     for (const timeslot of anyoneSchedule){
         const userScenes = [];
-        if (timeslot.schedule_busy){
-            userScenes.push(timeslot.schedule_busy.name)
-        }
+
         for (const scene of timeslot.scenes){
-            let sceneName = scene.name
-            const userRecord = _.findWhere(scene.users, {id:attendance.user_id});
-            if (userRecord && userRecord.npc){
-                sceneName += ` (${userRecord.npc})`;
-            }
-            userScenes.push(sceneName);
+            anyoneScenes = true;
+            userScenes.push(scene.name);
         }
         anyoneRow.push(userScenes.join(', '))
     }
     if (anyoneScenes){
         output.push(anyoneRow);
     }
-*/
+
     for (const attendance of event.attendees){
         if (!attendance.attending){ continue; }
         if (attendance.user.type !== 'player') { continue; }
-        const schedule = await getUserSchedule(event.id, attendance.user_id);
+        const schedule = await getUserSchedule(event.id, attendance.user_id, csvType==='player');
 
         const character = await models.character.findOne({campaign_id:event.campaign_id, user_id:attendance.user_id, active:true});
         const row = [character?character.name:attendance.user.name, attendance.user.name];
@@ -556,16 +587,19 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
                 userScenes.push(timeslot.schedule_busy.name)
             }
             for (const scene of timeslot.scenes){
+                let sceneName = scene.name
                 if (csvType === 'player'){
                     if (!scene.display_to_pc) { continue; }
+
                     if (scene.player_name){
-                        userScenes.push(scene.player_name);
-                    } else {
-                        userScenes.push(scene.name)
+                        sceneName = scene.player_name
                     }
-                } else {
-                    userScenes.push(scene.name);
                 }
+                if (scene.non_exclusive){
+                    sceneName += ` (${campaign.renames.non_exclusive_ind.singular})`
+                }
+                userScenes.push(sceneName);
+
             }
             row.push(userScenes.join(', '))
         }
@@ -822,7 +856,6 @@ async function restoreSchedule(scheduleId:number){
     if (!schedule){ throw new Error('Invalid Schedule'); }
     const scheduleFormattedDate = (DateTime.fromJSDate(new Date(schedule.created))).toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
     schedule.name = `restore from ${scheduleFormattedDate}`;
-    console.log(schedule.name);
     if (schedule.read_only){
         // bump this to the top of the snapshots, but do not update anything live
         return models.schedule.save(schedule)
@@ -837,11 +870,9 @@ async function restoreSchedule(scheduleId:number){
         const currentScene = await models.scene.get(scene.id);
         if (!currentScene) { return; }
         currentScene.status = scene.status;
-        if (scene.id === 12){ console.log(scene.timeslots); console.log(currentScene.timeslots)}
         for (const type of ['timeslots', 'locations', 'users']){
             currentScene[type] = scene[type];
         }
-        if (scene.id === 12){ console.log(currentScene.timeslots)}
         return models.scene.update(currentScene.id, currentScene);
     });
 

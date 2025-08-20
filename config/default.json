@@ -78,7 +78,8 @@
         "pes": "PES",
         "character_point": "Character Point",
         "cp": "CP",
-        "non_exclusive": "Non-Exclusve"
+        "non_exclusive": "Non-Exclusve",
+        "non_exclusive_ind": "N"
     },
     "userTypeMap": {
         "admin": { "name": "core staff", "order": 0 },

@@ -39,7 +39,7 @@ $(function(){
     $('body').on('hide.bs.collapse', '.scene-details', function(e){
         const $scene = $(e.target).closest('.scene-item');
         $scene.attr('expanded-staff', false);
-        $scene.attr('expanded-players', false);
+        $scene.attr('expanded-player', false);
     });
 
     $('body').on('show.bs.collapse', '.scene-user-list', function(e){
@@ -385,9 +385,11 @@ async function updateSceneDetails($scene){
             }
         }
         if ($scene.attr('expanded-staff') === 'true'){
+            console.log('showing staff')
             $scene.find('.scene-staff-list').collapse('show');
         }
-        if ($scene.attr('expanded-players') === 'true'){
+        if ($scene.attr('expanded-player') === 'true'){
+            console.log('showing players')
             $scene.find('.scene-player-list').collapse('show');
         }
     });

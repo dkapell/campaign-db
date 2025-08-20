@@ -19,7 +19,7 @@ const eventId = 3;
         const attendance = await models.attendance.findOne({event_id: eventId, user_id: user.id});
         if (attendance) { continue; }
         if (user.type === 'player'){
-            const character = await models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
+            const character = await models.character.findOne({campaign_id:Number(event.campaign_id), user_id:user.id, active:true});
             if (!character){
                 console.log(`Would not create attendance for ${user.name} because no character`);
                 continue;

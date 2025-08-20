@@ -385,11 +385,11 @@ async function updateSceneDetails($scene){
             }
         }
         if ($scene.attr('expanded-staff') === 'true'){
-            console.log('showing staff')
+            console.log('showing staff');
             $scene.find('.scene-staff-list').collapse('show');
         }
         if ($scene.attr('expanded-player') === 'true'){
-            console.log('showing players')
+            console.log('showing players');
             $scene.find('.scene-player-list').collapse('show');
         }
     });

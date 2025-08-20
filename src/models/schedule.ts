@@ -44,7 +44,7 @@ async function preSave(data:ModelData): Promise<ModelData>{
 }
 
 Schedule.save = async function save(data:ModelData): Promise<number|null>{
-    const event = await models.event.get(data.event_id, {postSelect: async(data)=>{return data}});
+    const event = await models.event.get(Number(data.event_id), {postSelect: async(data)=>{return data}});
 
     const client = await database.connect();
     try{

@@ -18,6 +18,10 @@ const models = {
     documentation_user: documentation_userModel
 };
 
+interface EventIModel extends IModel {
+   next?: (campaign_id:number) => Promise<ModelData>
+}
+
 const tableFields = [
     'id',
     'campaign_id',
@@ -39,7 +43,7 @@ const tableFields = [
     'schedule_read_only'
 ];
 
-const Event = new Model('events', tableFields, {
+const Event: EventIModel= new Model('events', tableFields, {
     order: ['start_time'],
     validator: validate,
     postSelect: fill,
@@ -47,9 +51,9 @@ const Event = new Model('events', tableFields, {
     skipAuditFields: ['created', 'deleted']
 });
 
-Event.next = async function(campaign_id){
-    const select = 'select * from events where end_time > now() order by start_time asc limit 1';
-    const result = await database.query(select);
+Event.next = async function(campaign_id:number): Promise<ModelData>{
+    const select = 'select * from events where end_time > now() and campaign_id = $1 order by start_time asc limit 1';
+    const result = await database.query(select, [campaign_id]);
     if (result.rows.length){
         return result.rows[0];
     }

@@ -9,6 +9,7 @@ import surveyModel from './survey';
 import eventAddonModel from './event_addon';
 import surveyHelper from '../lib/surveyHelper';
 import documentation_userModel from './documentation_user';
+import database from '../lib/database';
 
 const models = {
     attendance: attendanceModel,
@@ -45,6 +46,14 @@ const Event = new Model('events', tableFields, {
     postSave: postSave,
     skipAuditFields: ['created', 'deleted']
 });
+
+Event.next = async function(campaign_id){
+    const select = 'select * from events where end_time > now() order by start_time asc limit 1';
+    const result = await database.query(select);
+    if (result.rows.length){
+        return result.rows[0];
+    }
+}
 
 function validate(data){
     if (! validator.isLength(data.name, {min:2, max:512})){

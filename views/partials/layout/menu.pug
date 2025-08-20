@@ -140,6 +140,9 @@ mixin menuPages(pages, showDivider)
                             a.dropdown-item(href='/post_event_survey') #{currentCampaign.renames?currentCampaign.renames.post_event_survey.plural:'Post Event Surveys'}
                             if checkPermission('gm') && currentCampaign.display_schedule
                                 a.dropdown-item(href='/scene') Scenes
+                            if checkPermission('gm') && currentCampaign.nextEvent && currentCampaign.schedule_user_id === activeUser.id
+                                hr.dropdown-divider
+                                a.dropdown-item(href=`/event/${currentCampaign.nextEvent.id}/scheduler`) #{currentCampaign.nextEvent.name} Scheduler
 
                             +menuPages(menuPages.events, eventMenuItems>1)
 

@@ -230,6 +230,8 @@ app.use(async function(req, res, next){
         };
     }
 
+    campaign.nextEvent = await req.models.event.next(campaign.id);
+
     if (!_.has(campaign, 'user_type_map') || !campaign.user_type_map){
         campaign.user_type_map = config.get('userTypeMap');
     }

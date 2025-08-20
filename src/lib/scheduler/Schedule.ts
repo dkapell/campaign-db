@@ -4,7 +4,7 @@ import async from 'async'
 import _ from 'underscore'
 import config from 'config'
 
-import {Readable} from 'node:stream';
+import { EventEmitter } from 'node:events';
 
 import models from '../models';
 import ScheduleScene from './ScheduleScene';
@@ -27,7 +27,7 @@ interface FindSlotResult{
 }
 
 
-class Schedule extends Readable {
+class Schedule extends EventEmitter {
     scenes: ScheduleScene[];
     event_id: number;
     protected cache: ScheduleCache;
@@ -36,11 +36,7 @@ class Schedule extends Readable {
     global_hapiness = 0;
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
-        super({
-            objectMode:true,
-            autoDestroy:false,
-            highWaterMark: 1024
-        });
+        super();
 
         this.event_id = event_id;
         if (cache){
@@ -54,11 +50,8 @@ class Schedule extends Readable {
         });
     }
 
-    _read(){}
-
     statusUpdate(scene, duration){
-        this.push({
-            type: 'scene status',
+        this.emit('scene status', {
             sceneId: scene.id,
             status: scene.schedule_status,
             message: `${scene.name}: ${scene.schedule_status} in ${duration}ms`,
@@ -144,8 +137,7 @@ class Schedule extends Readable {
     }
 
     async run(scenes:ScheduleScene[], options:SchedulerOptions, schedulerIdx:number){
-        this.push({
-            type: 'status',
+        this.emit('status', {
             message: `${schedulerIdx}: starting scheduler`,
             duration: 0
         });
@@ -333,8 +325,7 @@ class Schedule extends Readable {
             this.global_hapiness -= (await this.usersAvailable([timeslot.id], 'staff')).available.length * Number(config.get('scheduler.happiness.staff_unscheduled'));
         }
         const totalDuration = (new Date()).getTime() - start;
-        this.push({
-            type: 'status',
+        this.emit('status', {
             message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed}`,
             duration: totalDuration
         });
@@ -342,7 +333,7 @@ class Schedule extends Readable {
             unscheduled: unscheduled,
             scenesProcessed: scenesProcessed
         };
-        this.push(null);
+        return;
     }
 
     protected async findSlot(scene:ScheduleScene):Promise<FindSlotResult>{

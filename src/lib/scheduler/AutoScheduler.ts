@@ -3,7 +3,6 @@ import async from 'async'
 import _ from 'underscore'
 import config from 'config'
 import models from '../models';
-import { finished } from 'node:stream/promises';
 import {Readable} from 'node:stream';
 
 import Schedule from './Schedule';
@@ -78,33 +77,31 @@ class AutoScheduler extends Readable{
             const schedule = new Schedule(eventId, scenes, cache);
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};
 
-
-            schedule.on('data', (data) => {
-                switch (data.type){
-                    case 'scene status':
-                        schedulerStatuses[schedulerIdx].scenes[data.sceneId] = data.status;
-                        if (((new Date).getTime() - lastStatusSent) > 100){
-                            sendData({
-                                type: 'scene status',
-                                scenes: scenesToPlace.length,
-                                runs: runs,
-                                status: formatScheduleStatus(schedulerStatuses)
-                            });
-                            lastStatusSent = (new Date).getTime();
-                        }
-                        break;
-                    case 'status':
-                        sendData({
-                            type:'status',
-                            message:data.message});
-                        break;
+            schedule.on('scene status', (data) => {
+                schedulerStatuses[schedulerIdx].scenes[data.sceneId] = data.status;
+                if (((new Date).getTime() - lastStatusSent) > 100){
+                    sendData({
+                        type: 'scene status',
+                        scenes: scenesToPlace.length,
+                        runs: runs,
+                        status: formatScheduleStatus(schedulerStatuses)
+                    });
+                    lastStatusSent = (new Date).getTime();
                 }
             });
+
+            schedule.on('status', (data) => {
+                sendData({
+                    type:'status',
+                    message:data.message
+                });
+
+            });
+
             schedule.on('error', (err) => {
                 throw new Error(err.message);
             });
-            schedule.run(scenesToPlace, options, schedulerIdx);
-            await finished(schedule);
+            await schedule.run(scenesToPlace, options, schedulerIdx);
             schedulerStatuses[schedulerIdx].scheduler = 'done'
             attempts.push(schedule.summary);
             return;

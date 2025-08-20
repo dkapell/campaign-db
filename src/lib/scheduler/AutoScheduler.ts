@@ -28,6 +28,11 @@ class AutoScheduler extends Readable{
     }
 
     async run(){
+        this.push({
+            type: 'scheduler status',
+            message: 'Starting AutoScheduler'
+        });
+
         const eventId = this.event_id;
         const options = this.options;
         const start =  (new Date()).getTime();
@@ -35,7 +40,7 @@ class AutoScheduler extends Readable{
         const eventScenes = await models.scene.find({event_id:eventId});
         this.push({
             type: 'scheduler status',
-            message: 'Starting AutoScheduler'
+            message: 'Data Gathered'
         });
 
         const unassignedScenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
@@ -57,7 +62,6 @@ class AutoScheduler extends Readable{
             type: 'scheduler status',
             message: 'Cleared Schedule'
         });
-        const scenes = await models.scene.find({event_id:eventId});
 
         const runs = (options.runs && options.runs <= 100)?options.runs:config.get('scheduler.runs') as number;
         const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:5;
@@ -70,7 +74,7 @@ class AutoScheduler extends Readable{
         let lastStatusSent = (new Date).getTime();
         await async.timesLimit(runs, concurrency, async function(schedulerIdx): Promise<SchedulerResult>{
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
-            const schedule = new Schedule(eventId, scenes, cache);
+            const schedule = new Schedule(eventId, eventScenes, cache);
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};
 
 

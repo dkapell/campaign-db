@@ -764,8 +764,7 @@ async function runScheduler(req, res){
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
         }
-        console.log('before scheduelr')
-        const schedulerStream = scheduler.run(eventId, options);
+        const schedulerStream = scheduler.get(eventId, options);
 
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Transfer-Encoding', 'chunked'); // Important for streaming
@@ -806,6 +805,9 @@ async function runScheduler(req, res){
             res.end();
             schedulerStream.destroy();
         });
+
+        console.log('starting scheduler')
+        schedulerStream.run();
 
     } catch (err) {
         res.json({success:false, error:err.message})

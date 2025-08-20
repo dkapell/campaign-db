@@ -9,9 +9,8 @@ import ScheduleScene from './scheduler/ScheduleScene';
 import scheduleHelper from './scheduleHelper';
 
 
-function runScheduler(eventId:number, options:SchedulerOptions={}): AutoScheduler{
+function getScheduler(eventId:number, options:SchedulerOptions={}): AutoScheduler{
     const scheduler = new AutoScheduler(eventId, options);
-    scheduler.run();
     return scheduler;
 }
 
@@ -35,6 +34,6 @@ async function clearSchedule(eventId:number): Promise<SchedulerOutput>{
 
 
 export default {
-    run: runScheduler,
+    get: getScheduler,
     clear: clearSchedule
 };

@@ -13,7 +13,7 @@ const eventId = 3;
     await wait(100);
     await models.event.get(eventId);
     //const schedulerData = await scheduler.run(eventId, {phase:'all'});
-    const schedulerStream = scheduler.run(eventId, {phase:'all'});
+    const schedulerStream = scheduler.get(eventId, {phase:'all'});
     schedulerStream.on('data', (schedulerData) => {
         console.log(schedulerData);
         if (schedulerData.type === 'summary'){
@@ -29,6 +29,8 @@ const eventId = 3;
             process.exit(0);
         }
     });
+
+    schedulerStream.run();
 
 })().catch((error) => {
     process.exitCode = 1;

@@ -427,9 +427,15 @@ mixin sceneTable(scenes, exportable=false)
                         td.dtr-control
                         td
                             if scene.event
-                                a.action-btn(href=`/event/${scene.event.id}`)
+                                -
+                                    let url = `/event/${scene.event.id}`;
+                                    if (currentCampaign.schedule_user_id === activeUser.id){
+                                        url+= '/scheduler'
+                                    }
+                                a.action-btn(href=url)
                                     i.far.fa-calendar.me-1
                                     = scene.event.name
+
                             else
                                 i Unassigned
                         td(data-search=`${scene.name} ${_.pluck(scene.tags, 'name').join(', ')}`)

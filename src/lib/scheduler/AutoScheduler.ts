@@ -30,14 +30,15 @@ class AutoScheduler extends Readable{
     async run(){
         this.push({
             type: 'scheduler status',
-            message: 'Starting AutoScheduler'
+            message: `Starting AutoScheduler on event id:${this.event_id}`
         });
 
         const eventId = this.event_id;
         const options = this.options;
         const start =  (new Date()).getTime();
         const event = await models.event.get(eventId);
-        const eventScenes = await models.scene.find({event_id:eventId});
+        const scenes = await models.scene.find({event_id:eventId});
+        const eventScenes = JSON.parse(JSON.stringify(scenes))
         this.push({
             type: 'scheduler status',
             message: 'Data Gathered'
@@ -74,7 +75,7 @@ class AutoScheduler extends Readable{
         let lastStatusSent = (new Date).getTime();
         await async.timesLimit(runs, concurrency, async function(schedulerIdx): Promise<SchedulerResult>{
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
-            const schedule = new Schedule(eventId, eventScenes, cache);
+            const schedule = new Schedule(eventId, scenes, cache);
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};
 
 

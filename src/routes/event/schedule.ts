@@ -771,7 +771,7 @@ async function runScheduler(req, res){
 
         // Pipe the object stream to the response, transforming to JSON strings
         schedulerStream.on('data', async(schedulerData) => {
-            if (schedulerData.type === 'status' || schedulerData.type === 'schedule status'){
+            if (schedulerData.type === 'status' || schedulerData.type === 'scheduler status'){
                 console.log(schedulerData.message);
             }
 

@@ -10,8 +10,7 @@ import scheduleHelper from './scheduleHelper';
 
 
 function getScheduler(eventId:number, options:SchedulerOptions={}): AutoScheduler{
-    const scheduler = new AutoScheduler(eventId, options);
-    return scheduler;
+    return new AutoScheduler(eventId, options);
 }
 
 async function clearSchedule(eventId:number): Promise<SchedulerOutput>{

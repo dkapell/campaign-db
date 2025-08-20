@@ -120,7 +120,7 @@ async function fill(data: SceneModel){
         if (typeof data[type] !== 'string'){
             data[type] = await async.map(data[type] as sceneReq[], async(sceneId) => {
                 if (typeof sceneId === 'number') {
-                    return Scene.get(sceneId);
+                    return Scene.get(sceneId, {excludeFields: [type]});
                 } else {
                     return sceneId;
                 }

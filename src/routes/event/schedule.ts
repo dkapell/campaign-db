@@ -764,6 +764,7 @@ async function runScheduler(req, res){
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
         }
+        console.log('before scheduelr')
         const schedulerStream = scheduler.run(eventId, options);
 
         res.setHeader('Content-Type', 'application/json');
@@ -771,7 +772,7 @@ async function runScheduler(req, res){
 
         // Pipe the object stream to the response, transforming to JSON strings
         schedulerStream.on('data', async(schedulerData) => {
-            if (schedulerData.type === 'status'){
+            if (schedulerData.type === 'status' || schedulerData.type === 'schedule status'){
                 console.log(schedulerData.message);
             }
 
@@ -798,6 +799,12 @@ async function runScheduler(req, res){
         schedulerStream.on('error', (err) => {
             console.error('Stream error:', err);
             res.status(500).send('Error streaming data');
+        });
+
+        req.on('close', () => {
+            console.log('client disconnect, cleanup ')
+            res.end();
+            schedulerStream.destroy();
         });
 
     } catch (err) {

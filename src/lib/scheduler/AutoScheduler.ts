@@ -103,7 +103,6 @@ class AutoScheduler extends Readable{
             schedule.on('error', (err) => {
                 throw new Error(err.message);
             });
-            console.log(`${schedulerIdx}: run`);
             schedule.run(scenesToPlace, options, schedulerIdx);
             await finished(schedule);
             schedulerStatuses[schedulerIdx].scheduler = 'done'
@@ -154,6 +153,7 @@ async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
         for (const prereq of scene.prereqs){
             const id = getReqId(prereq);
             const prereqScene = _.findWhere(scenes, {id:id});
+            if (!prereqScene){ continue; }
             if (!_.has(prereqScene, 'prereq_of')){
                 prereqScene.prereq_of = []
             }
@@ -163,6 +163,7 @@ async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
         for (const coreq of scene.coreqs){
             const id = getReqId(coreq);
             const coreqScene = _.findWhere(scenes, {id:id});
+            if (!coreqScene){ continue; }
             if (!_.has(coreqScene, 'coreq_of')){
                 coreqScene.coreq_of = []
             }

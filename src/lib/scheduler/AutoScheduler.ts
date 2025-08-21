@@ -73,8 +73,11 @@ class AutoScheduler extends Readable{
 
         const schedulerStatuses = {};
         let lastStatusSent = 0;
-        let keepalive = null;
-        sendKeepalive();
+        const keepalive = setInterval(()=>{
+            sendData({
+                type: 'keepalive',
+            });
+        }, 10*1000);
 
         // Get list of scenes after clear
         const scenes = await models.scene.find({event_id:eventId});
@@ -139,15 +142,8 @@ class AutoScheduler extends Readable{
             scenesProcessed: schedule.scenesProcessed,
             processTime: (new Date()).getTime() - start
         });
-        clearTimeout(keepalive);
+        clearInterval(keepalive);
         this.push(null);
-
-        function sendKeepalive(){
-            sendData({
-                type: 'keepalive',
-            });
-            keepalive = setTimeout(()=>{sendKeepalive()}, 10*1000);
-        }
     }
 
 

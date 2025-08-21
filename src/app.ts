@@ -157,7 +157,7 @@ if (config.get('app.sessionType') === 'redis'){
         console.log('Using redis for sessions');
     });
     redisClient.on('error', (err: Error)  => {
-        if (err.message !== 'Socket closed unexpectedly'){
+        if (!err.message.match(/Socket closed unexpectedly/)){
             console.log('Error ' + err);
         }
     });

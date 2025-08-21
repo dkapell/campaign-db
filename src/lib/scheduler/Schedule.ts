@@ -204,9 +204,10 @@ class Schedule extends EventEmitter {
                     }
                     if (!happiness){
                         scene.schedule_status = 'users requested min';
+                    } else {
+                        scene.happiness += happiness;
+                        queue.enqueue(scene.id);
                     }
-                    scene.happiness += happiness;
-                    queue.enqueue(scene.id);
                     this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
 
                     //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
@@ -229,9 +230,10 @@ class Schedule extends EventEmitter {
                     }
                     if (!happiness){
                         scene.schedule_status = 'users requested max';
+                    } else {
+                        scene.happiness += happiness
+                        queue.enqueue(scene.id);
                     }
-                    scene.happiness += happiness
-                    queue.enqueue(scene.id);
                     this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
 
                     //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
@@ -286,7 +288,6 @@ class Schedule extends EventEmitter {
                             queue.enqueue(scene.id);
                         } else if (scene.currentStaff.length < scene.staff_count.max || scene.currentPlayers.length < scene.player_count.max){
                             scene.schedule_status = 'users fill min';
-                            queue.enqueue(scene.id);
                         } else {
                             scene.schedule_status = 'done';
                         }
@@ -362,6 +363,7 @@ class Schedule extends EventEmitter {
                     console.log(`${scene.name} took over 100 attempts to findSlot()`);
                     break;
                 }
+                await null; // release event loop to allow keepalive
                 const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
                 for (const prereq of scene.prereqs){
                     let prereqScene:ScheduleScene = null
@@ -522,6 +524,7 @@ class Schedule extends EventEmitter {
                 if (_.indexOf(foundLocations, locationId) !== -1){
                     continue;
                 }
+                await null; // release event loop to allow keepalive
                 const location = _.findWhere(locations, {id:locationId});
 
                 // check timeslotCount future timeslots to see if this location is clear for all of them

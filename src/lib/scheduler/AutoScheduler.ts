@@ -146,7 +146,7 @@ class AutoScheduler extends Readable{
             sendData({
                 type: 'keepalive',
             });
-            keepalive = setTimeout(()=>{sendKeepalive()}, 30*1000);
+            keepalive = setTimeout(()=>{sendKeepalive()}, 10*1000);
         }
     }
 

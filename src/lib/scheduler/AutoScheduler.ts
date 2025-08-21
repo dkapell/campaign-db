@@ -40,7 +40,7 @@ class AutoScheduler extends Readable{
         const eventScenes = JSON.parse(JSON.stringify(scenes))
         this.push({
             type: 'scheduler status',
-            message: 'Data Gathered'
+            message: `Data Gathered for event id:${this.event_id}`
         });
 
         const unassignedScenes = (await models.scene.find({campaign_id: event.campaign_id, status:'ready'})).filter(scene => {
@@ -60,7 +60,7 @@ class AutoScheduler extends Readable{
         });
         this.push({
             type: 'scheduler status',
-            message: 'Cleared Schedule'
+            message: `Cleared Schedule for event id:${this.event_id}`
         });
 
         const runs = (options.runs && options.runs <= 100)?options.runs:config.get('scheduler.runs') as number;
@@ -72,6 +72,9 @@ class AutoScheduler extends Readable{
 
         const schedulerStatuses = {};
         let lastStatusSent = 0;
+        let keepalive = null;
+        sendKeepalive();
+
         await async.timesLimit(runs, concurrency, async function(schedulerIdx): Promise<SchedulerResult>{
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
             const schedule = new Schedule(eventId, scenes, cache);
@@ -116,6 +119,10 @@ class AutoScheduler extends Readable{
         await schedule.schedule.write();
         await scheduleHelper.saveSchedule(eventId, 'scheduler');
         this.push({
+            type: 'scheduler status',
+            message: `Scheduler complete for event id:${this.event_id}: ${schedule.happiness} / ${happyAvg}`
+        });
+        this.push({
             type: 'summary',
             schedule: schedule.schedule,
             unscheduled: schedule.unscheduled,
@@ -128,8 +135,18 @@ class AutoScheduler extends Readable{
             scenesProcessed: schedule.scenesProcessed,
             processTime: (new Date()).getTime() - start
         });
+        clearTimeout(keepalive);
         this.push(null);
+
+        function sendKeepalive(){
+            sendData({
+                type: 'keepalive',
+            });
+            keepalive = setTimeout(()=>{sendKeepalive()}, 30*1000);
+        }
     }
+
+
 }
 
 function formatScheduleStatus(data){

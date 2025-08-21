@@ -74,6 +74,7 @@ class AutoScheduler extends Readable{
         const schedulerStatuses = {};
         let lastStatusSent = 0;
         const keepalive = setInterval(()=>{
+            console.log('sending keepalive');
             sendData({
                 type: 'keepalive',
             });

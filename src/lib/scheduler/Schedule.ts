@@ -146,13 +146,24 @@ class Schedule extends EventEmitter {
         let scenesProcessed = 0;
         const start =  (new Date()).getTime()
         let last = start;
+        let sectionLast = start;
         let maxScenesPerRun = config.get('scheduler.maxScenesPerRun') as number;
         if (options.maxScenesPerRun){
             maxScenesPerRun = options.maxScenesPerRun
         }
 
+        const timers = {
+            placement:0,
+            requested_min:0,
+            requested_max:0,
+            character:0,
+            all_min:0,
+            all_max:0,
+        };
+
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
+            await null; // release event loop to allow keepalive
             const scene = queue.next();
             if (scene.schedule_status === 'new'){
                 const slotResult = await this.findSlot(scene);
@@ -180,17 +191,23 @@ class Schedule extends EventEmitter {
                     scene.schedule_status = 'done';
                     unscheduled++;
                 }
-                this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                const now = (new Date()).getTime();
+                this.statusUpdate(scene, now - last);
+                last = now;
 
                 //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
             }
             this.addScene(scene)
         }
+        const now = (new Date()).getTime();
+        timers.placement = now - sectionLast;
+        sectionLast = now;
 
         if (options.phase !== 'required'){
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
+                await null; // release event loop to allow keepalive
                 const scene = queue.next();
                 if (scene.schedule_status === 'slotted'){
                     // fill to min with requested users
@@ -208,15 +225,21 @@ class Schedule extends EventEmitter {
                         scene.happiness += happiness;
                         queue.enqueue(scene.id);
                     }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    const now = (new Date()).getTime();
+                    this.statusUpdate(scene, now - last);
+                    last = now;
 
                     //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 this.addScene(scene);
             }
+            let now = (new Date()).getTime();
+            timers.requested_min = now - sectionLast;
+            sectionLast = now;
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
+                await null; // release event loop to allow keepalive
                 const scene = queue.next();
                 if (scene.schedule_status === 'users requested min'){
                     // Fill to max with requested users
@@ -234,15 +257,21 @@ class Schedule extends EventEmitter {
                         scene.happiness += happiness
                         queue.enqueue(scene.id);
                     }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    const now = (new Date()).getTime();
+                    this.statusUpdate(scene, now - last);
+                    last = now;
 
                     //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 this.addScene(scene);
             }
+            now = (new Date()).getTime();
+            timers.requested_max = now - sectionLast;
+            sectionLast = now;
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
+                await null; // release event loop to allow keepalive
                 const scene = queue.next();
                 if (scene.schedule_status === 'users requested max'){
 
@@ -254,19 +283,24 @@ class Schedule extends EventEmitter {
                     } else {
                         scene.schedule_status = 'done';
                     }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    const now = (new Date()).getTime();
+                    this.statusUpdate(scene, now - last);
+                    last = now;
 
                     //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 this.addScene(scene);
             }
-
+            now = (new Date()).getTime();
+            timers.character = now - sectionLast;
+            sectionLast = now;
         }
 
         if (options.phase === 'all'){
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
+                await null; // release event loop to allow keepalive
                 const scene = queue.next();
                 if (scene.schedule_status === 'users fill skills'){
 
@@ -292,14 +326,20 @@ class Schedule extends EventEmitter {
                             scene.schedule_status = 'done';
                         }
                     }
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    const now = (new Date()).getTime();
+                    this.statusUpdate(scene, now - last);
+                    last = now;
                     //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 this.addScene(scene);
             }
+            let now = (new Date()).getTime();
+            timers.all_min = now - sectionLast;
+            sectionLast = now;
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
+                await null; // release event loop to allow keepalive
                 const scene = queue.next();
                 if (scene.schedule_status === 'users fill min'){
                     // Fill to max with any available user
@@ -322,14 +362,16 @@ class Schedule extends EventEmitter {
                             scene.schedule_status = 'done';
                         }
                     }
-
-                    this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();
+                    const now = (new Date()).getTime();
+                    this.statusUpdate(scene, now - last);
+                    last = now;
                     //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
-
-
                 }
                 this.addScene(scene);
             }
+            now = (new Date()).getTime();
+            timers.all_max = (new Date()).getTime() - sectionLast;
+
         }
 
         for (const timeslot of await this.cache.timeslots()){
@@ -338,7 +380,7 @@ class Schedule extends EventEmitter {
         }
         const totalDuration = (new Date()).getTime() - start;
         this.emit('status', {
-            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed}`,
+            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed} t:${JSON.stringify(timers)}`,
             duration: totalDuration
         });
         this.scheduleResult = {

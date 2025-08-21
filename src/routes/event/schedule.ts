@@ -696,14 +696,16 @@ async function exportSchedule(req, res, next){
         }
         switch (event.schedule_status){
             case 'private':
-                return res.status(403).json({success:false, error: 'Schedule is not live'});
+                if (!req.checkPermission('gm')){
+                    return res.status(403).json({success:false, error: 'Schedule is not live'});
+                }
             case 'staff only':
-                if (req.checkPermision('player')){
+                if (!req.checkPermission('event')){
                     return res.status(403).json({success:false, error: 'Schedule is not live'});
                 }
                 break;
             case 'player':
-                if (req.checkPermision('player')){
+                if (req.checkPermission('player')){
                     exportType = 'player';
                 }
                 break;

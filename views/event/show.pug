@@ -41,7 +41,7 @@ block content
                             |  Scheduler
                     if checkPermission('admin, scheduler') && currentCampaign.display_schedule && event.schedule_status === 'private'
                         span.ms-2
-                            +eventReports(event, schedule_reports)
+                            +eventReports(event, schedule_reports, true)
 
                 .col-lg.text-lg-end.mt-2.mt-lg-0
                     h5.d-inline.align-bottom

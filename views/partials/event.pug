@@ -481,12 +481,15 @@ mixin attendanceTable(attendances)
                                 )
                                     i.fas.fa-trash.fa-fw
 
-mixin eventReports(event, schedule_reports)
+mixin eventReports(event, schedule_reports, showCsv=false)
     if schedule_reports.length
         .dropdown.d-inline
             button.btn.btn-sm.btn-outline-info.me-2.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
                 i.fa.fa-download.me-1
-                | Schedule PDFs
+                if showCsv
+                    | Reports
+                else
+                    | Schedule PDFs
             ul.dropdown-menu
                 if _.indexOf(schedule_reports, 'player') !== -1
                     li
@@ -512,4 +515,21 @@ mixin eventReports(event, schedule_reports)
                         )
                             i.fa.fa-download.me-1
                             | Scene Labels PDF
+                if showCsv
+                    li
+                        a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
+                            href='#'
+                            data-export=`/event/${event.id}/schedule/export?type=staff`
+                        )
+                            i.fa.fa-download.me-1
+                            | Staff CSV
+                    li
+                        a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
+                            href='#'
+                            data-export=`/event/${event.id}/schedule/export?type=player`
+                        )
+                            i.fa.fa-download.me-1
+                            | Player CSV
+
+
 

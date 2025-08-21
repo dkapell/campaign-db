@@ -269,6 +269,10 @@ async function update(req, res){
             delete user.permissions;
         }
 
+        if (! req.checkPermission('gm')){
+            delete user.tags;
+        }
+
         if (req.campaign.documentations){
             user.documentations = await parseDocumentations(req, user.documentations, req.checkPermission('gm'));
         }

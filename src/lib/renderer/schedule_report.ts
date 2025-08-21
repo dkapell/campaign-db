@@ -111,7 +111,10 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 doc.x += options.indent;
                 for (const scene of timeslot.scenes){
                     if (!scene.locations){
-                        console.log(`${scene.name} has no locations`);
+                        console.log(`${scene.id} has no locations for ${attendee.user.name}`);
+                    }
+                    if (!scene){
+                        continue;
                     }
                     let sceneName = scene.name;
                     if (options.scene.location && scene.locations.confirmed && scene.locations.confirmed.length ){
@@ -431,14 +434,14 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc
                 .font('Body Font')
                 .fontSize(8*options.font.body.scale)
-                .text( dateStr, x+4, y+4, {
+                .text( dateStr, x+4, y+3, {
                     width: cellWidth-8,
                     align:'right'
                 });
             doc
                 .font('Body Font')
                 .fontSize(8*options.font.body.scale)
-                .text(event.name, x+4, y+4, {
+                .text(event.name, x+4, y+3, {
                     width: cellWidth-8,
                     align:'left'
                 });

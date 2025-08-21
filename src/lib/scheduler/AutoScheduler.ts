@@ -83,21 +83,16 @@ class AutoScheduler extends Readable{
         const attempts = [];
 
         const schedulerStatuses = {};
-        //let lastStatusSent = 0;
-        const keepalive = setInterval(()=>{
-            this.sendData({
-                type: 'keepalive',
-            });
-        }, 10*1000);
 
+        // Send status to browser every 200ms
         const statusSend = setInterval(() => {
             this.sendData({
                 type: 'scene status',
                 scenes: scoredScenes.length,
-                runs: runs,
+                runs: Number(runs),
                 status: formatScheduleStatus(schedulerStatuses)
             });
-        }, 100);
+        }, 200);
 
         // Get list of scenes after clear
         const scenes = await models.scene.find({event_id:eventId});
@@ -110,17 +105,6 @@ class AutoScheduler extends Readable{
             schedule.on('scene status', (data) => {
                 schedulerStatuses[schedulerIdx].scenes[data.sceneId] = data.status;
             });
-            /*
-                if (((new Date).getTime() - lastStatusSent) > 100){
-                    this.sendData({
-                        type: 'scene status',
-                        scenes: scenesToPlace.length,
-                        runs: runs,
-                        status: formatScheduleStatus(schedulerStatuses)
-                    });
-                    lastStatusSent = (new Date).getTime();
-                }
-            }); */
 
             schedule.on('status', data => {
                 this.sendData({
@@ -163,7 +147,6 @@ class AutoScheduler extends Readable{
             scenesProcessed: schedule.scenesProcessed,
             processTime: (new Date()).getTime() - start
         });
-        clearInterval(keepalive);
         clearInterval(statusSend);
         this.sendData(null);
     }

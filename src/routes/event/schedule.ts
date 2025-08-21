@@ -775,11 +775,6 @@ async function runScheduler(req, res){
                 console.log(schedulerData.message);
             }
 
-            if (schedulerData.type === 'keepalive'){
-                console.log('keepalive');
-            }
-
-
             if (schedulerData.type === 'summary'){
                 res.write(JSON.stringify({
                     type: 'summary',

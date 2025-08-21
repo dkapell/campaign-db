@@ -353,9 +353,15 @@ class Schedule extends EventEmitter {
         const foundTimeslots = [];
         const conflicts = [];
 
+        let attempts = 0;
 
         if (await this.checkRequiredUsers(scene)){
             timeslotLoop: for (const timeslotId of possibleTimeslots){
+                // Limit attempts to 100 for timeboxing
+                if (++attempts > 100){
+                    console.log(`${scene.name} took over 100 attempts to findSlot()`);
+                    break;
+                }
                 const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
                 for (const prereq of scene.prereqs){
                     let prereqScene:ScheduleScene = null
@@ -391,7 +397,6 @@ class Schedule extends EventEmitter {
                 }
             }
         }
-
         if (foundTimeslots.length === scene.timeslot_count){
             scene.currentTimeslots = foundTimeslots;
             scene.status = 'scheduled';

@@ -36,8 +36,8 @@ class AutoScheduler extends Readable{
         const options = this.options;
         const start =  (new Date()).getTime();
         const event = await models.event.get(eventId);
-        const scenes = await models.scene.find({event_id:eventId});
-        const eventScenes = JSON.parse(JSON.stringify(scenes))
+        const eventScenes = await models.scene.find({event_id:eventId});
+
         this.push({
             type: 'scheduler status',
             message: `Data Gathered for event id:${this.event_id}`
@@ -58,6 +58,7 @@ class AutoScheduler extends Readable{
             const sceneObj = new ScheduleScene(scene, cache);
             return sceneObj.clear();
         });
+
         this.push({
             type: 'scheduler status',
             message: `Cleared Schedule for event id:${this.event_id}`
@@ -74,6 +75,9 @@ class AutoScheduler extends Readable{
         let lastStatusSent = 0;
         let keepalive = null;
         sendKeepalive();
+
+        // Get list of scenes after clear
+        const scenes = await models.scene.find({event_id:eventId});
 
         await async.timesLimit(runs, concurrency, async function(schedulerIdx): Promise<SchedulerResult>{
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
@@ -185,7 +189,8 @@ async function prepScenes(scenes:SceneModel[]): Promise<SceneModel[]>{
         }
 
     }
-    return scenes;
+
+    return _.sortBy(scenes, 'score').reverse();
 }
 
 function getReqId(prereq:string|number|SceneModel):number{
@@ -225,8 +230,6 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
 
             return scene;
         })
-
-    scenes = _.sortBy(scenes, 'score').reverse();
 
     return scenes;
 }

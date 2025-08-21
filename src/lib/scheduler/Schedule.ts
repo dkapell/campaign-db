@@ -159,14 +159,25 @@ class Schedule extends EventEmitter {
                 if (slotResult.slotted){
                     scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
                     scene.schedule_status = 'slotted';
-                    queue.enqueue(scene.id);
 
                 } else if (slotResult.conflicts && slotResult.conflicts.length){
+                    let retry = false;
                     for (const id of slotResult.conflicts){
-                        queue.enqueue(id, true);
+                        const conflictScene = _.findWhere(this.scenes, {id:id});
+                        if (!conflictScene || conflictScene.status !== 'confirmed'){
+                            retry = true;
+                            queue.setStatus(id, 'new');
+                            queue.enqueue(id, true);
+                        }
                     }
-                    queue.enqueue(scene.id, true);
+                    if (retry){
+                        queue.enqueue(scene.id, true);
+                    } else {
+                        unscheduled++;
+                        scene.schedule_status = 'done';
+                    }
                 } else {
+                    scene.schedule_status = 'done';
                     unscheduled++;
                 }
                 this.statusUpdate(scene, ((new Date()).getTime() - last)); last = (new Date()).getTime();

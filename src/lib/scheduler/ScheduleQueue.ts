@@ -49,6 +49,16 @@ class ScheduleQueue{
         return this.processQueue.length;
     }
 
+    setStatus(id:number, status:string){
+        for (const scene of this.scenes){
+            if (scene.id !== id){
+                continue;
+            }
+            scene.schedule_status = status;
+            break;
+        }
+    }
+
     addScene(scene: ScheduleScene){
         if (!_.findWhere(this.scenes, {id:scene.id})){
             this.scenes.push(scene);

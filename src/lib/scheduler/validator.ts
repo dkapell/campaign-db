@@ -14,7 +14,7 @@ const issueList = {
     'prereq-diff-event': 'info',
     'prereq-after': 'warning',
     'player-dbl-book': 'warning',
-    'staff-dbl-book': 'info',
+    'staff-dbl-book': 'warning',
     'user-dbl-busy': 'warning',
     'not-enough-players': 'warning',
     'too-many-players': 'warning',

@@ -1,6 +1,7 @@
 'use strict';
 import _ from 'underscore';
 import models from './models';
+//import cache from './cache';
 import async from 'async';
 import stringify from 'csv-stringify-as-promised';
 import validator from './scheduler/validator';
@@ -385,6 +386,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
 
     const scenes = [];
     for (const scene of schedule.scenes){
+        if (!scene) { continue; }
         if (showUnconfirmed){
             if (!scene.status.match(/^(confirmed|scheduled)$/)){
                 console.log(`continue on ${scene.name}`)
@@ -781,6 +783,7 @@ async function saveSchedule(eventId: number, name:string=null, keep:boolean=fals
     if (current && current.read_only && !force){
         return;
     }
+    //await cache.invalidate('event-schedule', Number(eventId));
     return models.schedule.save(doc);
 }
 

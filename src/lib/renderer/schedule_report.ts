@@ -395,6 +395,15 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         if (!_.has(options.listAfter, 'staff')){
             options.listAfter.staff = 8
         }
+        if (!_.has(options, 'countAfter')){
+            options.countAfter = {players: 22, staff:20 }
+        }
+        if (!_.has(options.countAfter, 'players')){
+            options.countAfter.players = 22
+        }
+        if (!_.has(options.countAfter, 'staff')){
+            options.countAfter.staff = 20
+        }
 
         const pageWidth = doc.page.width - (options.margins.right + options.margins.left);
         const cellWidth = (pageWidth - (options.gutter.horizontal * (options.columns - 1)))/options.columns;
@@ -653,7 +662,13 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
                 const players = [];
                 if (scene.players.confirmed){
-                    if (scene.players.confirmed.length > options.listAfter.players){
+                    if (scene.players.confirmed.length > options.countAfter.players){
+                        players.push(`${scene.players.confirmed.length} Players`)
+                        if (scene.for_anyone){
+                            players.push('+ Anyone');
+                        }
+
+                    } else if (scene.players.confirmed.length > options.listAfter.players){
                         for (const player of scene.players.confirmed){
                             players.push(player.name)
                         }
@@ -728,7 +743,10 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             const staffList = [];
 
             if (scene.staff.confirmed){
-                if (scene.staff.confirmed.length > options.listAfter.staff){
+                if (scene.staff.confirmed.length > options.countAfter.staff){
+                    staffList.push(`${scene.staff.confirmed.length} Staff`)
+
+                } else if (scene.staff.confirmed.length > options.listAfter.staff){
                     for (const staff of scene.staff.confirmed){
                         if (staff.npc){
                             staffList.push(`${staff.name} (${staff.npc})`);

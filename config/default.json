@@ -205,6 +205,10 @@
             "listAfter":{
                 "players": 12,
                 "staff":8
+            },
+            "countAfter":{
+                "players": 22,
+                "staff":20
             }
         }
     },

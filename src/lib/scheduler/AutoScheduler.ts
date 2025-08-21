@@ -15,7 +15,7 @@ class AutoScheduler extends Readable{
     event_id: number;
     options: SchedulerOptions;
 
-
+    messages = [];
     constructor(eventId, options){
         super({objectMode:true});
         this.event_id = eventId;
@@ -24,10 +24,24 @@ class AutoScheduler extends Readable{
     }
 
     _read(){
+        if (this.messages.length){
+            this.push(this.messages.shift());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    sendData(message){
+        if (this.readableFlowing){
+            this.push(message)
+        } else {
+            this.messages.push(message);
+        }
     }
 
     async run(){
-        this.push({
+        this.sendData({
             type: 'scheduler status',
             message: `Starting AutoScheduler on event id:${this.event_id}`
         });
@@ -38,7 +52,7 @@ class AutoScheduler extends Readable{
         const event = await models.event.get(eventId);
         const eventScenes = await models.scene.find({event_id:eventId});
 
-        this.push({
+        this.sendData({
             type: 'scheduler status',
             message: `Data Gathered for event id:${this.event_id}`
         });
@@ -59,7 +73,7 @@ class AutoScheduler extends Readable{
             return sceneObj.clear();
         });
 
-        this.push({
+        this.sendData({
             type: 'scheduler status',
             message: `Cleared Schedule for event id:${this.event_id}`
         });
@@ -67,15 +81,11 @@ class AutoScheduler extends Readable{
         const runs = (options.runs && options.runs <= 100)?options.runs:config.get('scheduler.runs') as number;
         const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:5;
         const attempts = [];
-        const sendData = (function(data){
-            this.push(data)
-        }).bind(this);
 
         const schedulerStatuses = {};
         let lastStatusSent = 0;
         const keepalive = setInterval(()=>{
-            console.log('sending keepalive');
-            sendData({
+            this.sendData({
                 type: 'keepalive',
             });
         }, 10*1000);
@@ -83,7 +93,7 @@ class AutoScheduler extends Readable{
         // Get list of scenes after clear
         const scenes = await models.scene.find({event_id:eventId});
 
-        await async.timesLimit(runs, concurrency, async function(schedulerIdx): Promise<SchedulerResult>{
+        await async.timesLimit(runs, concurrency, async (schedulerIdx): Promise<SchedulerResult> => {
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
             const schedule = new Schedule(eventId, scenes, cache);
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};
@@ -91,7 +101,7 @@ class AutoScheduler extends Readable{
             schedule.on('scene status', (data) => {
                 schedulerStatuses[schedulerIdx].scenes[data.sceneId] = data.status;
                 if (((new Date).getTime() - lastStatusSent) > 100){
-                    sendData({
+                    this.sendData({
                         type: 'scene status',
                         scenes: scenesToPlace.length,
                         runs: runs,
@@ -101,8 +111,8 @@ class AutoScheduler extends Readable{
                 }
             });
 
-            schedule.on('status', (data) => {
-                sendData({
+            schedule.on('status', data => {
+                this.sendData({
                     type:'status',
                     message:data.message
                 });
@@ -126,11 +136,11 @@ class AutoScheduler extends Readable{
 
         await schedule.schedule.write();
         await scheduleHelper.saveSchedule(eventId, 'scheduler');
-        this.push({
+        this.sendData({
             type: 'scheduler status',
             message: `Scheduler complete for event id:${this.event_id}: ${schedule.happiness} / ${happyAvg}`
         });
-        this.push({
+        this.sendData({
             type: 'summary',
             schedule: schedule.schedule,
             unscheduled: schedule.unscheduled,
@@ -144,7 +154,7 @@ class AutoScheduler extends Readable{
             processTime: (new Date()).getTime() - start
         });
         clearInterval(keepalive);
-        this.push(null);
+        this.sendData(null);
     }
 
 

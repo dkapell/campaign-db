@@ -21,7 +21,7 @@ function sceneItemSorter(a, b){
 
 function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
-        return {};
+        return null;
     }
     const output: FormattedSceneModel = {
         id:scene.id,
@@ -415,6 +415,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
                 (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
             ){
                 const formattedScene = formatScene(scene, forPlayer);
+                if (!formattedScene){ continue; }
                 const userRecord = _.findWhere(formattedScene.users, {id:userId});
                 if (userRecord && userRecord.npc){
                     formattedScene.npc = userRecord.npc
@@ -462,9 +463,13 @@ async function getAnyoneSchedule(eventId:number, forPlayer:boolean=false, showUn
             if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
                 (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
             ){
-                timeslot.scenes.push(formatScene(scene, forPlayer));
+                const formattedScene = formatScene(scene, forPlayer);
+                if (formattedScene){
+                    timeslot.scenes.push(formattedScene);
+                }
             }
         }
+        timeslot.scenes = timeslot.scenes.filter(scene=>{return scene});
 
         return timeslot;
     });

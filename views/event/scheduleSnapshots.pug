@@ -49,8 +49,8 @@ block content
 
                         td #{moment(schedule.created).format('l')} #{moment(schedule.created).format('LTS')}
 
-                        td= (_.where(schedule.scenes, {status: 'scheduled'})).length
-                        td= (_.where(schedule.scenes, {status: 'confirmed'})).length
+                        td= (schedule.metadata && schedule.metadata.scenes) ? schedule.metadata.scenes.scheduled : 'unknown'
+                        td= (schedule.metadata && schedule.metadata.scenes) ? schedule.metadata.scenes.confirmed : 'unknown'
                         td.text-end
                             if current
                                 .badge.text-bg-success.mx-1 Current

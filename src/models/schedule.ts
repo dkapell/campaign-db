@@ -21,7 +21,8 @@ const tableFields = [
     'read_only',
     'version',
     'keep',
-    'created'
+    'created',
+    'metadata'
 ];
 
 interface ScheduleModel extends IModel {
@@ -43,7 +44,7 @@ async function preSave(data:ModelData): Promise<ModelData>{
     return data;
 }
 
-Schedule.save = async function save(data:ModelData): Promise<number|null>{
+Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|null>{
     const event = await models.event.get(Number(data.event_id), {postSelect: async(data)=>{return data}});
 
     const client = await database.connect();
@@ -63,6 +64,17 @@ Schedule.save = async function save(data:ModelData): Promise<number|null>{
         maxVal = _.max(_.pluck(current, 'version'));
     }
     data.version = maxVal+1;
+
+    data.metadata = {
+        scenes: {
+            scheduled: (_.where(data.scenes, {status: 'scheduled'})).length,
+            confirmed: (_.where(data.scenes, {status: 'confirmed'})).length
+        },
+        timeslots: data.timeslots.length,
+        locations: data.locations.length,
+        schedule_busies: data.schedule_busies.length
+    };
+
     const id = await this.create(data);
 
     const maxVersions: number = config.get('scheduler.keepVersions') ;

@@ -1280,6 +1280,7 @@ create table schedules(
     read_only boolean default false,
     version int not null default 1,
     keep boolean default false,
+    metadata jsonb,
     primary key (id),
     unique (event_id, version),
     CONSTRAINT schedules_event_fk FOREIGN KEY (event_id)

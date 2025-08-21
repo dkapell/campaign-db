@@ -495,3 +495,17 @@ interface SceneIssueModel extends ModelData{
     resolved?: boolean
     created?: Date
 }
+interface ScheduleSnapshotModel extends ModelData{
+    id?: number
+    event_id?:number
+    name?:string
+    timeslots:?TimeslotModel[]
+    locations:?LocationModel[]
+    scenes:?SceneModel[]
+    schedule_busies:?ScheduleBusyModel[]
+    read_only:?boolean
+    version?:number
+    keep?:boolean
+    created?:Date
+    metadata:?Record<string, unknown>
+}

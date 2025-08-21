@@ -897,7 +897,7 @@ async function listScheduleSnapshots(req, res, next){
             throw new Error('Invalid Event');
         }
 
-        res.locals.schedules = await req.models.schedule.find({ event_id: eventId});
+        res.locals.schedules = await req.models.schedule.find({ event_id: eventId}, {excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']});
         res.locals.event = event;
         res.locals.breadcrumbs = {
             path: [

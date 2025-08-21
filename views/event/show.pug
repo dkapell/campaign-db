@@ -13,34 +13,38 @@ block content
     .row
         .col.card
             .row.card-header
-                .col-md
+                .col-lg-auto
                     h3.d-inline= event.name
 
                     if checkPermission('gm')
-                        a.btn.btn-outline-info.btn-sm.ms-4(href=`/event/${event.id}/edit?backto=event`)
+                        a.btn.btn-outline-info.btn-sm.ms-3(href=`/event/${event.id}/edit?backto=event`)
                             span.fa.fa-edit.me-2
                             | Edit Event
 
                     if checkPermission('contrib, registration view')
                         a.btn.btn-outline-primary.btn-sm.ms-2(href=`/event/${event.id}/checkin`)
                             span.fas.fa-clipboard-check.me-2
-                            | Event Check-in
+                            | Check-in
                     if checkPermission('gm') && new Date(event.end_time) < new Date()
-                        a.btn.btn-sm.btn-outline-primary.my-2.ms-2#grantEventCPBtn(
+                        a.btn.btn-sm.btn-outline-primary.ms-2#grantEventCPBtn(
                             href='#'
                             data-csrf=csrfToken
                             data-url=`/event/${event.id}/grant_cp`
                         )
                             i.fas.fa-hat-wizard.recalc-icon
                             |  Grant Event #{currentCampaign.renames.cp.singular}
-                    if checkPermission('gm') && new Date(event.start_time) > new Date() && currentCampaign.display_schedule && event.schedule_status === 'private'
-                        a.btn.btn-sm.btn-outline-primary.my-2.ms-2(
+                    if checkPermission('gm') && new Date(event.start_time) > new Date() && currentCampaign.display_schedule && event.schedule_status === 'private' && !event.schedule_read_only
+                        a.btn.btn-sm.btn-outline-primary.ms-2(
                             href=`/event/${event.id}/scheduler`
                         )
                             i.fas.fa-calendar
-                            |  Event Scheduler
-                .col-md.text-md-end
-                    h4.d-inline.align-bottom
+                            |  Scheduler
+                    if checkPermission('admin, scheduler') && currentCampaign.display_schedule && event.schedule_status === 'private'
+                        span.ms-2
+                            +eventReports(event, schedule_reports)
+
+                .col-lg.text-lg-end.mt-2.mt-lg-0
+                    h5.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
 
             .card-body

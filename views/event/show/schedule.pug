@@ -1,4 +1,5 @@
 include ../../partials/scene
+
 .row.my-2
     .col
         if checkPermission('event')
@@ -15,36 +16,8 @@ include ../../partials/scene
                 i.fa.fa-download.me-1
                 | Export Player CSV
 
-            if checkPermission('contrib') && event.schedule_status !== 'private' && schedule_reports.length
-                .dropdown.d-inline
-                    button.btn.btn-sm.btn-outline-info.me-2.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
-                        i.fa.fa-download.me-1
-                        | Schedule PDFs
-                    ul.dropdown-menu
-                        if _.indexOf(schedule_reports, 'player') !== -1
-                            li
-                                a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
-                                    href='#'
-                                    data-export=`/event/${event.id}/schedule/report/player`
-                                )
-                                    i.fa.fa-download.me-1
-                                    | Player Schedule PDF
-                        if _.indexOf(schedule_reports, 'scenes') !== -1
-                            li
-                                a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
-                                    href='#'
-                                    data-export=`/event/${event.id}/schedule/report/scenes`
-                                )
-                                    i.fa.fa-download.me-1
-                                    | Scenes PDF
-                        if _.indexOf(schedule_reports, 'scenelabels') !== -1
-                            li
-                                a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
-                                    href='#'
-                                    data-export=`/event/${event.id}/schedule/report/scenelabels`
-                                )
-                                    i.fa.fa-download.me-1
-                                    | Scene Labels PDF
+            if checkPermission('contrib') && event.schedule_status !== 'private'
+                +eventReports(event, schedule_reports)
 
 
 

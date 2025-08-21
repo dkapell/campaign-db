@@ -110,10 +110,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     .text(timeslotName, {width:columnWidth, stroke:options.font.header.strokeForBold, fill:true})
                 doc.x += options.indent;
                 for (const scene of timeslot.scenes){
-                    if (!scene.locations){
-                        console.log(`${scene.id} has no locations for ${attendee.user.name} in ${timeslot.name}`);
-                        console.log(JSON.stringify(scene, null, 2));
-                    }
                     let sceneName = scene.name;
                     if (options.scene.location && scene.locations.confirmed && scene.locations.confirmed.length ){
                         sceneName += ` - ${(_.pluck(scene.locations.confirmed, 'name')).join(', ')}`;

@@ -6,14 +6,14 @@ include ../../partials/scene
             button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-staff-export-btn(
                 data-export=`/event/${event.id}/schedule/export?type=staff`
             )
-                i.fa.fa-download.me-1
+                i.fa.fa-download.me-1.indicator-icon
                 | Export Staff CSV
 
         if checkPermission('event') || event.schedule_status === 'player visible'
             button.btn.btn-sm.btn-outline-info.me-2.event-export-btn#schedule-player-export-btn(
                 data-export=`/event/${event.id}/schedule/export?type=player`
             )
-                i.fa.fa-download.me-1
+                i.fa.fa-download.me-1.indicator-icon
                 | Export Player CSV
 
             if checkPermission('contrib') && event.schedule_status !== 'private'

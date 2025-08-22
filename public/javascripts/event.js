@@ -128,9 +128,17 @@ function addEventAddon(e){
 
 function exportCsvBtn(e){
     e.preventDefault();
-    const url = $(this).data('export');
+    const $this = $(this);
+    const url = $this.data('export');
     window.open(url, '_self');
-    $(this).blur();
+    $this.blur();
+
+    $this.closest('.dropdown').find('.indicator-icon').removeClass('fa-download').addClass('fa-check');
+    $this.find('.indicator-icon').removeClass('fa-download').addClass('fa-check');
+    setTimeout( () => {
+        $this.closest('.dropdown').find('.indicator-icon').removeClass('fa-check').addClass('fa-download');
+        $this.find('.indicator-icon').removeClass('fa-check').addClass('fa-download');
+    }, 2000)
 }
 
 async function deleteAttendance(e){

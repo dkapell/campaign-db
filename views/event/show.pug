@@ -33,7 +33,7 @@ block content
                         )
                             i.fas.fa-hat-wizard.recalc-icon
                             |  Grant Event #{currentCampaign.renames.cp.singular}
-                    if checkPermission('gm') && new Date(event.start_time) > new Date() && currentCampaign.display_schedule && event.schedule_status === 'private' && !event.schedule_read_only
+                    if schedulerHeader && new Date(event.start_time) > new Date() && !event.schedule_read_only
                         a.btn.btn-sm.btn-outline-primary.ms-2(
                             href=`/event/${event.id}/scheduler`
                         )
@@ -46,52 +46,55 @@ block content
                 .col-lg.text-lg-end.mt-2.mt-lg-0
                     h5.d-inline.align-bottom
                         +eventDate(event.start_time, event.end_time)
+                    if checkPermission('gm')
+                        .text-end
+                            .badge.text-bg-info Schedule: #{event.schedule_status}
 
             .card-body
+                .row
+                    .col
+                        ul.nav.nav-tabs.w-100.my-2#eventTabs(role="tablist")
+                            li.nav-item(role="presentation")
+                                a.nav-link.active#event-registration-tab(href="#event-registration" data-bs-toggle="tab" role="tab" aria-controls="event-registration" aria-selected="true") My Registration
 
-                ul.nav.nav-tabs.w-100.my-2#eventTabs(role="tablist")
+                            if currentCampaign.display_schedule && scheduleVisible
+                                li.nav-item(role="presentation")
+                                    a.nav-link#event-schedule-tab(href="#event-schedule" data-bs-toggle="tab" role="tab" aria-controls="event-schedule" aria-selected="false") Schedule
 
-                    li.nav-item(role="presentation")
-                        a.nav-link.active#event-registration-tab(href="#event-registration" data-bs-toggle="tab" role="tab" aria-controls="event-registration" aria-selected="true") My Registration
+                            li.nav-item(role="presentation")
+                                a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
 
-                    if currentCampaign.display_schedule && ((checkPermission('event') && event.schedule_status !== 'private') || (checkPermission('player') && event.schedule_status === 'player visible'))
-                        li.nav-item(role="presentation")
-                            a.nav-link#event-schedule-tab(href="#event-schedule" data-bs-toggle="tab" role="tab" aria-controls="event-schedule" aria-selected="false") Schedule
+                            if checkPermission('gm, orders view')
+                                li.nav-item(role="presentation")
+                                    a.nav-link#event-income-tab(href="#event-income" data-bs-toggle="tab" role="tab" aria-controls="event-income" aria-selected="false") Income
 
-                    li.nav-item(role="presentation")
-                        a.nav-link#event-attendees-tab(href="#event-attendees" data-bs-toggle="tab" role="tab" aria-controls="event-attendees" aria-selected="false") Attendees
-
-                    if checkPermission('gm, orders view')
-                        li.nav-item(role="presentation")
-                            a.nav-link#event-income-tab(href="#event-income" data-bs-toggle="tab" role="tab" aria-controls="event-income" aria-selected="false") Income
-
-                    if checkPermission('contrib') && post_event_surveys.length
-                        li.nav-item(role="presentation")
-                            a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") #{currentCampaign.renames.post_event_survey.plural}
+                            if checkPermission('contrib') && post_event_surveys.length
+                                li.nav-item(role="presentation")
+                                    a.nav-link#event-surveys-tab(href="#event-surveys" data-bs-toggle="tab" role="tab" aria-controls="event-surveys" aria-selected="false") #{currentCampaign.renames.post_event_survey.plural}
 
 
-                .tab-content#eventTabContent
-                    .tab-pane.fade.show.active#event-registration(role="tabpanel" aria-labelledby="event-registration-tab")
-                        include show/my_registration
+                        .tab-content#eventTabContent
+                            .tab-pane.fade.show.active#event-registration(role="tabpanel" aria-labelledby="event-registration-tab")
+                                include show/my_registration
 
-                    if currentCampaign.display_schedule && ((checkPermission('event') && event.schedule_status !== 'private') || (checkPermission('player') && event.schedule_status === 'player visible'))
-                        .tab-pane.fade#event-schedule(role="tabpanel" aria-labelledby="event-schedule-tab")
-                            include show/schedule.pug
+                            if currentCampaign.display_schedule && scheduleVisible
+                                .tab-pane.fade#event-schedule(role="tabpanel" aria-labelledby="event-schedule-tab")
+                                    include show/schedule.pug
 
-                    .tab-pane.fade#event-attendees(role="tabpanel" aria-labelledby="event-attendees-tab")
-                        include show/attendees.pug
+                            .tab-pane.fade#event-attendees(role="tabpanel" aria-labelledby="event-attendees-tab")
+                                include show/attendees.pug
 
-                    if checkPermission('gm, orders view')
-                         .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
-                            include show/income.pug
+                            if checkPermission('gm, orders view')
+                                 .tab-pane.fade#event-income(role="tabpanel" aria-labelledby="event-income-tab")
+                                    include show/income.pug
 
-                    if checkPermission('contrib') && post_event_surveys.length
-                        .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")
-                            +postEventSurveyGmTable(post_event_surveys, {
-                                noEvent:true,
-                                backto:'event',
-                                exportUrl:`/event/${event.id}/export_survey`
-                            })
+                            if checkPermission('contrib') && post_event_surveys.length
+                                .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")
+                                    +postEventSurveyGmTable(post_event_surveys, {
+                                        noEvent:true,
+                                        backto:'event',
+                                        exportUrl:`/event/${event.id}/export_survey`
+                                    })
     +imageModal()
 
 append scripts

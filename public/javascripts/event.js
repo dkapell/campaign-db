@@ -138,7 +138,7 @@ function exportCsvBtn(e){
     setTimeout( () => {
         $this.closest('.dropdown').find('.indicator-icon').removeClass('fa-check').addClass('fa-download');
         $this.find('.indicator-icon').removeClass('fa-check').addClass('fa-download');
-    }, 2000)
+    }, 2000);
 }
 
 async function deleteAttendance(e){

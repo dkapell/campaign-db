@@ -899,6 +899,26 @@ async function reportPdf(eventId, reportName, reportConfig){
     return scheduleReportRenderer(eventId, reportName, reportConfig);
 }
 
+function scheduleVisibleMiddleware(req, res, next){
+    req.isScheduleVisible = async function isScheduleVisible(eventId:number):Promise<boolean>{
+        const event = await models.event.get(eventId);
+        switch (event.schedule_status){
+            case 'private':
+                return req.checkPermission('admin, scheduler');
+
+            case 'gm only':
+                return req.checkPermission('gm');
+
+            case 'staff only':
+                return req.checkPermission('event');
+
+            case 'player visible':
+                return req.checkPermission('player')
+        }
+    }
+    next();
+}
+
 export default {
     validateScene: validator,
     formatScene,
@@ -916,5 +936,6 @@ export default {
     restoreSchedule,
     getSceneStatusCsv,
     reportPdf,
-    sceneItemSorter
+    sceneItemSorter,
+    middleware: scheduleVisibleMiddleware
 };

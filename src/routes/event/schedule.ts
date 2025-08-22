@@ -13,6 +13,11 @@ async function showScheduler(req, res, next){
             throw new Error('Invalid Event');
         }
 
+        if (! await req.isScheduleVisible(event.id)){
+            req.flash('error', 'The schedule for this event is not available');
+            return res.redirect(`/event/${event.id}`);
+        }
+
         const schedule = await scheduleHelper.getSchedule(event.id);
         if (schedule.read_only){
             console.log('schedule is read only');
@@ -72,10 +77,7 @@ async function showSchedule(req, res, next){
             throw new Error('Invalid Event');
         }
 
-        if (event.schedule_status === 'private'){
-            req.flash('error', 'The schedule for this event is not available');
-            return res.redirect(`/event/${event.id}`);
-        } else if (!req.checkPermission('event') && event.schedule_status !== 'player visible'){
+        if (! await req.isScheduleVisible(event.id)){
             req.flash('error', 'The schedule for this event is not available');
             return res.redirect(`/event/${event.id}`);
         }
@@ -694,23 +696,13 @@ async function exportSchedule(req, res, next){
         if (!exportType) {
             exportType = 'staff';
         }
-        switch (event.schedule_status){
-            case 'private':
-                if (!req.checkPermission('gm')){
-                    return res.status(403).json({success:false, error: 'Schedule is not live'});
-                }
-                break;
-            case 'staff only':
-                if (!req.checkPermission('event')){
-                    return res.status(403).json({success:false, error: 'Schedule is not live'});
-                }
-                break;
-            case 'player':
-                if (req.checkPermission('player')){
-                    exportType = 'player';
-                }
-                break;
+        if (! await req.isScheduleVisible(event.id)){
+            return res.status(403).json({success:false, error: 'Schedule is not live'});
         }
+        if (req.checkPermission('player')){
+            exportType = 'player';
+        }
+
         const output = await scheduleHelper.getCsv(eventId, exportType);
         res.attachment(`${event.name} - schedule - ${exportType}.csv`);
         res.end(output);
@@ -1048,6 +1040,12 @@ async function getReport(req, res, next){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
+
+        if (! await req.isScheduleVisible(event.id)){
+            req.flash('error', 'The schedule for this event is not available');
+            return res.redirect(`/event/${event.id}`);
+        }
+
         const report = await req.models.schedule_report.findOne({campaign_id: req.campaign.id, name:reportName});
         if (!report){
             throw new Error('Invalid Report');

@@ -25,8 +25,7 @@ async function calendar(req, res, next){
             event.timezone = req.campaign.timezone;
             event.days = eventCalculate(event);
 
-            if ((user.type !== 'player' && event.schedule_status !== 'private') ||
-                (user.type === 'player' && event.schedule_status === 'player visible')){
+            if (checkScheduleVisibility(user, event)){
                 const schedule = await scheduleHelper.getUserSchedule(event.id, campaign_user.user_id, user.type === 'player');
 
                 event.sceneCount = 0;
@@ -42,7 +41,6 @@ async function calendar(req, res, next){
                     }
                 }
             }
-
 
             calendarItems.push(formatEvent(event))
         }
@@ -64,6 +62,27 @@ async function calendar(req, res, next){
 
     } catch (err){
         next(err);
+    }
+}
+
+function checkScheduleVisibility(user, event){
+    if (user.type === 'none'){
+        return false;
+    }
+
+    switch (event.schedule_status){
+        case 'private':
+            return false;
+            break;
+        case 'gm only':
+            return user.type === 'core staff';
+            break;
+        case 'staff only':
+            return user.type !== 'player';
+            break;
+        case 'player visible':
+            return true;
+            break;
     }
 }
 

@@ -668,8 +668,9 @@ create table surveys (
 
 create type event_schedule_status as ENUM(
     'private',
-    'staff',
-    'public'
+    'gm only',
+    'staff only',
+    'player visible'
 );
 
 create table events (

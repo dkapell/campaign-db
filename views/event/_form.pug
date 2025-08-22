@@ -11,7 +11,7 @@ if (backto)
         .col-md-3
             label.control-label(for="event_schedule_status") Schedule Status
             select.form-select.select2#event_schedule_status(name="event[schedule_status]" required)
-                for status in ['private', 'staff only', 'player visible']
+                for status in ['private', 'gm only', 'staff only', 'player visible']
                     option(value=status selected=status===event.schedule_status)=capitalize(status)
 
 .row.my-2

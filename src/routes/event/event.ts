@@ -50,6 +50,9 @@ async function show(req, res, next){
             return req.models.user.get(req.campaign.id, campaign_user.user_id);
         });
 
+        res.locals.schedulerHeader = await req.isScheduleVisible(event.id) && event.schedule_status.match(/^(private|gm only)$/);
+        res.locals.scheduleVisible = await req.isScheduleVisible(event.id) && !event.schedule_status.match(/^(private|gm only)$/);;
+
         if ((req.checkPermission('event') && event.schedule_status !== 'private') ||
             (req.checkPermission('player') && event.schedule_status === 'player visible')){
             res.locals.schedule = await scheduleHelper.getUserSchedule(event.id, req.session.activeUser.id, req.session.activeUser.type==='player');
@@ -556,6 +559,7 @@ router.use(function(req, res, next){
     res.locals.siteSection='events';
     next();
 });
+router.use(scheduleHelper.middleware);
 
 router.get('/', list);
 router.get('/new', permission('gm'), showNew);
@@ -596,6 +600,7 @@ router.use(function(req, res, next){
     }
     next();
 });
+
 router.get('/:id/scheduler', permission('gm'), scheduleRoutes.showScheduler);
 router.get('/:id/schedule', scheduleRoutes.showSchedule);
 router.get('/:id/schedules', permission('gm'), scheduleRoutes.listScheduleSnapshots);

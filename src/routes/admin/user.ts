@@ -365,6 +365,9 @@ async function assume(req, res, next){
             req.flash('error', 'No User Found');
             return res.redirect('/user');
         }
+        if (user.type === 'admin' && !req.checkPermission('admin')){
+            res.redirect('/');
+        }
         req.session.assumed_user = user;
         res.redirect('/');
     } catch (err) {

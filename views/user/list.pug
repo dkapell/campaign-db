@@ -140,7 +140,7 @@ block content
                             )
                                 i.fas.fa-edit.fa-fw
 
-                            if checkPermission('gm') && !_.has(session, 'assumed_user')
+                            if checkPermission('gm') && !_.has(session, 'assumed_user') && (activeUser.type === 'admin' || user.type !== 'admin')
                                 a.btn.btn-outline-danger.btn-xs.action-btn(
                                     role="button",
                                     href=`/user/${user.id}/assume`

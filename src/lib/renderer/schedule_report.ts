@@ -91,6 +91,24 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             }
         }
 
+        function fillHeight(segment){
+            if (segment.markdown){
+                doc
+                    .font(segment.font)
+                    .fontSize(segment.size);
+                segment.height = markdown(doc, segment.text, {width:segment.width, getHeight:true});
+            } else {
+                segment.height = doc
+                    .font(segment.font)
+                    .fontSize(segment.size)
+                    .heightOfString(segment.text, {width:segment.width, fill:true, stroke:segment.stroke});
+            }
+            if (segment.moveDown){
+                segment.height += doc.heightOfString('A') * segment.moveDown;
+            }
+            return segment;
+        }
+
         async function renderSchedule(attendee){
             const top = doc.y;
 
@@ -100,66 +118,113 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
                     continue;
                 }
-                let timeslotName = timeslot.name;
-                if (options.timeslotDisplay === 'label' && timeslot.display_name){
-                    timeslotName = timeslot.display_name as string
+
+                const timeslotSegments = [];
+
+
+                const timeslotHeaderSegment = {
+                    text: timeslot.name,
+                    font: 'Header Font Bold',
+                    size: 18 * options.font.header.scale,
+                    stroke: options.font.header.strokeForBold,
+                    width: columnWidth,
+                    offset: 0,
+                    moveDown: 0.5
                 }
-                doc
-                    .font('Header Font Bold')
-                    .fontSize(18 * options.font.header.scale)
-                    .text(timeslotName, {width:columnWidth, stroke:options.font.header.strokeForBold, fill:true})
-                doc.x += options.indent;
+
+                if (options.timeslotDisplay === 'label' && timeslot.display_name){
+                    timeslotHeaderSegment.text = timeslot.display_name as string
+                }
+
+                timeslotSegments.push(fillHeight(timeslotHeaderSegment));
+
                 for (const scene of timeslot.scenes){
                     let sceneName = scene.name;
                     if (options.scene.location && scene.locations.confirmed && scene.locations.confirmed.length ){
                         sceneName += ` - ${(_.pluck(scene.locations.confirmed, 'name')).join(', ')}`;
                     }
-
-                    doc
-                        .font(scene.non_exclusive?'Body Font Italic':'Body Font')
-                        .fontSize(20 * options.font.body.scale)
-                        .text(sceneName, {
-                            width:columnWidth - options.indent,
-                            stroke:false, fill:true
-                        });
-
+                    const sceneNameSegment = {
+                        text: sceneName,
+                        font: scene.non_exclusive?'Body Font Italic':'Body Font',
+                        size: 20 * options.font.body.scale,
+                        stroke: false,
+                        width: columnWidth - options.indent,
+                        offset: options.indent,
+                        moveDown: 0
+                    }
+                    timeslotSegments.push(fillHeight(sceneNameSegment));
 
                     if (options.scene.description && scene.description){
-                        doc
-                            .font('Body Font')
-                            .fontSize(18 * options.font.body.scale)
-                        doc.moveDown(0.5);
-                        markdown(doc, scene.description, {
-                            width:columnWidth - options.indent,
-                            stroke:false, fill:true
-                        });
+                        timeslotSegments.push(fillHeight({
+                            text: scene.description,
+                            font: 'Body Font',
+                            size: 18 * options.font.body.scale,
+                            stroke: false,
+                            width: columnWidth - options.indent,
+                            offset: options.indent,
+                            moveDown: 0.5,
+                            markdown:true
+                        }));
                     }
-
                     if (options.scene['printout note'] && scene.printout_note){
-                        doc
-                            .font('Body Font')
-                            .fontSize(18 * options.font.body.scale)
-                        doc.moveDown(0.5);
-                        markdown(doc, scene.printout_note, {
-                            width:columnWidth - options.indent,
-                            stroke:false, fill:true
-                        });
+                        timeslotSegments.push(fillHeight({
+                            text: scene.printout_note,
+                            font: 'Body Font',
+                            size: 18 * options.font.body.scale,
+                            stroke: false,
+                            width: columnWidth - options.indent,
+                            offset: options.indent,
+                            moveDown: 0.5,
+                            markdown:true
+                        }));
                     }
                 }
                 if (timeslot.schedule_busy){
-                    doc
-                        .font('Body Font')
-                        .fontSize(20 * options.font.body.scale)
-                        .text(timeslot.schedule_busy.name, {
-                            width:columnWidth - options.indent,
-                            stroke:false, fill:true
-                        });
+                    timeslotSegments.push(fillHeight({
+                        text: timeslot.schedule_busy.name,
+                        font: 'Body Font',
+                        size: 20 * options.font.body.scale,
+                        stroke: false,
+                        width: columnWidth - options.indent,
+                        offset: options.indent,
+                        moveDown: 0.5,
+                    }));
                 }
-                doc.x -= options.indent;
-                if (doc.page.height - doc.y < options.margin*4){
+
+                const totalHeight = _.pluck(timeslotSegments, 'height').reduce((s,i) => {
+                    s+=i;
+                    return s;
+                }, 0);
+
+                if (doc.page.height - (doc.y + totalHeight) < options.margin){
                     doc.y = top;
                     doc.x += (columnWidth + (options.margin*0.5))
                 }
+
+                for (const segment of timeslotSegments){
+                    doc
+                        .font(segment.font)
+                        .fontSize(segment.size)
+                    doc.x += segment.offset;
+                    if (segment.moveDown){
+                        doc.moveDown(segment.moveDown);
+                    }
+
+                    if (segment.markdown){
+                        markdown(doc, segment.text, {
+                            width:segment.width,
+                            stroke:segment.stroke, fill:true
+                        });
+                    } else {
+                        doc.text(segment.text, {
+                            width:segment.width,
+                            stroke:segment.stroke,
+                            fill:true
+                        });
+                    }
+                    doc.x -= segment.offset;
+                }
+
             }
         }
     }

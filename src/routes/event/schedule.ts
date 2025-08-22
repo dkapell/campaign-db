@@ -699,6 +699,7 @@ async function exportSchedule(req, res, next){
                 if (!req.checkPermission('gm')){
                     return res.status(403).json({success:false, error: 'Schedule is not live'});
                 }
+                break;
             case 'staff only':
                 if (!req.checkPermission('event')){
                     return res.status(403).json({success:false, error: 'Schedule is not live'});

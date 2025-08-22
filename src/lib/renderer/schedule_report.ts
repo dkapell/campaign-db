@@ -459,8 +459,10 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
     async function sceneLabelsReport(){
         const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
-        const scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
-            .sort((a,b) => {
+        let scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
+
+        if (options.order && options.order == 'timeslot'){
+            scenes.sort((a,b) => {
                 const aTimeslots = a.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
                 const bTimeslots = b.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
                 const aTimeslotIdx = _.findIndex(allTimeslots, {id: aTimeslots[0].id});
@@ -470,6 +472,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 }
                 return a.name.localeCompare(b.name);
             });
+        }
 
         if (scenes.length){
             doc.addPage({margins:options.margins});

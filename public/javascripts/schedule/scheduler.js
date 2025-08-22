@@ -34,8 +34,8 @@ $(function(){
 });
 
 function clearTimeslotHighlight(){
-    $('.timeslot-header').removeClass('text-bg-info');
-    $('.schedule-cell').removeClass('text-bg-info');
+    $('.timeslot-header').removeClass('text-bg-info').addClass('bg-body');
+    $('.schedule-cell').removeClass('text-bg-info').addClass('bg-body-secondary');
     $('.users-btn').removeClass('active');
     $('.scene-item').removeClass('scene-item-droppable');
     collapseScenes(JSON.parse($('#bottom-panel').attr('scenes')));

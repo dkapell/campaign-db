@@ -33,11 +33,13 @@ $(function(){
 
     $('body').on('show.bs.collapse', '.scene-details', function(e){
         const $scene = $(e.target).closest('.scene-item');
+        expandScene($scene);
         updateSceneDetails($scene);
     });
 
     $('body').on('hide.bs.collapse', '.scene-details', function(e){
         const $scene = $(e.target).closest('.scene-item');
+        restoreScene($scene);
         $scene.attr('expanded-staff', false);
         $scene.attr('expanded-player', false);
     });
@@ -349,6 +351,64 @@ function makePlaceholder($parent, title){
     return $placeholder;
 }
 
+function expandScene($scene){
+    const cellId = $scene.attr('cell');
+    const $cell = $(`#${cellId}`);
+    const $siblings = $(`.scene-item[cell="${cellId}"]`);
+    const xAxisType = $('#xAxisType').val();
+
+    if ($scene.attr('expanded') === 'true'){
+        return;
+    }
+    if ($siblings.length > 1){
+        $(`.scene-item[cell="${cellId}"]`).each(function(){
+            if ($(this).attr('id') !== $scene.attr('id')){
+                $(this).find('.scene-details').collapse('hide');
+            }
+        });
+
+        $scene.attr('oldx-start', $scene.css('grid-column-start'));
+        $scene.attr('oldy-start', $scene.css('grid-row-start'));
+        $scene.attr('oldx-end', $scene.css('grid-column-end'));
+        $scene.attr('oldy-end', $scene.css('grid-row-end'));
+
+        $scene.attr('oldz', $scene.css('z-index'));
+        let rows = xAxisType==='location'?1:$('#cellsPerSlot').val();
+        let cols = xAxisType==='location'?$('#cellsPerSlot').val():1;
+        $scene
+            .attr('expanded', 'true')
+            .css('grid-row-start', $cell.css('grid-row-start'))
+            .css('grid-column-start', $cell.css('grid-column-start'))
+            .css('z-index', Number($scene.css('z-index')) + 1)
+            .addClass('p-1');
+        if (xAxisType ==='location'){
+            $scene.css('grid-column-end', $cell.css('grid-column-end'));
+
+        } else {
+            $scene.css('grid-row-end', $cell.css('grid-row-end'));
+
+        }
+    }
+}
+
+function restoreScene($scene){
+    const cellId = $scene.attr('cell');
+    const $siblings = $(`.scene-item[cell="${cellId}"]`);
+    if ($scene.attr('expanded') !== 'true'){
+        return;
+    }
+    if ($siblings.length > 1){
+        $scene
+            .attr('expanded', 'false')
+            .css('grid-row-start', $scene.attr('oldy-start'))
+            .css('grid-column-start',  $scene.attr('oldx-start'))
+            .css('grid-row-end', $scene.attr('oldy-end'))
+            .css('grid-column-end',  $scene.attr('oldx-end'))
+            .css('z-index',  $scene.attr('oldz'))
+            .removeClass('p-1');;
+    }
+}
+
 async function updateSceneDetails($scene){
     const sceneId = $scene.data('scene-id');
     const result = await fetch(`/scene/${sceneId}?api=true`);
@@ -385,11 +445,9 @@ async function updateSceneDetails($scene){
             }
         }
         if ($scene.attr('expanded-staff') === 'true'){
-            console.log('showing staff');
             $scene.find('.scene-staff-list').collapse('show');
         }
         if ($scene.attr('expanded-player') === 'true'){
-            console.log('showing players');
             $scene.find('.scene-player-list').collapse('show');
         }
     });

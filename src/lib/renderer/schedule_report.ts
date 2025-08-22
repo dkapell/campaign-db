@@ -459,7 +459,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
     async function sceneLabelsReport(){
         const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
-        let scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
+        const scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
 
         if (options.order && options.order == 'timeslot'){
             scenes.sort((a,b) => {

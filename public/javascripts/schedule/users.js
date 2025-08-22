@@ -72,9 +72,13 @@ async function showUsersBtn(e){
     }
     hideMessages();
     scrollToTimeslot(timeslotId);
-
-    $(`.timeslot-header[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
-    $(`.schedule-cell[data-timeslot-id=${timeslotId}]`).addClass('text-bg-info');
+    console.log('here');
+    $(`.timeslot-header[data-timeslot-id=${timeslotId}]`)
+        .removeClass('bg-body')
+        .addClass('text-bg-info');
+    $(`.schedule-cell[data-timeslot-id=${timeslotId}]`)
+        .removeClass('bg-body-secondary')
+        .addClass('bg-info');
 
     let icon = 'fa-users';
     if (type === 'player'){icon = 'fa-user'; }
@@ -166,7 +170,10 @@ function formatUsersData(data, type){
                 if ($scene.find('.scene-details').hasClass('show')){
                     updateSceneDetails($scene);
                 } else {
-                    $scene.find('.scene-details').collapse('show');
+                    const $siblings = $(`.scene-item[cell="${$scene.attr('cell')}"]`);
+                    if ($siblings.length < 2){
+                        $scene.find('.scene-details').collapse('show');
+                    }
                 }
             });
         }

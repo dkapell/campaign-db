@@ -144,6 +144,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-cleanup=scene.cleanup_slots
             data-assign-players=scene.assign_players?'true':'false'
             data-open=(scene.player_count_max - playerCount > 0 || scene.for_anyone)?'false':'true'
+            expanded='false'
         )
             .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
                 if xAxisType !== 'location'

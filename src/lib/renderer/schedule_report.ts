@@ -48,7 +48,10 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     return doc;
 
     async function playerReport(){
-        for (const attendee of event.attendees){
+        const players = event.attendees
+            .filter(attendee => { return attendee.attending && attendee.user.type === 'player'})
+            .sort((a,b) => { return a.character.name.localeCompare(b.character.name);})
+        for (const attendee of players){
             if (!attendee.attending) { continue; }
             if (attendee.user.type !== 'player'){ continue; }
             if (!_.has(options, 'indent')){
@@ -230,7 +233,18 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     }
 
     async function scenesReport(){
-        const scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
+        const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
+        const scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
+            .sort((a,b) => {
+                const aTimeslots = a.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
+                const bTimeslots = b.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
+                const aTimeslotIdx = _.findIndex(allTimeslots, {id: aTimeslots[0].id});
+                const bTimeslotIdx = _.findIndex(allTimeslots, {id: bTimeslots[0].id});
+                if (aTimeslots !== bTimeslotIdx){
+                    return aTimeslotIdx - bTimeslotIdx
+                }
+                return a.name.localeCompare(b.name);
+            });
         for (let scene of scenes){
             scene = scheduleHelper.formatScene(scene);
             doc.addPage();
@@ -444,7 +458,19 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     }
 
     async function sceneLabelsReport(){
-        const scenes = await models.scene.find({event_id:eventId, status:'confirmed'});
+        const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
+        const scenes = (await models.scene.find({event_id:eventId, status:'confirmed'}))
+            .sort((a,b) => {
+                const aTimeslots = a.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
+                const bTimeslots = b.timeslots.filter(timeslot => { return timeslot.scene_schedule_status === 'confirmed'});
+                const aTimeslotIdx = _.findIndex(allTimeslots, {id: aTimeslots[0].id});
+                const bTimeslotIdx = _.findIndex(allTimeslots, {id: bTimeslots[0].id});
+                if (aTimeslots !== bTimeslotIdx){
+                    return aTimeslotIdx - bTimeslotIdx
+                }
+                return a.name.localeCompare(b.name);
+            });
+
         if (scenes.length){
             doc.addPage({margins:options.margins});
         }

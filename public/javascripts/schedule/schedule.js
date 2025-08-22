@@ -371,6 +371,14 @@ function expandScene($scene){
         $scene.attr('oldy-start', $scene.css('grid-row-start'));
         $scene.attr('oldx-end', $scene.css('grid-column-end'));
         $scene.attr('oldy-end', $scene.css('grid-row-end'));
+        $scene.attr('oldmargin', $scene.css('margin'));
+        if ($scene.find('.scene-display').hasClass('m-1')){
+            $scene.attr('old-inner-margin', 'true');
+        } else {
+            $scene.find('.scene-display').addClass('m-1');
+            $scene.attr('old-inner-margin', 'false');
+        }
+
 
         $scene.attr('oldz', $scene.css('z-index'));
         let rows = xAxisType==='location'?1:$('#cellsPerSlot').val();
@@ -380,6 +388,7 @@ function expandScene($scene){
             .css('grid-row-start', $cell.css('grid-row-start'))
             .css('grid-column-start', $cell.css('grid-column-start'))
             .css('z-index', Number($scene.css('z-index')) + 1)
+            .css('margin', 0)
             .addClass('p-1');
         if (xAxisType ==='location'){
             $scene.css('grid-column-end', $cell.css('grid-column-end'));
@@ -405,7 +414,12 @@ function restoreScene($scene){
             .css('grid-row-end', $scene.attr('oldy-end'))
             .css('grid-column-end',  $scene.attr('oldx-end'))
             .css('z-index',  $scene.attr('oldz'))
-            .removeClass('p-1');;
+            .css('margin',  $scene.attr('oldmargin'))
+
+            .removeClass('p-1');
+        if ($scene.attr('old-inner-margin') === 'false'){
+            $scene.find('.scene-display').removeClass('m-1');
+        }
     }
 }
 

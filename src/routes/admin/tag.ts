@@ -27,6 +27,7 @@ async function showNew(req, res, next){
         res.locals.tag = {
             name: null,
             type: null,
+            display_to_pc:false
         };
 
         res.locals.breadcrumbs = {
@@ -83,6 +84,12 @@ async function create(req, res){
     req.session.tagData = tag;
     tag.campaign_id = req.campaign.id;
 
+    for (const field of ['display_to_pc']){
+        if (!_.has(tag, field)){
+            tag[field] = false;
+        }
+    }
+
     try{    
         const id = await req.models.tag.create(tag);
         await req.audit('tag', id, 'create', {new:tag});
@@ -99,6 +106,12 @@ async function update(req, res){
     const id = req.params.id;
     const tag = req.body.tag;
     req.session.tagData = tag;
+
+    for (const field of ['display_to_pc']){
+        if (!_.has(tag, field)){
+            tag[field] = false;
+        }
+    }
 
     try {
         const current = await req.models.tag.get(id);

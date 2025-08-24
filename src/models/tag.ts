@@ -7,7 +7,8 @@ const tableFields = [
     'id',
     'campaign_id',
     'type',
-    'name'
+    'name',
+    'display_to_pc'
 ];
 
 interface TagIModel extends IModel {
@@ -26,7 +27,7 @@ Tag.getByName = async function getByName(type, name, campaignId){
         await cache.store(`tagCache-${type}-name`, `${campaignId}-${name}`, tag);
         return tag;
     } else {
-        const id = await this.create({type: type, name:name, campaign_id:campaignId});
+        const id = await this.create({type: type, name:name, campaign_id:campaignId, display_to_pc:type==='glossary'});
         return this.get(id);
     }
 };

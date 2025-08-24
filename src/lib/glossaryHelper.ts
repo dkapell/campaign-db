@@ -60,6 +60,9 @@ async function prepEntries(glossary_entries, is_gm:boolean, campaignId:number){
                 entry: '<p><i>No Content</i></p>'
            }
         }
+        if (!is_gm){
+            entry.tags = entry.tags.filter(tag => { return tag.display_to_pc});
+        }
         return entry;
     });
 };

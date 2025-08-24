@@ -4,6 +4,23 @@ block content
     a.btn.btn-outline-success.my-2(href='/admin/tag/new')
         span(class="fa fa-plus")
         |  New Tag
+    .row
+        .col
+            .alert.alert-info
+                | If a tag is PC Visible, it will be displayed to PCs depending on the type:
+                ul.my-1
+                    li
+                        strong.me-1 User:
+                        span Displayed on the 'My Profile' page.
+                    li
+                        strong.me-1 Scene:
+                        span Displayed on the Schedule and Agenda pages.
+                    li
+                        strong.me-1 Glossary
+                        span Displayed by Default.  On Glossary Entries.
+                    li
+                        strong.me-1 Location:
+                        span Not displayed.
 
     .table-responsive
         .col-sm-6.offset-sm-3.text-center#tableLoading
@@ -18,6 +35,7 @@ block content
                     th
                     th(data-priority="1") Name
                     th Type
+                    th PC Visible?
                     if checkPermission('admin')
                         th
 
@@ -27,6 +45,11 @@ block content
                         td.dtr-control
                         td= tag.name
                         td= capitalize(tag.type)
+                        td
+                            if tag.display_to_pc
+                                .badge.text-bg-success Yes
+                            else
+                                .badge.text-bg-warning No
                         
                         if checkPermission('admin')
                             td.text-end

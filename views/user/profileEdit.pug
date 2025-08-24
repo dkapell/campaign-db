@@ -11,6 +11,16 @@ block content
                     form.form.needs-validation#userForm(method="POST" action="/user/profile" novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
+                        -
+                            const tags = user.tags.filter(tag => {
+                                return checkPermission('contrib') || tag.display_to_pc
+                            })
+                        if tags.length
+                            .row.my-2
+                                .col-md
+                                    span.me-2 Tags:
+                                    for tag of tags
+                                        .badge.text-bg-info.me-2=tag.name
                         .row.my-2
                             .col-md
                                 a.btn.btn-outline-info.btn-sm(

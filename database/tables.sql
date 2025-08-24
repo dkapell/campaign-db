@@ -324,6 +324,7 @@ create table tags(
     campaign_id     int not null,
     name citext not null,
     type tag_type not null,
+    display_to_pc boolean default false,
     primary key(id),
     unique(campaign_id, name, type),
     CONSTRAINT glossary_tags_campaign_fk FOREIGN KEY (campaign_id)

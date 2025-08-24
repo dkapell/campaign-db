@@ -45,6 +45,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
 
     if (forPlayer){
         output.name = scene.player_name?scene.player_name:scene.name;
+        output.tags = _.pluck(scene.tags.filter(tag => { return tag.display_to_pc}), 'name');
     } else {
         output.name = scene.name;
         output.player_name = scene.player_name;

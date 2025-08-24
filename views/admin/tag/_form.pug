@@ -11,6 +11,11 @@
             option
             for type in ['glossary', 'scene', 'user', 'location']
                 option(value=type selected=tag.type===type)= capitalize(type)
+    .col
+        .form-check.form-switch
+            input.form-check-input#tag_display_to_pc(type="checkbox" name="tag[display_to_pc]" checked=tag.display_to_pc)
+            label.form-check-label(for="tag_display_to_pc") Display to PCs?
+
             
 .row.my-3
     .col

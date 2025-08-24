@@ -3,6 +3,17 @@
 import fontHelper from './fontHelper';
 import _ from 'underscore';
 
+const colors = {
+    success: '#18bc9c',
+    warning: '#f39c12',
+    danger: '#e74c3c',
+    primary: '#2c3e50',
+    secondary: '#95a5a6',
+    info: '#3498db',
+    dark: '#7b8a8b',
+    light: '#7b8a8b'
+};
+
 async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
     const fontsDir = __dirname + '/../../fonts/'
 
@@ -154,5 +165,6 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
 export default {
     registerFonts,
     capitalize,
-    renderGoogleDocument
+    renderGoogleDocument,
+    colors
 }

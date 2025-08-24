@@ -303,7 +303,6 @@ async function editSkill(e){
     data.marked = marked;
     data.modal = true;
     data.backto = 'modal';
-
     $modal.find('.modal-title').text(`Edit Skill: ${data.character_skill.name}`);
     $modal.find('.modal-body').html(editskillformTemplate(data));
 

@@ -145,7 +145,7 @@ block maincontent
                                         data-phase='all'
                                         data-csrf=csrfToken
                                     )
-                                        .text-dark
+                                        .text-body-secondary
                                             i.fa.fa-calendar-alt.me-1
                                             | All
 
@@ -185,8 +185,8 @@ block maincontent
                             option(
                                 value=attendance.user.id
                                 title=attendance.user.name
-                                data-text=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
-                                data-html=`<span class="${attendance.user.type === 'player'?'text-dark':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                data-text=`<span class="${attendance.user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
+                                data-html=`<span class="${attendance.user.type === 'player'?'text-success':'text-danger'}"><strong>${type}</strong>:</span> ${attendance.user.name}`
                             ) #{capitalize(attendance.user.name)} (#{type})
             -
                 const tags = [];
@@ -443,7 +443,7 @@ block maincontent
                     style=`grid-template-columns: repeat(${unscheduledColumns*(xAxisType==='location'?cellsPerSlot:1)}, 1fr); grid-template-rows: 30px; grid-auto-rows: minmax(${rowHeight}px, auto); min-height: ${rowHeight}px`
                 )
                     div.px-2.py-1(style='grid-row:1; grid-column: 1 / span 10')
-                        span.float-start.text-dark(style='z-index:0') Unscheduled Scenes
+                        span.float-start.text-body-secondary(style='z-index:0') Unscheduled Scenes
 
             each scene in scenes
                 +sceneScheduleItem(scene, xAxisType, cellsPerSlot)

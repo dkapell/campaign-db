@@ -6,17 +6,6 @@ import models from '../models';
 import markdown from './markdown';
 import pdfHelper from '../pdfHelper';
 
-const colors = {
-    success: '#18bc9c',
-    warning: '#f39c12',
-    danger: '#e74c3c',
-    primary: '#2c3e50',
-    secondary: '#95a5a6',
-    info: '#3498db',
-    dark: '#7b8a8b'
-};
-
-
 async function renderCharacter(characters: CharacterData[], options: CharacterSheetOptions): Promise<PDFKit.PDFDocument> {
     if (!options) {
         options = {};
@@ -333,7 +322,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
             for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc && tag.on_sheet){
-                    doc.fillColor(colors[tag.color?tag.color:'info']);
+                    doc.fillColor(pdfHelper.colors[tag.color?tag.color:'info']);
                     doc.font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
                     doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
                     doc.font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});
@@ -395,7 +384,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
 
             for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc){
-                    const color = colors[tag.color?tag.color:'info'];
+                    const color = pdfHelper.colors[tag.color?tag.color:'info'];
                     doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
                     doc.fillColor(color).font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
                     doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});

@@ -105,6 +105,7 @@ async function showNew(req, res, next){
             staff_drive_folder: null,
             permissions: [],
             documentations: [],
+            tags:[]
         };
         res.locals.breadcrumbs = {
             path: [

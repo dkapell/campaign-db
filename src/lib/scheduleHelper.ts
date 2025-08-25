@@ -903,6 +903,9 @@ async function reportPdf(eventId, reportName, reportConfig){
 function scheduleVisibleMiddleware(req, res, next){
     req.isScheduleVisible = async function isScheduleVisible(eventId:number):Promise<boolean>{
         const event = await models.event.get(eventId);
+        if (!req.campaign.display_schedule){
+            return false;
+        }
         switch (event.schedule_status){
             case 'private':
                 return req.checkPermission('admin, scheduler');

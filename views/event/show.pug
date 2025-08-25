@@ -33,7 +33,7 @@ block content
                         )
                             i.fas.fa-hat-wizard.recalc-icon
                             |  Grant Event #{currentCampaign.renames.cp.singular}
-                    if schedulerHeader && new Date(event.start_time) > new Date() && !event.schedule_read_only
+                    if checkPermission('admin, scheduler') && currentCampaign.display_schedule  && event.schedule_status === 'private' && new Date(event.start_time) > new Date() && !event.schedule_read_only
                         a.btn.btn-sm.btn-outline-primary.ms-2(
                             href=`/event/${event.id}/scheduler`
                         )

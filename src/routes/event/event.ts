@@ -50,8 +50,7 @@ async function show(req, res, next){
             return req.models.user.get(req.campaign.id, campaign_user.user_id);
         });
 
-        res.locals.schedulerHeader = await req.isScheduleVisible(event.id) && event.schedule_status.match(/^(private|gm only)$/);
-        res.locals.scheduleVisible = await req.isScheduleVisible(event.id) && !event.schedule_status.match(/^(private|gm only)$/);;
+        res.locals.scheduleVisible = await req.isScheduleVisible(event.id) && event.schedule_status !== 'private';
 
         if ((req.checkPermission('event') && event.schedule_status !== 'private') ||
             (req.checkPermission('player') && event.schedule_status === 'player visible')){

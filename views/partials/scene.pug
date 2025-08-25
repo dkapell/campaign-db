@@ -636,6 +636,17 @@ mixin issueTable(scenes, simpleTable=false, allowedEdit=false)
 
 
 mixin sceneCard(scene, full=false)
+    -
+        const characterIds = [];
+        for (const status of ['confirmed', 'suggested']){
+            if (scene.players[status]){
+                for (const player of scene.players[status]){
+                    if (player.character){
+                        characterIds.push(player.character.id);
+                    }
+                }
+            }
+        }
     .card
         .card-header
             .row
@@ -679,6 +690,23 @@ mixin sceneCard(scene, full=false)
                 .row.my-1
                     .col
                         strong= currentCampaign.renames.non_exclusive.singular
+
+            if checkPermission('event') && scene.staff_url
+                a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
+                    | Staff Writeup
+                    i.fa.fa-external-link.ms-1
+            if scene.player_url
+                a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
+                    | Player Writeup
+                    i.fa.fa-external-link.ms-1
+
+            if checkPermission('contrib') && characterIds.length
+                a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
+                    href=`/report/group?group=${characterIds.join(',')}`
+                    title="Group Report"
+                )
+                    i.fas.fa-calculator.me-1
+                    | Group Report
 
             if full && checkPermission('gm')
                 .position-absolute.top-0.end-0.pe-3.pt-3
@@ -937,46 +965,16 @@ mixin sceneCard(scene, full=false)
                                             +skillEntry(skill)
 
 
-        -
-            const characterIds = [];
-            for (const status of ['confirmed', 'suggested']){
-                if (scene.players[status]){
-                    for (const player of scene.players[status]){
-                        if (player.character){
-                            characterIds.push(player.character.id);
-                        }
-                    }
-                }
-            }
-
-
         if (checkPermission('event') && scene.staff_url) || scene.player_url || (checkPermission('contrib') && characterIds.length)
             .card-footer
-                if checkPermission('event') && scene.staff_url
-                    a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
-                        | Staff Writeup
-                        i.fa.fa-external-link.ms-1
-                if scene.player_url
-                    a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
-                        | Player Writeup
-                        i.fa.fa-external-link.ms-1
-
-                if checkPermission('contrib') && characterIds.length
-                    a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
-                        href=`/report/group?group=${characterIds.join(',')}`
-                        title="Group Report"
-                    )
-                        i.fas.fa-calculator.me-1
-                        | Group Report
-
                 if !full && checkPermission('contrib')
-                    .float-end.ms-1
-                        a.btn.btn-sm.btn-outline-info(
-                            href=`/scene/${scene.id}`
-                            title="View Scene"
-                            data-bs-toggle='tooltip'
-                        )
-                            i.fas.fa-eye
+                    a.btn.btn-sm.btn-outline-info(
+                        href=`/scene/${scene.id}`
+                        title="View Scene"
+                        data-bs-toggle='tooltip'
+                    )
+                        i.fas.fa-eye.me-1
+                        | View Scene
                 if checkPermission('event')
                     .float-end.text-end(style='font-size:0.7rem')
                         span.me-1 Created:

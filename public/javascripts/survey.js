@@ -295,7 +295,11 @@ async function showSceneFeedback(e){
             staff: [ 'Staffer One (NPC One)', 'Staffer Two (NPC Two)', 'Staffer Three (NPC Three)' ],
             writer: 'Staffer One'
         },
-        field: $this.closest('.sceneList').data('field')
+        field: $this.closest('.sceneList').data('field'),
+        user_type_map: $this.closest('.sceneList').data('user-type-map'),
+        capitalize: function(string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
 
     }
 

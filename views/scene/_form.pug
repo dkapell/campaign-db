@@ -45,7 +45,7 @@ if (backto)
                         case 'confirmed': badgeClass = 'success'; textClass = 'success'; break;
                         case 'postponed': badgeClass = 'danger'; textClass = 'danger'; break;
                     }
-                    if ((status === 'scheduled' || status === 'confirmed') && !checkPermission('admin')){
+                    if ((status === 'scheduled' || status === 'confirmed')){
                         badgeClass += ' disabled'
                     }
                 option(
@@ -53,7 +53,7 @@ if (backto)
                     selected=status===scene.status
                     data-text=`<span class="badge text-bg-${badgeClass}">${capitalize(status)}</span>`
                     data-html=`<span class="text-${textClass}">${capitalize(status)}</span>`
-                    disabled=(status === 'scheduled' || status === 'confirmed' ) && !checkPermission('admin')
+                    disabled=(status === 'scheduled' || status === 'confirmed' )
                 )= capitalize(status)
 
 

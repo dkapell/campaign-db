@@ -94,6 +94,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     style='display:none'
                     disabled=disabled
                     data-field=field
+                    data-user-type-map=currentCampaign.user_type_map
                 )
                 .col-sm-6.offset-sm-3.text-center.sceneListLoading
                     .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")

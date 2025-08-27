@@ -20,7 +20,7 @@ if field.description
             span.ms-2= scene.writer
 .row.my-2
     .col
-        strong Staff:
+        strong Staff/NPCs:
         span.ms-2= scene.staff.join(', ')
 
 -
@@ -29,7 +29,7 @@ if field.description
 .row.my-2
     .col
         .custom-event-field
-            +markdownEditor('Feedback for GMs only', 'scene_gm_feedback', 'scene_feedback[gm_feedback]', rows, height, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
+            +markdownEditor(`Feedback for ${capitalize(user_type_map['core staff'].name)} only`, 'scene_gm_feedback', 'scene_feedback[gm_feedback]', rows, height, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
 .row.mt-2.mb-1
     .col

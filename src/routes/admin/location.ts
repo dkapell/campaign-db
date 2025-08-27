@@ -123,7 +123,7 @@ async function create(req, res){
         }
     }
     for (const field of ['image_id']){
-        if (!_.has(location, field) || !location[field] || Number(location[field]) === -1){
+        if (!_.has(location, field) || location[field] === '' || Number(location[field]) === -1){
             location[field] = null;
         }
     }

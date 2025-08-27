@@ -256,16 +256,64 @@ async function loadFakeSchedule(){
             }
         ],
         isPlayer: $('#survey-preview-as').val(),
-        disabled: true
+        preview: true
     };
 
     $('.sceneList').html(sceneListTemplate(data));
     $('.sceneListLoading').hide();
     $('.sceneList').show();
+    $('.feedback-edit').on('click', showSceneFeedback);
     $('.sceneList').find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
     $('.sceneList').find('.select2').select2({
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
     });
+
+async function showSceneFeedback(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+    const sceneId = $this.data('scene-id');
+
+    const disabled = $(this).data('disabled');
+    $this.find('.feedback-icon').removeClass('fa-edit').addClass('fa-sync').addClass('fa-spin');
+    const data = {
+        attendance: {id:1},
+        scene: {
+            id: 1,
+            gm_feedback: 'Testing',
+            npc_feedback: 'Test',
+            name: 'Preview Scene Three',
+            timeslots: [ {name: 'Sat 1pm'}],
+            staff: [ 'Staffer One', 'Staffer Two', 'Staffer Three' ],
+            writer: 'Staffer One'
+        },
+        field: {
+            description: $this.closest('.sceneList').data('field-description')
+        }
+    }
+
+    data.modal = true;
+    data.backto = 'modal';
+    data.disabled = disabled;
+    data.csrfToken = $('#csrfToken').val();
+    const $modal = $('#surveyModal');
+
+    $modal.find('.modal-title').text(`Edit Feedback for ${$this.data('scene-name')}`);
+    $modal.find('.modal-body').html(newFeedbackTemplate(data));
+
+    $modal.find('.save-btn').hide();
+
+    $modal.modal('show');
+
+    $modal.on('hidden.bs.modal', function(e){
+        $modal.modal('dispose');
+        $this.find('.feedback-icon').removeClass('fa-sync').addClass('fa-edit').removeClass('fa-spin');
+        $modal.find('.save-btn').show();
+    });
+}
 }

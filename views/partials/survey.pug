@@ -89,7 +89,12 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                 if field.description
                     .form-text!=marked.parseInline(field.description, {breaks:true})
 
-                .sceneList(id='${idPrefix}_${field.id' style='display:none' disabled=disabled)
+                .sceneList(
+                    id='${idPrefix}_${field.id'
+                    style='display:none'
+                    disabled=disabled
+                    data-field-description=field.description
+                )
                 .col-sm-6.offset-sm-3.text-center.sceneListLoading
                     .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                         .visually-hidden Table is Loading

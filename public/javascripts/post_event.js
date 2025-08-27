@@ -278,10 +278,11 @@ async function showSceneFeedback(e){
     data.csrfToken = $('#csrfToken').val();
     const $modal = $('#surveyModal');
 
-    $modal.find('.modal-title').text(`Edit Feedback for ${$this.data('scene-name')}`);
     if (data.scene.feedback_id){
+        $modal.find('.modal-title').text(`Edit Feedback for ${$this.data('scene-name')}`);
         $modal.find('.modal-body').html(editFeedbackTemplate(data));
     } else {
+        $modal.find('.modal-title').text(`Provide Feedback for ${$this.data('scene-name')}`);
         $modal.find('.modal-body').html(newFeedbackTemplate(data));
     }
 

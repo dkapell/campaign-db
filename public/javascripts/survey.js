@@ -1,3 +1,4 @@
+/* globals sceneListTemplate */
 let nextSurveyFieldIndex = 0;
 $(function(){
     $('.select2').select2({
@@ -10,6 +11,7 @@ $(function(){
 
     $('#survey-preview-as').on('change', updateSurveyFieldVisibility);
     updateSurveyFieldVisibility();
+    if ($('.sceneList').length){ loadFakeSchedule();}
 });
 
 function prepSurveyFields(){
@@ -225,5 +227,45 @@ function updateSurveyFieldVisibility(e){
                 $field.find('select').attr('disabled', false);
                 break;
         }
+    });
+}
+
+async function loadFakeSchedule(){
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+
+    const scheduleResult = await fetch(`/event/${eventId}/post_event/${attendanceId}/schedule`);
+    const data = {
+        scenes: [
+            {
+                id: 1,
+                name: 'Preview Scene One',
+                timeslots: [ {name: 'Sat 12pm', display_name: 'Noon'}]
+            },
+            {
+                id: 2,
+                name: 'Preview Scene Two',
+                timeslots: [ {name: 'Sat 1pm'}]
+            }
+        ],
+        userScenes: [
+            {
+                id: 3,
+                name: 'Preview Scene Three',
+                timeslots: [ {name: 'Sat 1pm'}]
+            }
+        ],
+        isPlayer: $('#survey-preview-as').val(),
+        disabled: true
+    };
+
+    $('.sceneList').html(sceneListTemplate(data));
+    $('.sceneListLoading').hide();
+    $('.sceneList').show();
+    $('.sceneList').find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+    $('.sceneList').find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
     });
 }

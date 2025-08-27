@@ -64,7 +64,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                     select.form-select.select2(id=`${idPrefix}_${field.id}` name=`${namePrefix}[${field.id}]` data-placeholder=field.placeholder required=field.required data-isrequired=field.required disabled=disabled)
                         if field.placeholder
                             option
-                        for item of field.options
+                        each item in field.options
                             option(value=item selected=item===currentValue)= item
                     button.btn.btn-outline-primary.survey-dropdown-clear-btn
                         i.fa.fa-times-circle.me-1
@@ -84,6 +84,17 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                 if field.content
                     div.my-3.border-bottom.pb-2!= marked.parseInline(field.content, {breaks:true})
 
+            when 'scene'
+                label.control-label(for=`${idPrefix}_${field.id}`)= field.name
+                if field.description
+                    .form-text!=marked.parseInline(field.description, {breaks:true})
+
+                .sceneList(id='${idPrefix}_${field.id' style='display:none' disabled=disabled)
+                .col-sm-6.offset-sm-3.text-center.sceneListLoading
+                    .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                        .visually-hidden Table is Loading
+
+
 mixin customSurveyFieldDisplay(field, value)
     if field.type !== 'text content'
         -
@@ -94,26 +105,45 @@ mixin customSurveyFieldDisplay(field, value)
         )
             .col
                 h5= field.name
-                .card.text-bg-light.ms-md-4
+                if field.type === 'scene'
+                    each feedback in value
+                        +displaySceneFeedback(feedback)
+                else
+                    .card.text-bg-light.ms-md-4
+                        .card-body.p-2
+                            if noResponse
+                                i No Answer Provided
+                            else
+                                case field.type
+                                    when 'text'
+                                        != marked.parseInline(value, {breaks:false})
+                                    when 'longtext'
+                                        != marked.parseInline(value, {breaks:true})
+                                    when 'dropdown'
+                                        = value
+                                    when 'boolean'
+                                        =value?'Yes':'No'
+                                    when 'image'
+                                        image.d-block.img-fluid.image-container(
+                                            src=value.thumbnailUrl
+                                        )
+
+
+mixin displaySceneFeedback(feedback)
+    .row.my-2
+        .col
+            h5.ms-md-2
+                a(href=`/scene/${feedback.scene.id}` target='_blank')= feedback.scene.name
+            if checkPermission('gm') && feedback.gm_feedback
+                strong.ms-md-4 GM Feedback
+                .card.text-bg-light.ms-md-4.my-1
                     .card-body.p-2
-                        if noResponse
-                            i No Answer Provided
-                        else
-                            case field.type
-                                when 'text'
-                                    != marked.parseInline(value, {breaks:false})
-                                when 'longtext'
-                                    != marked.parseInline(value, {breaks:true})
-                                when 'dropdown'
-                                    = value
-                                when 'boolean'
-                                    =value?'Yes':'No'
-                                when 'image'
-                                    image.d-block.img-fluid.image-container(
-                                        src=value.thumbnailUrl
-                                    )
-
-
+                        != marked.parseInline(feedback.gm_feedback)
+            if feedback.npc_feedback
+                strong.ms-md-4 NPC Feedback
+                .card.text-bg-light.ms-md-4.my-1
+                    .card-body.p-2
+                        != marked.parseInline(feedback.npc_feedback)
 
 
 mixin surveyDefinitionHeader()
@@ -184,7 +214,7 @@ mixin surveyField(field,  idx)
                         data-placeholder='Type'
                     )
                         option
-                        each type in ['text', 'longtext', 'boolean', 'dropdown', 'image', 'text content']
+                        each type in ['text', 'longtext', 'boolean', 'dropdown', 'image', 'text content', 'scene']
                             option(value=type selected=type===field.type)= type
 
                     label.control-label.survey_field-label(
@@ -386,3 +416,114 @@ mixin surveyField(field,  idx)
                 small.form-text.text-muted.d-inline.ms-2 Supports
                     a.ms-1(href='https://commonmark.org/help/' target='_blank') Markdown
                         i.fas.fa-external-link-alt.ms-1
+
+mixin questionScenes(scenes, userScenes)
+    .row.mb-1
+        .col.px-2
+            .table-responsive
+                table.table.table-sm.table-striped
+                    thead
+                        tr
+                            th Timeslot
+                            th Scene Name
+                            th.text-end Actions
+                    tbody
+                        - const userSceneList = [];
+                        each scene in userScenes
+                            -
+                                if (scene.skipped){
+                                    continue;
+                                }
+                                if (_.indexOf(userSceneList, scene.id) !== -1){
+                                    continue;
+                                }
+                                userSceneList.push(scene.id);
+                                let hasFeedback = false;
+                                if (scene.gm_feedback && scene.gm_feedback !== ''){
+                                    hasFeedback = true;
+                                } else if (scene.npc_feedback && scene.npc_feedback !== ''){
+                                    hasFeedback = true;
+                                }
+                                let sceneName = scene.name;
+                                if (scene.player_name && isPlayer){
+                                    sceneName == ` (${scene.player_name})`
+                                }
+
+                            tr
+                                td
+                                    small #{scene.timeslots[0].name}
+                                        if scene.timeslots[0].display_name
+                                            span.ms-1 (#{scene.timeslots[0].display_name})
+                                td= sceneName
+                                    if hasFeedback
+                                        .badge.text-bg-success.ms-2.d-md-inline
+                                            i.fas.fa-check-circle.me-1
+                                            | Feedback Provided
+                                td.text-end
+                                    .btn-group
+                                        -
+                                            let btnText = 'Provide Feedback'
+                                            if (disabled){
+                                                if (hasFeedback){
+                                                    btnText = 'View Feedback'
+                                                } else {
+                                                    btnText = 'No Feedback'
+                                                }
+                                            } else {
+                                                if (hasFeedback){
+                                                    btnText = 'Edit Feedback'
+                                                }
+                                            }
+
+                                        if !disabled || hasFeedback
+                                            button.btn.btn-sm.btn-outline-primary.feedback-edit.d-inline-block(
+                                                role='button'
+                                                data-scene-id=scene.id
+                                                title=btnText
+                                                data-scene-name=sceneName
+                                                data-bs-toggle='tooltip'
+                                                data-disabled=disabled?'true':'false'
+                                            )
+                                                if disabled
+                                                    i.fas.fa-eye.feedback-icon
+                                                    .d-none.d-lg-inline.ms-1 #{btnText}
+                                                else
+                                                    i.fas.fa-edit.feedback-icon
+                                                    .d-none.d-lg-inline.ms-1 #{btnText}
+                                        if !disabled
+                                            button.btn.btn-sm.btn-outline-danger.ms-1.feedback-remove.d-inline-block(
+                                                role='button'
+                                                data-scene-id= scene.id
+                                                data-bs-toggle='tooltip'
+                                                title="Remove from List"
+                                                disabled=disabled
+                                            )
+                                                i.fas.fa-trash.feedback-icon
+                                                span.ms-1.d-none.d-xl-inline Remove
+    if !disabled
+        .row.mb-2
+            .col.px-2
+                .input-group.scenePicker
+                    select.form-select.select2.scene-select(data-placeholder='Select an scene to add')
+                        option
+                        for scene in scenes
+                            if _.indexOf(userSceneList, scene.id) === -1
+                                option(value=scene.id) #{scene.timeslots[0].name}: #{scene.name}
+
+                    button.btn.btn-outline-success.feedback-add( type="button")
+                        span.bi.bi-plus-lg
+                        |  Add Scene
+
+
+mixin surveyModal()
+    .modal.modal-fullscreen-lg-down.fade#surveyModal(role="dialog" tabindex="-1" aria-labelledby="popupModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false")
+        .modal-dialog.modal-xl.modal-dialog-centered(role="document")
+            .modal-content
+                .modal-header
+                    h5.modal-title
+                    button.btn-close#dismissPopupModal(type="button", data-bs-dismiss="modal" area-label="Close")
+                .modal-body
+                .modal-footer
+                    button.btn.btn-secondary.close-btn(type="button", data-bs-dismiss="modal") Cancel
+                    span.extra-buttons
+                    button.btn.btn-primary.save-btn(type="submit") Save

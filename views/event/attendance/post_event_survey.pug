@@ -5,6 +5,8 @@ include ../../partials/event
 include ../../partials/survey
 
 block content
+    input#eventId(type='hidden' value=event.id)
+    input#attendanceId(type='hidden' value=attendance.id)
     .row
         .col-xl-10.offset-xl-1
             .card
@@ -24,7 +26,7 @@ block content
                         novalidate
                     )
                         input(type="hidden", name="_method",  value="PUT")
-                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input#csrfToken(type="hidden", name='_csrf',value=csrfToken)
                         if (backto)
                             input(type="hidden" name="backto" value=backto)
 
@@ -47,6 +49,9 @@ block content
                                 let fieldData = null;
                                 if (_.has(attendance.post_event_data, field.id)){
                                     fieldData = attendance.post_event_data[field.id].data;
+                                }
+                                if (field.type === 'scene'){
+                                    fieldData = attendance.schedule;
                                 }
                                 let fieldWillBeShown = true;
                                 if (field.visible_to === 'player' && attendance.user.type !== 'player'){
@@ -185,6 +190,10 @@ block content
                                 else
                                     a.btn.btn-link(href='/') Back
 
+    +surveyModal()
 append scripts
+    script(src='/javascripts/templates/survey/surveySceneList.js')
+    script(src='/javascripts/templates/survey/modalEditFeedbackForm.js')
+    script(src='/javascripts/templates/survey/modalNewFeedbackForm.js')
     script(src='/javascripts/image-upload.js')
     script(src='/javascripts/post_event.js')

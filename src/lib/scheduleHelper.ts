@@ -252,6 +252,23 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
     return output;
 }
 
+function formatSceneForSurvey(scene:FormattedSceneModel){
+    return {
+        id: scene.id,
+        name: scene.name,
+        player_name: scene.player_name,
+        timeslots: scene.timeslots.confirmed,
+        locations: _.pluck(scene.locations.confirmed, 'name'),
+        staff: scene.staff.confirmed?_.pluck(scene.staff.confirmed, 'name'):[],
+        players: scene.players.confirmed?_.pluck(scene.players.confirmed, 'name'):[],
+        writer: scene.writer_id?scene.writer.name:null,
+        feedback_id:scene.feedback_id,
+        gm_feedback: scene.gm_feedback,
+        npc_feedback: scene.npc_feedback,
+        skipped: scene.skipped
+    }
+}
+
 function formatUser(user){
     const doc = {
         id:user.id,
@@ -923,9 +940,21 @@ function scheduleVisibleMiddleware(req, res, next){
     next();
 }
 
+function formatScheduleForSurvey(schedule){
+    return schedule.map(timeslot => {
+        return {
+            name: timeslot.name,
+            display_name: timeslot.name,
+            scenes: timeslot.scenes.map(formatSceneForSurvey)
+        }
+    });
+}
+
 export default {
     validateScene: validator,
     formatScene,
+    formatSceneForSurvey,
+    formatScheduleForSurvey,
     formatUser,
     getEventUsers,
     getEventScenes,

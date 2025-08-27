@@ -1,0 +1,11 @@
+include ../../partials/editor
+
+block content
+    form.form.needs-validation#sceneFeedbackForm(
+        method="POST"
+        action=`/event/${event.id}/post_event/${attendance.id}/${scene.id}/feedback`
+        data-apiurl=`/event/${event.id}/post_event/${attendance.id}/${scene.id}/feedback`
+        novalidate
+    )
+        input(type="hidden", name='_csrf',value=csrfToken)
+        include ./_form.pug

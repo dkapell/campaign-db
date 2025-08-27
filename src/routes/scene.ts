@@ -65,6 +65,39 @@ async function show(req, res, next){
         if (req.checkPermission('gm')){
             res.locals.scene.issues = await scheduleHelper.validateScene(scene);
         }
+        if (req.checkPermission('event')){
+            let feedbacks = (await req.models.scene_feedback.find({scene_id: scene.id}))
+                .filter(feedback => {return !feedback.skipped});
+
+
+            for (const feedback of feedbacks){
+                feedback.event = await req.models.event.get(scene.event_id, {postSelect: async (data) => {return data;}});
+                feedback.response = await req.models.survey_response.get(feedback.survey_response_id);
+                feedback.user = await req.models.user.get(feedback.response.campaign_id, feedback.response.user_id);
+            }
+
+            feedbacks = feedbacks.filter(feedback => {
+                if (!feedback.response.submitted) { return false; }
+                const visibleAt = new Date(feedback.event.end_time);
+                visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
+                if (visibleAt > new Date()){
+                    return false;
+                }
+                if (!feedback.npc_feedback && !req.checkPermission('gm')) { return false; }
+                return true;
+            });
+
+            res.locals.scene.feedbacks = feedbacks.map(feedback => {
+                return {
+                    user: feedback.user,
+                    gm_feedback: feedback.gm_feedback,
+                    npc_feedback: feedback.npc_feedback,
+                    submitted: feedback.response.submitted_at
+                }
+            });
+        }
+
+
         res.locals.title += ` - Scene - ${scene.name}`;
         res.render('scene/show');
     } catch(err){

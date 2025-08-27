@@ -37,6 +37,7 @@ async function show(req, res, next){
             current: survey.name
         };
         res.locals.survey = survey;
+        res.locals.scenes = [];
         res.locals.title += ` - Survey - ${survey.name}`;
         res.render('survey/show');
     } catch(err){

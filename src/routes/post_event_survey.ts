@@ -75,6 +75,10 @@ async function show(req, res, next){
         }
         res.locals.event = event;
         res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
+
+        if (_.findWhere(event.post_event_survey.definition, {type:'scene'})){
+            res.locals.scene_feedback = await surveyHelper.getSceneFeedbacks(attendance.id);
+        }
         if (req.query.backto && req.query.backto === 'event'){
             res.locals.breadcrumbs = {
                 path: [

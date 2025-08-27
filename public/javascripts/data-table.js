@@ -66,21 +66,62 @@ function prepDataTable(){
 
     if ($table.hasClass('table-exportable')){
         const $exportIcon = $('<i>').addClass('fa').addClass('fa-download').addClass('me-1');
-        const $exportBtn = $('<button>')
-            .addClass('btn')
-            .addClass('btn-sm')
-            .addClass('btn-outline-info')
-            .addClass('float-end')
-            .append($exportIcon)
-            .append($('<span>Export CSV</span>'))
-            .attr('data-export', $table.data('export'))
-            .on('click', function(e){
-                e.preventDefault();
-                const url = $(this).data('export');
+        const exportUrl = $table.data('export');
+        const exportText = $table.data('export-text');
+        let $exportBtn;
+        if (typeof exportUrl === 'string'){
+            $exportBtn = $('<button>')
+                .addClass('btn')
+                .addClass('btn-sm')
+                .addClass('btn-outline-info')
+                .addClass('float-end')
+                .append($exportIcon)
+                .append($('<span>Export CSV</span>'))
+                .attr('data-export', $table.data('export'))
+                .on('click', function(e){
+                    e.preventDefault();
+                    const url = $(this).data('export');
 
-                window.open(url, '_self');
-                $(this).blur();
-            });
+                    window.open(url, '_self');
+                    $(this).blur();
+                });
+        } else {
+            $exportBtn = $('<div>')
+                .addClass('btn-group')
+                .addClass('float-end');
+            $('<button>')
+                .addClass('btn')
+                .addClass('btn-sm')
+                .addClass('btn-outline-info')
+                .addClass('dropdown-toggle')
+                .attr('data-bs-toggle', 'dropdown')
+                .attr('aria-expanded', 'false')
+                .append($exportIcon)
+                .append($('<span>Export</span>'))
+                .appendTo($exportBtn);
+            const $menu = $('<li>')
+                .addClass('dropdown-menu')
+                .appendTo($exportBtn);
+            for (let i = 0; i < exportUrl.length; i++){
+                const $li = $('<li>');
+                const $icon = $('<i>').addClass('fa').addClass('fa-download').addClass('me-1');
+                const $a = $('<a>')
+                    .addClass('dropdown-item')
+                    .attr('href', '#')
+                    .append($icon)
+                    .append($(`<span>${exportText[i]}</span>`))
+                    .on('click', function(e){
+                        e.preventDefault();
+                        const url = exportUrl[i];
+                        window.open(url, '_self');
+                        $(this).blur();
+                    })
+                    .appendTo($li);
+                $li.appendTo($menu);
+            }
+
+        }
+
         options.layout = {
             topEnd:null,
             topStart:null,

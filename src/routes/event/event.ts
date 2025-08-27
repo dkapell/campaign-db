@@ -566,6 +566,7 @@ router.get('/:id', show);
 router.get('/:id/edit', permission('gm'), showEdit);
 router.get('/:id/export', permission('contrib, registration view'), attendanceRoutes.export);
 router.get('/:id/export_survey', permission('contrib'), postEventSurveyRoutes.export);
+router.get('/:id/export_survey_scene', permission('gm'), postEventSurveyRoutes.exportScene);
 router.get('/:id/pdf', permission('contrib'), exportPlayerPdfs);
 router.get('/:id/checkout', checkoutEvent);
 router.post('/', permission('gm'), create);
@@ -599,6 +600,13 @@ router.use(function(req, res, next){
     }
     next();
 });
+
+router.get('/:id/post_event/:attendanceId/schedule', postEventSurveyRoutes.getUserSchedule);
+router.get('/:id/post_event/:attendanceId/:sceneId', postEventSurveyRoutes.getSceneApi);
+router.post('/:id/post_event/:attendanceId/:sceneId', postEventSurveyRoutes.addSceneApi);
+router.delete('/:id/post_event/:attendanceId/:sceneId', postEventSurveyRoutes.removeSceneApi);
+router.post('/:id/post_event/:attendanceId/:sceneId/feedback', postEventSurveyRoutes.addSceneFeedback);
+router.put('/:id/post_event/:attendanceId/:sceneId/feedback/:feedbackId', postEventSurveyRoutes.updateSceneFeedback);
 
 router.get('/:id/scheduler', permission('gm'), scheduleRoutes.showScheduler);
 router.get('/:id/schedule', scheduleRoutes.showSchedule);

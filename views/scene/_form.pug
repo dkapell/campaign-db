@@ -30,7 +30,7 @@ if (backto)
         select.form-select.complex-select2#scene_request_status(
             name="scene[status]"
             data-placeholder='Status'
-            disabled=(scene.status==='confirmed'||scene.status==='scheduled') && !checkPermission('admin')
+            disabled=(scene.status==='confirmed'||scene.status==='scheduled')
             required
         )
             option

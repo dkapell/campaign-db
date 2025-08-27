@@ -25,7 +25,9 @@ block content
                         input.form-check-input#showUnanswered(type="checkbox")
                         label.form-check-label(for="showUnanswered") Show Unanswered Questions
             each field in event.post_event_survey.definition
-                if _.has(attendance.post_event_data, field.id)
+                if field.type === 'scene'
+                    +customSurveyFieldDisplay(field, scene_feedback)
+                else if _.has(attendance.post_event_data, field.id)
                     +customSurveyFieldDisplay(field, attendance.post_event_data[field.id].data)
                 else
                     +customSurveyFieldDisplay(field, null)

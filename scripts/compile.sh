@@ -18,3 +18,8 @@
 
 # Scheduling
 ./node_modules/pug-cli/index.js -c --name-after-file -o public/javascripts/templates/event/ views/event/templates/*.pug
+
+# Surveys
+./node_modules/pug-cli/index.js -c --name sceneListTemplate -o public/javascripts/templates/survey/ views/survey/templates/surveySceneList.pug
+./node_modules/pug-cli/index.js -c --name newFeedbackTemplate -o public/javascripts/templates/survey/ views/survey/templates/modalNewFeedbackForm.pug
+./node_modules/pug-cli/index.js -c --name editFeedbackTemplate -o public/javascripts/templates/survey/ views/survey/templates/modalEditFeedbackForm.pug

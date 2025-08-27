@@ -4,6 +4,7 @@ import moment from 'moment';
 import stringify from 'csv-stringify-as-promised';
 
 import surveyHelper from '../../lib/surveyHelper';
+import scheduleHelper from '../../lib/scheduleHelper';
 
 async function showPostEventSurvey(req, res, next){
     const id = req.params.id;
@@ -48,6 +49,7 @@ async function showPostEventSurvey(req, res, next){
             throw new Error ('Invalid Attendance');
         }
         res.locals.attendance = await surveyHelper.fillAttendance(attendance, event);
+
 
         if (_.has(req.session, 'postEventModel')){
             res.locals.attendance.post_event_data = req.session.postEventModel.post_event_data;
@@ -309,6 +311,7 @@ async function exportPostEventSurveys(req, res, next){
         if (event.post_event_survey){
             for (const field of event.post_event_survey.definition){
                 if (field.type === 'text content') { continue; }
+                if (field.type === 'scene') { continue; }
                 header.push(removeMd(field.name));
             }
         }
@@ -322,6 +325,7 @@ async function exportPostEventSurveys(req, res, next){
             if (event.post_event_survey){
                 for (const field of event.post_event_survey.definition){
                     if (field.type === 'text content') { continue; }
+                    if (field.type === 'scene') { continue; }
                     if (field.type==='boolean' || field.type === 'image'){
                         if (_.has(survey.data, field.id)){
                             row.push(survey.data[field.id].data?'Yes':'No');
@@ -348,6 +352,89 @@ async function exportPostEventSurveys(req, res, next){
     }
 }
 
+async function exportPostEventSceneSurveys(req, res, next){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (!event.post_event_survey){
+            throw new Error('Event is not configured with a post event survey');
+        }
+
+        const attendances = event.attendees
+            .filter(attendance => {
+                if (!attendance.post_event_submitted){
+                    return false;
+                }
+                const visibleAt = new Date(event.end_time);
+                visibleAt.setDate(visibleAt.getDate() + req.campaign.post_event_survey_hide_days);
+                if (visibleAt > new Date()){
+                    return false;
+                }
+                return true;
+            })
+
+
+
+        const output = [];
+        const header = [
+            'Attendee',
+            'Type',
+            'Submitted',
+            'Scene',
+            'Timeslot',
+            'Writer',
+            'Staff',
+            'GM Feedback',
+            'NPC Feedback'
+        ];
+
+        output.push(header);
+
+        let sceneOutput = [];
+        for (let attendance of attendances){
+            attendance = await surveyHelper.fillAttendance(attendance, event);
+            const feedbacks = (await req.models.scene_feedback.find({survey_response_id:attendance.post_event_survey_response_id}))
+                .filter(feedback => {return !feedback.skipped});;
+            for (const feedback of feedbacks){
+                const scene = scheduleHelper.formatScene(await req.models.scene.get(feedback.scene_id));
+                let timeslotName = scene.timeslots.confirmed[0].name;
+                if (scene.timeslots.confirmed[0].display_name){
+                    timeslotName += ` (${scene.timeslots.confirmed[0].display_name})`
+                }
+                sceneOutput.push([
+                    attendance.user.name,
+                    attendance.user.typeForDisplay,
+                    moment.utc(attendance.post_event_data.submitted_at).tz(req.campaign.timezone).format('lll'),
+                    scene.name,
+                    timeslotName,
+                    scene.writer?scene.writer.name:null,
+                    scene.staff.confirmed?(_.pluck(scene.staff.confirmed, 'name')).join(', '):null,
+                    feedback.gm_feedback?removeMd(feedback.gm_feedback):null,
+                    feedback.npc_feedback?removeMd(feedback.npc_feedback):null
+                ]);
+
+            }
+        }
+        sceneOutput = sceneOutput.sort((a, b) => {
+            return a[3].localeCompare(b[3]);
+        });
+
+        for (const row of sceneOutput){
+            output.push(row);
+        }
+
+        const csvOutput = await stringify(output, {});
+        res.attachment(`${event.name} - ${req.campaign.renames.post_event_survey.plural} - scenes.csv`);
+        res.end(csvOutput);
+
+    } catch (err) {
+        next(err);
+    }
+}
 async function showAddendum(req, res, next){
     const id = req.params.id;
     //const attendanceId = req.params.attendanceId;
@@ -582,6 +669,414 @@ async function saveAddendumApi(req, res){
     }
 }
 
+async function getUserSchedule(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId
+    try{
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        // Get staff version of schedule
+        const schedule = await scheduleHelper.getUserSchedule(event.id, user.id, false);
+
+        let scenes = (await scheduleHelper.getEventScenes(event.id)).filter(scene => {return scene.status === 'confirmed'});
+
+        let userScenes = [];
+        for (const timeslot of schedule){
+            for (const scene of timeslot.scenes){
+                if (attendance.post_event_survey_response_id){
+                    const feedback = await req.models.scene_feedback.findOne({
+                        survey_response_id:attendance.post_event_survey_response_id,
+                        scene_id:scene.id
+                    });
+                    if (feedback){
+                        for (const field of ['gm_feedback', 'npc_feedback', 'skipped']){
+                            scene[field] = feedback[field];
+                        }
+                        scene.feedback_id = feedback.id;
+                    }
+                }
+                if (!scene.skipped){
+                    userScenes.push(scheduleHelper.formatSceneForSurvey(scene));
+                }
+            }
+        }
+
+        for (const scene of scenes){
+            if (_.findWhere(userScenes, {id:scene.id})){
+                continue;
+            }
+            const feedback = await req.models.scene_feedback.findOne({
+                survey_response_id:attendance.post_event_survey_response_id,
+                scene_id:scene.id
+            });
+            if (feedback && !feedback.skipped){
+                for (const field of ['gm_feedback', 'npc_feedback', 'skipped']){
+                    scene[field] = feedback[field];
+                }
+                userScenes.push(scheduleHelper.formatSceneForSurvey(scene));
+            }
+        }
+
+        const allTimeslots = _.pluck(await req.models.timeslot.find({campaign_id: req.campaign.id}), 'id');
+
+        userScenes = userScenes.sort((a, b) => {
+            return _.indexOf(allTimeslots, a.timeslots[0].id) - _.indexOf(allTimeslots, b.timeslots[0].id)
+        });
+
+        scenes = scenes.sort((a, b) => {
+            if (a.timeslots.confirmed && b.timeslots.confirmed){
+                if (a.timeslots.confirmed[0].id !== b.timeslots.confirmed[0].id){
+                    return _.indexOf(allTimeslots, a.timeslots.confirmed[0].id) - _.indexOf(allTimeslots, b.timeslots.confirmed[0].id)
+                }
+            } else if (a.timeslots.confirmed){
+                return -1;
+            } else if (b.timeslots.confirmed){
+                return 1;
+            }
+            return a.name.localeCompare(b.name);
+        });
+
+        res.json({
+
+            success:true,
+            scenes: scenes.map(scheduleHelper.formatSceneForSurvey),
+            userScenes: userScenes,
+            isPlayer: user.type === 'player'
+        });
+    } catch (err) {
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function getSceneApi(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    const sceneId = req.params.sceneId;
+    try {
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const scene = scheduleHelper.formatScene(await req.models.scene.get(sceneId));
+        if (!scene || scene.campaign_id !== req.campaign.id || scene.event_id !== event.id || scene.status !== 'confirmed'){
+            throw new Error('Invalid Scene');
+        }
+        const response = await getResponse(req, event, attendance);
+        const feedback = await req.models.scene_feedback.findOne({
+            survey_response_id: response.id,
+            scene_id: scene.id
+        });
+        if (feedback){
+            for (const field of ['gm_feedback', 'npc_feedback', 'skipped']){
+                scene[field] = feedback[field];
+            }
+            scene.feedback_id = feedback.id;
+        }
+
+        res.json({
+            success:true,
+            field: _.findWhere(event.post_event_survey.definition, {type:'scene'}),
+            event: {id: event.id},
+            attendance: {id: attendance.id, post_event_survey_response_id:response.id},
+            scene: scheduleHelper.formatSceneForSurvey(scene)
+        });
+    } catch (err){
+        console.trace(err);
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function removeSceneApi(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    const sceneId = req.params.sceneId;
+    try {
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id || scene.event_id !== event.id || scene.status !== 'confirmed'){
+            throw new Error('Invalid Scene');
+        }
+
+        const response = await getResponse(req, event, attendance);
+        if (response.submitted){
+            throw new Error ('Response already submitted');
+        }
+
+        const feedback = await req.models.scene_feedback.findOne({survey_response_id: response.id, scene_id: scene.id});
+
+        if (feedback){
+            feedback.skipped = true;
+            await req.models.scene_feedback.update(feedback.id, feedback);
+        } else {
+            await req.models.scene_feedback.create({
+                survey_response_id: response.id,
+                scene_id:scene.id,
+                skipped: true
+            });
+        }
+        res.json({success:true});
+
+    } catch(err){
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function addSceneApi(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    const sceneId = req.params.sceneId;
+    try {
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id || scene.event_id !== event.id || scene.status !== 'confirmed'){
+            throw new Error('Invalid Scene');
+        }
+
+        const response = await getResponse(req, event, attendance);
+        if (response.submitted){
+            throw new Error ('Response already submitted');
+        }
+
+        const feedback = await req.models.scene_feedback.findOne({survey_response_id: response.id, scene_id: scene.id});
+        if (feedback){
+            feedback.skipped = false;
+            await req.models.scene_feedback.update(feedback.id, feedback);
+        } else {
+            if (scene.users.confirmed || !_.findWhere(scene.users.confirmed, {id:user.id})){
+                await req.models.scene_feedback.create({
+                    survey_response_id: response.id,
+                    scene_id:scene.id,
+                    skipped: false
+                });
+            }
+        }
+        res.json({success:true});
+
+    } catch(err){
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function addSceneFeedback(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    const sceneId = req.params.sceneId;
+    const scene_feedback = req.body.scene_feedback;
+    try {
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id || scene.event_id !== event.id || scene.status !== 'confirmed'){
+            throw new Error('Invalid Scene');
+        }
+
+        const response = await getResponse(req, event, attendance);
+        if (response.submitted){
+            throw new Error ('Response already submitted');
+        }
+
+        scene_feedback.survey_response_id = response.id;
+        scene_feedback.scene_id = scene.id;
+        scene_feedback.skipped = false;
+        const current = await req.models.scene_feedback.findOne({survey_response_id:response.id, scnee_id:scene.id});
+        if (current){
+            await req.models.scene_feedback.update(current.id, scene_feedback);
+        } else {
+            await req.models.scene_feedback.create(scene_feedback);
+        }
+        res.json({success:true});
+    } catch(err){
+        res.json({success:false, error:err.message})
+    }
+}
+
+async function updateSceneFeedback(req, res){
+    const eventId = req.params.id;
+    const attendanceId = req.params.attendanceId;
+    const sceneId = req.params.sceneId;
+    const feedbackId = req.params.feedbackId;
+    const scene_feedback = req.body.scene_feedback;
+    try {
+        if (!req.campaign.display_schedule){
+            throw new Error('Schedule not enabled on this campaign')
+        }
+
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (event.end_time > new Date()){
+            throw new Error('Event has not ended yet');
+        }
+        const attendance = await req.models.attendance.get(attendanceId);
+
+        if (!attendance || attendance.event_id !== event.id){
+            throw new Error('Invalid Registration');
+        }
+
+        const user = await req.models.user.get(event.campaign_id, req.session.activeUser.id);
+        if (!user){
+            throw new Error('Invalid User');
+        }
+
+        const scene = await req.models.scene.get(sceneId);
+        if (!scene || scene.campaign_id !== req.campaign.id || scene.event_id !== event.id || scene.status !== 'confirmed'){
+            throw new Error('Invalid Scene');
+        }
+
+        const response = await getResponse(req, event, attendance);
+        if (response.submitted){
+            throw new Error ('Response already submitted');
+        }
+
+        const current = await req.models.scene_feedback.get(feedbackId);
+        if (!current){
+            throw new Error ('Invalid Scene Feedback');
+        }
+
+        scene_feedback.survey_response_id = response.id;
+        scene_feedback.scene_id = scene.id;
+        scene_feedback.skipped = false;
+        await req.models.scene_feedback.update(feedbackId, scene_feedback);
+
+        res.json({success:true});
+    } catch(err){
+        res.json({success:false, error:err.message})
+    }
+}
+async function getResponse(req, event, attendance){
+    if (attendance.post_event_survey_response_id){
+        return req.models.survey_response.get(attendance.post_event_survey_response_id)
+
+    } else {
+        const surveyResult = {
+            campaign_id: event.campaign_id,
+            user_id: attendance.user_id,
+            event_id: event.id,
+            submitted:false,
+            survey_id: event.post_event_survey_id,
+            survey_definition: JSON.stringify(event.post_event_survey.definition),
+            updated: new Date(),
+            data:{}
+        };
+
+        const surveyResponseId = await req.models.survey_response.create(surveyResult);
+        await req.models.attendance.update(attendance.id, {post_event_survey_response_id:surveyResponseId});
+        return getResponse(req, event, attendance);
+    }
+}
 
 export default {
     show: showPostEventSurvey,
@@ -590,5 +1085,12 @@ export default {
     submitAddendum: submitAddendum,
     saveApi: savePostEventSurveyApi,
     saveAddendumApi: saveAddendumApi,
-    export: exportPostEventSurveys
+    export: exportPostEventSurveys,
+    exportScene: exportPostEventSceneSurveys,
+    getUserSchedule,
+    getSceneApi,
+    removeSceneApi,
+    addSceneApi,
+    addSceneFeedback,
+    updateSceneFeedback
 }

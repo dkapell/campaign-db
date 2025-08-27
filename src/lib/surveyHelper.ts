@@ -1,7 +1,9 @@
 'use strict';
 import _ from 'underscore';
+import async from 'async';
 import { v4 as uuidv4 } from 'uuid';
 import models from './models';
+import scheduleHelper from './scheduleHelper';
 
 function parseSurveyModel(data, survey, current, userType){
     data ||= {};
@@ -230,6 +232,7 @@ async function fillAttendance(attendance, event){
             content: addendum.content
         });
     }
+
     return attendance;
 }
 
@@ -316,6 +319,32 @@ async function getPostEventSurveys(campaignId:number, userId?:number){
     return (_.sortBy(responses, 'submittedAt')).reverse();
 }
 
+async function getSceneFeedbacks(attendanceId){
+    const attendance = await models.attendance.get(attendanceId);
+    const event = await models.event.get(attendance.event_id);
+    const allTimeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+    let feedbacks = await models.scene_feedback.find({survey_response_id: attendance.post_event_survey_response_id});
+    feedbacks = feedbacks.filter(feedback => { return !feedback.skipped});
+    feedbacks = await async.map(feedbacks, async (feedback) => {
+        feedback.scene = scheduleHelper.formatScene(await models.scene.get(feedback.scene_id));
+        return feedback;
+    });
+
+
+    return feedbacks.sort((a, b) => {
+        if (a.scene.timeslots.confirmed && b.scene.timeslots.confirmed){
+            if (a.scene.timeslots.confirmed[0].id !== b.scene.timeslots.confirmed[0].id){
+                return _.indexOf(allTimeslots, a.scene.timeslots.confirmed[0].id) - _.indexOf(allTimeslots, b.scene.timeslots.confirmed[0].id)
+            }
+        } else if (a.scene.timeslots.confirmed){
+            return -1;
+        } else if (b.scene.timeslots.confirmed){
+            return 1;
+        }
+        return a.scene.name.localeCompare(b.scene.name);
+    });
+}
+
 export default {
     parseData: parseSurveyModel,
     parseFields: parseSurveyFields,
@@ -323,5 +352,6 @@ export default {
     formatPostEventResponses: formatPostEventResponses,
     fillAttendance: fillAttendance,
     savePreEventModel: savePreEventSurveyModel,
-    getPostEventSurveys: getPostEventSurveys
+    getPostEventSurveys: getPostEventSurveys,
+    getSceneFeedbacks
 }

@@ -682,32 +682,7 @@ mixin sceneCard(scene, full=false)
                     .col.text-end
                         i Unspecified Event
 
-
-
-
         .card-body.position-relative
-            if !checkPermission('event') &&  scene.non_exclusive
-                .row.my-1
-                    .col
-                        strong= currentCampaign.renames.non_exclusive.singular
-
-            if checkPermission('event') && scene.staff_url
-                a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
-                    | Staff Writeup
-                    i.fa.fa-external-link.ms-1
-            if scene.player_url
-                a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
-                    | Player Writeup
-                    i.fa.fa-external-link.ms-1
-
-            if checkPermission('contrib') && characterIds.length
-                a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
-                    href=`/report/group?group=${characterIds.join(',')}`
-                    title="Group Report"
-                )
-                    i.fas.fa-calculator.me-1
-                    | Group Report
-
             if full && checkPermission('gm')
                 .position-absolute.top-0.end-0.pe-3.pt-3
                     a.btn.btn-sm.btn-outline-primary(
@@ -718,267 +693,328 @@ mixin sceneCard(scene, full=false)
                     )
                         i.fas.fa-edit
                         span.d-none.d-md-inline.ms-1 Edit Scene
-            if full && scene.issues.length
-                .row.my-1
-                    .col-8
-                        h5.d-inline.pe-4 Issues
-                        .form-check.form-switch.pt-0.form-check-inline
-                            input.form-check-input#showIgnoredIssues(type="checkbox")
-                            label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
-                        +issueTable([scene], true, checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id)
 
+            if checkPermission('event') && scene.feedbacks && scene.feedbacks.length
+                ul.nav.nav-tabs.w-100.my-2#sceneTabs(role="tablist")
+                    li.nav-item(role="presentation")
+                        a.nav-link.active#scene-details-tab(href="#scene-details" data-bs-toggle="tab" role="tab" aria-controls="scene-details" aria-selected="true") Scene Details
 
+                    li.nav-item(role="presentation")
+                        a.nav-link#scene-feedback-tab(href="#scene-feedback" data-bs-toggle="tab" role="tab" aria-controls="scene-feedback" aria-selected="false") Feedback
 
-            if checkPermission('event') && scene.player_name
-                .row.my-1
-                    .col
-                        strong.me-2 Player-Facing Name:
-                        span=scene.player_name
+                .tab-content#sceneTabContent
+                    .tab-pane.fade.show.active#scene-details(role="tabpanel" aria-labelledby="scene-details-tab")
+                        +sceneCardBody(scene, full, characterIds)
+                    .tab-pane.fade#scene-feedback(role="tabpanel" aria-labelledby="scene-feedback-tab")
+                        each feedback in scene.feedbacks
+                            .float-end
+                                span=moment(feedback.submitted).format('lll')
+                            h5=feedback.user.name
+                                .badge.text-bg-primary.ms-2= capitalize(feedback.user.typeForDisplay)
 
+                            if checkPermission('gm') && feedback.gm_feedback
+                                strong.ms-md-4 GM Feedback
+                                .card.text-bg-light.ms-md-4.my-1
+                                    .card-body.p-2
+                                        != marked.parseInline(feedback.gm_feedback)
+                            if feedback.npc_feedback
+                                strong.ms-md-4 NPC Feedback
+                                .card.text-bg-light.ms-md-4.my-1
+                                    .card-body.p-2
+                                        != marked.parseInline(feedback.npc_feedback)
 
-            if checkPermission('event') && scene.tags && scene.tags.length
-                .row.my-1
-                    .col
-                        each tag in scene.tags
-                            .badge.text-bg-info=tag
-            if checkPermission('event') && scene.writer
-                .row.my-1
-                    .col
-                        strong.me-2 Scene Writer:
-                        span=scene.writer.name
-
-            if checkPermission('event') && scene.runner
-                .row.my-1
-                    .col
-                        strong.me-2 Scene Runner:
-                        span=scene.runner.name
-
-            if full && scene.setup_slots!== currentCampaign.default_setup_slots
-                .row.my-1
-                    .col
-                        strong.me-2 Setup Timeslots:
-                        span=scene.setup_slots
-            if full && scene.cleanup_slots !== currentCampaign.default_cleanup_slots
-                .row.my-1
-                    .col
-                        strong.me-2 Cleanup Timeslots:
-                        span=scene.cleanup_slots
-            if scene.locations.confirmed
-                .row.my-1
-                    .col
-                        strong.me-2 Location(s):
-                        each location, lidx in scene.locations.confirmed
-                            = location.name
-                            if lidx < scene.locations.confirmed.length-1
-                                span.ms-0.me-1 ,
-                        if scene.locations_count !== scene.locations.confirmed.length
-                            span.ms-2 (#{scene.locations_count} Requested)
-            else if scene.locations.suggested
-                .row.my-1
-                    .col
-                        strong.me-2 Location(s):
-                        each location, lidx in scene.locations.suggested
-                            = location.name
-                            if lidx < scene.locations.suggested.length-1
-                                span.ms-0.me-1 ,
-                        if scene.locations_count !== scene.locations.suggested.length
-                            span.ms-2 (#{scene.locations_count} Requested)
-            else if scene.locations.unscheduled
-                - const locationsByRequest = _.groupBy(scene.locations.unscheduled, 'scene_request_status');
-                .row.my-1
-                    .col
-                        strong.me-2 Location Count
-                        span=scene.locations_count
-                each status in ['requested', 'required', 'rejected']
-                    if locationsByRequest[status]
-                        .row.my-1
-                            .col
-                                strong.me-2 Location(s)
-                                    if status === 'required'
-                                        |  Preferred:
-                                    else
-                                        |  #{capitalize(status)}:
-                                each location, lidx in locationsByRequest[status]
-                                    = location.name
-                                    if lidx < locationsByRequest[status].length-1
-                                        span.ms-0.me-1 ,
-
-            if !scene.timeslots.confirmed && !scene.timeslots.suggested && scene.timeslots.unscheduled
-                - const timeslotsByRequest = _.groupBy(scene.timeslots.unscheduled, 'scene_request_status');
-                .row.my-1
-                    .col
-                        strong.me-2 Timeslot Count
-                        span=scene.timeslot_count
-                each status in ['requested', 'required', 'rejected']
-                    if timeslotsByRequest[status]
-                        .row.my-1
-                            .col
-                                strong.me-2 Timeslot(s)
-                                    if status === 'required'
-                                        |  Preferred:
-                                    else
-                                        |  #{capitalize(status)}:
-                                each location, lidx in timeslotsByRequest[status]
-                                    = location.name
-                                    if lidx < timeslotsByRequest[status].length-1
-                                        span.ms-0.me-1 ,
-            if scene.prereqs && scene.prereqs.length
-                .row.my-1
-                    .col
-                        strong.me-2 Prereqs
-                        each prereq, pidx in scene.prereqs
-                            a(href=`/scene/${prereq.id}`)
-                                i.fas.fa-theater-masks.me-1
-                                =prereq.name
-                            if pidx < scene.prereqs.length-1
-                                span.ms-0.me-2 ,
-            if scene.coreqs && scene.coreqs.length
-                .row.my-1
-                    .col
-                        strong.me-2 Co-reqs
-                        each coreq, pidx in scene.coreqs
-                            a(href=`/scene/${coreq.id}`)
-                                i.fas.fa-theater-masks.me-1
-                                =coreq.name
-                            if pidx < scene.coreqs.length-1
-                                span.ms-0.me-2 ,
-
-            if scene.description
-                .row.my-1
-                    .col
-                        strong Description
-                            if full
-                                span.ms-1 (Player-Visible)
-
-                        p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.description, {breaks:true})
-
-            if scene.printout_note
-                .row.my-1
-                    .col
-                        if !scene.description
-                            strong Details
-                                if full
-                                    span.ms-1 (Player-Visible)
-                        p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.printout_note, {breaks:true})
-
-            if full && scene.schedule_notes
-                .row.my-1
-                    .col
-                        strong Schedule Notes
-                        p.my-1.ps-4!=marked.parseInline(scene.schedule_notes, {breaks:true})
-
-            if full && !scene.assign_players
-                .row.my-1
-                    .col
-                        strong Assign Players
-                        span.ms-2 No
-
-            if full && scene.for_anyone
-                .row.my-1
-                    .col
-                        strong For "Anyone"
-                        span.ms-2 Yes
-
-            if full && scene.non_exclusive
-                .row.my-1
-                    .col
-                        strong Non-Exclusive
-                        span.ms-2 Yes
-
-            .row.my-1
-                if _.keys(scene.players).length && scene.assign_players
-                    .col-lg-8
-                        h5 Characters
-                        if full && checkPermission('event')
-                            .player-count
-                                strong.me-2 Player Count:
-                                span #{scene.player_count_min} - #{scene.player_count_max}
-                        ul.list-unstyled
-                            each status in ['confirmed', 'suggested']
-                                if scene.players[status]
-                                    each user in _.sortBy(scene.players[status], (user)=>{return user.character?user.character.name:user.name})
-                                        li
-                                            if status !== 'confirmed'
-                                                +sceneStatusBadge(status, true)
-                                            +playerEntry(user)
-
-                            if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
-                                - const playersByRequestStatus = _.groupBy(scene.players.unscheduled, 'scene_request_status');
-                                 each requestStatus in _.keys(playersByRequestStatus)
-                                    each user in  _.sortBy(playersByRequestStatus[requestStatus], (user)=>{return user.character?user.character.name:user.name})
-                                        li
-                                            +sceneStatusBadge(requestStatus, true)
-                                            +playerEntry(user)
-                            - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
-
-                            if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0 && !scene.for_anyone
-                                li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
-                            if scene.for_anyone
-                                li + Anyone
-
-
-
-                if checkPermission('event') && _.keys(scene.staff).length
-                    .col-lg
-                        h5 Staff
-                        if full
-                            .staff-count
-                                strong.me-2 Staff Count
-                                span #{scene.staff_count_min} - #{scene.staff_count_max}
-                                if scene.combat_staff_count_min
-                                    span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
-                        ul.list-unstyled
-                            each status in ['confirmed', 'suggested']
-                                if scene.staff[status]
-                                    each user in _.sortBy(scene.staff[status], 'name')
-                                        li
-                                            if status !== 'confirmed'
-                                                +sceneStatusBadge(status, true)
-                                            +staffEntry(user)
-
-                            if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
-                                - const staffByRequestStatus = _.groupBy(scene.staff.unscheduled, 'scene_request_status');
-                                 each requestStatus in _.keys(staffByRequestStatus)
-                                    each user in _.sortBy(staffByRequestStatus[requestStatus], 'name')
-                                        li
-                                            +sceneStatusBadge(requestStatus, true)
-                                            +staffEntry(user)
-            if full && (_.keys(scene.sources).length || _.keys(scene.skills).length)
-                .row
-                    if _.keys(scene.sources).length
-                        .col-lg
-                            h5 Sources
-                            ul.list-unstyled
-                                each requestStatus in _.keys(scene.sources)
-                                    each source in scene.sources[requestStatus]
-                                        li
-                                            +sceneStatusBadge(requestStatus)
-                                            +sourceEntry(source)
-                    if _.keys(scene.skills).length
-                        .col-lg
-                            h5 Skills
-                            ul.list-unstyled
-                                each requestStatus in _.keys(scene.skills)
-                                    each skill in scene.skills[requestStatus]
-                                        li
-                                            +sceneStatusBadge(requestStatus)
-                                            +skillEntry(skill)
+            else
+                +sceneCardBody(scene, full, characterIds)
 
 
         if (checkPermission('event') && scene.staff_url) || scene.player_url || (checkPermission('contrib') && characterIds.length)
-            .card-footer
-                if !full && checkPermission('contrib')
-                    a.btn.btn-sm.btn-outline-info(
-                        href=`/scene/${scene.id}`
-                        title="View Scene"
-                        data-bs-toggle='tooltip'
-                    )
-                        i.fas.fa-eye.me-1
-                        | View Scene
-                if checkPermission('event')
-                    .float-end.text-end(style='font-size:0.7rem')
-                        span.me-1 Created:
-                        =moment(scene.created).format('lll')
-                        br
-                        span.me-1 Updated:
-                        =moment(scene.updated).format('lll')
+                .card-footer
+                    if !full && checkPermission('contrib')
+                        a.btn.btn-sm.btn-outline-info(
+                            href=`/scene/${scene.id}`
+                            title="View Scene"
+                            data-bs-toggle='tooltip'
+                        )
+                            i.fas.fa-eye.me-1
+                            | View Scene
+                    if checkPermission('event')
+                        .float-end.text-end(style='font-size:0.7rem')
+                            span.me-1 Created:
+                            =moment(scene.created).format('lll')
+                            br
+                            span.me-1 Updated:
+                            =moment(scene.updated).format('lll')
+
+mixin sceneCardBody(scene, full, characterIds)
+    .pt-2
+        if !checkPermission('event') &&  scene.non_exclusive
+            .row.my-1
+                .col
+                    strong= currentCampaign.renames.non_exclusive.singular
+
+        if checkPermission('event') && scene.staff_url
+            a.btn.btn-sm.btn-outline-info.me-2(href=scene.staff_url target='_blank')
+                | Staff Writeup
+                i.fa.fa-external-link.ms-1
+        if scene.player_url
+            a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
+                | Player Writeup
+                i.fa.fa-external-link.ms-1
+
+        if checkPermission('contrib') && characterIds.length
+            a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
+                href=`/report/group?group=${characterIds.join(',')}`
+                title="Group Report"
+            )
+                i.fas.fa-calculator.me-1
+                | Group Report
+
+
+        if full && scene.issues && scene.issues.length
+            .row.my-1
+                .col-8
+                    h5.d-inline.pe-4 Issues
+                    .form-check.form-switch.pt-0.form-check-inline
+                        input.form-check-input#showIgnoredIssues(type="checkbox")
+                        label.form-check-label(for="showIgnoredIssues") Show Accepted/Ignored Issues
+                    +issueTable([scene], true, checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id)
+
+
+
+        if checkPermission('event') && scene.player_name
+            .row.my-1
+                .col
+                    strong.me-2 Player-Facing Name:
+                    span=scene.player_name
+
+
+        if checkPermission('event') && scene.tags && scene.tags.length
+            .row.my-1
+                .col
+                    each tag in scene.tags
+                        .badge.text-bg-info=tag
+        if checkPermission('event') && scene.writer
+            .row.my-1
+                .col
+                    strong.me-2 Scene Writer:
+                    span=scene.writer.name
+
+        if checkPermission('event') && scene.runner
+            .row.my-1
+                .col
+                    strong.me-2 Scene Runner:
+                    span=scene.runner.name
+
+        if full && scene.setup_slots!== currentCampaign.default_setup_slots
+            .row.my-1
+                .col
+                    strong.me-2 Setup Timeslots:
+                    span=scene.setup_slots
+        if full && scene.cleanup_slots !== currentCampaign.default_cleanup_slots
+            .row.my-1
+                .col
+                    strong.me-2 Cleanup Timeslots:
+                    span=scene.cleanup_slots
+        if scene.locations.confirmed
+            .row.my-1
+                .col
+                    strong.me-2 Location(s):
+                    each location, lidx in scene.locations.confirmed
+                        = location.name
+                        if lidx < scene.locations.confirmed.length-1
+                            span.ms-0.me-1 ,
+                    if scene.locations_count !== scene.locations.confirmed.length
+                        span.ms-2 (#{scene.locations_count} Requested)
+        else if scene.locations.suggested
+            .row.my-1
+                .col
+                    strong.me-2 Location(s):
+                    each location, lidx in scene.locations.suggested
+                        = location.name
+                        if lidx < scene.locations.suggested.length-1
+                            span.ms-0.me-1 ,
+                    if scene.locations_count !== scene.locations.suggested.length
+                        span.ms-2 (#{scene.locations_count} Requested)
+        else if scene.locations.unscheduled
+            - const locationsByRequest = _.groupBy(scene.locations.unscheduled, 'scene_request_status');
+            .row.my-1
+                .col
+                    strong.me-2 Location Count
+                    span=scene.locations_count
+            each status in ['requested', 'required', 'rejected']
+                if locationsByRequest[status]
+                    .row.my-1
+                        .col
+                            strong.me-2 Location(s)
+                                if status === 'required'
+                                    |  Preferred:
+                                else
+                                    |  #{capitalize(status)}:
+                            each location, lidx in locationsByRequest[status]
+                                = location.name
+                                if lidx < locationsByRequest[status].length-1
+                                    span.ms-0.me-1 ,
+
+        if !scene.timeslots.confirmed && !scene.timeslots.suggested && scene.timeslots.unscheduled
+            - const timeslotsByRequest = _.groupBy(scene.timeslots.unscheduled, 'scene_request_status');
+            .row.my-1
+                .col
+                    strong.me-2 Timeslot Count
+                    span=scene.timeslot_count
+            each status in ['requested', 'required', 'rejected']
+                if timeslotsByRequest[status]
+                    .row.my-1
+                        .col
+                            strong.me-2 Timeslot(s)
+                                if status === 'required'
+                                    |  Preferred:
+                                else
+                                    |  #{capitalize(status)}:
+                            each location, lidx in timeslotsByRequest[status]
+                                = location.name
+                                if lidx < timeslotsByRequest[status].length-1
+                                    span.ms-0.me-1 ,
+        if scene.prereqs && scene.prereqs.length
+            .row.my-1
+                .col
+                    strong.me-2 Prereqs
+                    each prereq, pidx in scene.prereqs
+                        a(href=`/scene/${prereq.id}`)
+                            i.fas.fa-theater-masks.me-1
+                            =prereq.name
+                        if pidx < scene.prereqs.length-1
+                            span.ms-0.me-2 ,
+        if scene.coreqs && scene.coreqs.length
+            .row.my-1
+                .col
+                    strong.me-2 Co-reqs
+                    each coreq, pidx in scene.coreqs
+                        a(href=`/scene/${coreq.id}`)
+                            i.fas.fa-theater-masks.me-1
+                            =coreq.name
+                        if pidx < scene.coreqs.length-1
+                            span.ms-0.me-2 ,
+
+        if scene.description
+            .row.my-1
+                .col
+                    strong Description
+                        if full
+                            span.ms-1 (Player-Visible)
+
+                    p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.description, {breaks:true})
+
+        if scene.printout_note
+            .row.my-1
+                .col
+                    if !scene.description
+                        strong Details
+                            if full
+                                span.ms-1 (Player-Visible)
+                    p.my-1(class=full?'ps-4':'')!=marked.parseInline(scene.printout_note, {breaks:true})
+
+        if full && scene.schedule_notes
+            .row.my-1
+                .col
+                    strong Schedule Notes
+                    p.my-1.ps-4!=marked.parseInline(scene.schedule_notes, {breaks:true})
+
+        if full && !scene.assign_players
+            .row.my-1
+                .col
+                    strong Assign Players
+                    span.ms-2 No
+
+        if full && scene.for_anyone
+            .row.my-1
+                .col
+                    strong For "Anyone"
+                    span.ms-2 Yes
+
+        if full && scene.non_exclusive
+            .row.my-1
+                .col
+                    strong Non-Exclusive
+                    span.ms-2 Yes
+
+        .row.my-1
+            if _.keys(scene.players).length && scene.assign_players
+                .col-lg-8
+                    h5 Characters
+                    if full && checkPermission('event')
+                        .player-count
+                            strong.me-2 Player Count:
+                            span #{scene.player_count_min} - #{scene.player_count_max}
+                    ul.list-unstyled
+                        each status in ['confirmed', 'suggested']
+                            if scene.players[status]
+                                each user in _.sortBy(scene.players[status], (user)=>{return user.character?user.character.name:user.name})
+                                    li
+                                        if status !== 'confirmed'
+                                            +sceneStatusBadge(status, true)
+                                        +playerEntry(user)
+
+                        if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
+                            - const playersByRequestStatus = _.groupBy(scene.players.unscheduled, 'scene_request_status');
+                             each requestStatus in _.keys(playersByRequestStatus)
+                                each user in  _.sortBy(playersByRequestStatus[requestStatus], (user)=>{return user.character?user.character.name:user.name})
+                                    li
+                                        +sceneStatusBadge(requestStatus, true)
+                                        +playerEntry(user)
+                        - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
+
+                        if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0 && !scene.for_anyone
+                            li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
+                        if scene.for_anyone
+                            li + Anyone
+
+
+
+            if checkPermission('event') && _.keys(scene.staff).length
+                .col-lg
+                    h5 Staff
+                    if full
+                        .staff-count
+                            strong.me-2 Staff Count
+                            span #{scene.staff_count_min} - #{scene.staff_count_max}
+                            if scene.combat_staff_count_min
+                                span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
+                    ul.list-unstyled
+                        each status in ['confirmed', 'suggested']
+                            if scene.staff[status]
+                                each user in _.sortBy(scene.staff[status], 'name')
+                                    li
+                                        if status !== 'confirmed'
+                                            +sceneStatusBadge(status, true)
+                                        +staffEntry(user)
+
+                        if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
+                            - const staffByRequestStatus = _.groupBy(scene.staff.unscheduled, 'scene_request_status');
+                             each requestStatus in _.keys(staffByRequestStatus)
+                                each user in _.sortBy(staffByRequestStatus[requestStatus], 'name')
+                                    li
+                                        +sceneStatusBadge(requestStatus, true)
+                                        +staffEntry(user)
+        if full && (_.keys(scene.sources).length || _.keys(scene.skills).length)
+            .row
+                if _.keys(scene.sources).length
+                    .col-lg
+                        h5 Sources
+                        ul.list-unstyled
+                            each requestStatus in _.keys(scene.sources)
+                                each source in scene.sources[requestStatus]
+                                    li
+                                        +sceneStatusBadge(requestStatus)
+                                        +sourceEntry(source)
+                if _.keys(scene.skills).length
+                    .col-lg
+                        h5 Skills
+                        ul.list-unstyled
+                            each requestStatus in _.keys(scene.skills)
+                                each skill in scene.skills[requestStatus]
+                                    li
+                                        +sceneStatusBadge(requestStatus)
+                                        +skillEntry(skill)
+
+
+

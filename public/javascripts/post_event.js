@@ -1,14 +1,16 @@
-/* global uploadImage */
+/* global uploadImage sceneListTemplate editFeedbackTemplate newFeedbackTemplate*/
 
 let dataPending = false;
 let dataSaving = false;
 let saveTimeoutId = null;
+
+let eventList = [];
 $(function(){
     $('.custom-event-field').each(watchField);
     $('#postEventSubmitBtn').confirmation({});
     $('#postEventAddendumSubmitBtn').confirmation({});
     $('#postEventHideBtn').confirmation({});
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    $('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
 
     $('.select2').select2({
         theme:'bootstrap-5',
@@ -23,6 +25,8 @@ $(function(){
     $('#postEventAddendumForm').on('submit', submitPostEventSurveyForm);
 
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
+    if ($('.sceneList').length){ loadSchedule();}
+    $('#surveyModal').find('.save-btn').on('click', submitFeedbackModal);
 });
 
 async function clearSurveyDropdown(e){
@@ -173,3 +177,156 @@ async function submitPostEventSurveyForm(e){
     }
     return false;
 }
+
+async function loadSchedule(){
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+
+    const scheduleResult = await fetch(`/event/${eventId}/post_event/${attendanceId}/schedule`);
+    const data = await scheduleResult.json();
+    data.disabled = $('.sceneList').attr('disabled');
+
+    $('.sceneList').html(sceneListTemplate(data));
+    $('.sceneListLoading').hide();
+    $('.sceneList').show();
+    $('.feedback-edit').on('click', showSceneFeedback);
+    $('.feedback-remove').confirmation({title: 'Remove from List?'}).on('click', removeSceneFeedback);
+    $('.feedback-add').on('click', addSceneFeedback);
+    $('.sceneList').find('[data-bs-toggle="tooltip"]').tooltip({delay: { 'show': 500, 'hide': 100 }});
+    $('.sceneList').find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
+    });
+}
+
+async function removeSceneFeedback(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+    const sceneId = $(this).data('scene-id');
+
+    const url = `/event/${eventId}/post_event/${attendanceId}/${sceneId}`;
+
+    const data = JSON.stringify({
+        _method: 'DELETE',
+        _csrf: $('#csrfToken').val(),
+    });
+    const request = await fetch(url,{
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method:'DELETE',
+        body: data
+    });
+    const result = await request.json();
+
+    if (!result.success){
+        console.log(result.error);
+    }
+    loadSchedule();
+}
+async function addSceneFeedback(e){
+    e.preventDefault();
+    e.stopPropagation();
+
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+    const sceneId = $(this).closest('.scenePicker').find('.scene-select').val();
+
+    const url = `/event/${eventId}/post_event/${attendanceId}/${sceneId}`;
+
+    const data = JSON.stringify({
+        _method: 'POST',
+        _csrf: $('#csrfToken').val(),
+    });
+    const request = await fetch(url,{
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        method:'POST',
+        body: data
+    });
+    const result = await request.json();
+
+    if (!result.success){
+        console.log(result.error);
+    }
+    loadSchedule();
+}
+
+async function showSceneFeedback(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const $this = $(this);
+
+    const eventId = $('#eventId').val();
+    const attendanceId = $('#attendanceId').val();
+    const sceneId = $this.data('scene-id');
+
+    const disabled = $(this).data('disabled');
+    $this.find('.feedback-icon').removeClass('fa-edit').addClass('fa-sync').addClass('fa-spin');
+
+    const result = await fetch(`/event/${eventId}/post_event/${attendanceId}/${sceneId}`);
+    const data = await result.json();
+
+    data.modal = true;
+    data.backto = 'modal';
+    data.disabled = disabled;
+    data.csrfToken = $('#csrfToken').val();
+    const $modal = $('#surveyModal');
+
+    $modal.find('.modal-title').text(`Edit Feedback for ${$this.data('scene-name')}`);
+    if (data.scene.feedback_id){
+        $modal.find('.modal-body').html(editFeedbackTemplate(data));
+    } else {
+        $modal.find('.modal-body').html(newFeedbackTemplate(data));
+    }
+
+    $modal.find('.custom-event-field').each(watchField);
+
+    $modal.find('.select2').select2({
+        theme:'bootstrap-5',
+        minimumResultsForSearch: 6,
+        width:'resolve',
+        dropdownParent: $modal.find('form'),
+    });
+
+    if (data.disabled){
+        $modal.find('.save-btn').hide();
+    } else {
+        $modal.find('.close-btn').hide();
+    }
+    $modal.modal('show');
+
+    $modal.on('hidden.bs.modal', function(e){
+        $modal.modal('dispose');
+        $this.find('.feedback-icon').removeClass('fa-sync').addClass('fa-edit').removeClass('fa-spin');
+        $modal.find('.save-btn').show();
+    });
+}
+
+
+async function submitFeedbackModal(e) {
+    e.preventDefault();
+    const $modal = $('#surveyModal');
+    const form = $modal.find('.modal-body').find('form')[0];
+    const data = new URLSearchParams();
+    for (const pair of new FormData(form)) {
+        data.append(pair[0], pair[1]);
+    }
+
+    const request = await fetch(form.action,{method:form.method, body: data});
+    const result = await request.json();
+
+    if (!result.success){
+        console.log(result.error);
+        $modal.modal('hide');
+    }
+
+    loadSchedule();
+    $modal.modal('hide');
+}
+

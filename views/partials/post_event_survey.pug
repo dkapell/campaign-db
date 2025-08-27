@@ -7,6 +7,7 @@ mixin postEventSurveyGmTable(post_event_surveys, options={})
             style="display: none"
             class=options.exportUrl?'table-exportable':''
             data-export=options.exportUrl?options.exportUrl:''
+            data-export-text=options.exportText?options.exportText:''
             )
             thead
                 tr

@@ -90,10 +90,18 @@ block content
 
                             if checkPermission('contrib') && post_event_surveys.length
                                 .tab-pane.fade#event-surveys(role="tabpanel" aria-labelledby="event-surveys-tab")
+                                    -
+                                        const urls = [`/event/${event.id}/export_survey`];
+                                        const names = ['Response CSV']
+                                        if (checkPermission('gm')){
+                                            urls.push(`/event/${event.id}/export_survey_scene`);
+                                            names.push('Scene CSV')
+                                        }
                                     +postEventSurveyGmTable(post_event_surveys, {
                                         noEvent:true,
                                         backto:'event',
-                                        exportUrl:`/event/${event.id}/export_survey`
+                                        exportUrl: urls,
+                                        exportText: names
                                     })
     +imageModal()
 

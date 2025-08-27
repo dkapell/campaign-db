@@ -289,7 +289,7 @@ async function showSceneFeedback(e){
             npc_feedback: 'Test',
             name: 'Preview Scene Three',
             timeslots: [ {name: 'Sat 1pm'}],
-            staff: [ 'Staffer One', 'Staffer Two', 'Staffer Three' ],
+            staff: [ 'Staffer One (NPC One)', 'Staffer Two (NPC Two)', 'Staffer Three (NPC Three)' ],
             writer: 'Staffer One'
         },
         field: {

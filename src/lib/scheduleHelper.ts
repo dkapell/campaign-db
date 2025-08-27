@@ -253,20 +253,31 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
 }
 
 function formatSceneForSurvey(scene:FormattedSceneModel){
-    return {
+    const doc = {
         id: scene.id,
         name: scene.name,
         player_name: scene.player_name,
         timeslots: scene.timeslots.confirmed,
         locations: _.pluck(scene.locations.confirmed, 'name'),
-        staff: scene.staff.confirmed?_.pluck(scene.staff.confirmed, 'name'):[],
+        staff: [],
         players: scene.players.confirmed?_.pluck(scene.players.confirmed, 'name'):[],
         writer: scene.writer_id?scene.writer.name:null,
         feedback_id:scene.feedback_id,
         gm_feedback: scene.gm_feedback,
         npc_feedback: scene.npc_feedback,
         skipped: scene.skipped
+    };
+    if (scene.staff.confirmed){
+        for (const staff of scene.staff.confirmed){
+            let name = staff.name;
+            if (staff.npc){
+                name += ` (${staff.npc})`;
+            }
+            doc.staff.push(name);
+        }
     }
+    doc.staff.sort();
+    return doc;
 }
 
 function formatUser(user){

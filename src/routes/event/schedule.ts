@@ -422,6 +422,9 @@ async function validateScenes(req, res){
         if (schedule.read_only){
             throw new Error('Schedule Config has changed, Event is read-only');
         }
+        if (!req.query.scenes || req.query.scenes === ''){
+            return res.json({success:true, scenes:[]});
+        }
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 

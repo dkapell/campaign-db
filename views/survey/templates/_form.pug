@@ -23,16 +23,18 @@ if field.description
         strong Staff:
         span.ms-2= scene.staff.join(', ')
 
-
+-
+    const rows = field.rows?Number(field.rows):3;
+    const height = rows * 24;
 .row.my-2
     .col
         .custom-event-field
-            +markdownEditor('Feedback for GMs only', 'scene_gm_feedback', 'scene_feedback[gm_feedback]', 5, 150, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
+            +markdownEditor('Feedback for GMs only', 'scene_gm_feedback', 'scene_feedback[gm_feedback]', rows, height, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
 .row.mt-2.mb-1
     .col
         .custom-event-field
-            +markdownEditor('Feedback for NPCs', 'scene_npc_feedback', 'scene_feedback[npc_feedback]', 5, 150, scene.npc_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
+            +markdownEditor('Feedback for NPCs', 'scene_npc_feedback', 'scene_feedback[npc_feedback]', rows, height, scene.npc_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
 
 if (!modal)

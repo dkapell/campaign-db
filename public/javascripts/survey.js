@@ -94,6 +94,9 @@ function toggleFieldOptions($row){
         case 'boolean':
             $row.find('.survey_field-required').attr('disabled', true);
             break;
+        case 'scene':
+            $row.find('.textarea-options').show();
+            break;
     }
 
     if ($('#survey_type').val() !== 'registration'){
@@ -292,9 +295,8 @@ async function showSceneFeedback(e){
             staff: [ 'Staffer One (NPC One)', 'Staffer Two (NPC Two)', 'Staffer Three (NPC Three)' ],
             writer: 'Staffer One'
         },
-        field: {
-            description: $this.closest('.sceneList').data('field-description')
-        }
+        field: $this.closest('.sceneList').data('field')
+
     }
 
     data.modal = true;

@@ -111,6 +111,15 @@ function parseSurveyFields(input){
                 if (_.has(surveyField, 'content') && surveyField.content !== ''){
                     doc.content = surveyField.content;
                 }
+                break;
+            case 'scene':
+                if (_.has(surveyField, 'rows') && surveyField.rows !== ''){
+                    doc.rows = Number(surveyField.rows);
+                }
+                if (_.has(surveyField, 'maxlength') && surveyField.maxlength !== ''){
+                    doc.maxlength = Number(surveyField.maxlength);
+                }
+                break;
         }
 
         output.push(doc);

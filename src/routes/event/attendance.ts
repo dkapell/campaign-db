@@ -331,6 +331,7 @@ async function updateAttendance(req, res){
             if (current.user_id !== user.id){
                 throw new Error('Not allowed to edit this registration');
             }
+            attendance.user_id = current.user_id
         }
 
         current = await surveyHelper.fillAttendance(current, event);

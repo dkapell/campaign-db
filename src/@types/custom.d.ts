@@ -37,6 +37,18 @@ interface CampaignUser {
    tags?: string[] | TagModel[]
    character?: CharacterData
    npc?:string
+   last_login?: Date
+   data?:CampaignUserData
+   parsedData?:CampaignUserData
+}
+
+interface CampaignUserData{
+    data?: Record<string, unknown>
+    preferences: CampaignUserPreferences
+}
+
+interface CampaignUserPreferences {
+    dark_mode?: boolean|string
 }
 
 interface Models {

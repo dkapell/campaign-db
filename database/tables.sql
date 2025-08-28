@@ -89,6 +89,7 @@ create table campaigns (
     schedule_user_id int,
     scene_default_description text,
     scene_default_printout_note text,
+    allow_player_dark_mode boolean default false,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE
@@ -112,6 +113,8 @@ create table campaigns_users(
     created             timestamp with time zone DEFAULT now(),
     occasional_attendee boolean default false,
     calendar_id         uuid not null default gen_random_uuid(),
+    data                jsonb,
+    last_login timestamp with time zone,
     primary key(user_id, campaign_id),
     CONSTRAINT campaigns_users_user_fk FOREIGN KEY (user_id)
         REFERENCES "users" (id) MATCH SIMPLE

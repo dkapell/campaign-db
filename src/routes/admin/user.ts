@@ -163,6 +163,10 @@ async function showEditProfile(req, res, next){
     try {
         const user = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
         user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
+
+        if (!user.data){
+            user.data = campaignHelper.getDefaultUserData(req.campaign.id);
+        }
         res.locals.user = user;
         if (_.has(req.session, 'userProfileData')){
             res.locals.user = req.session.userProfileData;
@@ -221,6 +225,8 @@ async function create(req, res){
         if ( user.image_id ===''){
             user.image_id = null;
         }
+
+        user.data = campaignHelper.getDefaultUserData(req.campaign.id);
 
         await req.models.user.findOrCreate(req.campaign.id, user, true);
         delete req.session.userData;
@@ -282,6 +288,10 @@ async function update(req, res){
             user.image_id = null;
         }
 
+        if (!current.data){
+            user.data = campaignHelper.getDefaultUserData(req.campaign.id);
+        }
+
         await req.models.user.update(req.campaign.id, id, user);
         delete req.session.userData;
         req.flash('success', 'Updated User ' + current.name);
@@ -303,6 +313,9 @@ async function updateProfile(req, res){
     try {
         const current = await req.models.user.get(req.campaign.id, req.session.activeUser.id);
 
+        if (!current.data){
+            current.data = campaignHelper.getDefaultUserData(req.campaign.id);
+        }
         if ( user.image_id ===''){
             user.image_id = null;
         }
@@ -310,8 +323,24 @@ async function updateProfile(req, res){
         current.user_id = user.image_id
 
         const updateDoc = {
-            image_id:user.image_id
+            image_id:user.image_id,
+            data: current.data
         };
+        if (req.campaign.allow_player_dark_mode || req.checkPermission('event')){
+            switch (user.data.preferences.dark_mode){
+                case 'on':
+                    updateDoc.data.preferences.dark_mode = true;
+                    break;
+                case 'off':
+                    updateDoc.data.preferences.dark_mode = false;
+                    break;
+                case 'default':
+                    updateDoc.data.preferences.dark_mode = 'default';
+                    break;
+            }
+        }
+
+        console.log(updateDoc);
 
         await req.models.user.update(req.campaign.id, current.id, updateDoc);
         delete req.session.userProfileData;

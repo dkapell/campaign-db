@@ -128,6 +128,12 @@ fieldset.mb-2.border.p-2.rounded
                 .form-check.form-switch.mt-1
                     input.form-check-input#campaign_theme_dark_mode(type="checkbox", name="campaign[theme_dark_mode]", checked=campaign.theme_dark_mode)
                     label.form-check-label(for="campaign_theme_dark_mode") Use Dark Mode
+                .form-check.form-switch.mt-1
+                    input.form-check-input#campaign_allow_player_dark_mode(type="checkbox", name="campaign[allow_player_dark_mode]", checked=campaign.allow_player_dark_mode)
+                    label.form-check-label(for="campaign_allow_player_dark_mode") Allow Players to set Dark/Light Mode
+
+
+                allow_player_dark_mode
 
 
         if websiteImages

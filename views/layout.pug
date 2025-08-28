@@ -1,5 +1,5 @@
 doctype html
-html(lang="en" data-bs-theme=currentCampaign&&currentCampaign.theme_dark_mode?'dark':'light')
+html(lang="en" data-bs-theme=theme_dark_mode?'dark':'light')
     include ./partials/layout/head
 
     body(style= activeUser || showFullMenu ? 'padding-top: 5.5rem;': '' )

@@ -22,7 +22,7 @@ block content
                                     for tag of tags
                                         .badge.text-bg-info.me-2=tag.name
                         .row.my-2
-                            .col-md
+                            .col-md.offset-md-3
                                 a.btn.btn-outline-info.btn-sm(
                                     href=`https://calendar.google.com/calendar/u/0/r?cid=${activeUser.calendar_url}`
                                     target='_blank'
@@ -31,6 +31,31 @@ block content
                                 )
                                     i.fas.fa-calendar-plus.me-1
                                     | Add Campaign to Google Calendar
+                        if currentCampaign.allow_player_dark_mode || checkPermission('event')
+                            .row.my-2
+                                label.col-md-3.col-form-label(for="user-preferences-dark_mode") Dark Mode
+                                .col-md-6
+                                    select.form-control.select2#user-preferences-dark_mode(name="user[data][preferences][dark_mode]")
+                                        for type in [ 'default', 'on', 'off']
+                                            -
+                                                let selected = false;
+                                                let is_default = false;
+                                                if (type === 'default' && user.data.preferences.dark_mode === 'default'){
+                                                    selected = true;
+                                                } else if (type === 'on' && user.data.preferences.dark_mode === true){
+                                                    selected = true;
+                                                } else if (type === 'off' && user.data.preferences.dark_mode === false){
+                                                    selected = true;
+                                                }
+                                                if (type === 'on' && currentCampaign.theme_dark_mode){
+                                                    is_default = true;
+                                                }
+                                                if (type === 'off' && !currentCampaign.theme_dark_mode){
+                                                    is_default = true;
+                                                }
+                                            option(value=type selected=selected) #{capitalize(type)}#{is_default?' (Campaign Default)':''}
+
+
                         .row.my-2.mb-3
                             .col-md
                                 +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image, {

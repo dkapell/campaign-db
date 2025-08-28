@@ -17,7 +17,7 @@ block content
             data-direction="vertical"
             style='z-index:75'
         )
-            .resizer(data-direction='vertical' class=currentCampaign.theme_dark_mode?'bg-light':'bg-dark')
+            .resizer(data-direction='vertical' class=theme_dark_mode?'bg-light':'bg-dark')
                 .button-group.py-1.position-relative.ms-4(style="top:-15px; left:0px; font-size:90%;z-index:55")
                     .badge.rounded-pill.text-bg-danger.me-2.resizer-close(
                         style="cursor:pointer;"
@@ -59,7 +59,7 @@ block content
                 )
 
                     .d-block
-                        div(data-bs-theme=currentCampaign&&currentCampaign.theme_dark_mode?'dark':'light')
+                        div(data-bs-theme=theme_dark_mode?'dark':'light')
                             button.float-end.btn-close.resizer-close(area-label="close" type="button")
                         .row.py-2.mx-0
                             .col

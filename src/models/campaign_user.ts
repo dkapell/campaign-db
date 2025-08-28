@@ -24,7 +24,9 @@ const tableFields = [
     'permissions',
     'image_id',
     'occasional_attendee',
-    'calendar_id'
+    'calendar_id',
+    'last_login',
+    'data'
 ];
 
 const CampaignUser = new Model('campaigns_users', tableFields, {

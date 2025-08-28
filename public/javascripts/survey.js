@@ -273,53 +273,53 @@ async function loadFakeSchedule(){
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
     });
 
-async function showSceneFeedback(e){
-    e.preventDefault();
-    e.stopPropagation();
-    const $this = $(this);
+    async function showSceneFeedback(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const $this = $(this);
 
-    const eventId = $('#eventId').val();
-    const attendanceId = $('#attendanceId').val();
-    const sceneId = $this.data('scene-id');
+        const eventId = $('#eventId').val();
+        const attendanceId = $('#attendanceId').val();
+        const sceneId = $this.data('scene-id');
 
-    const disabled = $(this).data('disabled');
-    $this.find('.feedback-icon').removeClass('fa-edit').addClass('fa-sync').addClass('fa-spin');
-    const data = {
-        attendance: {id:1},
-        scene: {
-            id: 1,
-            gm_feedback: 'Testing',
-            npc_feedback: 'Test',
-            name: 'Preview Scene Three',
-            timeslots: [ {name: 'Sat 1pm'}],
-            staff: [ 'Staffer One (NPC One)', 'Staffer Two (NPC Two)', 'Staffer Three (NPC Three)' ],
-            writer: 'Staffer One'
-        },
-        field: $this.closest('.sceneList').data('field'),
-        user_type_map: $this.closest('.sceneList').data('user-type-map'),
-        capitalize: function(string){
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        }
+        const disabled = $(this).data('disabled');
+        $this.find('.feedback-icon').removeClass('fa-edit').addClass('fa-sync').addClass('fa-spin');
+        const data = {
+            attendance: {id:1},
+            scene: {
+                id: 1,
+                gm_feedback: 'Testing',
+                npc_feedback: 'Test',
+                name: 'Preview Scene Three',
+                timeslots: [ {name: 'Sat 1pm'}],
+                staff: [ 'Staffer One (NPC One)', 'Staffer Two (NPC Two)', 'Staffer Three (NPC Three)' ],
+                writer: 'Staffer One'
+            },
+            field: $this.closest('.sceneList').data('field'),
+            user_type_map: $this.closest('.sceneList').data('user-type-map'),
+            capitalize: function(string){
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
 
+        };
+
+        data.modal = true;
+        data.backto = 'modal';
+        data.disabled = disabled;
+        data.csrfToken = $('#csrfToken').val();
+        const $modal = $('#surveyModal');
+
+        $modal.find('.modal-title').text(`Provide Feedback for ${$this.data('scene-name')}`);
+        $modal.find('.modal-body').html(newFeedbackTemplate(data));
+
+        $modal.find('.save-btn').hide();
+
+        $modal.modal('show');
+
+        $modal.on('hidden.bs.modal', function(e){
+            $modal.modal('dispose');
+            $this.find('.feedback-icon').removeClass('fa-sync').addClass('fa-edit').removeClass('fa-spin');
+            $modal.find('.save-btn').show();
+        });
     }
-
-    data.modal = true;
-    data.backto = 'modal';
-    data.disabled = disabled;
-    data.csrfToken = $('#csrfToken').val();
-    const $modal = $('#surveyModal');
-
-    $modal.find('.modal-title').text(`Provide Feedback for ${$this.data('scene-name')}`);
-    $modal.find('.modal-body').html(newFeedbackTemplate(data));
-
-    $modal.find('.save-btn').hide();
-
-    $modal.modal('show');
-
-    $modal.on('hidden.bs.modal', function(e){
-        $modal.modal('dispose');
-        $this.find('.feedback-icon').removeClass('fa-sync').addClass('fa-edit').removeClass('fa-spin');
-        $modal.find('.save-btn').show();
-    });
-}
 }

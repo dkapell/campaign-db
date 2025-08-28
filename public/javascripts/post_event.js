@@ -279,7 +279,7 @@ async function showSceneFeedback(e){
     data.user_type_map =  $this.closest('.sceneList').data('user-type-map');
     data.capitalize = function(string){
         return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    };
     const $modal = $('#surveyModal');
 
     if (data.scene.feedback_id){

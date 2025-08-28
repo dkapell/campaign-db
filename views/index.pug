@@ -147,7 +147,7 @@ append content
                                 h5 Documents
                                 +allRulebooks(rulebooks)
 
-                    if checkPermission('event') && events.length
+                    if checkPermission('event') && events && events.length
                         .row.mt-3.mb-2
                             .col
                                 a.btn.btn-outline-info.float-end.btn-sm(

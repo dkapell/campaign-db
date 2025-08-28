@@ -9,6 +9,8 @@ import config from 'config';
 import campaign_userModel from './campaign_user';
 import campaignModel from './campaign';
 import documentationUserModel from './documentation_user';
+import campaignHelper from '../lib/campaignHelper';
+
 const models = {
     campaign_user: campaign_userModel,
     campaign: campaignModel,
@@ -19,7 +21,7 @@ const tableFields = ['name', 'email', 'google_id', 'site_admin'];
 
 async function get(campaignId, id, options:RequestOptions = {}){
     if (!id){ throw new Error('no id specified'); }
-    let user = await cache.check('user', id);
+    let user = await cache.check('user', Number(id));
 
     if (user) {
         if (options.skipPostSelect){
@@ -32,7 +34,7 @@ async function get(campaignId, id, options:RequestOptions = {}){
     const result = await database.query(query, [id]);
     if (result.rows.length){
         user = result.rows[0];
-        await cache.store('user', id, user);
+        await cache.store('user', Number(id), user);
         if (options.skipPostSelect){
             return user;
         }
@@ -216,6 +218,10 @@ async function postSelect(user, campaignId){
         user.occasional_attendee = campaign_user.occasional_attendee;
         user.tags = campaign_user.tags;
         user.calendar_id = campaign_user.calendar_id;
+        user.data = campaign_user.data;
+        user.parsedData = await campaignHelper.getUserData(campaignId, campaign_user.data);
+        user.last_login = campaign_user.last_login;
+
         if (campaign_user.name){
             user.sso_name = user.name;
             user.name = campaign_user.name;
@@ -244,7 +250,7 @@ async function postSave(id, data, campaignId){
     let campaign_user = await models.campaign_user.findOne({user_id: id, campaign_id: campaignId});
     if (campaign_user){
         let changed = false;
-        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'image_id', 'occasional_attendee']){
+        for (const field of ['type', 'drive_folder', 'staff_drive_folder', 'notes', 'image_id', 'occasional_attendee', 'data']){
             if (_.has(data, field) && campaign_user[field] !== data[field]){
                 campaign_user[field] = data[field];
                 changed = true;

@@ -300,6 +300,9 @@ async function passportVerifyGoogle(req, accessToken, refreshToken, profile, cb)
             google_id: profile.id,
             email: profile.emails[0].value
         });
+        await models.campaign_user.update({campaign_id:req.campaign.id, user_id:user.id}, {
+            last_login: new Date()
+        });
         console.log(`${user.name} logged in`);
         cb(null, user);
     } catch (err) {
@@ -331,6 +334,11 @@ app.use(async function(req, res, next){
     res.locals.moment = moment;
     res.locals.marked = marked;
     res.locals.csrfToken = generateToken(req);
+    if (req.session.activeUser){
+        res.locals.theme_dark_mode = req.session.activeUser.parsedData.preferences.dark_mode;
+    } else {
+        res.locals.theme_dark_mode = req.campaign.theme_dark_mode;
+    }
     res.locals.capitalize = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     };

@@ -293,6 +293,32 @@ function userSorter(a, b){
     return a.name.localeCompare(b.name);
 }
 
+// Stub to allow later per-campaign additions
+function getDefaultUserData(campaignId){
+    return {
+        data: {},
+        preferences:{
+            dark_mode: 'default'
+        }
+    };
+}
+
+// Stub to allow later per-campaign additions
+async function getUserData(campaignId, data){
+    let userData;
+    if (data){
+        userData = JSON.parse(JSON.stringify(data));
+    } else {
+        userData = getDefaultUserData(campaignId);
+    }
+
+    if (userData.preferences.dark_mode === 'default'){
+        const campaign = await models.campaign.get(campaignId);
+        userData.preferences.dark_mode = campaign.theme_dark_mode;
+    }
+    return userData;
+}
+
 export default {
     init,
     getCharacterCSV,
@@ -304,5 +330,7 @@ export default {
     getPostEventSurveys,
     getDocumentations,
     getUserImage,
-    userSorter
+    userSorter,
+    getDefaultUserData,
+    getUserData
 }

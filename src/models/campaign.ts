@@ -28,6 +28,7 @@ const tableFields = [
     'favicon_id',
     'theme',
     'theme_dark_mode',
+    'allow_player_dark_mode',
     'css',
     'created_by',
     'created',

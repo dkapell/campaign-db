@@ -159,7 +159,8 @@ async function create(req, res){
         'player_gallery',
         'schedule_players',
         'schedule_y_location',
-        'theme_dark_mode'
+        'theme_dark_mode',
+        'allow_player_dark_mode'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
@@ -196,7 +197,8 @@ async function update(req, res){
         'player_gallery',
         'schedule_players',
         'schedule_y_location',
-        'theme_dark_mode'
+        'theme_dark_mode',
+        'allow_player_dark_mode'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;

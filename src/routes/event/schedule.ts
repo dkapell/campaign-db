@@ -702,7 +702,7 @@ async function exportSchedule(req, res, next){
         if (! await req.isScheduleVisible(event.id)){
             return res.status(403).json({success:false, error: 'Schedule is not live'});
         }
-        if (req.checkPermission('player')){
+        if (!req.checkPermission('staff')){
             exportType = 'player';
         }
 

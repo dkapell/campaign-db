@@ -402,14 +402,14 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
 }
 
 async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false, showUnconfirmed:boolean=false, schedule=null): Promise<TimeslotModel[]> {
-    const event = await models.event.get(eventId);
+    const event = await models.event.get(eventId, {postSelect:async(data)=>{return data;}});
     if (!event) { throw new Error('Invalid Event'); }
 
     if (forPlayer){
         showUnconfirmed = false;
     }
 
-    if (schedule){
+    if (!schedule){
         schedule = await getSchedule(eventId);
     }
 

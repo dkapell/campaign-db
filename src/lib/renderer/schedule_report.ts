@@ -127,7 +127,10 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             let top = doc.y;
 
             const columnWidth = (doc.page.width - (options.margin*2) - ((options.columns -1) * options.margin * 0.5)) / options.columns
+            const start = (new Date()).getTime();
             const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true, false, eventSchedule);
+            const scheduleTime = (new Date()).getTime();
+            console.log(`getSchedule: ${scheduleTime - start}`)
             let column = 0;
             for (const timeslot of schedule){
                 if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
@@ -225,6 +228,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
                     doc.y = top;
                 }
+                const sizeTime = (new Date()).getTime();
+                console.log(`sizeTime: ${sizeTime - scheduleTime}`)
 
                 for (const segment of timeslotSegments){
                     doc
@@ -249,6 +254,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     }
                     doc.x -= segment.offset;
                 }
+                const addTime = (new Date()).getTime();
+                console.log(`addTime: ${addTime - sizeTime}`)
 
             }
         }

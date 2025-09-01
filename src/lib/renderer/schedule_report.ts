@@ -18,7 +18,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     if (!_.has(options, 'boldStrokeWidth')){
         options.boldStrokeWidth = 0.1;
     }
-    const start = (new Date()).getTime();
     const doc = new PDFDocument({autoFirstPage: false, size: 'LETTER', margin: options.margin});
 
     const event = await models.event.get(eventId);
@@ -36,13 +35,9 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     options.bodyScale = options.font.body.scale;
 
     const sizeDoc = new PDFDocument({size: 'LETTER'});
-    const preFont = (new Date()).getTime();
-    console.log(`preFont: ${preFont - start}`)
 
     await pdfHelper.registerFonts(doc, fontOptions);
     await pdfHelper.registerFonts(sizeDoc, fontOptions);
-    const setupTime = (new Date()).getTime();
-    console.log(`pdfbuild: ${setupTime - preFont}`)
 
 
     switch (reportName){
@@ -50,8 +45,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         case 'scenes': await scenesReport(); break;
         case 'scenelabels': await sceneLabelsReport(); break;
     }
-    const pdfTime = (new Date()).getTime();
-    console.log(`pdf: ${pdfTime - setupTime}`)
     return doc;
 
     async function playerReport(){
@@ -60,7 +53,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             .sort((a,b) => { return a.character.name.localeCompare(b.character.name);})
         const schedule = await scheduleHelper.getSchedule(eventId);
         for (const attendee of players){
-            const start = (new Date()).getTime();
             if (!attendee.attending) { continue; }
             if (attendee.user.type !== 'player'){ continue; }
             if (!_.has(options, 'indent')){
@@ -68,10 +60,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             }
             doc.addPage();
             await renderHeader(attendee);
-            doc.moveDown(1);
+            doc.moveDown(0.5);
             await renderSchedule(attendee, schedule);
-            const reportTime = (new Date()).getTime();
-            console.log(`report: ${reportTime - start}`)
         }
 
         async function renderHeader(attendee){

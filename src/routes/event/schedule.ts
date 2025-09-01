@@ -1038,7 +1038,6 @@ async function getReport(req, res, next){
     const eventId = req.params.id;
     const reportName = req.params.name;
     try{
-        const start = (new Date()).getTime();
         const event = await req.models.event.get(eventId);
 
         if (!event || event.campaign_id !== req.campaign.id){
@@ -1054,11 +1053,7 @@ async function getReport(req, res, next){
         if (!report){
             throw new Error('Invalid Report');
         }
-        const prePdf = (new Date()).getTime();
-        console.log(`prePdf - ${prePdf - start}ms`);
         const pdf = await scheduleHelper.reportPdf(event.id, report.name, report.config);
-        const postPdf = (new Date()).getTime();
-        console.log(`postPdf - ${postPdf - prePdf}ms`);
 
         pdf.pipe(res);
         res.set('Content-Type', 'application/pdf');

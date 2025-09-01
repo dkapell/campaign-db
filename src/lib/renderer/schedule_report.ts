@@ -792,10 +792,16 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                                 .font('Body Font')
                                 .fontSize(10 * options.font.body.scale)
                                 .text(player.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+
+                            const postY = doc.y;
+
                             doc
                                 .font('Body Font')
                                 .fontSize(10 * options.font.body.scale)
                                 .text(player.character.name, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
+                            if (postY > doc.y){
+                                doc.y = postY;
+                            }
                         }
                         if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
                             let shortName = 'Player'
@@ -864,11 +870,18 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                             .font('Body Font')
                             .fontSize(10 * options.font.body.scale)
                             .text(staff.name, sectionX, itemY, {stroke:false, fill:true, width:sectionWidth});
+
+                        const postY = doc.y;
+
                         if (staff.npc){
                             doc
                                 .font('Body Font')
                                 .fontSize(10 * options.font.body.scale)
                                 .text(staff.npc, sectionX + sectionWidth + 18, itemY, {stroke:false, fill:true, width:sectionWidth});
+                        }
+
+                        if (postY > doc.y){
+                            doc.y = postY;
                         }
                     }
                 }

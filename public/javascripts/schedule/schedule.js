@@ -360,6 +360,9 @@ function expandScene($scene){
     if ($scene.attr('expanded') === 'true'){
         return;
     }
+    if ($scene.attr('cell') === 'unscheduled'){
+        return;
+    }
     if ($siblings.length > 1){
         $(`.scene-item[cell="${cellId}"]`).each(function(){
             if ($(this).attr('id') !== $scene.attr('id')){

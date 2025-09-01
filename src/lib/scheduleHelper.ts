@@ -61,6 +61,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
         output.tags = _.pluck(scene.tags, 'name');
         output.writer_id = scene.writer_id;
         output.writer = scene.writer;
+        output.additional_writers = scene.additional_writers;
         output.runner_id = scene.runner_id;
         output.runner = scene.runner;
         output.created = scene.created;
@@ -262,6 +263,7 @@ function formatSceneForSurvey(scene:FormattedSceneModel){
         staff: [],
         players: scene.players.confirmed?_.pluck(scene.players.confirmed, 'name'):[],
         writer: scene.writer_id?scene.writer.name:null,
+        additional_writers: scene.additional_writers,
         feedback_id:scene.feedback_id,
         gm_feedback: scene.gm_feedback,
         npc_feedback: scene.npc_feedback,
@@ -861,12 +863,19 @@ async function saveScheduleScene(eventId:number, sceneId:number){
         return;
     }
     const schedule = await models.schedule.current(eventId);
-    if (!schedule.read_only){
+    if (!schedule || !schedule.read_only){
         return saveSchedule(eventId);
     }
+
     for (const item of schedule.scenes){
         if (Number(item.id) !== Number(scene.id)) { continue; }
         for (const field in item){
+            if (_.has(item, field) && item[field] != scene[field]){
+                item[field] = scene[field];
+            }
+
+        }
+        for (const field in scene){
             if (_.has(item, field) && item[field] != scene[field]){
                 item[field] = scene[field];
             }

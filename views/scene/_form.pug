@@ -62,7 +62,7 @@ if (backto)
     label.col-form-label.col-lg-1.text-nowrap(for="scene_writer_id") Writer
         span.ms-1.text-danger *
     .col-lg-4
-        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required)
+        select.form-select.select2#scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required)
             option
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'
@@ -70,7 +70,7 @@ if (backto)
     label.col-form-label.col-lg-1.text-nowrap(for="scene_runner_id") Runner
         span.ms-1.text-danger *
     .col-lg-4
-        select.form-select.select2#scene-scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner' required)
+        select.form-select.select2#scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner' required)
             option
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'
@@ -147,6 +147,18 @@ fieldset.my-2.border.p-2.rounded
             label.col-form-label.col-md-2(for="scene_player_url") Player Writeup
             .col-md
                 input.form-control#scene_player_url(type="text" placeholder="Player Writeup URL" name="scene[player_url]" value=scene.player_url)
+        .row.my-2
+            label.col-form-label.col-md-2.text-nowrap(for="scene_additional_writers") Addtional Writers
+            .col-lg
+                select.form-select.select2#scene_additional_writers(name='scene[additional_writers]' multiple)
+                    option
+                    each user in _.sortBy(users, 'name')
+                        if user.type !== 'player'
+                            -
+                                let selected = false;
+                                if (_.indexOf(scene.additional_writers, user.id) !== -1){ selected = true }
+                                if (_.findWhere(scene.additional_writers, {id: user.id})){ selected = true }
+                            option(value=user.id selected=selected)=user.name
         .row.my-2
             .col-md
                 +markdownEditor('Description (Player-Visible)', 'scene_description', 'scene[description]', 5, 75, scene.description, true)

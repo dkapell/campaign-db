@@ -46,7 +46,12 @@ class Model implements IModel{
         query += ` from ${this.table} where id = $1`;
 
         try{
-            const result = await database.query(query, [id]);
+            let result;
+            if (options.client){
+                result = await options.client.query(query, [id]);
+            } else {
+                result = await database.query(query, [id]);
+            }
 
             if (result.rows.length){
                 record = result.rows[0];
@@ -116,7 +121,12 @@ class Model implements IModel{
         }
 
         try {
-            const result = await database.query(query, queryData);
+            let result;
+            if (options.client){
+                result = await options.client.query(query, queryData);
+            } else {
+                result = await database.query(query, queryData);
+            }
             if (_.has(options, 'count')){
                 return result.rows;
             }
@@ -137,6 +147,7 @@ class Model implements IModel{
 
         } catch (e){
             console.error(`Find Error: ${this.table}:${JSON.stringify(conditions)}`);
+            console.trace(e)
             throw e;
         }
     }
@@ -191,7 +202,7 @@ class Model implements IModel{
         return this.find({});
     }
 
-    async create(data: ModelData){
+    async create(data: ModelData, options:RequestOptions={}){
         if (_.has(this.options, 'validator') && _.isFunction(this.options.validator) && ! this.options.validator(data)){
             throw new Error('Invalid Data');
         }
@@ -231,7 +242,12 @@ class Model implements IModel{
             query += ')';
         }
         try{
-            const result = await database.query(query, queryData);
+            let result;
+            if (options.client){
+                result = await options.client.query(query, queryData);
+            } else {
+                result = await database.query(query, queryData);
+            }
             if (_.indexOf(this.fields, 'id') !== -1){
                 const id = result.rows[0].id;
                 if (_.has(this.options, 'postSave') && _.isFunction(this.options.postSave)){
@@ -247,12 +263,11 @@ class Model implements IModel{
             }
         } catch (e){
             console.error(`Create Error: ${this.table}: ${JSON.stringify(data)}`);
-            console.trace(e);
             throw e;
         }
     }
 
-    async update(id:ComplexId, data: ModelData){
+    async update(id:ComplexId, data: ModelData, options:RequestOptions={}){
         if (_.has(this.options, 'validator') && _.isFunction(this.options.validator) && ! this.options.validator(data)){
             throw new Error('Invalid Data');
         }
@@ -302,7 +317,11 @@ class Model implements IModel{
         query += queryUpdates.join(', ');
         query += ` where ${whereUpdates.join(' and ')};`;
         try {
-            await database.query(query, queryData);
+            if (options.client){
+                await options.client.query(query, queryData);
+            } else {
+                await database.query(query, queryData);
+            }
 
             if (typeof id === 'number' || typeof id === 'string'){
                 id = Number(id);
@@ -330,7 +349,7 @@ class Model implements IModel{
         }
     }
 
-    async delete(conditions: ComplexId){
+    async delete(conditions: ComplexId, options:RequestOptions={}){
         let data = null;
         let query = `delete from ${this.table} where `;
         const queryData = [];
@@ -360,7 +379,11 @@ class Model implements IModel{
             queryData.push(id);
         }
         try{
-            await database.query(query, queryData);
+            if (options.client){
+                await options.client.query(query, queryData);
+            } else {
+                await database.query(query, queryData);
+            }
             if (_.has(data, 'id')){
                 await cache.invalidate(this.table, data.id);
             } else if (this.options.keyFields){

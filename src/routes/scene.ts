@@ -407,7 +407,7 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
         }
     }
 
-    for (const field of ['tags', 'prereqs', 'coreqs']){
+    for (const field of ['tags', 'prereqs', 'coreqs', 'additional_writers']){
         if (!scene[field]){
             scene[field] = [];
         } else if(!_.isArray(scene[field])){

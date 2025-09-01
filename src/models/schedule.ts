@@ -46,7 +46,6 @@ async function preSave(data:ModelData): Promise<ModelData>{
 
 Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|null>{
     const event = await models.event.get(Number(data.event_id), {postSelect: async(data)=>{return data}});
-
     const client = await database.connect();
     try{
         await client.query('select pg_advisory_lock($1, $2)', [event.campaign_id, event.id]);
@@ -57,7 +56,8 @@ Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|
     const current = await this.find({
         event_id: data.event_id
     }, {
-        excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
+        excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies'],
+        client: client
     });
     let maxVal = 0;
     if (current.length){
@@ -74,8 +74,7 @@ Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|
         locations: data.locations.length,
         schedule_busies: data.schedule_busies.length
     };
-
-    const id = await this.create(data);
+    const id = await this.create(data, {client:client});
 
     const maxVersions: number = config.get('scheduler.keepVersions') ;
     let saved = 0;
@@ -85,7 +84,7 @@ Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|
             saved++;
             continue;
         }
-        await this.delete(item.id);
+        await this.delete(item.id, {client:client});
     }
     await client.query('select pg_advisory_unlock($1, $2)', [event.campaign_id, event.id]);
     await client.release(true);

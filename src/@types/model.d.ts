@@ -1,3 +1,5 @@
+type PoolClient = import('pg').PoolClient;
+
 interface ModelData{
     [key:string]: unknown
 }
@@ -26,6 +28,7 @@ interface RequestOptions {
     skipRelations?:boolean
     skipPostSelect?:boolean
     noCache?:boolean
+    client?:PoolClient
 }
 
 interface Conditions {

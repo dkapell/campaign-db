@@ -134,6 +134,8 @@ async function fill(data: SceneModel){
     if (data.runner_id){
         data.runner = await models.user.get(data.campaign_id, data.runner_id);
     }
+
+    data.additional_writers =  await getAdditionalWriters(data.id as number, data.campaign_id as number);
     return data;
 }
 
@@ -145,6 +147,15 @@ async function getTags(sceneId: number): Promise<TagModel[]>{
     });
 
     return _.sortBy(tags, 'name');
+}
+
+async function getAdditionalWriters(sceneId: number, campaignId:number): Promise<CampaignUser[]>{
+    const query = 'select * from scenes_writers where scene_id = $1';
+    const result = await database.query(query, [sceneId]);
+    const users = await async.map(result.rows, async (scene_writer): Promise<CampaignUser> => {
+        return models.user.get(campaignId, scene_writer.user_id);
+    });
+    return _.sortBy(users, 'name');
 }
 
 async function preSave(data: SceneModel): Promise<SceneModel>{
@@ -168,6 +179,7 @@ interface sceneElementStatuses{
 }
 async function postSave(sceneId:number, data:ModelData){
     await saveTags(sceneId, data);
+    await saveWriters(sceneId, data);
     await async.each(['location', 'timeslot', 'source', 'user', 'skill'], async (table) => {
         if (_.has(data, `${table}s`)){
             const currentRecords = await models[`scene_${table}`].find({scene_id:sceneId});
@@ -194,7 +206,6 @@ async function postSave(sceneId:number, data:ModelData){
             });
         }
     });
-
 }
 
 async function saveRecord(sceneId:number, table:string, objectId:number, statuses:sceneElementStatuses, details:Record<string,unknown>){
@@ -291,4 +302,36 @@ async function saveTags(sceneId:number, data:ModelData){
     }
 }
 
+async function saveWriters(sceneId:number, data:ModelData){
+
+    if (!_.has(data, 'additional_writers')){
+        return;
+    }
+
+    const currentQuery  = 'select * from scenes_writers where scene_id = $1';
+    const insertQuery = 'insert into scenes_writers (scene_id, user_id) values ($1, $2)';
+    const deleteQuery = 'delete from scenes_writers where scene_id = $1 and user_id = $2';
+    const current = await database.query(currentQuery, [sceneId]);
+
+    const newWriters = [];
+    for (const user of (data.additional_writers as object[])){
+        if (_.isObject(user)){
+            newWriters.push(user.id);
+        } else {
+            newWriters.push(Number(user));
+        }
+    }
+
+    for (const userId of newWriters){
+        if(!_.findWhere(current.rows, {user_id: userId})){
+            await database.query(insertQuery, [sceneId, userId]);
+        }
+    }
+
+    for (const row of current.rows){
+        if(_.indexOf(newWriters, row.user_id) === -1){
+            await database.query(deleteQuery, [sceneId, row.user_id]);
+        }
+    }
+}
 export = Scene;

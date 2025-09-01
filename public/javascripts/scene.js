@@ -123,6 +123,14 @@ $(function(){
         customClass:'scene-info-popover'
     });
 
+    $('#scene_additional_writers').on('change', function(e){
+        const writer = ''+ $('#scene_writer_id').val();
+        const current = $(this).val();
+        if (_.indexOf(current, writer) !== -1){
+            $(this).val(current.filter(item => {return Number(item) !== Number(writer);})).trigger('change');
+        }
+    });
+
 });
 
 function updateBadges(){

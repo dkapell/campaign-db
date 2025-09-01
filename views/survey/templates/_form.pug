@@ -18,6 +18,9 @@ if field.description
         .col
             strong Writer:
             span.ms-2= scene.writer
+            if scene.additional_writers.length
+                span.ms-1 (#{_.pluck(scene.additional_writers, 'name').join(', ')})
+
 .row.my-2
     .col
         strong Staff/NPCs:

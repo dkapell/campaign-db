@@ -123,7 +123,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         }
 
         async function renderSchedule(attendee){
-            const top = doc.y;
+            let top = doc.y;
 
             const columnWidth = (doc.page.width - (options.margin*2) - ((options.columns -1) * options.margin * 0.5)) / options.columns
             const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true);

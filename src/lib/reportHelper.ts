@@ -37,7 +37,8 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
         traits: {},
         languages: {},
         diagnose: {},
-        styles: {}
+        styles: {},
+        sources: {}
     };
     if (!data.length){
         return output;
@@ -135,6 +136,17 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
                 output.styles[style] = [];
             }
             output.styles[style].push(character.id);
+        }
+
+        for (const source of character.sources){
+            if (source.required) { continue; }
+            if (!_.has(output.sources, source.type.name)){
+                output.sources[source.type.name] = {};
+            }
+            if (!_.has(output.sources[source.type.name][source.name])){
+                output.sources[source.type.name][source.name] = [];
+            }
+            output.sources[source.type.name][source.name].push(character.id);
         }
 
     }

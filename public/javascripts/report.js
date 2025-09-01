@@ -1,5 +1,5 @@
 /* globals _ marked */
-/* globals attributesTemplate diagnoseTemplate stylesTemplate languagesTemplate traitsTemplate skillsTemplate */
+/* globals attributesTemplate diagnoseTemplate stylesTemplate languagesTemplate traitsTemplate skillsTemplate sourcesTemplate*/
 /* globals skillTemplate characterTemplate */
 
 'use strict';
@@ -117,12 +117,14 @@ async function updateGroupReport(){
     });
     const result = await fetch(url);
     const data = await result.json();
+    data.capitalize = function(string){return string.charAt(0).toUpperCase() + string.slice(1);};
     $('#report-attributes').html(attributesTemplate(data));
     $('#report-diagnose').html(diagnoseTemplate(data));
     $('#report-styles').html(stylesTemplate(data));
     $('#report-languages').html(languagesTemplate(data));
     $('#report-traits').html(traitsTemplate(data));
     $('#report-skills').html(skillsTemplate(data));
+    $('#report-sources').html(sourcesTemplate(data));
     $('#report-skills-tab').find('.nav-link').first().addClass('active');
     $('#report-skills-tabContent').find('.tab-pane').first().addClass('active').addClass('show');
 }

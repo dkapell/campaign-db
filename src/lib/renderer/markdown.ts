@@ -231,6 +231,9 @@ class Node {
         if (renderOptions.continued){
             options.continued = renderOptions.continued;
         }
+        if (renderOptions.width){
+            options.width = renderOptions.width;
+        }
         return options;
     }
 

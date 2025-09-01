@@ -58,7 +58,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         const players = event.attendees
             .filter(attendee => { return attendee.attending && attendee.user.type === 'player'})
             .sort((a,b) => { return a.character.name.localeCompare(b.character.name);})
-        const schedule = scheduleHelper.getSchedule(eventId);
+        const schedule = await scheduleHelper.getSchedule(eventId);
         for (const attendee of players){
             const start = (new Date()).getTime();
             if (!attendee.attending) { continue; }

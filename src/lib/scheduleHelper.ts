@@ -438,7 +438,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
         }
     }
 
-    return async.map(timeslots, async (timeslot: TimeslotModel)=>{
+    return timeslots.map((timeslot: TimeslotModel)=>{
         timeslot.scenes = [];
 
         for (const scene of scenes){

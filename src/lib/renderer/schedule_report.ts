@@ -208,7 +208,6 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         doc.addPage();
                         top = options.margin;
                         doc.x = options.margin;
-                        doc.y
                     } else {
                         doc.x += (columnWidth + (options.margin*0.5));
                     }

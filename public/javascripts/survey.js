@@ -1,4 +1,4 @@
-/* globals sceneListTemplate */
+/* globals sceneListTemplate newFeedbackTemplate */
 let nextSurveyFieldIndex = 0;
 $(function(){
     $('.select2').select2({

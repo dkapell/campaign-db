@@ -26,6 +26,7 @@ interface AggregateCharacterData{
     languages: Record<string, number[]>,
     diagnose: Record<string, number[]>,
     styles: Record<string, number[]>,
+    sources: Record<string, Record<string, number[]>>,
 }
 
 async function aggregateCharacterData(data: CharacterData[], campaignId:number): Promise<AggregateCharacterData>{
@@ -143,7 +144,7 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
             if (!_.has(output.sources, source.type.name)){
                 output.sources[source.type.name] = {};
             }
-            if (!_.has(output.sources[source.type.name][source.name])){
+            if (!_.has(output.sources[source.type.name], source.name)){
                 output.sources[source.type.name][source.name] = [];
             }
             output.sources[source.type.name][source.name].push(character.id);

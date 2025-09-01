@@ -127,6 +127,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
             const columnWidth = (doc.page.width - (options.margin*2) - ((options.columns -1) * options.margin * 0.5)) / options.columns
             const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true);
+            let column = 0;
             for (const timeslot of schedule){
                 if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
                     continue;
@@ -210,8 +211,18 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                 }, 0);
 
                 if (doc.page.height - (doc.y + totalHeight) < options.margin){
+                    column++;
+                    if (column === options.columns){
+                        column = 0;
+                        doc.addPage();
+                        top = options.margin;
+                        doc.x = options.margin;
+                        doc.y
+                    } else {
+                        doc.x += (columnWidth + (options.margin*0.5));
+                    }
+
                     doc.y = top;
-                    doc.x += (columnWidth + (options.margin*0.5))
                 }
 
                 for (const segment of timeslotSegments){

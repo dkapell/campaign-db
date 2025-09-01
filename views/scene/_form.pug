@@ -62,7 +62,7 @@ if (backto)
     label.col-form-label.col-lg-1.text-nowrap(for="scene_writer_id") Writer
         span.ms-1.text-danger *
     .col-lg-4
-        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required multiple)
+        select.form-select.select2#scene-scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required)
             option
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'

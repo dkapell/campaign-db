@@ -58,6 +58,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         const players = event.attendees
             .filter(attendee => { return attendee.attending && attendee.user.type === 'player'})
             .sort((a,b) => { return a.character.name.localeCompare(b.character.name);})
+        const schedule = scheduleHelper.getSchedule(eventId);
         for (const attendee of players){
             const start = (new Date()).getTime();
             if (!attendee.attending) { continue; }
@@ -68,7 +69,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc.addPage();
             await renderHeader(attendee);
             doc.moveDown(1);
-            await renderSchedule(attendee);
+            await renderSchedule(attendee, schedule);
             const reportTime = (new Date()).getTime();
             console.log(`report: ${reportTime - start}`)
         }
@@ -122,11 +123,11 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             return segment;
         }
 
-        async function renderSchedule(attendee){
+        async function renderSchedule(attendee, eventSchedule){
             let top = doc.y;
 
             const columnWidth = (doc.page.width - (options.margin*2) - ((options.columns -1) * options.margin * 0.5)) / options.columns
-            const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true);
+            const schedule = await scheduleHelper.getUserSchedule(eventId, attendee.user.id, true, false, eventSchedule);
             let column = 0;
             for (const timeslot of schedule){
                 if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){

@@ -401,7 +401,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
     });
 }
 
-async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false, showUnconfirmed:boolean=false): Promise<TimeslotModel[]> {
+async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=false, showUnconfirmed:boolean=false, schedule=null): Promise<TimeslotModel[]> {
     const event = await models.event.get(eventId);
     if (!event) { throw new Error('Invalid Event'); }
 
@@ -409,7 +409,9 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
         showUnconfirmed = false;
     }
 
-    const schedule = await getSchedule(eventId);
+    if (schedule){
+        schedule = await getSchedule(eventId);
+    }
 
     const timeslots = schedule.timeslots;
 

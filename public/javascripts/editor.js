@@ -48,6 +48,7 @@ function renderEditor(id, type, size){
         lineNumbers: true,
         lineWrapping:true,
         autoRefresh:true,
+        theme:$('html').data('bs-theme')=== 'dark'?'base16-dark':'default'
     };
     const $textarea = $('#' + id);
     let showMarkdown = false;

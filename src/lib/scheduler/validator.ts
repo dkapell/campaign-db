@@ -24,6 +24,7 @@ const issueList = {
     'unconfirmed-staff': 'info',
     'missing-req-user': 'warning',
     'missing-req-attendee': 'warning',
+    'missing-attendee': 'warning',
     'missing-runner': 'warning',
     'coreq-not-sched': 'info',
     'coreq-diff-event': 'info',
@@ -374,8 +375,8 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
     }
 
     for (const user of scene.users){
+        const attendance = _.findWhere(data.attendees, {user_id:user.id});
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
-            const attendance = _.findWhere(data.attendees, {user_id:user.id});
             if (!attendance || !attendance.attending){
                 issues.push({
                     code: 'missing-req-attendee',
@@ -387,7 +388,13 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                     text: `${user.name} is required, but not assigned`
                 });
             }
+        } else if ((!attendance || !attendance.attending) && user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
+            issues.push({
+                code: 'missing-attendee',
+                text: `${user.name} is assigned, but not attending this event`
+            });
         }
+
     }
 
     if (scene.runner_id){

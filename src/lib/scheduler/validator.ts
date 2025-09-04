@@ -375,7 +375,8 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
 
     for (const user of scene.users){
         if (user.scene_request_status === 'required' && !user.scene_schedule_status.match(/^(suggested|confirmed)$/)){
-            if (! _.findWhere(data.attendees, {user_id:user.id})){
+            const attendance = _.findWhere(data.attendees, {user_id:user.id});
+            if (!attendance || !attendance.attending){
                 issues.push({
                     code: 'missing-req-attendee',
                     text: `${user.name} is required, but not attending this event`

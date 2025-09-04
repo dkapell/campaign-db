@@ -799,7 +799,7 @@ mixin sceneCardBody(scene, full, characterIds)
                     strong.me-2 Scene Writer:
                     span=scene.writer.name
 
-        if checkPermission('event') && scene.additional_writers.length
+        if checkPermission('event') && scene.additional_writers && scene.additional_writers.length
             .row.my-1
                 .col
                     strong.me-2 Additional Writer#{scene.additional_writers.length!==1?'s':''}:

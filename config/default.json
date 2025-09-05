@@ -4,7 +4,7 @@
         "debug": false,
         "dbURL": null,
         "dbSSL": false,
-        "dbPoolSize": 1,
+        "dbPoolSize": 10,
         "sessionType": "local",
         "sessionSecret": "campaign-db",
         "secureOnly": false,

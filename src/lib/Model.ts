@@ -22,11 +22,18 @@ class Model implements IModel{
         }
         let record = await cache.check(this.table, id);
         if (record){
+            if (_.has(options, 'excludeFields') && _.isArray(options.excludeFields)){
+                for (const field of options.excludeFields){
+                    if (_.has(record, field)){
+                        delete record[field];
+                    }
+                }
+            }
             if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
-                record = await options.postSelect(record);
+                record = await options.postSelect(record, options.client);
 
             } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
-                record = await this.options.postSelect(record);
+                record = await this.options.postSelect(record, options.client);
             }
             return record;
         }
@@ -55,14 +62,16 @@ class Model implements IModel{
 
             if (result.rows.length){
                 record = result.rows[0];
-                if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
-                    record = await options.postSelect(record);
 
-                } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
-                    record = await this.options.postSelect(record);
-                }
                 if (!_.has(options, 'excludeFields')){
                     await cache.store(this.table, id, record);
+                }
+                if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
+
+                    record = await options.postSelect(record, options.client);
+
+                } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
+                    record = await this.options.postSelect(record, options.client);
                 }
                 return record;
             }
@@ -136,10 +145,14 @@ class Model implements IModel{
             }
 
             if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
-                return async.mapLimit(rows, 10, options.postSelect);
+                return async.mapLimit(rows, 10, async(data) => {
+                    return options.postSelect(data, options.client);
+                });
 
             } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
-                return async.mapLimit(rows, 10, this.options.postSelect);
+                return async.mapLimit(rows, 10, async (data) => {
+                    return this.options.postSelect(data, options.client);
+                });
 
             } else {
                 return rows;

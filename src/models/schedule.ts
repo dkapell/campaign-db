@@ -1,14 +1,10 @@
 'use strict';
 import _ from 'underscore';
 import config from 'config';
-import database from '../lib/database';
 import Model from  '../lib/Model';
+import cache from '../lib/cache';
 
-import eventModel from './event';
-
-const models = {
-    event: eventModel
-};
+import pg from 'pg';
 
 const tableFields = [
     'id',
@@ -26,13 +22,14 @@ const tableFields = [
 ];
 
 interface ScheduleModel extends IModel {
-   save?: (data:ModelData) => Promise<number|null>
+   save?: (data:ModelData, client:pg.Client) => Promise<number|null>
    current?: (event_id:number, name:string ) => Promise<ModelData>
 }
 
 const Schedule: ScheduleModel = new Model('schedules', tableFields, {
     order: ['event_id', 'version desc'],
-    preSave: preSave
+    preSave: preSave,
+    postSave: postSave,
 });
 
 async function preSave(data:ModelData): Promise<ModelData>{
@@ -44,20 +41,15 @@ async function preSave(data:ModelData): Promise<ModelData>{
     return data;
 }
 
+async function postSave(id, data){
+    await cache.invalidate('event-schedule', Number(data.event_id));
+}
+
 Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|null>{
-    const event = await models.event.get(Number(data.event_id), {postSelect: async(data)=>{return data}});
-    const client = await database.connect();
-    try{
-        await client.query('select pg_advisory_lock($1, $2)', [event.campaign_id, event.id]);
-    } catch(err){
-        console.trace(err);
-        throw err;
-    }
     const current = await this.find({
         event_id: data.event_id
     }, {
-        excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies'],
-        client: client
+        excludeFields: ['timeslots', 'locations', 'scenes', 'schedule_busies']
     });
     let maxVal = 0;
     if (current.length){
@@ -65,16 +57,7 @@ Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|
     }
     data.version = maxVal+1;
 
-    data.metadata = {
-        scenes: {
-            scheduled: (_.where(data.scenes, {status: 'scheduled'})).length,
-            confirmed: (_.where(data.scenes, {status: 'confirmed'})).length
-        },
-        timeslots: data.timeslots.length,
-        locations: data.locations.length,
-        schedule_busies: data.schedule_busies.length
-    };
-    const id = await this.create(data, {client:client});
+    const id = await this.create(data);
 
     const maxVersions: number = config.get('scheduler.keepVersions') ;
     let saved = 0;
@@ -84,15 +67,19 @@ Schedule.save = async function save(data:ScheduleSnapshotModel): Promise<number|
             saved++;
             continue;
         }
-        await this.delete(item.id, {client:client});
+        await this.delete(item.id);
     }
-    await client.query('select pg_advisory_unlock($1, $2)', [event.campaign_id, event.id]);
-    await client.release(true);
     return id;
 }
 
 Schedule.current = async function current(event_id:number): Promise<ModelData>{
-    return this.findOne({event_id:event_id});
+    let record = await cache.check('event-schedule', Number(event_id));
+    if (record){
+        return record;
+    }
+    record = await this.findOne({event_id:event_id});
+    await cache.store('event-schedule', Number(event_id), record);
+    return record;
 }
 
 export = Schedule;

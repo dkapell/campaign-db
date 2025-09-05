@@ -443,7 +443,7 @@ async function validateScenes(req, res){
                 id: scene.id,
                 issues: await scheduleHelper.validateScene(scene, validationCache)
             }
-        })
+        });
         res.json({success:true, scenes:scenes});
     } catch(err) {
         res.json({success:false, error:err.message});

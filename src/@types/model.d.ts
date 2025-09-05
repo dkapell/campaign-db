@@ -6,7 +6,7 @@ interface ModelData{
 
 interface ModelOptions {
     skipAuditFields?: string[]
-    postSelect?: (data:ModelData) => Promise<ModelData>
+    postSelect?: (data:ModelData, client?:PoolClient) => Promise<ModelData>
     preSave?: (data:ModelData) => Promise<ModelData>
     postSave?: (id:number, ModelData) => Promise<void>
     postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
@@ -17,7 +17,7 @@ interface ModelOptions {
 }
 
 interface RequestOptions {
-    postSelect?: (data: ModelData) => Promise<ModelData>,
+    postSelect?: (data: ModelData, client?:PoolClient) => Promise<ModelData>,
     postSave?: (id: number, data:ModelData) => Promise<void>,
     postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>,
     excludeFields?: string[]

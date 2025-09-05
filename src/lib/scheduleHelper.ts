@@ -8,9 +8,11 @@ import validator from './scheduler/validator';
 import {DateTime} from 'luxon';
 import removeMd from 'remove-markdown';
 import scheduleReportRenderer from './renderer/schedule_report';
-
+import database from '../lib/database';
 
 const statusOrder = ['required', 'requested', 'rejected', 'none'];
+
+const scheduleSaveQueues = {};
 
 function sceneItemSorter(a, b){
     if (a.scene_request_status !== b.scene_request_status){
@@ -805,24 +807,84 @@ async function checkScheduleConfigMatches(campaignId:number, schedule){
 }
 
 async function saveSchedule(eventId: number, name:string=null, keep:boolean=false, force:boolean=false){
-    const event = await models.event.get(eventId);
+    const event = await models.event.get(eventId, {postSelect: async(data)=>{return data}});
     const current = await models.schedule.current(eventId);
-    const doc = {
-        event_id: eventId,
-        name: name,
-        keep: keep,
-        timeslots: await models.timeslot.find({campaign_id:event.campaign_id}),
-        locations: await models.location.find({campaign_id:event.campaign_id}),
-        scenes: await models.scene.find({event_id:eventId}),
-        schedule_busies: await models.schedule_busy.find({event_id:eventId}),
-        created: new Date()
-    };
 
     if (current && current.read_only && !force){
         return;
     }
-    //await cache.invalidate('event-schedule', Number(eventId));
-    return models.schedule.save(doc);
+    if (!_.has(scheduleSaveQueues, event.id)){
+        scheduleSaveQueues[event.id] = 0;
+    }
+
+    scheduleSaveQueues[event.id]++;
+    let client = null;
+    try{
+        client = await database.connect();
+
+        // Get Advisory Lock
+        await client.query('select pg_advisory_lock($1, $2)', [event.campaign_id, Number(event.id)]);
+
+        if (!scheduleSaveQueues[event.id]) {
+            return;
+        }
+
+        // Clear queue
+        scheduleSaveQueues[event.id] = 0;
+        console.log(`Saving Schedule for ${event.name}`)
+        interface scheduleData{
+            timeslots: TimeslotModel[]
+            locations: LocationModel[]
+            scenes: SceneModel[]
+            schedule_busies: ScheduleBusyModel[]
+        }
+        const data: scheduleData = await async.parallel({
+            timeslots: async () => { return models.timeslot.find({campaign_id:event.campaign_id})},
+            locations: async () => { return models.location.find({campaign_id:event.campaign_id})},
+            scenes: async () => { return models.scene.find({event_id:event.id})},
+            schedule_busies: async () => { return models.schedule_busy.find({event_id:event.id})},
+        });
+
+        const doc = {
+            event_id: eventId,
+            name: name,
+            keep: keep,
+            timeslots: data.timeslots,
+            locations: data.locations,
+            scenes: data.scenes,
+            schedule_busies: data.schedule_busies,
+            created: new Date(),
+            metadata: {
+                scenes:{
+                    scheduled:0,
+                    confirmed:0
+                },
+                timeslots: 0,
+                locations:0,
+                schedule_busies: 0
+            }
+        };
+
+        doc.metadata = {
+            scenes: {
+                scheduled: (_.where(doc.scenes, {status: 'scheduled'})).length,
+                confirmed: (_.where(doc.scenes, {status: 'confirmed'})).length
+            },
+            timeslots: doc.timeslots.length,
+            locations: doc.locations.length,
+            schedule_busies: doc.schedule_busies.length
+        };
+        await models.schedule.save(doc, client);
+
+    } catch(err){
+        console.trace(err);
+        throw err;
+    } finally {
+        // Release lock
+        await client.query('select pg_advisory_unlock($1, $2)', [event.campaign_id, Number(event.id)]);
+        await client.release(true);
+    }
+
 }
 
 async function getSchedule(eventId:number){

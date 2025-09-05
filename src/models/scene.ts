@@ -88,7 +88,7 @@ async function fill(data: SceneModel){
         data[`${table}s`] = await async.map(records, async(record) => {
             let object = null;
             if (table === 'user'){
-                object = await models[table].get(data.campaign_id, record.user_id)
+                object = await models[table].get(data.campaign_id, record.user_id);
                 if (object.type === 'player' && data.event_id){
                     const attendance = await models.attendance.findOne({user_id:object.id, event_id:data.event_id, attending:true});
                     if (attendance && attendance.character_id){
@@ -127,14 +127,12 @@ async function fill(data: SceneModel){
             });
         }
     }
-
     if (data.writer_id){
         data.writer = await models.user.get(data.campaign_id, data.writer_id);
     }
     if (data.runner_id){
         data.runner = await models.user.get(data.campaign_id, data.runner_id);
     }
-
     data.additional_writers =  await getAdditionalWriters(data.id as number, data.campaign_id as number);
     return data;
 }

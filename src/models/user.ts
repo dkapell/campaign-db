@@ -31,7 +31,12 @@ async function get(campaignId, id, options:RequestOptions = {}){
     }
 
     const query = 'select * from users where id = $1';
-    const result = await database.query(query, [id]);
+    let result = null;
+    if (options.client){
+        result = await options.client.query(query, [id]);
+    } else {
+        result = await database.query(query, [id]);
+    }
     if (result.rows.length){
         user = result.rows[0];
         await cache.store('user', Number(id), user);
@@ -65,7 +70,13 @@ async function find (campaignId, conditions = {}, options:RequestOptions = {}){
     if (_.has(options, 'limit')){
         query += ` limit ${Number(options.limit)}`;
     }
-    const result = await database.query(query, queryData);
+    let result = null;
+    if (options.client){
+        result = await options.client.query(query, queryData);
+    } else {
+        result = await database.query(query, queryData);
+    }
+
     if (options.skipPostSelect){
         return result.rows;
     }

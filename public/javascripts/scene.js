@@ -335,10 +335,11 @@ function addSceneUser(e){
 
 function addSceneRunnerUser(e){
     e.preventDefault();
+    console.log('here')
     const $container = $(this).closest('.scene-user-picker-container');
     const $userPicker = $container.find('.scene-user-picker');
-    const userId = $('#scene-scene_runner_id').val();
-
+    const userId = $('#scene_runner_id').val();
+console.log(userId)
     const user = $userPicker.find(`option[value="${userId}"]`).data('user');
     const type = $userPicker.find(`option[value="${userId}"]`).data('type');
     if (!user) { return; }

@@ -6,7 +6,6 @@ import config from 'config'
 
 import { EventEmitter } from 'node:events';
 
-import models from '../models';
 import ScheduleScene from './ScheduleScene';
 import ScheduleQueue from './ScheduleQueue';
 import ScheduleCache from './ScheduleCache';
@@ -61,10 +60,39 @@ class Schedule extends EventEmitter {
 
     get happiness():number{
         let happiness = this.global_hapiness;
+        const assignments = {};
+        let avg = 0;
         for (const scene of this.scenes){
             happiness+= scene.total_happiness;
+            for (const playerId of scene.currentPlayers){
+                if (!_.has(assignments, ''+playerId)){
+                    assignments[playerId] = 0;
+                }
+                assignments[playerId]++;
+                avg++;
+            }
+        }
+        avg /= _.keys(assignments).length;
+
+        for (const playerId in assignments){
+            const delta = Math.abs(assignments[playerId] - avg);
+            happiness -= delta * Number(config.get('scheduler.happiness.player_evenness'));
         }
         return happiness;
+    }
+
+    get avgSlots(): number{
+        let assignments = 0;
+        const playerIds = [];
+        for (const scene of this.scenes){
+            for (const playerId of scene.currentPlayers){
+                if (_.indexOf(playerIds, playerId) === -1){
+                    playerIds.push(playerId);
+                }
+                assignments++;
+            }
+        }
+        return assignments / playerIds.length;
     }
 
     get summary(): SchedulerResult{
@@ -380,7 +408,7 @@ class Schedule extends EventEmitter {
         }
         const totalDuration = (new Date()).getTime() - start;
         this.emit('status', {
-            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed} t:${JSON.stringify(timers)}`,
+            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed} t:${JSON.stringify(timers)} aa:${this.avgSlots}`,
             duration: totalDuration
         });
         this.scheduleResult = {
@@ -492,8 +520,7 @@ class Schedule extends EventEmitter {
         for (const type of ['player', 'staff']){
             for (const userId of required[type]){
                 if (_.indexOf(allUsers, userId) === -1){
-                    const event = await this.cache.event();
-                    const user = await models.user.get(event.campaign_id, userId);
+                    const user = await this.cache.user(userId);
                     const issue = `${scene.name} is missing required ${type}: ${user.name}`;
                     if (_.indexOf(this.issues, issue) === -1){
                         this.issues.push(issue);
@@ -598,6 +625,7 @@ class Schedule extends EventEmitter {
         while (!_.has(event, 'attendees')){
             event = await this.cache.event();
         }
+
         if (type === 'staff'){
             return event.attendees.filter( attendee => {
                 return attendee.attending && attendee.user.type !== 'player'

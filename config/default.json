@@ -114,7 +114,8 @@
             "users": 1,
             "character": 2,
             "players_unscheduled": 2,
-            "staff_unscheduled": 1
+            "staff_unscheduled": 1,
+            "player_evenness": 3
         },
         "keepVersions":50
     },

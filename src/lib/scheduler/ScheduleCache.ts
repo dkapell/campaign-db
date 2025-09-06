@@ -1,5 +1,6 @@
 'use strict'
 import async from 'async';
+import _ from 'underscore';
 import models from '../models';
 import Character from '../Character';
 
@@ -11,7 +12,8 @@ class ScheduleCache {
         locations: [],
         event: null,
         characters: [],
-        schedule_busys:[]
+        schedule_busys:[],
+        users: []
     };
 
     constructor(campaignId:number, eventId:number = null){
@@ -50,7 +52,7 @@ class ScheduleCache {
         if (this.cache.event && this.cache.event.id){
             return this.cache.event;
         }
-        const event = await models.event.get(this.event_id, {postSelect: async(data)=>{return data}});
+        const event = await models.event.get(this.event_id);
         this.cache.event = event;
         return this.cache.event;
     }
@@ -84,13 +86,30 @@ class ScheduleCache {
         return this.cache.schedule_busys;
     }
 
+    async users(): Promise<CampaignUser[]>{
+        if (this.cache.users.length){
+            return this.cache.users;
+        }
+        const users = await models.user.find(this.campaign_id);
+        this.cache.users = users;
+        return this.cache.users;
+    }
+
+    async user(userId): Promise<CampaignUser>{
+        if (this.cache.users.length){
+            return _.findWhere(this.cache.users, {id:userId});
+        }
+        return models.user.get(this.campaign_id, userId);
+    }
+
     async fill(){
         await async.parallel([
             async() => {this.event()},
             async() => {this.timeslots()},
             async() => {this.locations()},
             async() => {this.characters()},
-            async() => {this.schedule_busys()}
+            async() => {this.schedule_busys()},
+            async() => {this.users()}
         ]);
     }
 

@@ -68,8 +68,8 @@ class Schedule extends EventEmitter {
                 if (!_.has(assignments, ''+playerId)){
                     assignments[playerId] = 0;
                 }
-                assignments[playerId]++;
-                avg++;
+                assignments[playerId] += scene.timeslot_count;
+                avg += scene.timeslot_count;
             }
         }
         avg /= _.keys(assignments).length;
@@ -89,7 +89,7 @@ class Schedule extends EventEmitter {
                 if (_.indexOf(playerIds, playerId) === -1){
                     playerIds.push(playerId);
                 }
-                assignments++;
+                assignments+= scene.timeslot_count;
             }
         }
         return assignments / playerIds.length;

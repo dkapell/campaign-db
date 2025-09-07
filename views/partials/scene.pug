@@ -973,7 +973,7 @@ mixin sceneCardBody(scene, full, characterIds)
                         - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
 
                         if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0 && !scene.for_anyone
-                            li +#{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
+                            li + up to #{scene.player_count_max - playerCount} Character#{(scene.player_count_max - playerCount > 1)?'s':''}
                         if scene.for_anyone
                             li + Anyone
 

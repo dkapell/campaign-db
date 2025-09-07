@@ -401,7 +401,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     if (scene.player_count_max - scene.players.confirmed.length > 1){
                         shortName = pluralize.plural(shortName);
                     }
-                    players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
+                    players.push(`+ up to ${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
 
                 }
                 if (scene.for_anyone){
@@ -778,7 +778,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);
                             }
-                            players.push(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
+                            players.push(`+ up to ${scene.player_count_max - scene.players.confirmed.length} ${shortName}`);
                         }
                         if (scene.for_anyone){
                             players.push('+ Anyone');
@@ -810,7 +810,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                             doc
                                 .font('Body Font')
                                 .fontSize(10 * options.font.body.scale)
-                                .text(`+${scene.player_count_max - scene.players.confirmed.length} ${shortName}`, sectionX, doc.y, {stroke:false, fill:true, width:sectionWidth});
+                                .text(`+ up to ${scene.player_count_max - scene.players.confirmed.length} ${shortName}`, sectionX, doc.y, {stroke:false, fill:true, width:sectionWidth});
                         }
                         if (scene.for_anyone){
                             doc

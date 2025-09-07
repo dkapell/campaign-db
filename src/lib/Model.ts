@@ -144,16 +144,23 @@ class Model implements IModel{
                 rows = result.rows.sort(this.options.sorter);
             }
 
+            // PostSelect (post process each record)
             if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
-                return async.mapLimit(rows, 10, async(data) => {
+                rows = await async.mapLimit(rows, 10, async(data) => {
                     return options.postSelect(data, options.client);
                 });
 
             } else if (_.has(this.options, 'postSelect') && _.isFunction(this.options.postSelect)){
-                return async.mapLimit(rows, 10, async (data) => {
+                rows = await async.mapLimit(rows, 10, async (data) => {
                     return this.options.postSelect(data, options.client);
                 });
+            }
 
+            // Post Find (sort multiple records)
+            if (_.has(options, 'postFind') && _.isFunction(options.postFind)){
+                return options.postFind(rows);
+            } else if (_.has(this.options, 'postFind') && _.isFunction(this.options.postFind)){
+                return this.options.postFind(rows);
             } else {
                 return rows;
             }

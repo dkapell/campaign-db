@@ -7,6 +7,7 @@ interface ModelData{
 interface ModelOptions {
     skipAuditFields?: string[]
     postSelect?: (data:ModelData, client?:PoolClient) => Promise<ModelData>
+    postFind?: (record:ModelData[]) => Promise<ModelData[]>
     preSave?: (data:ModelData) => Promise<ModelData>
     postSave?: (id:number, ModelData) => Promise<void>
     postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
@@ -17,14 +18,15 @@ interface ModelOptions {
 }
 
 interface RequestOptions {
-    postSelect?: (data: ModelData, client?:PoolClient) => Promise<ModelData>,
-    postSave?: (id: number, data:ModelData) => Promise<void>,
-    postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>,
+    postSelect?: (data: ModelData, client?:PoolClient) => Promise<ModelData>
+    postFind?: (record:ModelData[]) => Promise<ModelData[]>
+    postSave?: (id: number, data:ModelData) => Promise<void>
+    postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
     excludeFields?: string[]
-    count?: boolean,
-    limit?: number,
-    offset?: number,
-    order?: string[],
+    count?: boolean
+    limit?: number
+    offset?: number
+    order?: string[]
     skipRelations?:boolean
     skipPostSelect?:boolean
     noCache?:boolean
@@ -345,6 +347,7 @@ interface SceneModel extends ModelData{
     campaign_id?:number
     event_id?:number
     name?:string
+    sortName?:string
     player_name?:string
     status?:string
     description?:string

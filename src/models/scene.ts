@@ -78,7 +78,8 @@ const Scene = new Model('scenes', tableFields, {
     order: ['event_id', 'name'],
     postSelect:fill,
     preSave:preSave,
-    postSave:postSave
+    postSave:postSave,
+    postFind: postFind
 });
 
 async function fill(data: SceneModel){
@@ -137,6 +138,12 @@ async function fill(data: SceneModel){
     return data;
 }
 
+async function postFind(records){
+    for (const record of records){
+        record.sortName = record.name.replace(/^(a|an|the|)\s+/i, '').trim();
+    }
+    return _.sortBy(records, 'sortName');
+}
 async function getTags(sceneId: number): Promise<TagModel[]>{
     const query = 'select * from scenes_tags where scene_id = $1';
     const result = await database.query(query, [sceneId]);

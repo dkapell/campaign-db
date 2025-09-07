@@ -438,7 +438,10 @@ mixin sceneTable(scenes, exportable=false)
 
                             else
                                 i Unassigned
-                        td(data-search=`${scene.name} ${_.pluck(scene.tags, 'name').join(', ')}`)
+                        td(
+                            data-search=`${scene.name} ${_.pluck(scene.tags, 'name').join(', ')}`
+                            data-sort=scene.sortName
+                        )
                             = scene.name
                             if scene.tags.length
                                 a.btn.btn-outline-info.btn-xs.me-1.ms-2.float-end(

@@ -9,7 +9,7 @@ block content
             +glossaryMenu(entries, listType !== 'search')
 
         .col-md.mx-3.glossary-entries
-            h2.mb-2= listName
+            h2.mb-2.d-print-none= listName
             if listType === 'search'
                 form.form.mb-2#glossarySearchForm(method="GET" action="/glossary/search")
                     .input-group

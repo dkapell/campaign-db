@@ -427,6 +427,10 @@ body
         margin-right:0px !important;
     }
 
+    body {
+        padding-top:0px !important;
+    }
+
     .entry-body {
         page-break-inside: avoid;
         padding-left: .5rem !important;

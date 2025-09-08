@@ -4,7 +4,7 @@ html(lang="en" data-bs-theme=theme_dark_mode?'dark':'light')
 
     body(style= activeUser || showFullMenu ? 'padding-top: 5.5rem;': '' )
         if (activeUser || showFullMenu)
-            nav.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
+            nav.d-print-none.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
                 include ./partials/layout/menu
         else
             include ./partials/layout/mini_menu

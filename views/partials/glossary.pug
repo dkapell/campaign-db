@@ -60,7 +60,7 @@ mixin entryMenu(entry)
     a.nav-link.my-0.p-0.entry-link(href=`#entry-${entry.name.replace(/\W+/g, '_').toLowerCase()}`)= entry.name
 
 mixin typeLayout(type, data, anchor)
-    h3(id=`type-${type.replace(/\W+/g, '_')}`)
+    h3.d-print-none(id=`type-${type.replace(/\W+/g, '_')}`)
         a(name=`type-${type.replace(/\W+/g, '_')}`)= capitalize(type)
     dl
         for entry in data.all

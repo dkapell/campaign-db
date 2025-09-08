@@ -47,14 +47,17 @@ include ../../partials/scene
                         tr
                             td.text-nowrap
                                 if timeslot.display_name
-                                    small= timeslot.display_name
+                                    = timeslot.display_name
                                 else
                                     = timeslot.name
                                 if timeslot.type === 'meal'
                                     i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)
                                 if timeslot.display_name
-                                    br
-                                    small=timeslot.name
+                                    .float-end.ms-1
+                                        i.far.fa-clock.fa-fw(
+                                            data-bs-toggle='tooltip'
+                                            title=timeslot.name
+                                        )
                             td
                                 ul.list-inline.my-0
                                     if timeslot.schedule_busy

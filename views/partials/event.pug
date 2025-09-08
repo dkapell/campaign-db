@@ -189,10 +189,13 @@ mixin eventDate(start, end)
         const endM = moment.utc(end).tz(currentCampaign.timezone)
         let dateStr = '';
 
-        if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD')){
+        if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD') ){
             dateStr = startM.format('ll');
             dateStr += ` ${startM.format('ha')} - ${endM.format('ha')}`;
 
+        } else if (startM.format('YYYY-MM-DD') === endM.subtract(1, 'minutes').format('YYYY-MM-DD')){
+            dateStr = startM.format('ll');
+            dateStr += ` ${startM.format('ha')} - ${endM.add(1, 'minutes').format('ha')}`;
         } else if (startM.format('YYYY-MM') === endM.format('YYYY-MM')){
             dateStr = `${startM.format('MMM D@ha')} - ${endM.format('D@ha, YYYY')}`;
 
@@ -212,7 +215,9 @@ mixin eventDays(start, end)
         const endM = moment.utc(end).tz(currentCampaign.timezone)
         let dateStr = '';
 
-        if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD')){
+        if (startM.format('YYYY-MM-DD') === endM.format('YYYY-MM-DD') ||
+            startM.format('YYYY-MM-DD') === endM.subtract(1, 'minutes').format('YYYY-MM-DD')
+        ){
             dateStr = startM.format('ll');
 
         } else if (startM.format('YYYY-MM') === endM.format('YYYY-MM')){

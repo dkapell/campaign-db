@@ -11,10 +11,10 @@ html(lang="en" data-bs-theme=theme_dark_mode?'dark':'light')
 
         if breadcrumbs
             if wideMain
-                .container-fluid
+                .container-fluid.d-print-none
                     include ./partials/layout/breadcrumbs
             else
-                .container
+                .container.d-print-none
                     include ./partials/layout/breadcrumbs
 
         if (pageTitle)

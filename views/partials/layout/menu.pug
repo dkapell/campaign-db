@@ -7,7 +7,7 @@ mixin menuPages(pages, showDivider)
             each page in visiblePages
                 a.dropdown-item(href=`/page/${page.path}`)= page.name
 
-.container
+.container.d-print-none
 
     a.navbar-brand(href='/')= currentCampaign.name
     button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation")

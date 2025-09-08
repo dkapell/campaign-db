@@ -48,7 +48,7 @@ include ../../partials/scene
                         tr
                             td.text-nowrap
                                 if timeslot.display_name
-                                    small= timeslot.display_name
+                                    = timeslot.display_name
                                 else
                                     = timeslot.name
                                 if timeslot.type === 'meal'

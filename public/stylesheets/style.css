@@ -422,10 +422,19 @@ body
 }
 
 @media print {
-  .entry-body {
-    page-break-inside: avoid;
-  }
-  *{
+    .glossary-entries {
+        margin-left:0px !important;
+        margin-right:0px !important;
+    }
+
+    .entry-body {
+        page-break-inside: avoid;
+        padding-left: .5rem !important;
+        padding-right: .5rem !important;
+        border:none !important;
+    }
+
+    *{
         float:none!important;
         position:static!important;
     }

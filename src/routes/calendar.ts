@@ -104,7 +104,20 @@ function eventCalculate(event) {
 }
 
 function timeslotCalculate(event, timeslot) {
-    const timeslotStartInterval = (event.days[timeslot.day][''+timeslot.start_hour][''+timeslot.start_minute]);
+    const day = timeslot.day;
+    const hour = '' + timeslot.start_hour;
+    const minute = '' + timeslot.start_minute;
+    if (!_.has(event.days, day)){
+        throw new Error(`Could not find day ${day} for ${timeslot.id}`);
+    }
+    if (!_.has(event.days[day], hour)){
+        throw new Error(`Could not find hour ${day} ${hour} for ${timeslot.id}`);
+    }
+    if (!_.has(event.days[day][hour], minute)){
+        throw new Error(`Could not find minute ${day} ${hour}:${minute} for ${timeslot.id}`);
+    }
+
+    const timeslotStartInterval = (event.days[day][hour][minute]);
 
     if (!timeslotStartInterval){
         throw new Error('Could not find timeslot start');

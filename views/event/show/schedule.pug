@@ -41,23 +41,25 @@ include ../../partials/scene
                 thead
                     tr
                         th Timeslot
+                        th.px-0
                         th Scene
                 tbody(role='tablist')
                     each timeslot in schedule
                         tr
                             td.text-nowrap
                                 if timeslot.display_name
-                                    = timeslot.display_name
+                                    small= timeslot.display_name
                                 else
                                     = timeslot.name
                                 if timeslot.type === 'meal'
                                     i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)
+
+                            td.px-0
                                 if timeslot.display_name
-                                    .float-end.ms-1
-                                        i.far.fa-clock.fa-fw(
-                                            data-bs-toggle='tooltip'
-                                            title=timeslot.name
-                                        )
+                                    i.far.fa-clock.fa-fw(
+                                        data-bs-toggle='tooltip'
+                                        title=timeslot.name
+                                    )
                             td
                                 ul.list-inline.my-0
                                     if timeslot.schedule_busy

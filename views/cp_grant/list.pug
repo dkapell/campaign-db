@@ -26,18 +26,19 @@ block content
         else if myGrants
             .row
                 .col
-                    .d-inline-block.me-2
-                        ul.list-group.list-group-horizontal
-                            li.list-group-item
-                                span.me-1 #{currentCampaign.renames.cp.singular} Base:
-                                strong #{cp.base}
-                            li.list-group-item
-                                span.me-1 #{currentCampaign.renames.cp.singular} Cap:
-                                strong #{currentCampaign.cp_cap}
-                            if currentCampaign.cp_factor
+                    if cp.base !== currentCampaign.cp_cap
+                        .d-inline-block.me-2
+                            ul.list-group.list-group-horizontal
                                 li.list-group-item
-                                    span.me-1 #{currentCampaign.renames.cp.singular} Over Cap Value:
-                                    strong #{currentCampaign.cp_factor*100}%
+                                    span.me-1 #{currentCampaign.renames.cp.singular} Base:
+                                    strong #{cp.base}
+                                li.list-group-item
+                                    span.me-1 #{currentCampaign.renames.cp.singular} Cap:
+                                    strong #{currentCampaign.cp_cap}
+                                if currentCampaign.cp_factor
+                                    li.list-group-item
+                                        span.me-1 #{currentCampaign.renames.cp.singular} Over Cap Value:
+                                        strong #{currentCampaign.cp_factor*100}%
                     .d-inline-block
                         ul.list-group.list-group-horizontal
                             if cp.total - cp.base

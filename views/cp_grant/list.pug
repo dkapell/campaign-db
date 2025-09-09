@@ -24,6 +24,34 @@ block content
                     +staffGrants(grants)
 
         else if myGrants
+            .row
+                .col
+                    .d-inline-block.me-2
+                        ul.list-group.list-group-horizontal
+                            li.list-group-item
+                                span.me-1 #{currentCampaign.renames.cp.singular} Base:
+                                strong #{cp.base}
+                            li.list-group-item
+                                span.me-1 #{currentCampaign.renames.cp.singular} Cap:
+                                strong #{currentCampaign.cp_cap}
+                            if currentCampaign.cp_factor
+                                li.list-group-item
+                                    span.me-1 #{currentCampaign.renames.cp.singular} Over Cap Value:
+                                    strong #{currentCampaign.cp_factor*100}%
+                    .d-inline-block
+                        ul.list-group.list-group-horizontal
+                            if cp.total - cp.base
+                                li.list-group-item
+                                    span.me-1 #{currentCampaign.renames.cp.singular} Earned:
+                                    strong #{cp.total - cp.base}
+                            li.list-group-item
+                                span.me-1 #{currentCampaign.renames.cp.singular} Usable:
+                                strong #{cp.usable}
+                            if cp.total !== cp.usable
+                                li.list-group-item
+                                    span.me-1 #{currentCampaign.renames.cp.singular} Total:
+                                    strong #{cp.total}
+
             +playerGrants(myGrants)
 
         else if grants

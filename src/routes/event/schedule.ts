@@ -161,6 +161,7 @@ async function updateScene(req, res){
 
         const timeslots = await req.models.timeslot.find({campaign_id:req.campaign.id})
 
+
         if (sceneData.timeslot === 'none'){
             for (const timeslot of scene.timeslots){
                 timeslot.scene_schedule_status = 'unscheduled';
@@ -173,7 +174,16 @@ async function updateScene(req, res){
             for (let idx = 0; idx < timeslots.length; idx++ ){
                 const timeslot = timeslots[idx];
                 const timeslotData = _.findWhere(scene.timeslots, {id: timeslot.id});
-                if (idx >= startTimeslotIdx && idx < startTimeslotIdx + scene.timeslot_count){
+                if (idx >= startTimeslotIdx - scene.setup_slots && idx < startTimeslotIdx){
+                    if (timeslotData){
+                         timeslotData.scene_schedule_status = 'setup';
+                    } else {
+                        scene.timeslots.push({
+                            id: timeslot.id,
+                            scene_schedule_status: 'setup'
+                        });
+                    }
+                } else if (idx >= startTimeslotIdx && idx < startTimeslotIdx + scene.timeslot_count){
 
                     if (timeslotData){
                          timeslotData.scene_schedule_status = 'suggested';
@@ -181,6 +191,15 @@ async function updateScene(req, res){
                         scene.timeslots.push({
                             id: timeslot.id,
                             scene_schedule_status: 'suggested'
+                        });
+                    }
+                } else if (idx >= startTimeslotIdx + scene.timeslot_count && idx < startTimeslotIdx + scene.timeslot_count + scene.cleanup_slots){
+                    if (timeslotData){
+                         timeslotData.scene_schedule_status = 'cleanup';
+                    } else {
+                        scene.timeslots.push({
+                            id: timeslot.id,
+                            scene_schedule_status: 'cleanup'
                         });
                     }
                 } else if (timeslotData){

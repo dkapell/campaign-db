@@ -60,7 +60,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
         data.schedule_busys = await models.schedule_busy.find({event_id:scene.event_id});
     }
 
-    const reservedTimeslots = await getReservedSceneTimeslots(scene, data.timeslots);
+    const logisticsTimeslots = await getLogisticsTimeslots(scene);
 
     for (const checkScene of data.scenes){
         if (checkScene.id === scene.id){
@@ -68,10 +68,10 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
         }
         const checkLocations = getSelectedLocations(checkScene);
         const checkTimeslots = getSceneTimeslots(checkScene);
-        const checkReservedTimeslots = await getReservedSceneTimeslots(checkScene, data.timeslots);
+        const checkLogisticsTimeslots = await getLogisticsTimeslots(checkScene);
 
-        for (const timeslot of checkTimeslots.timeslots){
-            if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
+        for (const timeslot of checkTimeslots.timeslots){  // for each actual timeslot
+            if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){ // check against actual timeslots
                 for (const location of checkLocations.locations){
                     if (_.findWhere(locations.locations, {id:location.id})){
                         if (!location.multiple_scenes){
@@ -83,7 +83,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                     }
                 }
 
-            } else if (_.findWhere(reservedTimeslots.timeslots, {id:timeslot.id})){
+            } else if (_.findWhere(logisticsTimeslots.timeslots, {id:timeslot.id})){ // check against logistics timeslots
                 for (const location of checkLocations.locations){
                     if (_.findWhere(locations.locations, {id:location.id})){
                         if (!location.multiple_scenes){
@@ -98,7 +98,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
             }
         }
 
-        for (const timeslot of checkReservedTimeslots.timeslots){
+        for (const timeslot of checkLogisticsTimeslots.timeslots){
             if (_.findWhere(timeslots.timeslots, {id:timeslot.id})){
                 for (const location of checkLocations.locations){
                     if (_.findWhere(locations.locations, {id:location.id})){
@@ -106,18 +106,6 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                             issues.push({
                                 code: 'dbl-book-setup',
                                 text: `Double-booked for Setup/Cleanup with ${checkScene.name} in ${location.name}`
-                            });
-                        }
-                    }
-                }
-
-            } else if (_.findWhere(reservedTimeslots.timeslots, {id:timeslot.id})){
-                for (const location of checkLocations.locations){
-                    if (_.findWhere(locations.locations, {id:location.id})){
-                        if (!location.multiple_scenes){
-                            issues.push({
-                                code: 'dbl-book',
-                                text: `Double-booked with ${checkScene.name} in ${location.name}`
                             });
                         }
                     }
@@ -483,36 +471,6 @@ async function getFullSceneTimeslots(scene:SceneModel): Promise<{type:string, ti
 
 }
 
-
-async function getReservedSceneTimeslots(scene:SceneModel, allTimeslots:TimeslotModel[]): Promise<{type:string, timeslots:TimeslotModel[]}>{
-
-    const timeslots = getSceneTimeslots(scene);
-    if (timeslots.type === 'none'){
-        return timeslots;
-    }
-    const timeslotList = [];
-
-    const sceneTimeslotIndexes = []
-
-    for ( const timeslot of timeslots.timeslots){
-        sceneTimeslotIndexes.push(_.indexOf(_.pluck(allTimeslots, 'id'), timeslot.id));
-    }
-    const firstSlotIdx = _.min(sceneTimeslotIndexes);
-    const firstSetupIdx = _.max([0, firstSlotIdx - scene.setup_slots]);
-    for (let i = firstSetupIdx; i < firstSlotIdx; i++){
-        timeslotList.push(allTimeslots[i]);
-    }
-
-    const lastSlotIdx = _.max(sceneTimeslotIndexes);
-    const lastCleanupIdx = _.min([allTimeslots.length, lastSlotIdx + scene.cleanup_slots +1])
-    for (let i = lastSlotIdx+1; i < lastCleanupIdx; i++){
-        timeslotList.push(allTimeslots[i]);
-    }
-
-    timeslots.timeslots = timeslotList;
-    return timeslots;
-
-}
 function getSceneTimeslots(scene: SceneModel): {type:string, timeslots:TimeslotModel[]}{
 
     let timeslots = scene.timeslots.filter(timeslot => {
@@ -527,6 +485,18 @@ function getSceneTimeslots(scene: SceneModel): {type:string, timeslots:TimeslotM
     });
     if (timeslots.length){
         return {type:'suggested', timeslots:timeslots};
+    }
+    return {type:'none', timeslots:[]};
+}
+
+function getLogisticsTimeslots(scene: SceneModel): {type:string, timeslots:TimeslotModel[]}{
+
+    const timeslots = scene.timeslots.filter(timeslot => {
+        return timeslot.scene_schedule_status === 'setup' || timeslot.scene_schedule_status === 'cleanup'
+    });
+
+    if (timeslots.length){
+        return {type:'logistics', timeslots:timeslots};
     }
     return {type:'none', timeslots:[]};
 }

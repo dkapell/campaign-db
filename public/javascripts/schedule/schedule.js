@@ -178,7 +178,6 @@ async function confirmAllSceneUsers($scene, type){
     }
 }
 
-
 function updateSlotScenes($slot){
 
     const $children = $(`.scene-item[cell=${$slot.attr('id')}`);
@@ -256,25 +255,28 @@ function updateSlotScenes($slot){
                     if (gridY - setup_size < 2) {
                         setup_size = gridY - 2;
                     }
-                    const $placeholder = makePlaceholder($scene, `Setup for ${$scene.data('scene-name')}`);
 
-                    $placeholder.appendTo($slot.parent());
-                    $placeholder
-                        .css('grid-row', `${gridY - setup_size} / span ${setup_size}`)
-                        .css('grid-column', `${gridX} / span ${cols}`);
+                    const placeholderRow = gridY - setup_size;
+                    const placeholderCol = gridX;
+                    for (let i = 0; i < setup_size; i++){
+                        const title = `Setup for ${$scene.data('scene-name')}`;
+                        updatePlaceholder($scene, $slot, placeholderRow+i, placeholderCol, title, i);
+                    }
                 }
+
                 if ($scene.data('cleanup')){
                     let cleanup_size = Number($scene.data('cleanup'));
                     const maxRows = $('#locationRows').val();
                     if (gridY + cleanup_size > maxRows){
                         cleanup_size = maxRows - gridY +1;
                     }
-                    const $placeholder = makePlaceholder($scene, `Cleanup for ${$scene.data('scene-name')}`);
+                    const placeholderRow = gridY + $scene.data('timeslot-count');
+                    const placeholderCol = gridX;
 
-                    $placeholder.appendTo($slot.parent());
-                    $placeholder
-                        .css('grid-row', `${gridY + 1} / span ${cleanup_size}`)
-                        .css('grid-column', `${gridX} / span ${cols}`);
+                    for (let i = 0; i < cleanup_size; i++){
+                        const title = `Cleanup for ${$scene.data('scene-name')}`;
+                        updatePlaceholder($scene, $slot, placeholderRow+i, placeholderCol, title, i);
+                    }
                 }
             } else {
                 if ($children.length > $slot.data('children-count')){
@@ -299,25 +301,28 @@ function updateSlotScenes($slot){
                     if (gridX - setup_size < 2) {
                         setup_size = gridX - 2;
                     }
-                    const $placeholder = makePlaceholder($scene, `Setup for ${$scene.data('scene-name')}`);
-
-                    $placeholder.appendTo($slot.parent());
-                    $placeholder
-                        .css('grid-row', `${gridY} / span ${rows}`)
-                        .css('grid-column', `${gridX - setup_size} / span ${setup_size}`);
+                    const placeholderRow = gridY;
+                    const placeholderCol = gridX - setup_size;
+                    for (let i = 0; i < setup_size; i++){
+                        const title = `Setup for ${$scene.data('scene-name')}`;
+                        updatePlaceholder($scene, $slot, placeholderRow, placeholderCol+i, title, i);
+                    }
                 }
+
                 if ($scene.data('cleanup')){
                     let cleanup_size = Number($scene.data('cleanup'));
                     const maxRows = $('#locationColumns').val();
                     if (gridX + cleanup_size > maxRows){
                         cleanup_size = maxRows - gridX +1;
                     }
-                    const $placeholder = makePlaceholder($scene, `Cleanup for ${$scene.data('scene-name')}`);
 
-                    $placeholder.appendTo($slot.parent());
-                    $placeholder
-                        .css('grid-row', `${gridY} / span ${rows}`)
-                        .css('grid-column', `${gridX + 1} / span ${cleanup_size}`);
+                    const placeholderRow = gridY;
+                    const placeholderCol = gridX + $scene.data('timeslot-count');
+
+                    for (let i = 0; i < cleanup_size; i++){
+                        const title = `Cleanup for ${$scene.data('scene-name')}`;
+                        updatePlaceholder($scene, $slot, placeholderRow, placeholderCol+i, title, i);
+                    }
                 }
 
             }
@@ -329,13 +334,103 @@ function updateSlotScenes($slot){
 
         updateSceneStatus($scene);
     });
+    updateSlotPlaceholders($slot);
 }
 
-function makePlaceholder($parent, title){
+function updatePlaceholder($scene, $slot, row, col, title, idx){
+    const xAxisType = $('#xAxisType').val();
+    const rows = xAxisType==='location'?1:$('#cellsPerSlot').val();
+    const cols = xAxisType==='location'?$('#cellsPerSlot').val():1;
+    const $placeholderSlot =  $(`.schedule-slot[data-pos-y="${row}"][data-pos-x="${col}"]`);
+    let $placeholder = $(`.scene-placeholder[cell=${$placeholderSlot.attr('id')}`);
+    if ($placeholder.length){
+        let messages = JSON.parse($placeholder.attr('messages'));
+        messages = messages.filter(message => {
+            return message.sceneId !== $scene.attr('id');
+        });
+        messages.push({
+            sceneId: $scene.attr('id'),
+            slotId: $slot.attr('id'),
+            text: title,
+            idx: idx
+        });
+        $placeholder.attr('messages', JSON.stringify(messages));
+        $placeholder.find('.placeholder-title').html(_.pluck(messages, 'text').join('<br>'));
+
+    } else {
+        $placeholder = makePlaceholder($scene, $slot, row, col, title, idx);
+        $placeholder.appendTo($slot.parent());
+
+        if (xAxisType === 'location'){
+            $placeholder
+                .css('grid-row', `${row} / span 1`)
+                .css('grid-column', `${col} / span ${cols}`);
+        } else {
+            $placeholder
+                .css('grid-row', `${row} / span ${rows}`)
+                .css('grid-column', `${col} / span 1`);
+        }
+    }
+}
+
+function updateSlotPlaceholders($slot){
+    const slotId = $slot.attr('id');
+    $('.scene-placeholder').each(function(){
+        const $placeholder = $(this);
+        let messages = JSON.parse($placeholder.attr('messages'));
+        if (!_.findWhere(messages, {slotId:$slot.attr('id')})){
+            return;
+        }
+        messages = messages.filter(message => {
+            if (message.slotId !== slotId) { return true; }
+            const $scene = $(`#${message.sceneId}`);
+            const sceneSlotId = $scene.attr('cell');
+            return sceneSlotId === slotId;
+        });
+        if (messages.length){
+            $placeholder.attr('messages', JSON.stringify(messages));
+            $placeholder.find('.placeholder-title').html(_.pluck(messages, 'text').join('<br>'));
+            const size = findPlaceholderBlock($placeholder);
+            if (!size){
+                $placeholder
+                    .removeClass('d-flex')
+                    .addClass('d-none');
+
+            } else {
+                $placeholder
+                    .removeClass('d-none')
+                    .addClass('d-flex');
+
+            }
+            const xAxisType = $('#xAxisType').val();
+            if ($('#xAxisType').val() === 'location'){
+                $placeholder.css('grid-row-end', Number($placeholder.css('grid-row-start')) + size);
+            } else {
+                $placeholder.css('grid-column-end', Number($placeholder.css('grid-column-start')) + size);
+            }
+
+        } else {
+            $placeholder.remove();
+        }
+    });
+}
+
+function makePlaceholder($parent, $slot, row, col, title, idx){
+    const messages = [];
+    messages.push({
+        sceneId: $parent.attr('id'),
+        slotId: $slot.attr('id'),
+        text: title,
+        idx:idx
+    });
+
+    const $placeholderSlot = $(`.schedule-slot[data-pos-y="${row}"][data-pos-x="${col}"]`);
+
     const $placeholder = $('<div>')
-        .attr('parent-id', $parent.attr('id'))
+        .attr('cell', $placeholderSlot.attr('id'))
         .addClass('scene-placeholder')
-        .addClass('d-flex');
+        .addClass('d-flex')
+        .attr('messages', JSON.stringify(messages));
 
     const $inner = $('<div>')
         .addClass('m-1')
@@ -346,9 +441,52 @@ function makePlaceholder($parent, title){
         .addClass('flex-grow-1')
         .addClass('align-items-center')
         .addClass('justify-content-center');
-    const $title = $('<div>').addClass('d-flex').text(title).appendTo($inner);
+    const $title = $('<div>').addClass('placeholder-title').addClass('d-flex').text(title).appendTo($inner);
     $inner.appendTo($placeholder);
     return $placeholder;
+}
+
+function findPlaceholderBlock($placeholder){
+    const messages = JSON.parse($placeholder.attr('messages'));
+    const xAxisType = $('#xAxisType').val();
+    let min;
+    if (xAxisType === 'location'){
+        min = Number($placeholder.css('grid-row-start'));
+    } else {
+        min = Number($placeholder.css('grid-column-start'));
+    }
+    let size = 1;
+
+    $('.scene-placeholder').each(function(){
+        if ($(this).attr('cell') === $placeholder.attr('cell')){ return; }
+
+        const checkMessages = JSON.parse($(this).attr('messages'));
+        if (messages.length !== checkMessages.length){
+            return;
+        }
+        for (const message of messages){
+            if (!_.findWhere(checkMessages, {sceneId:message.sceneId, slotId: message.slotId, text:message.text})){
+                return;
+            }
+        }
+        let checkSlotLoc;
+        if (xAxisType === 'location'){
+            checkSlotLoc = Number($(this).css('grid-row-start'));
+        } else {
+            checkSlotLoc = Number($(this).css('grid-column-start'));
+        }
+        if (checkSlotLoc < min){
+            min = checkSlotLoc;
+        }
+        size++;
+    });
+
+    if (xAxisType === 'location' && min !== Number($placeholder.css('grid-row-start'))){
+        return 0;
+    } else if (xAxisType !== 'location' && min !== Number($placeholder.css('grid-column-start'))){
+        return 0;
+    }
+    return size;
 }
 
 function expandScene($scene){

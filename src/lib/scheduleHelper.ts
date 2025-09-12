@@ -455,7 +455,23 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
                 if (userRecord && userRecord.npc){
                     formattedScene.npc = userRecord.npc
                 }
+                formattedScene.type='scene';
                 timeslot.scenes.push(formattedScene);
+            }
+            if (scene.runner_id === userId){
+                if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'setup'}) ||
+                    _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'cleanup'})
+                ){
+                    const formattedScene = formatScene(scene, forPlayer);
+                    if (!formattedScene){ continue; }
+                    const userRecord = _.findWhere(formattedScene.users, {id:userId});
+                    formattedScene.type = _.findWhere(scene.timeslots, {id:timeslot.id}).scene_schedule_status;
+
+                    if (userRecord && userRecord.npc){
+                        formattedScene.npc = userRecord.npc
+                    }
+                    timeslot.scenes.push(formattedScene);
+                }
             }
         }
 

@@ -37,6 +37,8 @@ class ScheduleScene  {
         this.id = Number(scene.id);
         this.score = scene.score;
         this.current.timeslots = getCurrent(scene.timeslots);
+        this.current.setup_timeslots = getCurrent(scene.timeslots, null, 'setup');
+        this.current.cleanup_timeslots = getCurrent(scene.timeslots, null, 'cleanup');
         this.current.locations = getCurrent(scene.locations);
         this.current.players = getCurrent(scene.users, 'player');
         this.current.staff = getCurrent(scene.users, 'staff');
@@ -116,34 +118,16 @@ class ScheduleScene  {
     get currentTimeslots(): Array<number> {
         return this.current.timeslots;
     }
-
-    async claimedTimeslots(): Promise<number[]>{
-        const timeslotList = [];
-        if (!this.currentTimeslots.length){
-            return timeslotList;
-        }
-        const allTimeslots = await this.cache.timeslots();
-
-        const sceneTimeslotIndexes = []
-        for ( const timeslotId of this.currentTimeslots){
-            sceneTimeslotIndexes.push(_.indexOf(_.pluck(allTimeslots, 'id'), timeslotId));
-        }
-        const firstSlotIdx = _.min(sceneTimeslotIndexes);
-        const firstSetupIdx = _.max([0, firstSlotIdx - this.setup_slots]);
-        for (let i = firstSetupIdx; i < firstSlotIdx; i++){
-            timeslotList.push(allTimeslots[i].id);
-        }
-        for (const timeslotIdx of sceneTimeslotIndexes){
-            timeslotList.push(allTimeslots[timeslotIdx].id);
-        }
-        const lastSlotIdx = _.max(sceneTimeslotIndexes);
-        const lastCleanupIdx = _.min([allTimeslots.length, lastSlotIdx + this.cleanup_slots +1])
-        for (let i = lastSlotIdx+1; i < lastCleanupIdx; i++){
-            timeslotList.push(allTimeslots[i].id);
-        }
-
-        return timeslotList;
+    get currentSetupTimeslots(): Array<number>{
+        return this.current.setup_timeslots;
     }
+    get currentCleanupTimeslots(): Array<number>{
+        return this.current.cleanup_timeslots;
+    }
+    get currentLogisticsTimeslots(): Array<number>{
+        return [...this.current.setup_timeslots, ...this.current.cleanup_timeslots];
+    }
+
     async possibleTimeslots(timeslots:TimeslotModel[]): Promise<number[]>{
         // Build a ordered list of possibilites based on requred > requested
         const requiredTimeslots = _.shuffle(_.pluck(_.where(this.timeslots, {scene_request_status:'required'}), 'id' ));
@@ -184,21 +168,43 @@ class ScheduleScene  {
         return possibleTimeslots;
     }
 
-    set currentTimeslots(arr: number[]){
+    async setCurrentTimeslots(arr:number[]){
         this.current.timeslots = arr;
-    }
-    addPossibleTimeslot(newId: number){
-        this.current.timeslots.push(newId)
-        this.current.timeslots = _.uniq(this.current.timeslots);
-    }
-    removePossibleTimeslot(removeId: number){
-        const timeslots = [];
-        for (const id of this.current.timeslots){
-            if (id !== removeId){
-                timeslots.push(id);
+        if (this.data.setup_slots || this.data.cleanup_slots){
+            //const timeslotsOrdered = _.pluck(await this.cache.timeslots(), 'id');
+            const timeslots = await this.cache.timeslots();
+            if (this.data.setup_slots){
+                this.current.setup_timeslots = [];
+                const first = _.min(this.currentTimeslots, (timeslotId) => {
+                    return _.findIndex(timeslots, {id:timeslotId});
+                });
+                const firstIdx = _.findIndex(timeslots, {id:first});
+                for (let i = 1; i <= this.data.setup_slots; i++){
+                    const idx = firstIdx - i;
+                    if (idx < 0) { break; }
+                    this.current.setup_timeslots.push(timeslots[idx].id);
+                }
             }
+
+            if (this.data.cleanup_slots){
+                this.current.cleanup_timeslots = [];
+                const last = _.max(this.currentTimeslots, (timeslotId) => {
+                    return _.findIndex(timeslots, {id:timeslotId});
+                });
+                const lastIdx = _.findIndex(timeslots, {id:last});
+                for (let i = 1; i <= this.data.cleanup_slots; i++){
+                    const idx = lastIdx + i;
+                    if (idx >= timeslots.length) { break; }
+                    this.current.cleanup_timeslots.push(timeslots[idx].id);
+                }
+            }
+
         }
-        this.current.timeslots = timeslots;
+    }
+    clearTimeslots(){
+        this.current.timeslots = [];
+        this.current.setup_timeslots = [];
+        this.current.cleanup_timeslots = [];
     }
 
     /* Locations */
@@ -306,6 +312,10 @@ class ScheduleScene  {
         return _.pluck(users, 'id');
     }
 
+    get runnerId(): number{
+        return this.data.runner_id;
+    }
+
     /* Players */
     get player_count(): Record<string, number> {
         return {
@@ -394,15 +404,30 @@ class ScheduleScene  {
     }
 
     async write(){
+        const timeslots = await this.cache.timeslots();
+
+        for (const timeslot of timeslots){
+            if (!_.findWhere(this.data.timeslots, {id:timeslot.id})){
+                timeslot.scene_schedule_status = 'unscheduled';
+                timeslot.scene_request_status = 'none';
+                this.data.timeslots.push(timeslot)
+            }
+        }
         for (const timeslot of this.data.timeslots){
+
             if (_.indexOf(this.currentTimeslots, timeslot.id) !== -1){
                 if (timeslot.scene_schedule_status !== 'confirmed'){
                     timeslot.scene_schedule_status = 'suggested';
                 }
+            } else if (_.indexOf(this.current.setup_timeslots, timeslot.id) !== -1){
+                timeslot.scene_schedule_status = 'setup'
+            } else if (_.indexOf(this.current.cleanup_timeslots, timeslot.id) !== -1){
+                timeslot.scene_schedule_status = 'cleanup'
             } else {
                 timeslot.scene_schedule_status = 'unscheduled';
             }
         }
+
         for (const location of this.data.locations){
             if (_.indexOf(this.currentLocations, location.id) !== -1){
                 if (location.scene_schedule_status !== 'confirmed'){
@@ -443,7 +468,7 @@ class ScheduleScene  {
             this.data.event_id = null;
         }
         for (const timeslot of this.data.timeslots){
-            if (timeslot.scene_schedule_status === 'suggested'){
+            if (timeslot.scene_schedule_status.match(/^(suggested|setup|cleanup)$/)){
                 timeslot.scene_schedule_status = 'unscheduled';
             }
         }
@@ -463,7 +488,7 @@ class ScheduleScene  {
 
 export default ScheduleScene;
 
-function getCurrent(collection:ModelData[]|CampaignUser[], filter:string=null): number[]{
+function getCurrent(collection:ModelData[]|CampaignUser[], filter:string=null, status:string=null): number[]{
     const result = [];
     for (const item of collection){
         if (filter){
@@ -473,8 +498,14 @@ function getCurrent(collection:ModelData[]|CampaignUser[], filter:string=null): 
                 continue;
             }
         }
-        if (item.scene_schedule_status === 'confirmed' || item.scene_schedule_status === 'suggested'){
-            result.push(Number(item.id))
+        if (status){
+            if (item.scene_schedule_status === status){
+                result.push(Number(item.id));
+            }
+        } else {
+            if (item.scene_schedule_status === 'confirmed' || item.scene_schedule_status === 'suggested'){
+                result.push(Number(item.id))
+            }
         }
 
     }

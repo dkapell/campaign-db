@@ -99,7 +99,9 @@ include ../../partials/scene
                                                             if lidx < scene.locations.confirmed.length-1
                                                                 span.ms-0.me-1 ,
                                                         span )
-                                                if scene.npc
+                                                if scene.type !== 'scene'
+                                                    span.scene-type.mx-1 - #{capitalize(scene.type)}
+                                                else if scene.npc
                                                     span.scene-npc.mx-1(style='font-size:.77rem')
                                                         span.me-0 (
                                                         i.far.fa-user.me-1

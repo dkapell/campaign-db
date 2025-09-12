@@ -444,7 +444,8 @@ interface FormattedSceneModel extends ModelData{
     runner?:CampaignUser
     writer?:CampaignUser
     for_anyone?:boolean
-    non_exclusive?:booleam
+    non_exclusive?:boolean
+    type?:string
 }
 
 interface SceneUserModel extends ModelData{

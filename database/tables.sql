@@ -1094,7 +1094,9 @@ create type scene_element_schedule_status as enum(
     'unscheduled',
     'suggested',
     'confirmed',
-    'rejected'
+    'rejected',
+    'setup',
+    'cleanup'
 );
 
 create table scenes_writers(

@@ -126,13 +126,23 @@ class Schedule extends EventEmitter {
         });
     }
 
-    async getSlotScenes(timeslotId, locationId): Promise<ScheduleScene[]>{
-        const scenes = [];
+    async getSlotScenes(timeslotId, locationId, sceneId): Promise<Record<string, ScheduleScene[]>>{
+        const scenes = {
+            running: [],
+            logistics: []
+        };
+
         for (const scene of this.scenes){
-            const claimedTimeslots = await scene.claimedTimeslots();
-            if (_.indexOf(claimedTimeslots, timeslotId) !== -1 &&
+            if (scene.id === sceneId) { continue; }
+
+            if (_.indexOf(scene.currentTimeslots, timeslotId) !== -1 &&
                 _.indexOf(scene.currentLocations, locationId) !== -1){
-                scenes.push(scene)
+                scenes.running.push(scene)
+            }
+
+            if (_.indexOf(scene.currentLogisticsTimeslots, timeslotId) !== -1 &&
+                _.indexOf(scene.currentLocations, locationId) !== -1){
+                scenes.logistics.push(scene)
             }
         }
         return scenes;
@@ -148,11 +158,21 @@ class Schedule extends EventEmitter {
         return scenes;
     }
 
-    addScene(scene:ScheduleScene){
+    getLogisticsScenes(timeslotId): ScheduleScene[]{
+        const scenes = [];
+        for (const scene of this.scenes){
+            if (_.indexOf(scene.currentLogisticsTimeslots, timeslotId) !== -1){
+                scenes.push(scene)
+            }
+        }
+        return scenes;
+    }
+
+    async addScene(scene:ScheduleScene){
         const current = _.findWhere(this.scenes, {id: scene.id});
         if (current) {
             current.currentLocations = scene.currentLocations;
-            current.currentTimeslots = scene.currentTimeslots;
+            await current.setCurrentTimeslots(scene.currentTimeslots);
             current.currentStaff = scene.currentStaff;
             current.currentPlayers = scene.currentPlayers;
             current.score = scene.score;
@@ -225,7 +245,7 @@ class Schedule extends EventEmitter {
 
                 //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
             }
-            this.addScene(scene)
+            await this.addScene(scene)
         }
         const now = (new Date()).getTime();
         timers.placement = now - sectionLast;
@@ -259,7 +279,7 @@ class Schedule extends EventEmitter {
 
                     //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
-                this.addScene(scene);
+                await this.addScene(scene);
             }
             let now = (new Date()).getTime();
             timers.requested_min = now - sectionLast;
@@ -291,7 +311,7 @@ class Schedule extends EventEmitter {
 
                     //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
-                this.addScene(scene);
+                await this.addScene(scene);
             }
             now = (new Date()).getTime();
             timers.requested_max = now - sectionLast;
@@ -317,7 +337,7 @@ class Schedule extends EventEmitter {
 
                     //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
-                this.addScene(scene);
+                await this.addScene(scene);
             }
             now = (new Date()).getTime();
             timers.character = now - sectionLast;
@@ -359,7 +379,7 @@ class Schedule extends EventEmitter {
                     last = now;
                     //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
-                this.addScene(scene);
+                await this.addScene(scene);
             }
             let now = (new Date()).getTime();
             timers.all_min = now - sectionLast;
@@ -395,7 +415,7 @@ class Schedule extends EventEmitter {
                     last = now;
                     //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
-                this.addScene(scene);
+                await this.addScene(scene);
             }
             now = (new Date()).getTime();
             timers.all_max = (new Date()).getTime() - sectionLast;
@@ -470,7 +490,7 @@ class Schedule extends EventEmitter {
             }
         }
         if (foundTimeslots.length === scene.timeslot_count){
-            scene.currentTimeslots = foundTimeslots;
+            await scene.setCurrentTimeslots(foundTimeslots);
             scene.status = 'scheduled';
             scene.event_id = this.event_id;
             for (const userId of scene.desiredPlayers('required')){
@@ -481,7 +501,7 @@ class Schedule extends EventEmitter {
             }
             return {slotted: true, conflicts:[]};
         } else {
-            scene.currentTimeslots = [];
+            scene.clearTimeslots();
             scene.clearPlayers();
             scene.clearStaff();
             scene.status = 'ready';
@@ -489,22 +509,29 @@ class Schedule extends EventEmitter {
         }
     }
 
-    protected async getTimeslotSpan(timeslotId: number, before: number, after:number): Promise<number[]>{
-        const timeslotList = [];
+    protected async getTimeslotSpan(timeslotId: number, before: number, during: number, after:number): Promise<Record<string, number[]>>{
+        const timeslotList = {
+            before: [],
+            during: [],
+            after: []
+        };
 
         const allTimeslots = await this.cache.timeslots();
-
 
         const timeslotIdx = _.indexOf(_.pluck(allTimeslots, 'id'), timeslotId);
 
         const firstSetupIdx = _.max([0, timeslotIdx - before]);
         for (let i = firstSetupIdx; i < timeslotIdx; i++){
-            timeslotList.push(allTimeslots[i].id);
+            timeslotList.before.push(allTimeslots[i].id);
         }
 
-        const lastCleanupIdx = _.min([allTimeslots.length, timeslotIdx + after])
-        for (let i = timeslotIdx; i < lastCleanupIdx; i++){
-            timeslotList.push(allTimeslots[i].id);
+        for (let i = timeslotIdx; i < timeslotIdx + during; i++){
+            timeslotList.during.push(allTimeslots[i].id);
+        }
+
+        const lastCleanupIdx = _.min([allTimeslots.length, timeslotIdx + during + after])
+        for (let i = timeslotIdx + during; i < lastCleanupIdx; i++){
+            timeslotList.after.push(allTimeslots[i].id);
         }
 
         return timeslotList;
@@ -583,7 +610,8 @@ class Schedule extends EventEmitter {
         const locations = await this.cache.locations();
         const timeslots = await this.cache.timeslots();
 
-        const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count + scene.cleanup_slots);
+        const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count, scene.cleanup_slots);
+        const allSceneTimeslots = [...sceneTimeslots.before, ...sceneTimeslots.during, ...sceneTimeslots.after];
 
         // try to find the desired number of locations
         for (let idx = 0; idx < scene.locations_count; idx++ ){
@@ -600,16 +628,25 @@ class Schedule extends EventEmitter {
                 let clear = true;
 
                 const startTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-                checkScene: for (const timeslotId of sceneTimeslots){
 
-                    const slotScenes = (await this.getSlotScenes(timeslotId, locationId)).filter(slotScene=>{
-                        return slotScene.id !== scene.id;
-                    });
-                    if (slotScenes.length && !location.multiple_scenes){
-                        clear = false;
-                        break checkScene;
+                checkScene: for (const timeslotId of allSceneTimeslots){
+                    const slotScenes = (await this.getSlotScenes(timeslotId, locationId, scene.id));
+
+                    if (_.indexOf(sceneTimeslots.during, timeslotId) !== -1){
+                        // is during
+                        if ((slotScenes.running.length || slotScenes.logistics.length )&& !location.multiple_scenes){
+                            clear = false;
+                            break checkScene;
+                        }
+                    } else {
+                        // is logistics
+                        if (slotScenes.running.length && !location.multiple_scenes){
+                            clear = false;
+                            break checkScene;
+                        }
                     }
                 }
+
                 if (clear){
                     foundLocations.push(locationId);
                     break;
@@ -663,6 +700,7 @@ class Schedule extends EventEmitter {
 
         const data = await async.map(timeslots, async(timeslotId)=>{
             const scenes = this.getTimeslotScenes(timeslotId);
+            const backendScenes = this.getLogisticsScenes(timeslotId);
             const result = {
                 all: [],
                 available:[],
@@ -698,6 +736,14 @@ class Schedule extends EventEmitter {
                         }
                     }
                 }
+
+                for (const scene of backendScenes){
+                    if (userId === scene.runnerId){
+                        free = false;
+                        break;
+                    }
+                }
+
                 const schedule_busy = _.findWhere(await this.cache.schedule_busys(),{
                     event_id: event.id,
                     user_id: userId,

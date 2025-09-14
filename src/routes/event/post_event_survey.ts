@@ -1074,6 +1074,7 @@ async function getResponse(req, event, attendance){
 
         const surveyResponseId = await req.models.survey_response.create(surveyResult);
         await req.models.attendance.update(attendance.id, {post_event_survey_response_id:surveyResponseId});
+        attendance.post_event_survey_response_id = surveyResponseId;
         return getResponse(req, event, attendance);
     }
 }

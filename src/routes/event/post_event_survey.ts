@@ -988,7 +988,7 @@ async function addSceneFeedback(req, res){
         scene_feedback.survey_response_id = response.id;
         scene_feedback.scene_id = scene.id;
         scene_feedback.skipped = false;
-        const current = await req.models.scene_feedback.findOne({survey_response_id:response.id, scnee_id:scene.id});
+        const current = await req.models.scene_feedback.findOne({survey_response_id:response.id, scene_id:scene.id});
         if (current){
             await req.models.scene_feedback.update(current.id, scene_feedback);
         } else {

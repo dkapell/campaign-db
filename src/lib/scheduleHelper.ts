@@ -269,7 +269,9 @@ function formatSceneForSurvey(scene:FormattedSceneModel){
         feedback_id:scene.feedback_id,
         gm_feedback: scene.gm_feedback,
         npc_feedback: scene.npc_feedback,
-        skipped: scene.skipped
+        skipped: scene.skipped,
+        description: scene.description,
+        printout_note: scene.printout_note
     };
     if (scene.staff.confirmed){
         for (const staff of scene.staff.confirmed){

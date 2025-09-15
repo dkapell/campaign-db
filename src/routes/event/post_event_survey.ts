@@ -988,7 +988,7 @@ async function addSceneFeedback(req, res){
         scene_feedback.survey_response_id = response.id;
         scene_feedback.scene_id = scene.id;
         scene_feedback.skipped = false;
-        const current = await req.models.scene_feedback.findOne({survey_response_id:response.id, scnee_id:scene.id});
+        const current = await req.models.scene_feedback.findOne({survey_response_id:response.id, scene_id:scene.id});
         if (current){
             await req.models.scene_feedback.update(current.id, scene_feedback);
         } else {
@@ -1074,6 +1074,7 @@ async function getResponse(req, event, attendance){
 
         const surveyResponseId = await req.models.survey_response.create(surveyResult);
         await req.models.attendance.update(attendance.id, {post_event_survey_response_id:surveyResponseId});
+        attendance.post_event_survey_response_id = surveyResponseId;
         return getResponse(req, event, attendance);
     }
 }

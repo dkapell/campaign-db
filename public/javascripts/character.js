@@ -454,7 +454,39 @@ function displayDetails(object, selected){
                 break;
             }
             case 'trait':
-                if (object.provides[0].value === 'custom'){
+                if (object.provides[0].value.match(/^\s*\[/)){
+                    $('.provides-options-text').find('label').text('Trait');
+                    const options = object.provides[0].value
+                        .replace(/^\s*\[/, '')
+                        .replace(/\]\s*$/, '')
+                        .split(/\s*,\s*/);
+
+                    const $select = $('#provides_value_select');
+                    $select.empty();
+                    $select.attr('data-placeholder', 'Select a Trait');
+                    $select.append($('<option>'));
+
+                    const match = (selected && selected.details && selected.details.trait)?selected.details.trait:false;
+                    for (const option of options){
+                        $('<option>')
+                            .attr('value', option)
+                            .attr('selected', option === match)
+                            .text(option)
+                            .appendTo($select);
+                    }
+                    $select.attr('required', true);
+                    $select.select2({
+                        theme:'bootstrap-5',
+                        minimumResultsForSearch: 6,
+                        width:'resolve'
+                    });
+
+
+                    $('.provides-options-select').show();
+                    $('#provides_value_text').attr('required', false);
+                    $('.provides-options-text').hide();
+
+                } else if (object.provides[0].value === 'custom'){
                     $('.provides-options-text').find('label').text('Trait');
                     if(selected){
                         $('#provides_value_text').val(selected.details.trait);

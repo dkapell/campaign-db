@@ -905,7 +905,7 @@ function toggleProvidesFields($row){
             break;
         case 'trait':
             $row.find('.skill-provides-name').attr('disabled', false).attr('placeholder', 'Trait Category');
-            $row.find('.skill-provides-value').attr('disabled', false).attr('placeholder', 'Trait or "Custom"');
+            $row.find('.skill-provides-value').attr('disabled', false).attr('placeholder', 'Trait, "Custom", or [List, Of, Traits]');
             break;
         case 'diagnose':
             $row.find('.skill-provides-name').attr('disabled', true).val('').attr('placeholder', '');

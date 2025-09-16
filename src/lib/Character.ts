@@ -1112,16 +1112,28 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
                         if (!_.has(provides.traits, provider.name)){
                             provides.traits[provider.name] = [];
                         }
-                        if (provider.value === 'custom'){
+                        if (provider.value && provider.value.match(/^\s*\[/)){
+                            if (item.details && item.details.trait){
+                                if (_.indexOf(provides.traits[provider.name], item.details.trait) === -1){
+                                    provides.traits[provider.name].push(item.details.trait);
+                                }
+                            } else {
+                                provides.traits[provider.name].push('Unset User-Chosen Trait');
+                            }
+
+                        } else if (provider.value === 'custom'){
 
                             if (item.details && item.details.trait){
-                                provides.traits[provider.name].push(item.details.trait);
+                                if (_.indexOf(provides.traits[provider.name], item.details.trait) === -1){
+                                    provides.traits[provider.name].push(item.details.trait);
+                                }
                             } else {
                                 provides.traits[provider.name].push('Unset Custom Trait');
                             }
                         } else {
-
-                            provides.traits[provider.name].push(provider.value);
+                            if (_.indexOf(provides.traits[provider.name], provider.value) === -1){
+                                provides.traits[provider.name].push(provider.value);
+                            }
                         }
                         break;
                     case 'style':{
@@ -1238,6 +1250,15 @@ async function gatherProvides (items, isSkills, provides, singleSkill?:boolean){
             }
         }
     }
+    if (_.keys(provides.traits).length){
+        for (const type in provides.traits){
+            provides.traits[type].sort();
+        }
+    }
+    for (const type of ['diagnose', 'languages', 'tagskills']){
+        provides[type].sort();
+    }
+
     return provides;
 }
 

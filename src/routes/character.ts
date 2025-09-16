@@ -706,7 +706,9 @@ function formatDetails(provides, data){
                 }
                 break;
             case 'trait':
-                if (provider.value === 'custom' && _.has(data, 'provides_value_text') && data.provides_value_text !== ''){
+                if (provider.value.match(/^\s*\[/) && _.has(data, 'provides_value_select') && data.provides_value_select !== ''){
+                    details.trait = data.provides_value_select;
+                } else if (provider.value === 'custom' && _.has(data, 'provides_value_text') && data.provides_value_text !== ''){
                     details.trait = data.provides_value_text;
                 }
                 break;

@@ -128,7 +128,7 @@ append content
                         a.list-group-item.list-group-item-action(href='/post_event_survey')
                                 i.fa.fa-fw.fa-comment.me-1
                                 | #{currentCampaign.renames.post_event_survey.plural}
-                        if currentCampaign.display_cp && (cp || checkPermission('gm, cp grant'))
+                        if currentCampaign.display_cp && currentCampaign.cp_requests && (cp || checkPermission('gm, cp grant'))
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-hat-wizard.me-1
                                 = currentCampaign.renames.character_point.plural

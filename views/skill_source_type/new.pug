@@ -12,3 +12,13 @@ block content
 
 append scripts
     script(src='/javascripts/validator.js')
+    script.
+        $(function(){
+            $('#skill_source_type_group').on('keyup', function(){
+                if ($(this).val()){
+                    $('.group-details').show();
+                } else {
+                    $('.group-details').hide();
+                }
+            }).trigger('keyup');
+        });

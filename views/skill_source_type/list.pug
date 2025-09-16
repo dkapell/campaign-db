@@ -22,6 +22,7 @@ block content
                         th.sort-handle
                     th Order
                     th(data-priority="1") Name
+                    th Group
                     th Number Free
                     th Max Sources
                     th Display on Sheet
@@ -38,12 +39,21 @@ block content
                             td= skill_source_type.id
                         td= skill_source_type.display_order
                         td= capitalize(skill_source_type.name)
+                        td= skill_source_type.category
                         td= skill_source_type.num_free
+
                         td
                             if skill_source_type.max_sources
-                                = skill_source_type.max_sources
+                                | #{skill_source_type.category?'S: ':''}#{skill_source_type.max_sources}
                             else
-                                i Unlimited
+                                i #{skill_source_type.category?'S: ':''}Unlimited
+
+                            if skill_source_type.category
+                                span.mx-1 |
+                                if skill_source_type.max_category
+                                    | G: #{skill_source_type.max_category}
+                                else
+                                    i G: Unlimited
                         td
                             .badge(class=`text-bg-${skill_source_type.display_on_sheet?'success':'warning'}`)=skill_source_type.display_on_sheet?'Yes':'No'
                         td

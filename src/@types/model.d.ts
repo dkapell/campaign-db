@@ -149,9 +149,11 @@ interface SourceTypeModel extends ModelData{
     id: number
     campaign_id: number
     name: string
+    category?: string
     description: string
     display_order:number
     num_free:number
+    num_category?: number
     max_sources:number
     display_on_sheet:boolean
     display_in_header:boolean

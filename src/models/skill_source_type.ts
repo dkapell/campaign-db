@@ -6,9 +6,11 @@ const tableFields = [
     'id',
     'campaign_id',
     'name',
+    'category',
     'display_order',
     'num_free',
     'max_sources',
+    'max_category',
     'display_on_sheet',
     'display_in_header',
     'on_scene_user_picker'

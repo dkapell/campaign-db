@@ -50,10 +50,13 @@ async function showNew(req, res, next){
 
         res.locals.skill_source_type = {
             name: null,
+            category: null,
             num_free: 0,
             display_on_sheet: true,
             display_in_header: false,
             on_scene_user_picker: true,
+            max_sources: null,
+            max_category: null,
         };
         res.locals.breadcrumbs = {
             path: [

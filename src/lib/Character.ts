@@ -184,6 +184,29 @@ class Character{
             return;
         }
 
+        const localSources = await this.sources();
+        const sourceTypeCategories = {};
+
+        for (const source of localSources){
+            if (source.type.category){
+                if (!_.has(sourceTypeCategories, source.type.category)){
+                    sourceTypeCategories[source.type.category] = 0;
+                }
+                sourceTypeCategories[source.type.category]++;
+            }
+        }
+
+        if (skill_source.type.max_sources && (_.where(localSources, {type_id: skill_source.type_id})).length >= skill_source.type.max_sources){
+            return;
+        }
+        if (skill_source.type.max_category &&
+            skill_source.type.category &&
+            _.has(sourceTypeCategories, skill_source.type.category) &&
+            sourceTypeCategories[skill_source.type.category] >= skill_source.type.max_category
+        ){
+            return;
+        }
+
         const user = await models.user.get(this._data.campaign_id, this._data.user_id);
         let activeUser = user;
         if (activeUserId){
@@ -209,7 +232,12 @@ class Character{
         }
 
         if (skill_source.type.num_free){
-            const sourceCount = (_.where(await this.sources(), {type_id: skill_source.type_id})).length;
+            let sourceCount = 0;
+            if (skill_source.type.category && _.has(sourceTypeCategories, skill_source.type.category)){
+                sourceCount = sourceTypeCategories[skill_source.type.category];
+            } else {
+                sourceCount = (_.where(await this.sources(), {type_id: skill_source.type_id})).length;
+            }
             if (sourceCount < skill_source.type.num_free){
                 doc.cost = 0;
             } else {
@@ -860,6 +888,17 @@ class Character{
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
+        const sourceTypeCategories = {};
+
+        for (const source of localSources){
+            if (source.type.category){
+                if (!_.has(sourceTypeCategories, source.type.category)){
+                    sourceTypeCategories[source.type.category] = 0;
+                }
+                sourceTypeCategories[source.type.category]++;
+            }
+        }
+
         return async.filter(sources, async (source) => {
             if (_.findWhere(localSources, {id: source.id} )){
                 return false;
@@ -887,6 +926,16 @@ class Character{
 
             const sourceType = await models.skill_source_type.get(source.type_id);
             if (sourceType.max_sources && (_.where(localSources, {type_id: source.type_id})).length >= sourceType.max_sources){
+                console.log(`skipping ${source.name} because sources ${sourceType.max_sources}`)
+                return false;
+            }
+
+            if (sourceType.max_category &&
+                sourceType.category &&
+                _.has(sourceTypeCategories, sourceType.category) &&
+                sourceTypeCategories[sourceType.category] >= sourceType.max_category
+            ){
+                console.log(`skipping ${source.name} because category ${sourceType.max_category}`)
                 return false;
             }
             if (_.isArray(source.conflicts)){
@@ -905,6 +954,19 @@ class Character{
                 }
                 if (found < source.require_num){
                     return false;
+                }
+            }
+
+            if (sourceType.num_free){
+                if (sourceType.category){
+                    if (
+                        _.has(sourceTypeCategories, sourceType.category) &&
+                        sourceTypeCategories[sourceType.category] < sourceType.num_free
+                    ){
+                        source.free = true;
+                    }
+                } else if ((_.where(localSources, {type_id: source.type_id})).length < sourceType.num_free){
+                    source.free = true;
                 }
             }
 

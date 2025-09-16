@@ -48,7 +48,7 @@ append content
                                     i.fa.fa-lock-open.me-1
                                     | Release
 
-                        if checkPermission('gm, cp_grant') && pending_cp_grants && currentCampaign.display_cp
+                        if checkPermission('gm, cp_grant') && pending_cp_grants && currentCampaign.display_cp && currentCampaign.cp_requests
                             a.list-group-item.list-group-item-action(href='/cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
                                 | Pending #{currentCampaign.renames.cp.singular} Grants

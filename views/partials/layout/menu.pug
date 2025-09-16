@@ -58,7 +58,7 @@ mixin menuPages(pages, showDivider)
                                     a.dropdown-item(href='/user/gallery') Gallery
 
                             if checkPermission('contrib')
-                                if currentCampaign.display_cp
+                                if currentCampaign.display_cp && currentCampaign.cp_requests
                                     a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
                                 if currentCampaign.display_community_cp
                                     a.dropdown-item(href='/community_cp_grant') Community CP
@@ -104,7 +104,7 @@ mixin menuPages(pages, showDivider)
                                     else
                                         a.dropdown-item(href='/character/new') New Character
 
-                                    if currentCampaign.display_cp
+                                    if currentCampaign.display_cp && currentCampaign.cp_requests
                                         a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
                                     if currentCampaign.display_community_cp
                                         a.dropdown-item(href='/community_cp_grant') Community CP

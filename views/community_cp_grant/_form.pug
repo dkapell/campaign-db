@@ -1,0 +1,27 @@
+if checkPermission('gm, cp grant')
+    .row.my-2
+        .col
+            label.control-label(for="grant_user_id") Player
+            select.form-select.select2(name="grant[user_id]",id="grant_user_id" data-placeholder='Player' required)
+                option
+                option(value=-1) Withdrawal
+                each user in users
+                    option(value=user.id, selected=Number(grant.user_id)===user.id)= user.name
+            div.invalid-feedback Please choose a valid player
+
+.row.my-2
+    .col
+        +markdownEditor('Source / Description', 'grant_content', 'grant[content]', 3, 50, grant.content, false, {required:true})
+
+.row.my-2
+     .col
+        label.control-label(for="grant_amount") Amount of CP
+        input.form-control#grant_amount(type="number" placeholder="Quantity" name="grant[amount]" value=grant.amount required min=-10 step=0.5)
+        div.invalid-feedback Please specify a valid Amount
+
+.row.my-2
+    .col
+        button.btn.btn-primary(type="submit")= grant.id?'Update':'Create'
+        a.btn.btn-link(href="/cp_grant") Cancel
+
+

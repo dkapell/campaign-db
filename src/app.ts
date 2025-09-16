@@ -48,6 +48,7 @@ import mapRouter from './routes/map';
 import characterRouter from './routes/character';
 import characterFieldRouter from './routes/character_field';
 import cpGrantRouter from './routes/cp_grant';
+import communityCpGrantRouter from './routes/community_cp_grant';
 
 import reportRouter from './routes/report';
 
@@ -382,6 +383,7 @@ app.use('/glossary', glossaryEntryRouter);
 app.use('/map', mapRouter);
 app.use('/character', characterRouter);
 app.use('/cp_grant', cpGrantRouter);
+app.use('/community_cp_grant', communityCpGrantRouter);
 app.use('/report', reportRouter);
 app.use('/character_field', characterFieldRouter);
 app.use('/page', pageRouter);

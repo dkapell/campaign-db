@@ -265,6 +265,11 @@ fieldset.mb-2.border.p-2.rounded
                     input.form-check-input#campaign_cp_requests(type="checkbox", name="campaign[cp_requests]", checked=campaign.cp_requests)
                     label.form-check-label(for="campaign_cp_approval") Allow Players to request #{currentCampaign.renames.cp.singular} Grants
         .row.my-2
+             .col
+                .form-check.form-switch
+                    input.form-check-input#campaign_display_community_cp(type="checkbox", name="campaign[display_community_cp]", checked=campaign.display_community_cp)
+                    label.form-check-label(for="campaign_display_community_cp") Enable Community CP Tracker
+        .row.my-2
             label.col-form-label.col-md-4(for="campaign_cp_base") Base/Starting #{currentCampaign.renames.character_point.singular}
             .col
                 input.form-control#campaign_cp_base(placeholder=currentCampaign.renames.cp.singular name="campaign[cp_base]" value=campaign.cp_base type='number')

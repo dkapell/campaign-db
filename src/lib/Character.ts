@@ -222,7 +222,7 @@ class Character{
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
-        if (campaign.display_cp && user.type === 'player' && this._data.active && doc.cost > (cp.usable - this._data.cp)) {
+        if (campaign.display_cp && user.type === 'player' && this._data.active && doc.cost && doc.cost > (cp.usable - this._data.cp)) {
             return;
         }
 
@@ -347,7 +347,7 @@ class Character{
             return;
         }
 
-        doc.cost = skillCosts[character_skills.length] || 0;
+        doc.cost = Number(skillCosts[character_skills.length]) || 0;
 
         if (details){
             doc.details = JSON.stringify(details);
@@ -356,7 +356,7 @@ class Character{
         const cp = await campaignHelper.cpCalculator(this._data.user_id, this._data.campaign_id);
         const campaign = await models.campaign.get(this._data.campaign_id);
 
-        if (campaign.display_cp && user.type === 'player' && this._data.active && doc.cost > (cp.usable - this._data.cp)) {
+        if (campaign.display_cp && user.type === 'player' && this._data.active && doc.cost && doc.cost > (cp.usable - this._data.cp)) {
             return;
         }
 
@@ -832,7 +832,7 @@ class Character{
                     skills = _.without(skills, existing);
                 }
 
-                if (campaign.display_cp && user.type === 'player' && this._data.active && Number(skill.next_cost) > (cp.usable - this._data.cp)) {
+                if (campaign.display_cp && user.type === 'player' && this._data.active && Number(skill.next_cost) > 0 && Number(skill.next_cost) > (cp.usable - this._data.cp)) {
                     continue checkSkills;
                 }
 
@@ -908,7 +908,7 @@ class Character{
                 }
             }
 
-            if (campaign.display_cp && user.type === 'player' && this._data.active && source.cost > (cp.usable - this._data.cp)) {
+            if (campaign.display_cp && user.type === 'player' && this._data.active && source.cost > 0 && source.cost > (cp.usable - this._data.cp)) {
                 return false;
             }
             return true;

@@ -43,6 +43,7 @@ async function showNew(req, res){
         display_map: 'disabled',
         display_glossary: 'private',
         display_cp: false,
+        display_community_cp: false,
         display_translations: false,
         display_gallery: false,
         display_schedule: true,
@@ -149,6 +150,7 @@ async function create(req, res){
 
     for(const field of [
         'display_cp',
+        'display_community_cp',
         'default_to_player',
         'menu_dark',
         'cp_approval',
@@ -187,6 +189,7 @@ async function update(req, res){
     req.session.campaignData = campaign;
     for(const field of [
         'display_cp',
+        'display_community_cp',
         'default_to_player',
         'menu_dark',
         'cp_approval',

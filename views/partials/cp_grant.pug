@@ -68,7 +68,11 @@ mixin staffGrants(grants)
                 for grant in grants
                     tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
                         td.dtr-control
-                        td= grant.user.name
+                        td
+                            if grant.user
+                                = grant.user.name
+                            else
+                                i Withdrawal
                         td.text-wrap
                             if grant.content.length>83
                                 | !{marked.parseInline(grant.content.substr(0, 80)+'...')}

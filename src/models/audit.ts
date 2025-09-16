@@ -13,6 +13,7 @@ import mapModel from './map';
 import rulebookModel from './rulebook';
 import custom_fieldModel from './custom_field';
 import cp_grantModel from './cp_grant';
+import community_cp_grantModel from './community_cp_grant';
 import eventModel from './event';
 import attendanceModel from './attendance';
 import surveyModel from './survey';
@@ -33,6 +34,7 @@ const models = {
     rulebook: rulebookModel,
     custom_field: custom_fieldModel,
     cp_grant: cp_grantModel,
+    community_cp_grant: community_cp_grantModel,
     event: eventModel,
     attendance: attendanceModel,
     survey: surveyModel,

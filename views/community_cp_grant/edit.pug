@@ -1,0 +1,27 @@
+extends ../layout
+
+include ../partials/editor
+
+block content
+    .row
+        .col-sm-8.offset-sm-2
+            .card
+                .card-header= `Edit Community CP Grant: ${grant.content}`
+                .card-body
+                    form.form.needs-validation(method="POST" action="/community_cp_grant/" + grant.id novalidate)
+                        input(type="hidden", name="_method",  value="PUT")
+                        input(type="hidden", name='_csrf',value=csrfToken)
+                        input(type="hidden", name='grant[id]',value=grant.id)
+                        include ./_form.pug
+
+append scripts
+    script(src='/javascripts/validator.js')
+    script.
+        $(function(){
+             $('.select2').select2({
+                theme:'bootstrap-5',
+                minimumResultsForSearch: 6,
+                width:'resolve'
+            });
+        });
+

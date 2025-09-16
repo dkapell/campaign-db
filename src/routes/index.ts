@@ -37,6 +37,10 @@ async function showIndex(req, res){
         }
         res.locals.pending_cp_grants = Number(await req.models.cp_grant.count({campaign_id:req.campaign.id, status:'pending'}));
 
+        if (req.campaign.display_community_cp){
+            res.locals.community_cp = await campaignHelper.communityCpCalculator(user.id, req.campaign.id);
+        }
+
         // User is a Player - show my cp grants, events, current character
         if (user && (user.type === 'player' || req.session.player_mode) && !req.session.admin_mode){
             const characterData = await req.models.character.findOne({user_id: user.id, active: true, campaign_id:req.campaign.id});

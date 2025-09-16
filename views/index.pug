@@ -140,6 +140,13 @@ append content
                                 else if pending_cp_grants
                                     .badge.text-bg-danger.float-end
                                         span=pending_cp_grants
+                        if currentCampaign.display_community_cp && (activeUser.type ==='player'|| checkPermission('gm, cp grant'))
+                            a.list-group-item.list-group-item-action(href='/community_cp_grant')
+                                i.fas.fa-hat-wizard.me-1
+                                | Community CP
+                                .badge.text-bg-info.float-end
+                                    span=community_cp.current
+
 
 
                         if rulebooks.length

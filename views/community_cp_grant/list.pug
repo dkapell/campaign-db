@@ -1,0 +1,64 @@
+extends ../layout
+include ../partials/cp_grant
+
+block content
+    .row
+        .col
+            if currentCampaign.cp_requests || checkPermission('gm, cp grant')
+                a.btn.btn-outline-success.my-2(href='/community_cp_grant/new')
+                    span(class="fa fa-plus")
+                    |  New Comunity CP Grant
+    .row
+        .col
+            .d-inline-block.me-2
+                ul.list-group.list-group-horizontal
+                    li.list-group-item
+                        span.me-1 Community CP Total:
+                        strong #{community_cp.community}
+                    li.list-group-item
+                        span.me-1 Community CP Current:
+                        strong #{community_cp.current}
+                    if (activeUser.type === 'player')
+                        li.list-group-item
+                            span.me-1 My Contribution:
+                            strong #{community_cp.user}
+    .row
+        .col
+
+            if myGrants && grants
+                ul.nav.nav-tabs.w-100.my-2#grantTabs(role="tablist")
+                    li.nav-item(role="presentation")
+                        a.nav-link.active#my-grants-tab(href="#my-grants" data-bs-toggle="tab" role="tab" aria-controls="my-grants" aria-selected="true") My Community CP Grants
+
+                    li.nav-item(role="presentation")
+                        a.nav-link#all-grants-tab(href="#all-grants" data-bs-toggle="tab" role="tab" aria-controls="all-grants-tab" aria-selected="false") All Community CP Grants
+
+                .tab-content#grantTabsContent
+                    .tab-pane.fade.show.active#my-grants(role="tabpanel" aria-labelledby="my-grants-tab")
+                        +playerGrants(myGrants)
+                    .tab-pane.fade#all-grants(role="tabpanel" aria-labelledby="all-grants-tab")
+                        +staffGrants(grants)
+
+            else if myGrants
+
+
+                +playerGrants(myGrants)
+
+            else if grants
+                +staffGrants(grants)
+
+
+append scripts
+    script(src='/javascripts/data-table.js')
+    script(src='/javascripts/cp-grant.js')
+    script.
+        $(function(){
+            const grantTabStorageId = 'cdb-grants-tab';
+            const selectedTab = localStorage.getItem(grantTabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#grantTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(grantTabStorageId, $(e.target).attr('id'));
+            });
+        });

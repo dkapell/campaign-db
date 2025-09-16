@@ -60,7 +60,8 @@ mixin menuPages(pages, showDivider)
                             if checkPermission('contrib')
                                 if currentCampaign.display_cp
                                     a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
-
+                                if currentCampaign.display_community_cp
+                                    a.dropdown-item(href='/community_cp_grant') Community CP
 
                                 hr.dropdown-divider
                                 a.dropdown-item(href='/report/group') Character Group Report
@@ -105,6 +106,8 @@ mixin menuPages(pages, showDivider)
 
                                     if currentCampaign.display_cp
                                         a.dropdown-item(href='/cp_grant')= currentCampaign.renames.character_point.plural
+                                    if currentCampaign.display_community_cp
+                                        a.dropdown-item(href='/community_cp_grant') Community CP
                                 if checkPermission('player') || currentCampaign.display_skill_doc === 'public'
                                     a.dropdown-item(href='/skill/doc') Skills
                                 if checkPermission('player') && !checkPermission('event')

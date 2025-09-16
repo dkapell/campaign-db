@@ -177,6 +177,34 @@ async function cpCalculator(userId:number, campaignId:number): Promise<cpData> {
     return result;
 };
 
+interface CommunityCpData{
+    community: number
+    current: number
+    user: number
+}
+
+async function communityCpCalculator(userId:number, campaignId:number): Promise<CommunityCpData> {
+    const communityCpGrants = await models.community_cp_grant.find({campaign_id:campaignId, status:'approved'});
+    const result:CommunityCpData = {
+        community: 0,
+        current: 0,
+        user: 0
+    };
+
+    for (const grant of communityCpGrants){
+        result.current += grant.amount;
+
+        if (grant.amount > 0){
+            result.community += grant.amount;
+        }
+
+        if (grant.user_id === userId){
+            result.user += grant.amount;
+        }
+    }
+    return result;
+};
+
 
 async function getCharacterCSV(campaignId: number, characters:ModelData[]): Promise<string> {
     const custom_fields = await models.custom_field.find({campaign_id:campaignId});
@@ -323,6 +351,7 @@ export default {
     init,
     getCharacterCSV,
     cpCalculator,
+    communityCpCalculator,
     attributeSorter,
     characterSorter,
     parseTime,

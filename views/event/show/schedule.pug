@@ -28,7 +28,7 @@ include ../../partials/scene
                | Schedule
 
 
-        if !event.schedule_read_only && ((checkPermission('gm') && new Date(event.start_time) > new Date()) || checkPermission('scheduler'))
+        if !event.schedule_read_only && ((checkPermission('gm') && new Date(event.start_time) > new Date()) || checkPermission('admin, scheduler'))
             a.btn.btn-sm.btn-outline-primary.my-2.ms-2.float-end(
                 href=`/event/${event.id}/scheduler`
             )

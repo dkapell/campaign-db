@@ -403,7 +403,9 @@ function addSceneUserRow($container, user, type, value){
 function updateSceneUser(){
     const $container = $(this).closest('.scene-user-picker-container');
     if ($(this).val() === 'none'){
-        if (!$(this).closest('.scene-user').data('schedule-status')){
+        const npcName = $(this).closest('.scene-user').find('.scene-details-npc').val();
+        const scheduleStatus = $(this).closest('.scene-user').data('schedule-status');
+        if (!npcName && !scheduleStatus){
             $(this).closest('.scene-user').remove();
         }
     } else if ($(this).val() === 'rejected'){

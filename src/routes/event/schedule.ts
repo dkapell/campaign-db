@@ -644,7 +644,10 @@ async function updateUser(req, res){
 
             const scene_user = await req.models.scene_user.findOne({scene_id:scene.id, user_id:user.id});
             if (scene_user){
-                if (userData.status === 'unscheduled' && scene_user.request_status === 'none'){
+                if (userData.status === 'unscheduled' &&
+                    scene_user.request_status === 'none' &&
+                    (!scene_user.details || !scene_user.details.npc)
+                ){
                     await req.models.scene_user.delete({scene_id:scene.id, user_id:user.id})
                 } else {
 

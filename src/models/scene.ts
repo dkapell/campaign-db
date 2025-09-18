@@ -205,7 +205,10 @@ async function postSave(sceneId:number, data:ModelData){
                 if (_.findWhere(data[`${table}s`] as ModelData[], {id:'' + record[`${table}_id`]})){
                     return;
                 }
-                if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
+                if (record.schedule_status === 'unscheduled' &&
+                    record.request_status === 'none' &&
+                    !checkDetails(table, record.details)
+                ){
                     return models[`scene_${table}`].delete(record);
                 }
             });
@@ -229,12 +232,15 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
             record.schedule_status = statuses.schedule;
             changed = true;
         }
-        if (record.schedule_status === 'unscheduled' && record.request_status === 'none'){
-            return models[`scene_${table}`].delete(doc);
-        }
         if (details && !_.isEqual(details, record.details)){
             record.details = details;
             changed = true;
+        }
+        if (record.schedule_status === 'unscheduled' &&
+            record.request_status === 'none' &&
+            !checkDetails(table, record.details)
+        ){
+            return models[`scene_${table}`].delete(doc);
         }
 
         if (changed){
@@ -263,6 +269,37 @@ async function saveRecord(sceneId:number, table:string, objectId:number, statuse
 
         return models[`scene_${table}`].create(record);
     }
+}
+
+// return true if details has content
+function checkDetails(table, details){
+    if (!details){
+        return false;
+    }
+    if (!_.keys(details).length){
+        return false;
+    }
+
+    let hasContent = false;
+
+    switch(table){
+        case 'user':
+            // only count npc if it's not empty
+            if(_.has(details, 'npc') && details.npc){
+                hasContent = true;
+            }
+            for (const key in details){
+                if (key !== 'npc'){
+                    hasContent = true;
+                }
+            }
+            break;
+        default:
+            hasContent = true;
+            break;
+    }
+    return hasContent;
+
 }
 
 async function saveTags(sceneId:number, data:ModelData){

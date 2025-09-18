@@ -229,7 +229,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
         if (user.type !== 'player')
             .row.my-1.details-row
                 .col.ps-4.pe-1
-                    input.form-control.form-control-sm.scene-details-input(
+                    input.form-control.form-control-sm.scene-details-input.scene-details-npc(
                         type='text'
                         name=`scene[users][id-${user.id}][scene_details][npc]`
                         value=details&&details.npc?details.npc:null

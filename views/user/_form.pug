@@ -24,82 +24,82 @@ if checkPermission('admin')
             select.form-control.select2#user_type(name="user[type]")
                 for type in [ 'admin', 'core staff', 'contributing staff', 'event staff', 'player','none']
                     option(value=type selected=user.type===type)= capitalize(type)
+if !currentCampaign.default_site
+    if checkPermission('gm')
+        .row.my-2
+            .col-md
+                .form-check.form-switch
+                    input.form-check-input#user_occasional_attendee(
+                        type="checkbox"
+                        name=`user[occasional_attendee]`
+                        checked=user.occasional_attendee
+                    )
+                    label.form-check-label(for='user_occasional_attendee') Occasional Attendee
+        .row.my-2
+            .col-md
+                label.control-label(for="user_drive_folder") Player Drive Folder (PC Facing, does not grant access)
+                input.form-control#user_drive_folder(type="text",placeholder="URL",name="user[drive_folder]",value=user.drive_folder)
+                div.invalid-feedback Please enter a valid drive folder link
 
-if checkPermission('gm')
-    .row.my-2
-        .col-md
-            .form-check.form-switch
-                input.form-check-input#user_occasional_attendee(
-                    type="checkbox"
-                    name=`user[occasional_attendee]`
-                    checked=user.occasional_attendee
-                )
-                label.form-check-label(for='user_occasional_attendee') Occasional Attendee
-    .row.my-2
-        .col-md
-            label.control-label(for="user_drive_folder") Player Drive Folder (PC Facing, does not grant access)
-            input.form-control#user_drive_folder(type="text",placeholder="URL",name="user[drive_folder]",value=user.drive_folder)
-            div.invalid-feedback Please enter a valid drive folder link
+        .row.my-2
+            .col-md
+                label.control-label(for="user_staff_drive_folder") Staff Drive Folder (Staff Facing, does not grant access)
+                input.form-control#user_staff_drive_folder(type="text",placeholder="URL",name="user[staff_drive_folder]",value=user.staff_drive_folder)
+                div.invalid-feedback Please enter a valid drive folder link
+        .row.my-2
+            .col-md
+                +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image)
+        .row.my-2
+            .col-md
+                label.control-label(for='user_tags') Tags
+                select.form-select.tag-select2#user_tags(multiple, name="user[tags]" data-placeholder="Tags")
+                    for tag in tags
+                        -let selected = false;
+                        -if (_.findWhere(user.tags, {id:tag.id})) { selected = true; }
+                        -if (user.tags && user.tags.indexOf(tag.id) !== -1) { selected = true; }
+                        option(value=tag.id selected=selected)= tag.name
+                    for tag in user.tags
+                        if isNaN(tag) && !_.isObject(tag)
+                            option(value=tag selected=true)= tag
 
-    .row.my-2
-        .col-md
-            label.control-label(for="user_staff_drive_folder") Staff Drive Folder (Staff Facing, does not grant access)
-            input.form-control#user_staff_drive_folder(type="text",placeholder="URL",name="user[staff_drive_folder]",value=user.staff_drive_folder)
-            div.invalid-feedback Please enter a valid drive folder link
-    .row.my-2
-        .col-md
-            +imageUploadField('User Image', 'user_image_id', 'user[image_id]', user.image)
-    .row.my-2
-        .col-md
-            label.control-label(for='user_tags') Tags
-            select.form-select.tag-select2#user_tags(multiple, name="user[tags]" data-placeholder="Tags")
-                for tag in tags
-                    -let selected = false;
-                    -if (_.findWhere(user.tags, {id:tag.id})) { selected = true; }
-                    -if (user.tags && user.tags.indexOf(tag.id) !== -1) { selected = true; }
-                    option(value=tag.id selected=selected)= tag.name
-                for tag in user.tags
-                    if isNaN(tag) && !_.isObject(tag)
-                        option(value=tag selected=true)= tag
-
-if currentCampaign.documentations
-    for documentation in currentCampaign.documentations
-        if !documentation.staff_only || checkPermission('gm')
-            .row.my-2
-                .col-md
-                    input(type="hidden" name=`user[documentations][${documentation.id}][id]` value=documentation.id)
-                    - userDoc = _.findWhere(user.documentations, {documentation_id:documentation.id});
-                    if documentation.valid_from
-                        label.control-label(for=`documentation-${documentation.id}-valid_date`)= documentation.name
-                        input.form-control.date-input(
-                            id=`documentation-${documentation.id}-valid_date`
-                            type="text"
-                            placeholder="Date"
-                            name=`user[documentations][${documentation.id}][valid_date_date]`
-                            value=userDoc?userDoc.valid_date_date:null
-                            autocomplete="off"
-                        )
-                    else
-                        .form-check.form-switch
-                            input.form-check-input(
-                                id = `documentation-${documentation.id}-valid`
-                                type="checkbox"
-                                name=`user[documentations][${documentation.id}][valid]`
-                                checked=!!userDoc
+    if currentCampaign.documentations
+        for documentation in currentCampaign.documentations
+            if !documentation.staff_only || checkPermission('gm')
+                .row.my-2
+                    .col-md
+                        input(type="hidden" name=`user[documentations][${documentation.id}][id]` value=documentation.id)
+                        - userDoc = _.findWhere(user.documentations, {documentation_id:documentation.id});
+                        if documentation.valid_from
+                            label.control-label(for=`documentation-${documentation.id}-valid_date`)= documentation.name
+                            input.form-control.date-input(
+                                id=`documentation-${documentation.id}-valid_date`
+                                type="text"
+                                placeholder="Date"
+                                name=`user[documentations][${documentation.id}][valid_date_date]`
+                                value=userDoc?userDoc.valid_date_date:null
+                                autocomplete="off"
                             )
-                            label.form-check-label(for=`documentation-${documentation.id}-valid`) #{documentation.name} Submitted
-if checkPermission('gm')
-    .row.my-2
-        .col-md
-            +markdownEditor('Notes', 'user_notes', 'user[notes]', 5, 100, user.notes, true)
+                        else
+                            .form-check.form-switch
+                                input.form-check-input(
+                                    id = `documentation-${documentation.id}-valid`
+                                    type="checkbox"
+                                    name=`user[documentations][${documentation.id}][valid]`
+                                    checked=!!userDoc
+                                )
+                                label.form-check-label(for=`documentation-${documentation.id}-valid`) #{documentation.name} Submitted
+    if checkPermission('gm')
+        .row.my-2
+            .col-md
+                +markdownEditor('Notes', 'user_notes', 'user[notes]', 5, 100, user.notes, true)
 
-if checkPermission('admin')
-    .row.my-2
-        .col-md
-            label.control-label(for="user_permissions") Extra Permissions
-            select.form-control.select2#user_type(name="user[permissions]" multiple)
-                for type in config.get('permissions')
-                    option(value=type selected=_.indexOf(user.permissions, type) !==-1)= capitalize(type)
+    if checkPermission('admin')
+        .row.my-2
+            .col-md
+                label.control-label(for="user_permissions") Extra Permissions
+                select.form-control.select2#user_type(name="user[permissions]" multiple)
+                    for type in config.get('permissions')
+                        option(value=type selected=_.indexOf(user.permissions, type) !==-1)= capitalize(type)
 
 .row.my-2
     .col-md

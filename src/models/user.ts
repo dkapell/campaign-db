@@ -243,7 +243,7 @@ async function postSelect(user, campaignId){
         user.campaignType = 'unset';
     }
 
-    if (_.has(campaign.user_type_map, user.type)){
+    if (campaign && _.has(campaign.user_type_map, user.type)){
         user.typeForDisplay = campaign.user_type_map[user.type].name;
         user.typeOrder = campaign.user_type_map[user.type].order;
     } else {

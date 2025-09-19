@@ -200,9 +200,6 @@ async function findOrCreate(campaignId, data, noNameUpdate){
 
 
 function validate(data){
-    if (_.has(data, 'name') && ! validator.isLength(data.name, {min:2, max:255})){
-        return false;
-    }
     if (_.has(data, 'email') && ! validator.isLength(data.email, {min:3, max:100})){
         return false;
     }

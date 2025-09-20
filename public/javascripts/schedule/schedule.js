@@ -334,7 +334,9 @@ function updateSlotScenes($slot){
 
         updateSceneStatus($scene);
     });
-    updateSlotPlaceholders($slot);
+    $(`.schedule-slot[data-location-id=${$slot.data('location-id')}]`).each(function() {
+        updateSlotPlaceholders($(this));
+    });
 }
 
 function updatePlaceholder($scene, $slot, row, col, title, idx){

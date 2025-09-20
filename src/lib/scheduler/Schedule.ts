@@ -15,6 +15,7 @@ interface UsersAvailable{
     all: number[]
     available: number[]
     allocated: number[]
+    logistics: number[]
     min: number
     max: number
     sceneCount: number
@@ -454,38 +455,52 @@ class Schedule extends EventEmitter {
                     break;
                 }
                 await null; // release event loop to allow keepalive
-                const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), timeslotId);
-                for (const prereq of scene.prereqs){
-                    let prereqScene:ScheduleScene = null
-                    if (typeof prereq === 'number'){
-                        prereqScene = _.findWhere(this.scenes, {id:prereq});
-                    } else if (typeof prereq === 'object'){
-                        prereqScene = _.findWhere(this.scenes, {id:prereq.id});
-                    }
-                    if (!prereqScene) { continue; }
-                    for (const prereqTimeslotId of prereqScene.currentTimeslots){
-                        const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
-                        if (timeslotIdx <= prereqTimeslotIdx){
-                            if (_.indexOf(conflicts, prereqScene.id) === -1){
-                                conflicts.push(prereqScene.id);
+
+                const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count, scene.cleanup_slots);
+                const allSceneTimeslots = [...sceneTimeslots.before, ...sceneTimeslots.during, ...sceneTimeslots.after];
+
+                checkTimeslotLoop: for (const checkTimeslotId of allSceneTimeslots){
+
+                    const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), checkTimeslotId);
+
+                    if (_.indexOf(sceneTimeslots.during, checkTimeslotId) !== -1){
+                        // regular timeslot
+
+                        for (const prereq of scene.prereqs){
+                            let prereqScene:ScheduleScene = null
+                            if (typeof prereq === 'number'){
+                                prereqScene = _.findWhere(this.scenes, {id:prereq});
+                            } else if (typeof prereq === 'object'){
+                                prereqScene = _.findWhere(this.scenes, {id:prereq.id});
                             }
-                            continue timeslotLoop;
+                            if (!prereqScene) { continue; }
+                            for (const prereqTimeslotId of prereqScene.currentTimeslots){
+                                const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
+                                if (timeslotIdx <= prereqTimeslotIdx){
+                                    if (_.indexOf(conflicts, prereqScene.id) === -1){
+                                        conflicts.push(prereqScene.id);
+                                    }
+                                    continue timeslotLoop;
+                                }
+                            }
                         }
                     }
-                }
 
-                // check if Required Staff and Players are available starting at this timeslot
-                if (! await this.checkTimeslotUsers(scene, timeslotId)){
-                    continue;
-                }
-
-                const suggestedLocations = await this.findLocations(scene, timeslotId);
-                if (suggestedLocations.length === scene.locations_count){
-                    for (let idx = 0; idx < scene.timeslot_count; idx++){
-                        foundTimeslots.push(timeslots[timeslotIdx+idx].id);
+                    // check if Required Staff and Players are available starting at this timeslot
+                    if (! await this.checkTimeslotUsers(scene, timeslotId, _.indexOf(sceneTimeslots.during, checkTimeslotId) === -1)){
+                        continue timeslotLoop;
                     }
-                    scene.currentLocations = suggestedLocations;
-                    break;
+
+                    if (_.indexOf(sceneTimeslots.during, checkTimeslotId) !== -1){
+                        const suggestedLocations = await this.findLocations(scene, timeslotId);
+                        if (suggestedLocations.length === scene.locations_count){
+                            for (let idx = 0; idx < scene.timeslot_count; idx++){
+                                foundTimeslots.push(timeslots[timeslotIdx+idx].id);
+                            }
+                            scene.currentLocations = suggestedLocations;
+                            break timeslotLoop;
+                        }
+                    }
                 }
             }
         }
@@ -560,7 +575,7 @@ class Schedule extends EventEmitter {
     }
 
     // Check if required staff/players are available at a given timeslot
-    protected async checkTimeslotUsers(scene, timeslotId){
+    protected async checkTimeslotUsers(scene, timeslotId, isLogistics:boolean = false){
         const timeslots = await this.cache.timeslots();
 
         // check timeslotCount future timeslots to see if the required users are available for all of them
@@ -571,10 +586,17 @@ class Schedule extends EventEmitter {
             const currentStaff = await this.usersAvailable([timeslot.id], 'staff');
             const requiredStaff = scene.desiredStaff('required');
             for(const userId of requiredStaff){
-                // Check if required staff is already allocated to a scene
-                if (_.indexOf(currentStaff.allocated, userId) !== -1){
-                    clear = false
-                    break checkScene;
+                if (isLogistics){
+                    if(scene.runnerId && scene.runnerId === userId && _.indexOf(currentStaff.allocated, userId) !== -1 && _.indexOf(currentStaff.logistics, userId) === -1){
+                        clear = false;
+                        break checkScene
+                    }
+                } else {
+                    // Check if required staff is already allocated to a scene
+                    if (_.indexOf(currentStaff.allocated, userId) !== -1){
+                        clear = false
+                        break checkScene;
+                    }
                 }
             }
             // check if we have enough overall staff at this time
@@ -692,6 +714,7 @@ class Schedule extends EventEmitter {
         const result = {
             all: [],
             available:[],
+            logistics:[],
             allocated:[],
             min: 0,
             max: 0,
@@ -704,6 +727,7 @@ class Schedule extends EventEmitter {
             const result = {
                 all: [],
                 available:[],
+                logistics:[],
                 allocated:[],
                 min: 0,
                 max: 0,
@@ -740,6 +764,7 @@ class Schedule extends EventEmitter {
                 for (const scene of backendScenes){
                     if (userId === scene.runnerId){
                         free = false;
+                        result.logistics.push(userId);
                         break;
                     }
                 }

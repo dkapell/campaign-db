@@ -140,6 +140,8 @@ mixin displaySceneFeedback(feedback)
         .col
             h5.ms-md-2
                 a(href=`/scene/${feedback.scene.id}` target='_blank')= feedback.scene.name
+                    if scene.player_name
+                        span.ms-2 (#{scene.player_name})
             if checkPermission('gm') && feedback.gm_feedback
                 strong.ms-md-4 GM Feedback
                 .card.text-bg-light.ms-md-4.my-1
@@ -452,7 +454,7 @@ mixin questionScenes(scenes, userScenes)
                                 }
                                 let sceneName = scene.name;
                                 if (scene.player_name && isPlayer){
-                                    sceneName == ` (${scene.player_name})`
+                                    sceneName += ` (${scene.player_name})`
                                 }
 
                             tr
@@ -513,8 +515,13 @@ mixin questionScenes(scenes, userScenes)
                     select.form-select.select2.scene-select(data-placeholder='Select an scene to add')
                         option
                         for scene in scenes
+                            -
+                                let sceneName = scene.name;
+                                if (scene.player_name && isPlayer){
+                                    sceneName += ` (${scene.player_name})`
+                                }
                             if _.indexOf(userSceneList, scene.id) === -1
-                                option(value=scene.id) #{scene.timeslots[0].name}: #{scene.name}
+                                option(value=scene.id) #{scene.timeslots[0].name}: #{sceneName}
 
                     button.btn.btn-outline-success.feedback-add( type="button")
                         span.bi.bi-plus-lg

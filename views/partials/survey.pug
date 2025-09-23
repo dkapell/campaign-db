@@ -140,7 +140,7 @@ mixin displaySceneFeedback(feedback)
         .col
             h5.ms-md-2
                 a(href=`/scene/${feedback.scene.id}` target='_blank')= feedback.scene.name
-                    if scene.player_name
+                    if feedback.scene.player_name
                         span.ms-2 (#{scene.player_name})
             if checkPermission('gm') && feedback.gm_feedback
                 strong.ms-md-4 GM Feedback

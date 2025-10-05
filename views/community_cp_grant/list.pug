@@ -35,17 +35,17 @@ block content
 
                 .tab-content#grantTabsContent
                     .tab-pane.fade.show.active#my-grants(role="tabpanel" aria-labelledby="my-grants-tab")
-                        +playerGrants(myGrants)
+                        +playerGrants(myGrants, 'community_cp_grant')
                     .tab-pane.fade#all-grants(role="tabpanel" aria-labelledby="all-grants-tab")
-                        +staffGrants(grants)
+                        +staffGrants(grants, 'community_cp_grant')
 
             else if myGrants
 
 
-                +playerGrants(myGrants)
+                +playerGrants(myGrants, 'community_cp_grant')
 
             else if grants
-                +staffGrants(grants)
+                +staffGrants(grants, 'community_cp_grant')
 
 
 append scripts

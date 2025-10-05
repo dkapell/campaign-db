@@ -34,7 +34,8 @@ mixin playerGrants(grants)
                                         .badge.text-bg-danger Denied
                         td= moment(grant.created).format('lll')
 
-mixin staffGrants(grants)
+mixin staffGrants(grants, type='cp_grant')
+    -console.log(type)
     if currentCampaign.cp_approval
         .row.my-2
             .col-md.offset-md-6
@@ -66,7 +67,7 @@ mixin staffGrants(grants)
 
             tbody
                 for grant in grants
-                    tr(class='clickable-row', data-click-object='cp_grant' data-click-id=grant.id data-status=grant.status)
+                    tr(class='clickable-row', data-click-object=type data-click-id=grant.id data-status=grant.status)
                         td.dtr-control
                         td
                             if grant.user
@@ -100,7 +101,7 @@ mixin staffGrants(grants)
                                     title='Approve'
                                     data-id=grant.id
                                     data-csrf=csrfToken
-                                    data-back='/cp_grant'
+                                    data-back=`/${type}`
                                 )
                                     i.fas.fa-thumbs-up.fa-fw
 
@@ -110,7 +111,7 @@ mixin staffGrants(grants)
                                     title='Deny'
                                     data-id=grant.id
                                     data-csrf=csrfToken
-                                    data-back='/cp_grant'
+                                    data-back=`/${type}`
                                 )
                                     i.fas.fa-thumbs-down.fa-fw
                             if checkPermission('admin')
@@ -118,8 +119,8 @@ mixin staffGrants(grants)
                                     role="button",
                                     data-bs-toggle='tooltip'
                                     title='Delete'
-                                    url=`/cp_grant/${grant.id}`,
-                                    data-back='/cp_grant'
+                                    url=`/${type}/${grant.id}`,
+                                    data-back=`/${type}`
                                     data-csrf=csrfToken
                                 )
                                     i.fas.fa-trash.fa-fw

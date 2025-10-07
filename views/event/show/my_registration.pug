@@ -100,7 +100,11 @@
                             const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
                             if (!addon.paid){
                                 if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
-                                    owed += event_addon.cost;
+                                    if (event_addon.pay_what_you_want){
+                                        owed += addon.cost;
+                                    } else {
+                                        owed += event_addon.cost;
+                                    }
                                 }
                             }
                         }
@@ -153,7 +157,7 @@ if attendee
                                     .badge.text-bg-success.float-end Paid
                                 else
                                     .badge.text-bg-warning.float-end Unpaid
-                                span.me-2.float-end $#{event_addon.cost}
+                                span.me-2.float-end $#{event_addon.pay_what_you_want&&!_.isNull(addon.cost)?addon.cost:event_addon.cost}
 
         .col-lg
             if event.pre_event_survey

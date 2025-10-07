@@ -421,8 +421,9 @@ mixin showAddons(attendee, type)
             let addons = '';
             for (const addon of attendee.addons){
                 addons += `**${addon.addon.name}**`
+                const cost = addon.addon.pay_what_you_want&&!_.isNull(addon.cost)?addon.cost:addon.addon.cost;
                 if ((type === 'player' && addon.addon.charge_player) || (type=== 'staff' && addon.addon.charge_staff)){
-                    addons += ` ($${addon.addon.cost}): ${addon.paid?'Paid':'Unpaid'}\n`;
+                    addons += ` ($${cost}): ${addon.paid?'Paid':'Unpaid'}\n`;
                 } else {
                     addons += '\n';
                 }

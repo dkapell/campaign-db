@@ -276,6 +276,19 @@ mixin eventAddon(addon, idx)
             .col-lg-4
                 .input-group
                     .input-group-text $
+                    input.form-control.event_addon-input.pay-what-you-want-field(
+                        id=`event_addon_${idx}_cost`
+                        placeholder="Minimum"
+                        name=`event[addons][${idx}][minimum]`
+                        data-fieldtype='cost'
+                        data-required="true"
+                        value=addon.minimum
+                        type='number'
+                        title='Minimum'
+                        data-bs-toggle='tooltip'
+                    )
+                    .input-group-text.pay-what-you-want-field -
+
                     input.form-control.event_addon-input(
                         id=`event_addon_${idx}_cost`
                         placeholder="Dollars"
@@ -284,7 +297,10 @@ mixin eventAddon(addon, idx)
                         data-required="true"
                         value=addon.cost
                         type='number'
+                        title='Cost'
+                        data-bs-toggle='tooltip'
                     )
+
                     .input-group-text .00
 
 
@@ -293,6 +309,22 @@ mixin eventAddon(addon, idx)
                     i.fas.fa-trash.fa-fw.me-1
                     | Remove
         .row.my-2
+            .col-lg
+                .form-check.form-switch
+                    input.form-check-input.event_addon-input.pay-what-you-want-input(
+                        type="checkbox"
+                        name=`event[addons][${idx}][pay_what_you_want]`
+                        checked=addon.pay_what_you_want
+                        id=`event_addon_${idx}_pay_what_you_want`
+                        data-fieldtype='pay_what_you_want'
+                    )
+
+                    label.form-check-label.event_addon-label(
+                        for=`event_addon_${idx}_pay_what_you_want`
+                        data-fieldtype='pay_what_you_want'
+                    )
+                        small Pay What you Want
+
             .col-lg
                 .form-check.form-switch
                     input.form-check-input.event_addon-input(
@@ -383,18 +415,35 @@ mixin addonField(addon, attendance_addon, user, attendance)
         if attendance_addon.paid
             input(type='hidden' value='on' name=`attendance[addons][${addon.id}][selected]`)
 
-        input.form-check-input.me-1(
-            type="checkbox"
-            name=`attendance[addons][${addon.id}][selected]`
-            id=`attendance_addons_${addon.id}`
-            disabled=attendance_addon.paid?'true':null
-            checked=attendance_addon.id
-        )
-        label.form-check-label(for=`attendance_addons_${addon.id}`)
-            strong #{addon.name}
+        .form-check.form-check-inline
+            input.form-check-input.me-1(
+                type="checkbox"
+                name=`attendance[addons][${addon.id}][selected]`
+                id=`attendance_addons_${addon.id}`
+                disabled=attendance_addon.paid?'true':null
+                checked=attendance_addon.id
+            )
+            label.form-check-label(for=`attendance_addons_${addon.id}`)
+                strong #{addon.name}
 
-            span.paid-cost.ms-2(style=showCost?'':'display:none')
-                | $#{addon.cost}
+        span.paid-cost.ms-2(style=showCost?'':'display:none')
+            - const cost = addon.pay_what_you_want && !_.isNull(attendance_addon.cost)?attendance_addon.cost:addon.cost
+
+            if addon.pay_what_you_want && !attendance_addon.paid
+                .d-inline-block
+                    .input-group.input-group-sm
+                        .input-group-text $
+                        input.form-control(
+                            type='number'
+                            min=addon.minimum
+                            value=cost
+                            name=`attendance[addons][${addon.id}][cost]`
+                        )
+                        .input-group-text .00
+                if addon.minimum
+                    span.ms-2 Minimum: $#{addon.minimum}.00
+            else
+                | $#{cost}
         span.paid-badge.float-end(style=showCost?'':'display:none')
             if (checkPermission('gm'))
                 span

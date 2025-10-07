@@ -285,6 +285,7 @@ interface AttendeeAddon {
     id?: number
     event_addon_id: number
     paid?: boolean
+    cost?: number
 }
 
 interface OrderItem extends ModelData{

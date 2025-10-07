@@ -13,7 +13,9 @@ const tableFields = [
     'available_to_staff',
     'charge_player',
     'charge_staff',
-    'on_checkin'
+    'on_checkin',
+    'pay_what_you_want',
+    'minimum'
 ];
 
 const EventAddon = new Model('event_addons', tableFields, {

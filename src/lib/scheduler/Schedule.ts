@@ -459,7 +459,7 @@ class Schedule extends EventEmitter {
                 const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count, scene.cleanup_slots);
                 const allSceneTimeslots = [...sceneTimeslots.before, ...sceneTimeslots.during, ...sceneTimeslots.after];
 
-                checkTimeslotLoop: for (const checkTimeslotId of allSceneTimeslots){
+                for (const checkTimeslotId of allSceneTimeslots){
 
                     const timeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), checkTimeslotId);
 

@@ -111,11 +111,13 @@ async function show(req, res, next){
 
                 for (const attendance_addon of attendance.addons) {
                     const addonName = attendance_addon.addon.name;
+                    const cost = attendance_addon.addon.pay_what_you_want&&!_.isNull(attendance_addon.cost)?attendance_addon.cost:attendance_addon.addon.cost;
+
                     if (attendance_addon.addon.charge_player || attendance_addon.addon.charge_staff){
                         if (!_.has(res.locals.income.addons.addons, addonName)){
                             res.locals.income.addons.addons[addonName] = {
                                 count: 0,
-                                price: attendance_addon.addon.cost,
+                                price: cost,
                                 raw: 0,
                                 orders: 0,
                                 outstanding: 0
@@ -123,20 +125,20 @@ async function show(req, res, next){
                         }
                     }
                     if (attendance_addon.paid) {
-                        res.locals.income.addons.total.raw += attendance_addon.addon.cost;
-                        res.locals.income.addons.addons[addonName].raw += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.raw += cost;
+                        res.locals.income.addons.addons[addonName].raw += cost;
                         res.locals.income.addons.addons[addonName].count++;
                         if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)) {
-                            res.locals.income.addons.total.orders += attendance_addon.addon.cost;
-                            res.locals.income.addons.addons[addonName].orders += attendance_addon.addon.cost;
+                            res.locals.income.addons.total.orders += cost;
+                            res.locals.income.addons.addons[addonName].orders += cost;
                         }
                     } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
-                        res.locals.income.addons.total.outstanding += attendance_addon.addon.cost;
-                        res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.outstanding += cost;
+                        res.locals.income.addons.addons[addonName].outstanding += cost;
                         res.locals.income.addons.addons[addonName].count++;
                     } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
-                        res.locals.income.addons.total.outstanding += attendance_addon.addon.cost;
-                        res.locals.income.addons.addons[addonName].outstanding += attendance_addon.addon.cost;
+                        res.locals.income.addons.total.outstanding += cost;
+                        res.locals.income.addons.addons[addonName].outstanding += cost;
                         res.locals.income.addons.addons[addonName].count++;
                     }
 
@@ -494,11 +496,12 @@ async function checkoutEvent(req, res){
             const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
             if (!addon.paid){
                 if (event_addon.charge_player && attendance.user.type === 'player' || event_addon.charge_staff && attendance.user.type !== 'player'){
+                    const cost = event_addon.pay_what_you_want && !_.isNull(addon.cost)?addon.cost:event_addon.cost;
                     items.push({
                         type:'attendance_addon',
                         id: addon.id,
                         name: `Addon for ${event.name}: ${event_addon.name}`,
-                        cost: event_addon.cost * 100
+                        cost: cost * 100
                     });
 
                 }

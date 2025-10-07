@@ -74,7 +74,21 @@ $(function(){
     $('.checkin-table').on('click', '.event-checkin-btn', eventCheckin);
     $('.checkin-table').on('click', '.event-uncheckin-btn', eventCheckin);
     $('#grantEventCPBtn').on('click', assignEventCP);
+
+    $('.pay-what-you-want-input').on('change', togglePayWhatYouWantFields).trigger('change');
 });
+
+function togglePayWhatYouWantFields(e){
+    if ($(this).is(':checked')){
+        console.log('checked');
+        $(this).closest('.event_addon-row').find('.pay-what-you-want-field').show();
+    } else {
+        console.log('not checked');
+        $(this).closest('.event_addon-row').find('.pay-what-you-want-field').hide();
+    }
+
+
+}
 
 function prepEventAddons(){
     $('#event_addon-new').hide();

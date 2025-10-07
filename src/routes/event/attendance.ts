@@ -630,6 +630,9 @@ function parseAttendeeAddons(input, forGm){
             if (forGm){
                 doc.paid = _.has(addon, 'paid');
             }
+            if (addon.cost){
+                doc.cost = addon.cost;
+            }
             output.push(doc);
         }
     }

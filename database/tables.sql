@@ -741,6 +741,8 @@ create table event_addons (
     charge_player boolean not null default true,
     charge_staff boolean not null default false,
     on_checkin boolean not null default false,
+    pay_what_you_want boolean not null default false,
+    minimum int default 0,
     primary key (id),
     CONSTRAINT event_addons_event_fk FOREIGN KEY (event_id)
         REFERENCES "events" (id) MATCH SIMPLE
@@ -819,6 +821,7 @@ create table attendance_addons (
     attendance_id int not null,
     event_addon_id int not null,
     paid boolean default false,
+    cost int,
     primary key (id),
     CONSTRAINT attendance_addons_attendance_fk FOREIGN KEY (attendance_id)
         REFERENCES "attendance" (id) MATCH SIMPLE

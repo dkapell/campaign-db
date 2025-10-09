@@ -1,16 +1,16 @@
 .container(role="messages")
     if messages.error
-        .alert.text-bg-danger(role='alert')
+        .alert.alert-danger(role='alert')
             = messages.error.join(', ')
 
     if messages.warning
-        .alert.text-bg-warning(role='alert')
+        .alert.alert-warning(role='alert')
             = messages.warning.join(', ')
 
     if messages.info
-        .alert.text-bg-info(role='alert')
+        .alert.alert-info(role='alert')
             = messages.info.join(', ')
 
     if messages.success
-        .alert.text-bg-success(role='alert')
+        .alert.alert-success(role='alert')
             = messages.success.join(', ')

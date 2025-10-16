@@ -427,7 +427,8 @@ mixin addonField(addon, attendance_addon, user, attendance)
                 strong #{addon.name}
 
         span.paid-cost.ms-2(style=showCost?'':'display:none')
-            - const cost = addon.pay_what_you_want && !_.isNull(attendance_addon.cost)?attendance_addon.cost:addon.cost
+            - const cost = (addon.pay_what_you_want && !(_.isUndefined(attendance_addon.cost) || _.isNull(attendance_addon.cost)))?attendance_addon.cost:addon.cost
+
 
             if addon.pay_what_you_want && !attendance_addon.paid
                 .d-inline-block

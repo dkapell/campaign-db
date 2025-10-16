@@ -17,7 +17,7 @@ async function showNewAttendance(req, res, next){
         if (!event || event.campaign_id !== req.campaign.id){
             throw new Error('Invalid Event');
         }
-        if (user.type.match(/^(core staff|admin)$/)){
+        if (req.checkPermission('gm')){
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             let users = await async.map(campaign_users, async (campaign_user) => {
                 const user = await req.models.user.get(req.campaign.id, campaign_user.user_id);
@@ -28,7 +28,7 @@ async function showNewAttendance(req, res, next){
         } else {
             const attendance = await req.models.attendance.findOne({event_id:event.id, user_id:user.id});
             if (attendance){
-                res.redirect(`/event/${event.id}/register/${attendance.id}`)
+                return res.redirect(`/event/${event.id}/register/${attendance.id}`)
             }
         }
         res.locals.event = event;

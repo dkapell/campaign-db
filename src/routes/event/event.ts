@@ -530,11 +530,15 @@ function parseEventAddons(input){
         }
 
         const addon = input[id];
-        for (const field of ['available_to_player', 'available_to_staff', 'charge_player', 'charge_staff', 'on_checkin']){
+        if (addon.minimum === ''){
+            addon.minimum = 0;
+        }
+        for (const field of ['available_to_player', 'available_to_staff', 'charge_player', 'charge_staff', 'on_checkin', 'pay_what_you_want']){
             if (!_.has(addon, field)){
                 addon[field] = false;
             }
         }
+
 
         output.push(input[id]);
     }

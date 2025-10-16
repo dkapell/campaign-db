@@ -80,11 +80,11 @@ $(function(){
 
 function togglePayWhatYouWantFields(e){
     if ($(this).is(':checked')){
-        console.log('checked');
         $(this).closest('.event_addon-row').find('.pay-what-you-want-field').show();
+        $(this).closest('.event_addon-row').find('.pay-what-you-want-minimum').attr('required', true);
     } else {
-        console.log('not checked');
         $(this).closest('.event_addon-row').find('.pay-what-you-want-field').hide();
+        $(this).closest('.event_addon-row').find('.pay-what-you-want-minimum').attr('required', false);
     }
 
 
@@ -134,6 +134,8 @@ function addEventAddon(e){
     $new.find('.remove-event_addon-btn').confirmation({
         title: 'Delete this Addon'
     }).on('click', removeEventAddon);
+
+    $new.find('.pay-what-you-want-input').on('change', togglePayWhatYouWantFields).trigger('change');
 
     $new.appendTo('#event_addons-list');
     $new.show();

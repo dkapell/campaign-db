@@ -276,12 +276,12 @@ mixin eventAddon(addon, idx)
             .col-lg-4
                 .input-group
                     .input-group-text $
-                    input.form-control.event_addon-input.pay-what-you-want-field(
+                    input.form-control.event_addon-input.pay-what-you-want-field.pay-what-you-want-minimum(
                         id=`event_addon_${idx}_cost`
                         placeholder="Minimum"
                         name=`event[addons][${idx}][minimum]`
                         data-fieldtype='cost'
-                        data-required="true"
+                        data-required="false"
                         value=addon.minimum
                         type='number'
                         title='Minimum'

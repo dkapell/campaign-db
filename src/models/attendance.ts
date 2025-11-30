@@ -21,6 +21,8 @@ const tableFields = [
     'event_id',
     'user_id',
     'character_id',
+    'cost',
+    'ticket',
     'paid',
     'notes',
     'pre_event_survey_response_id',

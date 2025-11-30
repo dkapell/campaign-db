@@ -1,0 +1,18 @@
+span.paid-cost.ms-2
+    - const cost = (eventCost.pay_what_you_want && !(_.isUndefined(attendance.cost) || _.isNull(attendance.cost)))?attendance.cost:eventCost.cost
+    if eventCost.pay_what_you_want && !attendance.paid
+        .d-inline-block
+            .input-group
+                .input-group-text $
+                input.form-control(
+                    type='number'
+                    min=eventCost.minimum
+                    value=cost
+                    name=`attendance[cost]`
+                )
+                .input-group-text .00
+        if eventCost.minimum
+            span.ms-2.col-form-label Minimum: $#{eventCost.minimum}.00
+    else
+        .d-inline-block
+            label.col-form-label Cost: $#{cost}

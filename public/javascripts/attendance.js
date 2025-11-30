@@ -1,4 +1,4 @@
-/* global uploadImage */
+/* global uploadImage eventpriceTemplate*/
 $(function(){
 
     $('.select2').select2({
@@ -33,24 +33,43 @@ $(function(){
     });
     $('[data-bs-toggle="tooltip"]').tooltip();
 
-    $('#attendance_user_id').on('change', updateCharacterPicker);
+    $('#attendance_user_id').on('change', updateSelectedAttendee).trigger('change');
 
     $('#not-attending-btn-form').on('click', markNotAttending);
 
     $('#attendanceForm').on('submit', submitAttendanceForm);
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     updateCustomFieldVisibility();
+    $('#pricing-select').on('change', updateEventPriceDisplay).trigger('change');
 });
+
+function updateEventPriceDisplay(e){
+
+    const data = {
+        costName: $(this).val(),
+        eventCost: $(this).find(':selected').data('cost'),
+        attendance: $('#eventPrice').data('attendance'),
+    };
+    $('#eventPrice').html(eventpriceTemplate(data));
+}
 
 async function clearSurveyDropdown(e){
     e.preventDefault();
     $(this).closest('.input-group').find('select').val(null).trigger('change');
 }
 
-async function updateCharacterPicker(e){
+function updateSelectedAttendee(e){
     const $this = $(this);
     const userId = $this.val();
+    updateCharacterPicker(userId);
+    if ($(this).find(':selected').data('type') === 'player'){
+        $('#eventCost').show();
+    } else {
+        $('#eventCost').hide();
+    }
+}
 
+async function updateCharacterPicker(userId){
     const result = await fetch(`/user/${userId}/characters`);
     const data = await result.json();
 

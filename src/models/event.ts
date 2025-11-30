@@ -31,7 +31,7 @@ const tableFields = [
     'start_time',
     'end_time',
     'registration_open',
-    'cost',
+    'costs',
     'location',
     'deleted',
     'created',
@@ -46,6 +46,7 @@ const tableFields = [
 const Event: EventIModel= new Model('events', tableFields, {
     order: ['start_time'],
     validator: validate,
+    preSave: preSave,
     postSelect: fill,
     postSave: postSave,
     skipAuditFields: ['created', 'deleted']
@@ -64,6 +65,13 @@ function validate(data){
         return false;
     }
     return true;
+}
+
+async function preSave(record){
+    if (record.costs){
+        record.costs = JSON.stringify(record.costs);
+    }
+    return record;
 }
 
 async function fill(record){
@@ -89,6 +97,27 @@ async function fill(record){
 
     record.attendees = record.attendees.sort(attendeeSorter);
     record.players = record.attendees.filter(attendee => {return attendee.user.type === 'player'});
+
+    record.has_cost = false;
+    record.has_cost_options = !!(record.costs.length - 1);
+    for (const cost of record.costs){
+        if (cost.cost || cost.pay_what_you_want){
+            record.has_cost = true;
+        }
+        if (cost.pay_what_you_want){
+            record.has_cost_options = true;
+        }
+    }
+
+    record.default_cost = 0;
+    if (record.costs.length === 1){
+        record.default_cost = record.costs[0].cost;
+    } else if (_.findWhere(record.costs, {default:true})){
+        record.default_cost = _.findWhere(record.costs, {default:true}).cost;
+    } else {
+        record.default_cost = _.min(record.costs, 'cost').cost;
+    }
+
 
     return record;
 }

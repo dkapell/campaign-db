@@ -187,6 +187,20 @@ async function createAttendance(req, res){
             attendance.user_id = user.id;
         }
 
+        if (!attendance.ticket){
+            attendance.ticket = 'Default';
+        }
+        const eventCost = _.findWhere(event.costs, {name:attendance.ticket});
+        if (eventCost){
+            if (eventCost.pay_what_you_want){
+                if (_.has(eventCost, 'minimum') && attendance.cost < eventCost.minimum){
+                    attendance.cost = eventCost.minimum;
+                }
+            } else {
+                attendance.cost = eventCost.cost;
+            }
+        }
+
         const currentAttendance = await req.models.attendance.findOne({event_id:event.id, user_id:attendance.user_id});
         if (currentAttendance){
             if (currentAttendance.attending){
@@ -313,6 +327,20 @@ async function updateAttendance(req, res){
             throw new Error('Can not edit record from different campaign');
         }
 
+        if (!attendance.ticket){
+            attendance.ticket = 'Default';
+        }
+        const eventCost = _.findWhere(event.costs, {name:attendance.ticket});
+        if (eventCost){
+            if (eventCost.pay_what_you_want){
+                if (_.has(eventCost, 'minimum') && attendance.cost < eventCost.minimum){
+                    attendance.cost = eventCost.minimum;
+                }
+            } else {
+                attendance.cost = eventCost.cost;
+            }
+        }
+
         let typeForSurvey = user.type;
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
@@ -421,7 +449,7 @@ async function exportEventAttendees(req, res, next){
         const header = ['Name', 'Email'];
         if (exportType === 'player'){
             header.push('Character');
-            if (event.cost){
+            if (event.default_cost){
                 header.push('Paid');
             }
         } else {
@@ -512,7 +540,7 @@ async function exportEventAttendees(req, res, next){
                     continue;
                 }
                 row.push(attendee.character.name);
-                if (event.cost){
+                if (event.default_cost){
                     row.push(attendee.paid?'Yes':'No');
                 }
 

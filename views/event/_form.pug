@@ -46,13 +46,26 @@ if (backto)
                     option(value=hour selected=Number(event.end_hour)===hour)
                         +hourDisplay(hour)
 
-
     .col-md-3
-        label.control-label(for="event_cost") Cost in Dollars
-        .input-group
-            .input-group-text $
-            input.form-control#event_cost(placeholder="Dollars",name="event[cost]",value=event.cost type='number' required)
-            .input-group-text .00
+        if event.costs.length < 2 && !event.costs[0].pay_what_you_want
+            #event_costs-single
+                label.control-label(for="event_cost") Cost in Dollars
+                .input-group
+                    .input-group-text $
+                    input.form-control#event_cost(placeholder="Dollars",name="event[cost]",value=event.costs[0].cost type='number' required)
+                    .input-group-text .00
+                    button.btn.btn-outline-info#price-options(
+                        title='Advanced Options'
+                        data-bs-toggle='tooltip'
+                    )
+                        i.fa.fas.fa-gear
+#event_costs-list.border-start.border-2.ps-2(
+    class=event.costs.length<2 && !event.costs[0].pay_what_you_want && 'd-none'
+)
+    +eventCostHeader()
+    each cost, idx in event.costs
+        +eventCostRow(cost, idx)
+    +eventCostRow({cost: 0}, 'new')
 
 .row.my-2
     .col

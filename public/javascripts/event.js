@@ -1,5 +1,6 @@
 /* globals DateRangePicker Datepicker */
 let nextEventAddonIndex = 0;
+let nextEventCostIndex = 0;
 
 $(function(){
 
@@ -71,22 +72,98 @@ $(function(){
     $('#not-attending-btn-form').on('click', markNotAttending);
 
     prepEventAddons();
+    prepEventCosts();
     $('.checkin-table').on('click', '.event-checkin-btn', eventCheckin);
     $('.checkin-table').on('click', '.event-uncheckin-btn', eventCheckin);
     $('#grantEventCPBtn').on('click', assignEventCP);
 
     $('.pay-what-you-want-input').on('change', togglePayWhatYouWantFields).trigger('change');
+    $('.event-cost-default').on('change', updateEventCostDefault);
+    $('#price-options').on('click', showCostOptions);
+
 });
+
 
 function togglePayWhatYouWantFields(e){
     if ($(this).is(':checked')){
-        $(this).closest('.event_addon-row').find('.pay-what-you-want-field').show();
-        $(this).closest('.event_addon-row').find('.pay-what-you-want-minimum').attr('required', true);
+        $(this).closest('.expansion-row').find('.pay-what-you-want-field').show();
+        $(this).closest('.expansion-row').find('.pay-what-you-want-minimum').attr('required', true);
     } else {
-        $(this).closest('.event_addon-row').find('.pay-what-you-want-field').hide();
-        $(this).closest('.event_addon-row').find('.pay-what-you-want-minimum').attr('required', false);
+        $(this).closest('.expansion-row').find('.pay-what-you-want-field').hide();
+        $(this).closest('.expansion-row').find('.pay-what-you-want-minimum').attr('required', false);
     }
+}
 
+function showCostOptions(e){
+    e.preventDefault();
+    $(this).tooltip('hide');
+    const cost = $('#event_cost').val();
+    console.log(cost);
+    $('#event_costs_0-cost').val(cost);
+    $('#event_costs-0-default').prop('checked', true);
+    $('#event_costs-single').remove();
+
+    $('#event_costs-list').removeClass('d-none');
+}
+
+function prepEventCosts(){
+    $('#event_cost-new').hide();
+    $('.add-event_cost-btn').on('click', addEventCost);
+    $('.remove-event_cost-btn').confirmation({
+        title: 'Delete this Price'
+    }).on('click', removeEventCost);
+}
+
+function removeEventCost(e){
+    const $this = $(this);
+    e.preventDefault();
+    e.stopPropagation();
+    $this.closest('.event_cost-row').remove();
+}
+
+function updateEventCostDefault(e){
+    const $this = $(this);
+    $('.event-cost-default').each(function() {
+        if ($(this).attr('id') !== $this.attr('id')){
+            $(this).prop('checked', false);
+        }
+    });
+}
+
+function addEventCost(e){
+    const $this = $(this);
+    e.preventDefault();
+
+    const $new = $('#event_cost-new').clone();
+    const id = nextEventCostIndex++;
+    $new.attr('id', `event_costs-new-${id}`);
+
+    // Update all provides fields
+    $new.find('.event_cost-input').each(function(e) {
+        const $input = $(this);
+        const fieldtype = $input.data('fieldtype');
+        $input.attr('id', `event_costs-new-${id}-${fieldtype}`);
+        $input.attr('name', `event[costs][new-${id}][${fieldtype}]`);
+        if ($input.data('required')){
+            $input.attr('required', true);
+        }
+    });
+
+    $new.find('.event_cost-label').each(function(e) {
+        const $label = $(this);
+        const fieldtype = $label.data('fieldtype');
+        $label.attr('for', `event_addon-new-${id}-${fieldtype}`);
+
+    });
+
+    $new.find('.remove-event_cost-btn').confirmation({
+        title: 'Delete this Addon'
+    }).on('click', removeEventCost);
+
+    $new.find('.pay-what-you-want-input').on('change', togglePayWhatYouWantFields).trigger('change');
+    $new.find('.event-cost-default').on('change', updateEventCostDefault);
+    $new.appendTo('#event_costs-list');
+    $new.show();
 
 }
 

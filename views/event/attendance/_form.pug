@@ -36,6 +36,30 @@ else if checkPermission('registration edit')
                         data-html= character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name
                         ) #{character.name} #{character.active?'[Active]':''}
 
+if event.has_cost || event.has_cost_options
+    .row.my-2#eventCost
+        .col-md-1
+            label.col-form-label Ticket
+        if !attendance.paid && event.costs.length > 1
+            .col-md-4
+                select.form-select.select2#pricing-select(
+                    name = 'attendance[ticket]'
+                )
+                    each cost in event.costs
+                        option(
+                            value=cost.name
+                            data-cost=cost
+                            name="attendance[ticket]"
+                            selected=attendance.ticket?attendance.ticket===cost.name:cost.default
+                        ) #{cost.name} ($#{cost.cost}#{cost.pay_what_you_want?'+':''})
+        .col-md-6#eventPrice(
+            data-attendance={
+                paid: attendance.paid,
+                cost:attendance.cost,
+                ticket:attendance.ticket
+            }
+        )
+
 if checkPermission('gm') && attendance.user.type === 'player'
     .row.my-2
         .col

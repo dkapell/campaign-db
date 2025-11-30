@@ -81,7 +81,7 @@ async function show(req, res, next){
             res.locals.income = {
                 event: {
                     count: 0,
-                    price: event.cost,
+                    price: event.default_cost,
                     raw: 0,
                     orders: 0,
                     outstanding: 0
@@ -99,13 +99,13 @@ async function show(req, res, next){
             for (const attendance of event.attendees) {
                 if (!attendance.attending){ continue; }
                 if (attendance.paid) {
-                    res.locals.income.event.raw += event.cost;
+                    res.locals.income.event.raw += attendance.cost;
                     res.locals.income.event.count++;
                     if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)) {
-                        res.locals.income.event.orders += event.cost;
+                        res.locals.income.event.orders += attendance.cost;
                     }
                 } else if (attendance.user.type === 'player') {
-                    res.locals.income.event.outstanding += event.cost;
+                    res.locals.income.event.outstanding += attendance.cost;
                     res.locals.income.event.count++;
                 }
 
@@ -189,7 +189,9 @@ async function showNew(req, res, next){
                 end_date: null,
                 end_hour: 14,
                 registration_open: false,
-                cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0,
+                costs: [
+                    {name: 'Default', cost: req.campaign.event_default_cost?req.campaign.event_default_cost:0}
+                ],
                 location: req.campaign.event_default_location?req.campaign.event_default_location:null,
                 hide_attendees: false,
                 post_event_survey_deadline_date: null,
@@ -287,16 +289,24 @@ async function showEdit(req, res, next){
 async function create(req, res){
     const event = req.body.event;
 
-    req.session.eventData = event;
+
+    if (event.cost){
+        event.costs = [
+            {
+                name: 'Default',
+                cost: event.cost?Number(event.cost):0,
+                default:true
+            }
+        ]
+    } else {
+        event.costs = parseEventCosts(event.costs);
+    }
+
 
     for (const field of ['registration_open', 'hide_attendees']){
         if (!_.has(event, field)){
             event[field] = false;
         }
-    }
-
-    if (!_.has(event, 'cost') || event.cost === ''){
-        event.cost = 0
     }
 
     if (event.pre_event_survey_id === '' || Number(event.pre_event_survey_id) === -1){
@@ -307,6 +317,8 @@ async function create(req, res){
     }
 
     event.addons = parseEventAddons(event.addons);
+
+    req.session.eventData = event;
 
     try{
         event.campaign_id = req.campaign.id;
@@ -328,17 +340,25 @@ async function create(req, res){
 async function update(req, res){
     const id = req.params.id;
     const event = req.body.event;
-    req.session.eventData = event;
 
     for (const field of ['registration_open', 'hide_attendees']){
         if (!_.has(event, field)){
             event[field] = false;
         }
     }
-
-    if (!_.has(event, 'cost') || event.cost === ''){
-        event.cost = 0
+    if (event.cost){
+        event.costs = [
+            {
+                name: 'Default',
+                cost: event.cost?Number(event.cost):0,
+                default:true
+            }
+        ]
+    } else {
+        event.costs = parseEventCosts(event.costs);
     }
+
+
     if (event.pre_event_survey_id === '' || Number(event.pre_event_survey_id) === -1){
         event.pre_event_survey_id = null;
     }
@@ -347,6 +367,10 @@ async function update(req, res){
     }
 
     event.addons = parseEventAddons(event.addons);
+    req.session.eventData = event;
+
+
+    console.log(JSON.stringify(event, null, 2));
 
     try {
         const current = await req.models.event.get(id);
@@ -483,12 +507,12 @@ async function checkoutEvent(req, res){
         }
         const items = [];
 
-        if (event.cost && !attendance.paid && attendance.user.type === 'player'){
+        if (attendance.cost && !attendance.paid && attendance.user.type === 'player'){
             items.push({
                 type: 'attendance',
                 id: attendance.id,
                 name: `Event Registration: ${event.name}`,
-                cost: event.cost * 100
+                cost: attendance.cost * 100
             });
         }
 
@@ -539,6 +563,31 @@ function parseEventAddons(input){
             }
         }
 
+        output.push(input[id]);
+    }
+    return output;
+}
+
+function parseEventCosts(input){
+    const output = [];
+    for (const id in input){
+        if (id === 'new'){
+            continue;
+        }
+
+        const cost = input[id];
+        if (cost.minimum === ''){
+            cost.minimum = 0;
+        }
+        for (const field of ['default', 'pay_what_you_want']){
+            if (!_.has(cost, field)){
+                cost[field] = false;
+            }
+        }
+        cost.minimum = Number(cost.minimum);
+        cost.cost = Number(cost.cost);
+        cost.default = !!cost.default;
+        cost.pay_what_you_want = !!cost.pay_what_you_want;
 
         output.push(input[id]);
     }

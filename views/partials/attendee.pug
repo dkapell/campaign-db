@@ -53,7 +53,7 @@ mixin attendeeListItem(attendee, type)
                             title="Outstanding Addons"
                         ) Unpaid
 
-                if checkPermission('contrib, registration view') && attendee.user.type === 'player' && event.cost
+                if checkPermission('contrib, registration view') && attendee.user.type === 'player' && (event.default_cost || attendee.cost)
                     .float-end
                         -
                             let selectedAddons = 0;
@@ -184,7 +184,7 @@ mixin attendeeTable(attendees, type)
                     th
                     th Attendee
                     if checkPermission('contrib, registration view') && type === 'player'
-                        if event.cost
+                        if event.has_cost
                             th Paid
                         th Character
                     else

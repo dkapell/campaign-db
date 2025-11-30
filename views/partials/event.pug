@@ -254,7 +254,7 @@ mixin eventAddonsHeader()
                 | Add Addon
 
 mixin eventAddon(addon, idx)
-    .event_addon-row.border-top.mt-2(id=`event_addon-${idx}`)
+    .expansion-row.event_addon-row.border-top.mt-2(id=`event_addon-${idx}`)
         .row.my-2
             input.event_addon-input(
                 type="hidden"
@@ -468,6 +468,97 @@ mixin addonField(addon, attendance_addon, user, attendance)
                 else
                     .badge.text-bg-danger Unpaid
 
+mixin eventCostHeader()
+    h5 Event Pricing
+    .row.event_cost-header-row.my-2
+        .col-sm-2
+            label.control-label.event_addon-label Price Name
+        .col-sm-3
+            label.control-label.event_addon-label Cost
+        .col-sm-5
+            label.control-label.event_addon-label Options
+
+        .col.text-end
+            a.btn.btn-sm.btn-outline-success.add-event_cost-btn(href='#')
+                i.fa.fa-plus.me-1
+                | Add Price
+
+
+mixin eventCostRow(cost, idx)
+    .expansion-row.event_cost-row.row.my-2(id=`event_cost-${idx}`)
+        .col-sm-2
+            input.form-control.form-control-sm.event_cost-input(
+                type='text'
+                value=cost.name
+                name=`event[costs][${idx}][name]`
+                id=`event-costs-${idx}-name`
+                data-fieldtype='name'
+                data-required='true'
+                placeholder='Price Name'
+                required=idx!=='new'
+            )
+        .col-sm-3
+            .input-group.input-group-sm
+                .input-group-text $
+                input.form-control.event_cost-input.pay-what-you-want-field.pay-what-you-want-minimum(
+                        id=`event_costs_${idx}-minimum`
+                        placeholder="Min"
+
+                        name=`event[costs][${idx}][minimum]`
+                        data-fieldtype='minimum'
+                        data-required="false"
+                        value=cost.minimum || 0
+                        type='number'
+                        title='Minimum'
+                        data-bs-toggle='tooltip'
+                    )
+                .input-group-text.pay-what-you-want-field -
+
+                input.form-control.event_addon-input(
+                    id=`event_costs_${idx}-cost`
+                    placeholder="Dollars"
+                    name=`event[costs][${idx}][cost]`
+                    data-fieldtype='cost'
+                    data-required="true"
+                    required=idx!=='new'
+                    value=cost.cost
+                    type='number'
+                    title='Cost'
+                    data-bs-toggle='tooltip'
+                )
+
+                .input-group-text .00
+
+
+        .col-sm-3
+            .form-check.form-switch
+                input.form-check-input.me-1.event_cost-input.pay-what-you-want-input(
+                    type="checkbox"
+                    name=`event[costs][${idx}][pay_what_you_want]`
+                    id=`event_costs-${idx}-pay_what_you_want`
+                    checked=cost.pay_what_you_want
+                    data-fieldtype='pay_what_you_want'
+                )
+                label.form-check-label.event_cost-label(
+                    for=`event_costs-${idx}-pay_what_you_want`
+                ) Pay what you want
+        .col-sm-2
+            .form-check.form-switch
+                input.form-check-input.me-1.event-cost-default.event_cost-input(
+                    type="checkbox"
+                    name=`event[costs][${idx}][default]`
+                    id=`event_costs-${idx}-default`
+                    checked=cost.default
+                    data-fieldtype='default'
+                )
+                label.form-check-label.event_cost-label(
+                    for=`event_costs-${idx}-default`
+                ) Default
+        .col-sm-2.text-end.align-bottom
+            a.btn.btn-sm.btn-outline-danger.remove-event_cost-btn.align-bottom(data-bs-toggle="tooltip" title='Remove Price' data-placement="right" href='#')
+                i.fas.fa-trash.fa-fw.me-1
+                | Remove
+
 mixin attendanceTable(attendances)
     .table-responsive.my-2
         .col-sm-6.offset-sm-3.text-center.table-loading
@@ -585,6 +676,3 @@ mixin eventReports(event, schedule_reports, showCsv=false)
                         )
                             i.fa.fa-download.me-1
                             | Player CSV
-
-
-

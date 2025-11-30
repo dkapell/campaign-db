@@ -86,15 +86,22 @@
         .col-md-4.text-lg-center
             span.fs-5
                 span.me-1 Cost:
-                if event.cost
-                    | $#{event.cost}
+                if attendee && attendee.cost
+                    | $#{attendee.cost}
+                else if event.has_cost
+                    | $#{event.default_cost}
                 else
                     | Free
+                if event.has_cost_options
+                    fa.fas.fa-plus-circle.ms-1(
+                    title='Additional Options'
+                    data-bs-toggle='tooltip'
+                    )
                 -
                     let owed = 0;
                     if (attendee && attendee.user){
-                        if (event.cost && !attendee.paid && attendee.user.type === 'player'){
-                            owed += event.cost
+                        if (attendee.cost && !attendee.paid && attendee.user.type === 'player'){
+                            owed += attendee.cost
                         }
                         for ( const addon of attendee.addons ){
                             const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})

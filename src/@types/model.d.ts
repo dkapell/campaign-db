@@ -216,7 +216,15 @@ interface SurveyModel extends ModelData {
     is_default?: boolean
     definition?: Record<string, unknown>
     created?: Date
+}
 
+interface EventCost {
+    cost: number,
+    name: string,
+    default?: boolean,
+    pay_what_you_want?: boolean
+    minimum?: number
+    description?: string
 }
 
 interface EventModel extends ModelData {
@@ -227,7 +235,10 @@ interface EventModel extends ModelData {
     start_time?: Date
     end_time?: Date
     registration_open?:boolean
-    cost?: number
+    costs?: EventCost[]
+    default_cost?: number
+    has_cost?:boolean
+    has_cost_options?:boolean
     deleted?: boolean
     created?: Date
     hide_attendees?: boolean
@@ -246,6 +257,7 @@ interface AttendanceModel extends ModelData {
     user_id?: number
     character_id?: number
     paid?: boolean
+    ticket?: string
     notes?: string
     pre_event_data?: Record<string, unknown>
     post_event_data?: Record<string, unknown>

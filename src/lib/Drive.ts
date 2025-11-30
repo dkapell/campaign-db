@@ -342,6 +342,26 @@ class Drive {
             throw err;
         }
     }
+
+    async shareFile(fileId, email, sendEmail=false){
+        const request = {
+            fileId: fileId,
+            sendNotificationEmail: sendEmail,
+            transferOwnership: false,
+            resource:{
+                role: 'writer',
+                type: 'user',
+                emailAddress: email
+            }
+        };
+        try {
+            const response = await this.service.permissions.create(request);
+            return response.data;
+        } catch(err){
+            console.error(`Error granting permission on file: ${err.message}`);
+            throw err;
+        }
+    }
 }
 
 export = new Drive();

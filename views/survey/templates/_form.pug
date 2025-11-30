@@ -44,16 +44,16 @@ if scene.description || scene.printout_note
 -
     const rows = field.rows?Number(field.rows):3;
     const height = rows * 24;
-.row.my-2
-    .col
-        .custom-event-field
-            +markdownEditor(`Feedback for ${capitalize(user_type_map['core staff'].name)} only`, 'scene_gm_feedback', 'scene_feedback[gm_feedback]', rows, height, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
 .row.mt-2.mb-1
     .col
         .custom-event-field
             +markdownEditor('Feedback for NPCs', 'scene_npc_feedback', 'scene_feedback[npc_feedback]', rows, height, scene.npc_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
+.row.my-2
+    .col
+        .custom-event-field
+            +markdownEditor(`Feedback for ${capitalize(user_type_map['core staff'].name)} only`, 'scene_gm_feedback', 'scene_feedback[gm_feedback]', rows, height, scene.gm_feedback, false, {disabled:disabled, maxlength:field.maxlength, saveIndicator:true})
 
 if (!modal)
     .row.my-2

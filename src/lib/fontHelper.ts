@@ -5,6 +5,7 @@ import bent from 'bent';
 import cache from './cache';
 import config from 'config';
 import _ from 'underscore';
+import { Readable } from 'stream'
 
 const fontStyles = {
     regular: ['regular'],
@@ -21,7 +22,7 @@ async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
     if (!font){
         throw new Error ('Invalid Font')
     }
-    let buffer = checkCache(font.name, style);
+    let buffer:Buffer = checkCache(font.name, style);
     if (buffer){ return buffer; }
 
     if (font.type === 'user'){
@@ -48,7 +49,7 @@ async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
     return null;
 }
 
-function checkCache(name, style){
+function checkCache(name:string, style:string): Buffer{
     if (_.has(fontCache, name) && _.has(fontCache[name], style)){
         if (fontCache[name][style].timestamp.getTime() < 1000*60*5){
              return Buffer.from(fontCache[name][style].data, 'base64');
@@ -67,7 +68,7 @@ function storeCache(name, style, buffer){
     return Buffer.from(buffer, 'base64');
 }
 
-async function streamToBuffer(readableStream): Promise<Buffer> {
+async function streamToBuffer(readableStream:Readable): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks = [];
     readableStream.on('data', data => {

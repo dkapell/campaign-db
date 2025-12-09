@@ -82,41 +82,41 @@
                         span.fa.fa-calendar-times.me-2
                         | Clear Not Attending
 
-    if activeUser.type.match(/^(player|admin|core staff)$/)
-        .col-md-4.text-lg-center
-            span.fs-5
+    .col-md-4.text-lg-center
+        span.fs-5
+            if activeUser.type.match(/^(player|admin|core staff)$/)
                 span.me-1 Cost:
                 if event.cost
                     | $#{event.cost}
                 else
                     | Free
-                -
-                    let owed = 0;
-                    if (attendee && attendee.user){
-                        if (event.cost && !attendee.paid && attendee.user.type === 'player'){
-                            owed += event.cost
-                        }
-                        for ( const addon of attendee.addons ){
-                            const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                            if (!addon.paid){
-                                if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
-                                    if (event_addon.pay_what_you_want){
-                                        owed += addon.cost;
-                                    } else {
-                                        owed += event_addon.cost;
-                                    }
+            -
+                let owed = 0;
+                if (attendee && attendee.user){
+                    if (event.cost && !attendee.paid && attendee.user.type === 'player'){
+                        owed += event.cost
+                    }
+                    for ( const addon of attendee.addons ){
+                        const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+                        if (!addon.paid){
+                            if ((event_addon.charge_player && attendee.user.type === 'player') || (event_addon.charge_staff && attendee.user.type !== 'player')){
+                                if (event_addon.pay_what_you_want){
+                                    owed += addon.cost;
+                                } else {
+                                    owed += event_addon.cost;
                                 }
                             }
                         }
                     }
-                if owed
-                    span.ms-2 Owed: $#{owed}
-                    if currentCampaign.stripe_account_ready
-                        a.btn.btn-sm.btn-outline-primary.ms-1#event-payment-btn(
-                            href=`/event/${event.id}/checkout`
-                        )
-                            i.fa.fa-shopping-cart.me-1
-                            | Pay Now
+                }
+            if owed
+                span.mx-2 Owed: $#{owed}
+                if currentCampaign.stripe_account_ready
+                    a.btn.btn-sm.btn-outline-primary.ms-1#event-payment-btn(
+                        href=`/event/${event.id}/checkout`
+                    )
+                        i.fa.fa-shopping-cart.me-1
+                        | Pay Now
 
     .col-lg-3.text-lg-end
 

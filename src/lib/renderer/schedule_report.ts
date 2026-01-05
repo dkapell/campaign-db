@@ -802,7 +802,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                                 doc.y = postY;
                             }
                         }
-                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
+                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone && options.show_open_slots){
                             let shortName = 'Player'
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);

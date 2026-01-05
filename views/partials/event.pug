@@ -570,6 +570,14 @@ mixin eventReports(event, schedule_reports, showCsv=false)
                         )
                             i.fa.fa-download.me-1
                             | Scene Labels PDF
+                if _.indexOf(schedule_reports, 'schedule_busy') !== -1
+                    li
+                        a.dropdown-item.event-export-btn#schedule-pdf-export-btn(
+                            href='#'
+                            data-export=`/event/${event.id}/schedule/report/schedule_busy`
+                        )
+                            i.fa.fa-download.me-1
+                            | Schedule Busy PDF
                 if showCsv
                     li
                         a.dropdown-item.event-export-btn#schedule-pdf-export-btn(

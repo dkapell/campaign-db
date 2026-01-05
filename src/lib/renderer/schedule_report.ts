@@ -1,6 +1,7 @@
 'use strict';
 import PDFDocument from 'pdfkit';
 import _ from 'underscore';
+import async from 'async';
 import moment from 'moment';
 import pluralize from 'pluralize';
 import models from '../models';
@@ -44,6 +45,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         case 'player': await playerReport(); break;
         case 'scenes': await scenesReport(); break;
         case 'scenelabels': await sceneLabelsReport(); break;
+        case 'schedule_busy': await scheduleBusyReport(); break;
     }
     return doc;
 
@@ -895,6 +897,57 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc.x = sectionX;
             doc.moveDown(0.25)
         }
+    }
+    async function scheduleBusyReport(){
+        const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
+        const schedule_busy_types = await models.schedule_busy_type.find({campaign_id:campaign.id});
+
+        for (const schedule_busy_type of schedule_busy_types){
+            doc.addPage();
+
+            renderHeader(schedule_busy_type);
+            for (const timeslot of allTimeslots){
+                if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
+                    continue;
+                }
+                const schedule_busies = await models.schedule_busy.find({event_id:eventId, timeslot_id:timeslot.id, type_id:schedule_busy_type.id})
+
+                let timeslotName = timeslot.name;
+                if (options.timeslotDisplay === 'label' && timeslot.display_name){
+                    timeslotName = timeslot.display_name as string
+                }
+
+                if (schedule_busies.length){
+                    const users = await async.map(schedule_busies, async(schedule_busy) => {
+                        return models.user.get(campaign.id, schedule_busy.user_id)
+                    });
+                    const oldX = doc.x;
+                    doc.font('Body Font Bold').fontSize(16);
+                    doc.text(timeslotName, {continued:true})
+                    doc.x += 72;
+
+                    doc.font('Body Font').text(_.pluck(users, 'name').join(', '));
+                    doc.x = oldX;
+                } else {
+                    doc.font('Body Font Bold').fontSize(16);
+                    doc.text(timeslotName)
+                }
+                doc.moveDown(0.25)
+            }
+        }
+        function renderHeader(schedule_busy_type){
+            const headerText = `${event.name}: ${schedule_busy_type.name}`;
+            doc
+                .lineWidth(options.boldStrokeWidth)
+                .font('Title Font Bold')
+                .fontSize(24 * options.font.title.scale)
+                .text(headerText, options.margin, options.margin, {
+                    width:doc.page.width - (options.margin*2),
+                    align:'center',
+                    stroke:options.font.header.strokeForBold, fill:true
+                });
+        }
+
     }
 }
 

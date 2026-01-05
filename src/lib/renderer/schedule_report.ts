@@ -924,7 +924,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     const oldX = doc.x;
                     doc.font('Body Font Bold').fontSize(16);
                     doc.text(timeslotName, {continued:true})
-                    doc.x += 72;
+                    doc.x = 72*2;
 
                     doc.font('Body Font').text(_.pluck(users, 'name').join(', '));
                     doc.x = oldX;

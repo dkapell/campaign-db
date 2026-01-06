@@ -906,6 +906,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc.addPage();
 
             renderHeader(schedule_busy_type);
+            const sectionX = doc.x;
             for (const timeslot of allTimeslots){
                 if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
                     continue;
@@ -921,16 +922,18 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     const users = await async.map(schedule_busies, async(schedule_busy) => {
                         return models.user.get(campaign.id, schedule_busy.user_id)
                     });
-                    const oldX = doc.x;
-                    doc.font('Body Font Bold').fontSize(16);
-                    doc.text(timeslotName, {continued:true})
-                    doc.x = 72*2;
 
-                    doc.font('Body Font').text(_.pluck(users, 'name').join(', '));
-                    doc.x = oldX;
+                    const lineY = doc.y
+                    doc.font('Body Font Bold')
+                        .fontSize(16 * options.font.body.scale)
+                        .text(timeslotName, sectionX, doc.y);
+                    doc.font('Body Font')
+                        .fontSize(16 * options.font.body.scale)
+                        .text(_.pluck(users, 'name').join(', '), 72*2.5, lineY, {width:doc.page.width - options.margin*2 - 72*2.5});
+
                 } else {
                     doc.font('Body Font Bold').fontSize(16);
-                    doc.text(timeslotName)
+                    doc.text(timeslotName, sectionX, doc.y, {align:'left'});
                 }
                 doc.moveDown(0.25)
             }

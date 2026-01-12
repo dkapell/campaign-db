@@ -442,6 +442,7 @@ async function grantAttendanceCp(req, res){
         for (const attendee of event.attendees){
             if (!attendee.checked_in) { continue; }
             if (attendee.attendance_cp_granted) { continue; }
+            if (attendee.user.type !== 'player') { continue; }
 
             console.log(`adding ${req.campaign.renames.cp.singular} to ${attendee.user.name}`);
             await req.models.cp_grant.create({

@@ -368,7 +368,8 @@ mixin characterCard(character)
                     a.btn.btn-sm.btn-outline-info(href=`/character/${character.id}` title='View Character')
                         i.fas.fa-eye
                 .d-block
-                    h4.d-inline= character.name
+                    h4.d-inline
+                        a.link-underline-opacity-0.link-underline.link-underline-opacity-75-hover(href=`/character/${character.id}`)= character.name
                         h3.align-text-top.d-inline.badge.rounded-pill.text-bg-info.ms-3 #{character.cp} #{currentCampaign.renames.cp.singular}
 
             .card-body

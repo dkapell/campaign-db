@@ -53,7 +53,7 @@ mixin tagMenu(tag, data, italic)
                 i.fas.fa-chevron-up
                 i.fas.fa-chevron-down
         nav.flex-column.toc-entry.tag-section.collapse.ps-2(id=`menu-tag-${tag.replace(/\W+/g, '_')}` class=[data.length<=minLengthForShow?'show':''])
-            for entry in data
+            for entry in _.sortBy(data, 'name')
                 +entryMenu(entry)
 
 mixin entryMenu(entry)

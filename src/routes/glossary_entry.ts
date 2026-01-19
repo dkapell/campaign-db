@@ -371,6 +371,7 @@ router.use(permission());
 router.use(function(req, res, next){
     res.locals.siteSection='setting';
     res.locals.querystring = querystring;
+    res.locals.fullHeightMain = true;
     if (req.campaign.display_glossary === 'private'){
         return permission('player')(req, res, next);
     }

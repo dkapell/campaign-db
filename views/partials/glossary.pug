@@ -1,5 +1,5 @@
 mixin glossaryMenu(entries, showSearch)
-    .glossary-menu.sticky-top.w-100#glossaryMenu
+    .glossary-menu.overflow-y-auto.h-100#glossaryMenu
         h2.mb-3#glossaryMenuLabel Glossary
         if checkPermission('gm')
             .d-grid.gap-2
@@ -17,7 +17,7 @@ mixin glossaryMenu(entries, showSearch)
                     input.form-control.border-end-0.border#glossarySearch(name="query" placeholder="Search")
                     button.btn.btn-outline-secondary.border-start-0.border(type="submit")
                         i.fas.fa-search
-        .section-nav.glossary-menu-entries.nav.flex-column.w-100.flex-nowrap#glossaryMenu
+        .section-nav.glossary-menu-entries.nav.flex-column.w-100.flex-nowrap.h-100.overflow-y-visible#glossaryMenu
             - types = ['in character', 'out of character']
             each type in types
                 if _.has(entries, type)

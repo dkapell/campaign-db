@@ -4,23 +4,24 @@ include ../partials/glossary
 
 block content
     - const entries = sortEntries(glossary_entries);
-    .row
-        .col-md-2.d-print-none
+    .row.h-100.d-flex
+        .col-md-2.d-print-none.h-100.pb-4.overflow-y-hidden
             +glossaryMenu(entries, listType !== 'search')
 
-        .col-md.mx-3.glossary-entries
-            h2.mb-2.d-print-none= listName
-            if listType === 'search'
-                form.form.mb-2#glossarySearchForm(method="GET" action="/glossary/search")
-                    .input-group
-                        input.form-control.border-end-0.border#glossarySearch(name="query" value=searchQuery)
-                        button.btn.btn-outline-secondary.border-start-0.border(type="submit")
-                            i.fas.fa-search
-            if glossary_entries.length
-                each data, type in entries
-                    +typeLayout(type, data, listType==='all')
-            else
-                .alert.alert-light.my-2 No Entries Found
+        .col-md.mx-3.glossary-entries.overflow-y-hidden.h-100
+            .overflow-y-auto.h-100
+                h2.mb-2.d-print-none= listName
+                if listType === 'search'
+                    form.form.mb-2#glossarySearchForm(method="GET" action="/glossary/search")
+                        .input-group
+                            input.form-control.border-end-0.border#glossarySearch(name="query" value=searchQuery)
+                            button.btn.btn-outline-secondary.border-start-0.border(type="submit")
+                                i.fas.fa-search
+                if glossary_entries.length
+                    each data, type in entries
+                        +typeLayout(type, data, listType==='all')
+                else
+                    .alert.alert-light.my-2 No Entries Found
 
 append scripts
     script(src='/javascripts/glossary.js')

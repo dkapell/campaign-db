@@ -5,7 +5,7 @@ include ../partials/glossary
 block content
     - const entries = sortEntries(glossary_entries);
     .row.h-100.d-flex
-        .col-md-2.d-print-none.h-100.pb-4.overflow-y-hidden
+        .col-md-2.d-print-none.h-100.py-4.overflow-y-hidden
             +glossaryMenu(entries, listType !== 'search')
 
         .col-md.mx-3.glossary-entries.overflow-y-hidden.h-100

@@ -5,6 +5,7 @@ include ../../partials/event
 include ../../partials/survey
 
 block content
+    - console.log(attendance.user.type)
     input#eventId(type='hidden' value=event.id)
     input#attendanceId(type='hidden' value=attendance.id)
     .row

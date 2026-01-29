@@ -29,7 +29,7 @@ async function renderFile(id){
             titleScale: (file.title_font_scale ||= 1) * (campaign.translation_scale ||= 1)
         });
 
-        const outputFolder = await Drive.createFolder(campaign.translation_drive_folder, 'Output');
+        const outputFolder = await Drive.createFolder(campaign.translation_drive_folder, 'Translation PDF Output');
         await Drive.uploadFile(outputFolder.id, `${file.name}.pdf`, 'application/pdf', pdf as unknown as Readable );
     } catch (err){
         console.trace(err);

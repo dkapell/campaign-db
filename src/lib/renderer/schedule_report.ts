@@ -1,6 +1,7 @@
 'use strict';
 import PDFDocument from 'pdfkit';
 import _ from 'underscore';
+import async from 'async';
 import moment from 'moment';
 import pluralize from 'pluralize';
 import models from '../models';
@@ -44,6 +45,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         case 'player': await playerReport(); break;
         case 'scenes': await scenesReport(); break;
         case 'scenelabels': await sceneLabelsReport(); break;
+        case 'schedule_busy': await scheduleBusyReport(); break;
     }
     return doc;
 
@@ -773,7 +775,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         for (const player of scene.players.confirmed){
                             players.push(player.name)
                         }
-                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
+                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone && options.show_open_slots){
                             let shortName = 'Player'
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);
@@ -802,7 +804,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                                 doc.y = postY;
                             }
                         }
-                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone){
+                        if (scene.player_count_max - scene.players.confirmed.length > 0 && !scene.for_anyone && options.show_open_slots){
                             let shortName = 'Player'
                             if (scene.player_count_max - scene.players.confirmed.length > 1){
                                 shortName = pluralize.plural(shortName);
@@ -895,6 +897,60 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             doc.x = sectionX;
             doc.moveDown(0.25)
         }
+    }
+    async function scheduleBusyReport(){
+        const allTimeslots = await models.timeslot.find({campaign_id:campaign.id});
+        const schedule_busy_types = await models.schedule_busy_type.find({campaign_id:campaign.id});
+
+        for (const schedule_busy_type of schedule_busy_types){
+            doc.addPage();
+
+            renderHeader(schedule_busy_type);
+            const sectionX = doc.x;
+            for (const timeslot of allTimeslots){
+                if (options.ignoreTimeslots && _.indexOf(options.ignoreTimeslots, timeslot.id) !== -1){
+                    continue;
+                }
+                const schedule_busies = await models.schedule_busy.find({event_id:eventId, timeslot_id:timeslot.id, type_id:schedule_busy_type.id})
+
+                let timeslotName = timeslot.name;
+                if (options.timeslotDisplay === 'label' && timeslot.display_name){
+                    timeslotName = timeslot.display_name as string
+                }
+
+                if (schedule_busies.length){
+                    const users = await async.map(schedule_busies, async(schedule_busy) => {
+                        return models.user.get(campaign.id, schedule_busy.user_id)
+                    });
+
+                    const lineY = doc.y
+                    doc.font('Body Font Bold')
+                        .fontSize(16 * options.font.body.scale)
+                        .text(timeslotName, sectionX, doc.y);
+                    doc.font('Body Font')
+                        .fontSize(16 * options.font.body.scale)
+                        .text(_.pluck(users, 'name').join(', '), 72*2.5, lineY, {width:doc.page.width - options.margin*2 - 72*2.5});
+
+                } else {
+                    doc.font('Body Font Bold').fontSize(16);
+                    doc.text(timeslotName, sectionX, doc.y, {align:'left'});
+                }
+                doc.moveDown(0.25)
+            }
+        }
+        function renderHeader(schedule_busy_type){
+            const headerText = `${event.name}: ${schedule_busy_type.name}`;
+            doc
+                .lineWidth(options.boldStrokeWidth)
+                .font('Title Font Bold')
+                .fontSize(24 * options.font.title.scale)
+                .text(headerText, options.margin, options.margin, {
+                    width:doc.page.width - (options.margin*2),
+                    align:'center',
+                    stroke:options.font.header.strokeForBold, fill:true
+                });
+        }
+
     }
 }
 

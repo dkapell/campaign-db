@@ -201,6 +201,8 @@ mixin sceneBody(scene, locationIdx, forScheduler)
             )
                 if checkPermission('event') || !scene.player_name
                     = scene.name
+                    if scene.runner_id === activeUser.id
+                        .badge.text-bg-danger.mx-2 Runner
                 else
                     = scene.player_name
                 if scene.locations_count > 1

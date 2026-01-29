@@ -453,7 +453,7 @@ mixin questionScenes(scenes, userScenes)
                                     hasFeedback = true;
                                 }
                                 let sceneName = scene.name;
-                                if (scene.player_name && isPlayer){
+                                if (scene.player_name && isPlayer && scene.player_name !== scene.name){
                                     sceneName += ` (${scene.player_name})`
                                 }
 

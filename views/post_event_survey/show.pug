@@ -9,7 +9,7 @@ block content
             .row
                 .col-lg
                     strong= attendance.user.name
-                    if attendance.character
+                    if attendance.user.type === 'player' && attendance.character
                         span.ms-2 ( #{attendance.character.name} )
                 .col-lg.text-lg-center= event.name
                     span.ms-2 (

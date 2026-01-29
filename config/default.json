@@ -211,6 +211,15 @@
                 "players": 22,
                 "staff":20
             }
+        },
+        "schedule_busy":{
+            "timeslotDisplay": "label",
+            "font": {
+                "title": { "name":null, "scale": 1},
+                "header": { "name":null, "scale": 1},
+                "body": { "name":null, "scale": 1}
+            },
+            "ignoreTimeslots":[]
         }
     },
     "characterSheet":{

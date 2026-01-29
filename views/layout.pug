@@ -2,7 +2,7 @@ doctype html
 html(lang="en" data-bs-theme=theme_dark_mode?'dark':'light')
     include ./partials/layout/head
 
-    body(style= activeUser || showFullMenu ? 'padding-top: 5.5rem;': '' )
+    body.h-100(style= activeUser || showFullMenu ? 'padding-top: 5.5rem;': '' )
         if (activeUser || showFullMenu)
             nav.d-print-none.navbar.navbar-expand-md.bg-primary.fixed-top.mb-4(class=menuDark?'navbar-dark':'')
                 include ./partials/layout/menu
@@ -36,8 +36,12 @@ html(lang="en" data-bs-theme=theme_dark_mode?'dark':'light')
         include ./partials/layout/messages
 
         if wideMain
-            main.container-fluid(role="main")
-                block content
+            if fullHeightMain
+                main.container-fluid.h-100(role="main")
+                    block content
+            else
+                main.container-fluid(role="main")
+                    block content
         else if fullHeightMain
             main.container.h-100(role="main")
                 block content

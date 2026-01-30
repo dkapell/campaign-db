@@ -21,6 +21,7 @@ block content
                     th
                     th(data-priority="1") Name
                     th Font
+                    th Line Gap
                     th Border
                     th Label
                     th Rune Page Only
@@ -42,7 +43,7 @@ block content
                                     span.ms-1 (#{doc.font.language})
                             else
                                 i Unset
-
+                        td= doc.line_gap?'Yes':'No'
                         td= doc.border?'Yes':'No'
                         td= doc.label?'Yes':'No'
                         td= doc.runes_only?'Yes':'No'

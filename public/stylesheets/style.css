@@ -204,7 +204,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr[role="row"]>th.dtr-control:before 
   border-top: none !important;
 }
 
-.custom-field-description-popover {
+.custom-field-description-popover, .post-event-scene-feedback-popover {
   --bs-popover-max-width: 800px;
 }
 .skillDoc b, .skillDoc strong {

@@ -27,6 +27,7 @@ $(function(){
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     if ($('.sceneList').length){ loadSchedule();}
     $('#surveyModal').find('.save-btn').on('click', submitFeedbackModal);
+
 });
 
 async function clearSurveyDropdown(e){
@@ -197,6 +198,9 @@ async function loadSchedule(){
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
+    });
+     $('.sceneList').find('[data-bs-toggle="popover"]').popover({
+        trigger: 'hover'
     });
 }
 

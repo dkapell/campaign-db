@@ -265,7 +265,7 @@ function formatSceneForSurvey(scene:FormattedSceneModel){
         staff: [],
         players: scene.players.confirmed?_.pluck(scene.players.confirmed, 'name'):[],
         writer: scene.writer_id?scene.writer.name:null,
-        additional_writers: scene.additional_writers,
+        additional_writers: _.pluck(scene.additional_writers, 'name'),
         feedback_id:scene.feedback_id,
         gm_feedback: scene.gm_feedback,
         npc_feedback: scene.npc_feedback,

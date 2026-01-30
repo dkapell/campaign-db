@@ -19,7 +19,7 @@ if field.description
             strong Writer:
             span.ms-2= scene.writer
             if scene.additional_writers.length
-                span.ms-1 (#{_.pluck(scene.additional_writers, 'name').join(', ')})
+                span.ms-1 (#{scene.additional_writers.join(', ')})
 
 .row.my-2
     .col

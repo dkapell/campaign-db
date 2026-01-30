@@ -21,6 +21,7 @@ async function renderFile(id){
             border: file.border,
             label: file.label,
             runesOnly: file.runes_only,
+            lineGap: file.line_gap,
             headerFontId: file.header_font_id?file.header_font_id:campaign.default_translation_header_font_id,
             bodyFontId: file.body_font_id?file.body_font_id:campaign.default_translation_body_font_id,
             bodyScale: (file.body_font_scale ||= 1) * (campaign.translation_scale ||= 1),
@@ -114,6 +115,9 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
     }
 
     const features: PDFFeatures = {};
+    if (options.lineGap){
+        features.lineGap = 20;
+    }
 
     if (font.vertical){
         preview = preview.split('').join('\n');
@@ -122,6 +126,9 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
         features.paragraphGap = 0;
         features.columnGap = 5;
         maxHeight = maxHeight * 14;
+        if (options.lineGap){
+            features.columnGap = 10;
+        }
     }
 
     while (doc.heightOfString(preview, features) > maxHeight){

@@ -446,11 +446,12 @@ mixin questionScenes(scenes, userScenes)
                                     continue;
                                 }
                                 userSceneList.push(scene.id);
-                                let hasFeedback = false;
+                                const feedback = []
+                                if (scene.npc_feedback && scene.npc_feedback !== ''){
+                                    feedback.push(`<h5>Feedback for NPCs</h5><div>${marked.parseInline(scene.npc_feedback)}</div>`)
+                                }
                                 if (scene.gm_feedback && scene.gm_feedback !== ''){
-                                    hasFeedback = true;
-                                } else if (scene.npc_feedback && scene.npc_feedback !== ''){
-                                    hasFeedback = true;
+                                    feedback.push(`<h5>Feedback for ${capitalize(staffName)}</h5><div>${marked.parseInline(scene.gm_feedback)}</div>`)
                                 }
                                 let sceneName = scene.name;
                                 if (scene.player_name && isPlayer && scene.player_name !== scene.name){
@@ -463,27 +464,32 @@ mixin questionScenes(scenes, userScenes)
                                         if scene.timeslots[0].display_name
                                             span.ms-1 (#{scene.timeslots[0].display_name})
                                 td= sceneName
-                                    if hasFeedback
-                                        .badge.text-bg-success.ms-2.d-md-inline
-                                            i.fas.fa-check-circle.me-1
+                                    if feedback.length
+                                        .badge.text-bg-success.ms-2.d-md-inline(
+                                            data-bs-toggle='popover'
+                                            data-bs-html='true'
+                                            data-bs-content!=feedback.join()
+                                            data-bs-custom-class='post-event-scene-feedback-popover'
+                                        )
+                                            i.fas.fa-eye.me-1
                                             | Feedback Provided
                                 td.text-end
                                     .btn-group
                                         -
                                             let btnText = 'Provide Feedback'
                                             if (disabled){
-                                                if (hasFeedback){
+                                                if (feedback.length){
                                                     btnText = 'View Feedback'
                                                 } else {
                                                     btnText = 'No Feedback'
                                                 }
                                             } else {
-                                                if (hasFeedback){
+                                                if (feedback.length){
                                                     btnText = 'Edit Feedback'
                                                 }
                                             }
 
-                                        if !disabled || hasFeedback
+                                        if !disabled || feedback.length
                                             button.btn.btn-sm.btn-outline-primary.feedback-edit.d-inline-block(
                                                 role='button'
                                                 data-scene-id=scene.id

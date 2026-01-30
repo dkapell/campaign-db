@@ -757,13 +757,13 @@ async function getUserSchedule(req, res){
             }
             return a.name.localeCompare(b.name);
         });
-
         res.json({
 
             success:true,
             scenes: scenes.map(scheduleHelper.formatSceneForSurvey),
             userScenes: userScenes,
-            isPlayer: user.type === 'player'
+            isPlayer: user.type === 'player',
+            staffName: req.campaign.user_type_map['core staff'].name
         });
     } catch (err) {
         res.json({success:false, error:err.message})

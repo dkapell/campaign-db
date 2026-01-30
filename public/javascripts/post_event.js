@@ -27,6 +27,7 @@ $(function(){
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     if ($('.sceneList').length){ loadSchedule();}
     $('#surveyModal').find('.save-btn').on('click', submitFeedbackModal);
+
 });
 
 async function clearSurveyDropdown(e){
@@ -178,6 +179,10 @@ async function submitPostEventSurveyForm(e){
     return false;
 }
 
+function capitalize(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 async function loadSchedule(){
     const eventId = $('#eventId').val();
     const attendanceId = $('#attendanceId').val();
@@ -185,6 +190,7 @@ async function loadSchedule(){
     const scheduleResult = await fetch(`/event/${eventId}/post_event/${attendanceId}/schedule`);
     const data = await scheduleResult.json();
     data.disabled = $('.sceneList').attr('disabled');
+    data.capitalize = capitalize;
 
     $('.sceneList').html(sceneListTemplate(data));
     $('.sceneListLoading').hide();
@@ -197,6 +203,9 @@ async function loadSchedule(){
         theme:'bootstrap-5',
         minimumResultsForSearch: 6,
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
+    });
+     $('.sceneList').find('[data-bs-toggle="popover"]').popover({
+        trigger: 'hover'
     });
 }
 

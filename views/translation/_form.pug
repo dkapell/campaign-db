@@ -77,6 +77,12 @@ if (backto)
 .row.my-2
     .col
         .form-check.form-switch
+            input.form-check-input#translation_line_gap(type="checkbox" name="translation[line_gap]" checked=translation.line_gap)
+            label.form-check-label(for="translation_line_gap") Leave Line Gap for Player Translation
+
+.row.my-2
+    .col
+        .form-check.form-switch
             input.form-check-input#translation_label(type="checkbox" name="translation[border]" checked=translation.border)
             label.form-check-label(for="translation_border") Show Border
 

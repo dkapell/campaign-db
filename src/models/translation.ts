@@ -25,7 +25,8 @@ const tableFields = [
     'title_font_scale',
     'status', 
     'updated', 
-    'preview'
+    'preview',
+    'line_gap'
 ];
 
 const Translation = new Model('translations', tableFields, {

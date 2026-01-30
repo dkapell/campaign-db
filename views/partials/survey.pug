@@ -448,10 +448,10 @@ mixin questionScenes(scenes, userScenes)
                                 userSceneList.push(scene.id);
                                 const feedback = []
                                 if (scene.npc_feedback && scene.npc_feedback !== ''){
-                                    feedback.push(`<h5>NPC Feedback</h5><div>${marked.parseInline(scene.npc_feedback)}</div>`)
+                                    feedback.push(`<h5>Feedback for NPCs</h5><div>${marked.parseInline(scene.npc_feedback)}</div>`)
                                 }
                                 if (scene.gm_feedback && scene.gm_feedback !== ''){
-                                    feedback.push(`<h5>Staff Feedback</h5><div>${marked.parseInline(scene.gm_feedback)}</div>`)
+                                    feedback.push(`<h5>Feedback for ${capitalize(staffName)}</h5><div>${marked.parseInline(scene.gm_feedback)}</div>`)
                                 }
                                 let sceneName = scene.name;
                                 if (scene.player_name && isPlayer && scene.player_name !== scene.name){

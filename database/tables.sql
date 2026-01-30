@@ -901,6 +901,7 @@ create table translations(
     title_font_scale float default 1,
     status varchar(80),
     preview int default 0,
+    line_gap booleant default true,
     updated timestamp with time zone default now(),
     primary key (id),
     CONSTRAINT translation_font_id FOREIGN KEY (font_id)

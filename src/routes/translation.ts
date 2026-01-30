@@ -37,7 +37,8 @@ async function list(req, res, next){
                     body_font_id: req.campaign.default_translation_body_font_id,
                     header_font_id: req.campaign.default_translation_header_font_id,
                     body_font_scale: 1,
-                    header_font_scale: 1
+                    header_font_scale: 1,
+                    line_gap:true
                 });
                 return req.models.translation.get(id);
             }
@@ -88,7 +89,7 @@ async function update(req, res){
     const translation = req.body.translation;
     req.session.translationData = translation;
 
-    for (const field of ['border', 'label', 'runes_only']){
+    for (const field of ['border', 'label', 'runes_only', 'line_gap']){
         if (!_.has(translation, field)){
             translation[field] = false;
         }

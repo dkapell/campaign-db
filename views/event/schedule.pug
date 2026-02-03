@@ -5,7 +5,7 @@ include ../partials/schedule
 block intro
     -
         locations.push({id:'busy', name:'Special', tags:[]})
-        let xAxis = locations
+        let xAxis = locations.filter(location => {return location.active});
         let yAxis = timeslots
         let xAxisType = 'location'
         let cellsPerSlot = 6;
@@ -13,7 +13,7 @@ block intro
         let rowHeight = 50;
         if (currentCampaign.schedule_y_location){
             xAxis = timeslots;
-            yAxis = locations;
+            yAxis = locations.filter(location => {return location.active});
             xAxisType = 'timeslot'
             rowHeight = rowHeight / cellsPerSlot;
         }

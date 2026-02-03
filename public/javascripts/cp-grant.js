@@ -23,7 +23,7 @@ async function approveGrant(e){
     const grantId = $this.data('id');
 
     const csrfToken = $this.data('csrf');
-    const type = $this.data('type')
+    const type = $this.data('type');
     const result = await fetch(`/${type}/${grantId}/approve`, {
         method:'PUT',
         headers: {
@@ -44,7 +44,7 @@ async function denyGrant(e){
     const grantId = $this.data('id');
 
     const csrfToken = $this.data('csrf');
-    const type = $this.data('type')
+    const type = $this.data('type');
     const result = await fetch(`/${type}/${grantId}/deny`, {
         method:'PUT',
         headers: {

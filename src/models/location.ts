@@ -23,7 +23,8 @@ const tableFields = [
     'combat',
     'special',
     'outdoors',
-    'image_id'
+    'image_id',
+    'active'
 ];
 
 const Location = new Model('locations', tableFields, {

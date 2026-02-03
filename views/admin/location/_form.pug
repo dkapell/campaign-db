@@ -25,6 +25,12 @@
             label.form-check-label(for="location_special") Is Special
 .row.my-2
     .col
+        .form-check.form-switch
+            input.form-check-input#location_active(type="checkbox" name="location[active]" checked=location.active)
+            label.form-check-label(for="location_active") Is Active
+    .col
+.row.my-2
+    .col
         label.control-label(for='location_image_id')
         select.form-select.select2#location_image_id(name="location[image_id]" data-placeholder="Image")
             option

@@ -245,6 +245,9 @@ fieldset.my-2.border.p-2.rounded
             .col
                 ul.list-group
                     each location in locations
+                        if !location.active
+                            - continue
+
                         - const sceneLocation = _.findWhere(scene.locations, {id: location.id}) || {};
 
                         +sceneLocationInput(location, sceneLocation.scene_request_status, sceneLocation.scene_schedule_status, showOutdoors)

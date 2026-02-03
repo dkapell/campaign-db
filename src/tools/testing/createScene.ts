@@ -268,6 +268,7 @@ async function getLocations(campaignId, type:string=null){
     }
     const output = [];
     for (const location of cache.locations){
+        if (!location.active) { continue; }
         switch (type){
             case 'combat':
                 if (location.combat){

@@ -204,7 +204,7 @@ async function loadSchedule(){
         minimumResultsForSearch: 6,
         width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style'
     });
-     $('.sceneList').find('[data-bs-toggle="popover"]').popover({
+    $('.sceneList').find('[data-bs-toggle="popover"]').popover({
         trigger: 'hover'
     });
 }

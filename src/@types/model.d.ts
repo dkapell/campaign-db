@@ -351,6 +351,7 @@ interface LocationModel extends ModelData{
     display_order?: number
     multiple_scenes?: boolean
     combat?: boolean
+    active?: boolean
     scene_request_status?:string
     scene_schedule_status?:string
 }

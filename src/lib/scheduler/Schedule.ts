@@ -629,7 +629,7 @@ class Schedule extends EventEmitter {
     protected async findLocations(scene: ScheduleScene, timeslotId: number): Promise<number[]>{
         const foundLocations = [];
         const possibleLocationsIds = scene.possibleLocations();
-        const locations = await this.cache.locations();
+        const locations = (await this.cache.locations()).filter(location => {return location.active});
         const timeslots = await this.cache.timeslots();
 
         const sceneTimeslots = await this.getTimeslotSpan(timeslotId, scene.setup_slots, scene.timeslot_count, scene.cleanup_slots);

@@ -37,8 +37,8 @@ mixin eventListDisplay(events, showPast=false)
                             +eventDate(event.start_time, event.end_time)
 
                         td 
-                            if event.cost
-                                | $#{event.cost}.00
+                            if event.default_cost
+                                | $#{event.default_cost}.00
                                 if attendee && attendee.user.type === 'player'
                                     if attendee.paid
                                         .badge.text-bg-success.ms-2 Paid
@@ -46,6 +46,12 @@ mixin eventListDisplay(events, showPast=false)
                                         .badge.text-bg-danger.ms-2 Unpaid
                             else
                                 | Free Event
+
+                            if event.has_cost_options
+                                fa.fas.fa-plus-circle.ms-1(
+                                    title='Additional Options'
+                                    data-bs-toggle='tooltip'
+                                )
 
                         if !showPast
                             td
@@ -150,7 +156,7 @@ mixin eventListItemPlayer(event)
                     if attendance.paid
 
                         span.badge.text-bg-success Paid
-                    else if event.cost
+                    else if event.has_cost
                         span.badge.text-bg-warning Unpaid
                     else
                         span.badge.text-bg-success Registered
@@ -168,8 +174,8 @@ mixin eventListItemPlayer(event)
         if !(attendance && attendance.paid)
             .col.text-end
                 span.me-1 Cost:
-                if event.cost
-                    | $#{event.cost}
+                if event.has_cost
+                    | $#{event.default_cost}
                 else
                     | Free
                 if event.has_cost_options
@@ -597,7 +603,7 @@ mixin attendanceTable(attendances)
                         td
                             if !attendance.attending
                                 .badge.text-bg-info Not Attending
-                            else if attendance.user.type === 'player' && attendance.event.cost
+                            else if attendance.user.type === 'player' && attendance.event.has_cost
                                 if attendance.paid
                                     .badge.text-bg-success Paid
                                 else

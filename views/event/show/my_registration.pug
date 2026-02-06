@@ -134,7 +134,7 @@
                         span.me-2= attendee.character.name
                         if attendee.paid
                             span.badge.text-bg-success Paid
-                        else if event.cost
+                        else if event.has_cost
                             span.badge.text-bg-warning Unpaid
                         else
                             span.badge.text-bg-success Registered

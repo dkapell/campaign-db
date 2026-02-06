@@ -256,7 +256,7 @@ mixin attendeeTable(attendees, type)
                                     ) Unpaid
 
                         if checkPermission('contrib, registration view') && type === 'player'
-                            if event.cost
+                            if event.has_cost
                                 td
                                     -
                                         let selectedAddons = 0;

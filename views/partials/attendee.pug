@@ -58,6 +58,7 @@ mixin attendeeListItem(attendee, type)
                         -
                             let selectedAddons = 0;
                             let paidAddons = 0;
+                            let addon_cost = 0;
                             if (attendee.addons){
                                 for (const addon of attendee.addons){
                                     if (addon.addon.charge_player){
@@ -65,25 +66,36 @@ mixin attendeeListItem(attendee, type)
                                     }
                                     if (addon.addon.charge_player && addon.paid){
                                         paidAddons++;
-
+                                        addon_cost += addon.cost ? addon.cost : addon.addon.cost;
                                     }
                                 }
+                            }
+                            let paidText = '';
+                            if (attendee.paid){
+                                paidText += `<br>Event: $${attendee.cost}`
+                            }
+                            if (addon_cost){
+                                paidText += `<br>Addons: $${addon_cost}`
                             }
                         if attendee.paid && !(selectedAddons - paidAddons)
                             span.badge.text-bg-success.me-1(
                                 data-bs-toggle='tooltip'
-                                title='Fully Paid'
+                                data-bs-html='true'
+                                title=`Fully Paid${paidText}`
                             ) Paid
                         else if attendee.paid
 
                             span.badge.text-bg-warning.me-1(
                                 data-bs-toggle='tooltip'
-                                title='Outstanding Addons'
+                                data-bs-html='true'
+
+                                title=`Outstanding Addons${paidText}`
                             ) Partial
                         else if  selectedAddons && !(selectedAddons - paidAddons)
                             span.badge.text-bg-warning.me-1(
                                 data-bs-toggle='tooltip'
-                                title='Outstanding Event Payment'
+                                data-bs-html='true'
+                                title=`Outstanding Event Payment${paidText}`
                             ) Partial
                         else
                             span.badge.text-bg-danger.me-1(
@@ -249,6 +261,7 @@ mixin attendeeTable(attendees, type)
                                     -
                                         let selectedAddons = 0;
                                         let paidAddons = 0;
+                                        let addon_cost = 0;
                                         if (attendee.addons){
                                             for (const addon of attendee.addons){
                                                 if (addon.addon.charge_player){
@@ -256,26 +269,37 @@ mixin attendeeTable(attendees, type)
                                                 }
                                                 if (addon.addon.charge_player && addon.paid){
                                                     paidAddons++;
-
+                                                    addon_cost += addon.cost ? addon.cost : addon.addon.cost;
                                                 }
                                             }
+                                        }
+
+                                        let paidText = '';
+                                        if (attendee.paid){
+                                            paidText += `<br>Event: $${attendee.cost}`
+                                        }
+                                        if (addon_cost){
+                                            paidText += `<br>Addons: $${addon_cost}`
                                         }
 
                                     if attendee.paid && !(selectedAddons - paidAddons)
                                         span.badge.text-bg-success.me-2(
                                             data-bs-toggle='tooltip'
-                                            title='Fully Paid'
+                                            data-bs-html='true'
+                                            title=`Fully Paid${paidText}`
                                         ) Paid
                                     else if attendee.paid
-
                                         span.badge.text-bg-warning.me-2(
                                             data-bs-toggle='tooltip'
-                                            title='Outstanding Addons'
+                                            data-bs-html='true'
+                                            title=`Outstanding Addons${paidText}`
                                         ) Partial
+
                                     else if  selectedAddons && !(selectedAddons - paidAddons)
                                         span.badge.text-bg-warning.me-2(
                                             data-bs-toggle='tooltip'
-                                            title='Outstanding Event Payment'
+                                            data-bs-html='true'
+                                            title=`Outstanding Event Payment${paidText}`
                                         ) Partial
                                     else
                                         span.badge.text-bg-danger.me-2(

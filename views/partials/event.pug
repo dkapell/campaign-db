@@ -172,6 +172,11 @@ mixin eventListItemPlayer(event)
                     | $#{event.cost}
                 else
                     | Free
+                if event.has_cost_options
+                    fa.fas.fa-plus-circle.ms-1(
+                    title='Additional Options'
+                    data-bs-toggle='tooltip'
+                    )
 
     if attendance && attendance.character && !attendance.character.active
         .row

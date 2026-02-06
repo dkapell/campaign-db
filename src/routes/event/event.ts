@@ -370,8 +370,6 @@ async function update(req, res){
     req.session.eventData = event;
 
 
-    console.log(JSON.stringify(event, null, 2));
-
     try {
         const current = await req.models.event.get(id);
         if (current.campaign_id !== req.campaign.id){
@@ -571,6 +569,7 @@ function parseEventAddons(input){
 
 function parseEventCosts(input){
     const output = [];
+    console.log(JSON.stringify(input, null, 2))
     for (const id in input){
         if (id === 'new'){
             continue;
@@ -592,6 +591,7 @@ function parseEventCosts(input){
 
         output.push(input[id]);
     }
+    console.log(JSON.stringify(output, null, 2))
     return output;
 }
 

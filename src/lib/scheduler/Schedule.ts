@@ -215,7 +215,7 @@ class Schedule extends EventEmitter {
             await null; // release event loop to allow keepalive
             const scene = queue.next();
             if (scene.schedule_status === 'new'){
-                const slotResult = await this.findSlot(scene);
+                const slotResult = await this.findSlot(scene, options);
                 if (slotResult.slotted){
                     scene.happiness += Number(config.get('scheduler.happiness.scheduled'));
                     scene.schedule_status = 'slotted';
@@ -439,7 +439,7 @@ class Schedule extends EventEmitter {
         return;
     }
 
-    protected async findSlot(scene:ScheduleScene):Promise<FindSlotResult>{
+    protected async findSlot(scene:ScheduleScene, options:SchedulerOptions):Promise<FindSlotResult>{
         const timeslots = await this.cache.timeslots();
         const possibleTimeslots = await scene.possibleTimeslots(timeslots);
         const foundTimeslots = [];
@@ -447,7 +447,7 @@ class Schedule extends EventEmitter {
 
         let attempts = 0;
 
-        if (await this.checkRequiredUsers(scene)){
+        if ( options.allowMissingRequired || this.checkRequiredUsers(scene)){
             timeslotLoop: for (const timeslotId of possibleTimeslots){
                 // Limit attempts to 100 for timeboxing
                 if (++attempts > 100){

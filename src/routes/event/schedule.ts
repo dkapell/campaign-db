@@ -784,6 +784,10 @@ async function runScheduler(req, res){
         if (req.body.phase && req.body.phase.match(/^(all|requested|required)$/)){
             options.phase = req.body.phase;
         }
+
+        if (req.campaign.schedule_missing_required){
+            options.allowMissingRequired = true;
+        }
         const schedulerStream = scheduler.get(eventId, options);
 
         res.setHeader('Content-Type', 'application/json');

@@ -140,6 +140,7 @@ interface SchedulerOptions{
    maxScenesPerRun?:number
    skipPlayers?:boolean
    phase?:'all'|'requested'|'required'
+   allowMissingRequired?:boolean
 }
 
 interface SchedulerFillUserOptions{

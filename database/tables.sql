@@ -91,6 +91,7 @@ create table campaigns (
     scene_default_description text,
     scene_default_printout_note text,
     allow_player_dark_mode boolean default false,
+    schedule_missing_required boolean default true,
     primary key (id),
     CONSTRAINT campaigns_created_fk FOREIGN KEY (created_by)
         REFERENCES "users" (id) MATCH SIMPLE

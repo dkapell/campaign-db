@@ -475,6 +475,12 @@ if campaign.display_schedule
                         input.form-check-input#campaign_schedule_users(type="checkbox", name="campaign[schedule_players]", checked=campaign.schedule_players)
                         label.form-check-label(for="campaign_schedule_players") Schedule Players in the Event Scheduler
             .row.my-2
+                .col
+                    .form-check.form-switch
+                        input.form-check-input#campaign_schedule_missing_required(type="checkbox", name="campaign[schedule_missing_required]", checked=campaign.schedule_missing_required)
+                        label.form-check-label(for="campaign_schedule_missing_required") Schedule Scenes with missing Required players/staff
+                    schedule_missing_required
+            .row.my-2
                 .col-md
                     +markdownEditor('Default Scene Description', 'campaign_default_scene_description', 'campaign[scene_default_description]', 5, 75, campaign.scene_default_description, true)
             .row.my-2

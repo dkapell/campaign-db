@@ -438,32 +438,48 @@ async function validateScenes(req, res){
 
         const schedule = await scheduleHelper.getSchedule(event.id);
 
-        if (schedule.read_only){
-            throw new Error('Schedule Config has changed, Event is read-only');
-        }
+
+
         if (!req.query.scenes || req.query.scenes === ''){
             return res.json({success:true, scenes:[]});
         }
 
         const sceneIds = req.query.scenes.split(/\s*,\s*/);
 
-        const validationCache: ValidationCache = {
-            timeslots: schedule.timeslots,
-            scenes: schedule.scenes,
-            schedule_busys: schedule.schedule_busies,
-            attendees: event.attendees.filter(attendee => {return attendee.attending})
-        };
+        if (schedule.read_only){
+            const scenes = await async.map(sceneIds, async(sceneId) => {
+                const scene = _.findWhere(schedule.scenes, {id:sceneId});
+                if (!scene) { return null; }
+                return {
+                    name: scene.name,
+                    id: scene.id,
+                    issues: await req.models.scene_issue.find({scene_id:scene.id, resolved:false})
+                }
+            });
+            res.json({success:true, scenes:scenes, read_only:true});
+        } else {
 
-        const scenes = await async.map(sceneIds, async(sceneId) => {
-            const scene = await req.models.scene.get(sceneId);
-            if (!scene) { return null; }
-            return {
-                name: scene.name,
-                id: scene.id,
-                issues: await scheduleHelper.validateScene(scene, validationCache)
-            }
-        });
-        res.json({success:true, scenes:scenes});
+            const validationCache: ValidationCache = {
+                timeslots: schedule.timeslots,
+                scenes: schedule.scenes,
+                schedule_busys: schedule.schedule_busies,
+                attendees: event.attendees.filter(attendee => {return attendee.attending})
+            };
+
+
+            const scenes = await async.map(sceneIds, async(sceneId) => {
+                const scene = await req.models.scene.get(sceneId);
+                if (!scene) { return null; }
+                return {
+                    name: scene.name,
+                    id: scene.id,
+                    issues: await scheduleHelper.validateScene(scene, validationCache)
+                }
+            });
+            res.json({success:true, scenes:scenes, read_only:false});
+        }
+
+
     } catch(err) {
         res.json({success:false, error:err.message});
     }

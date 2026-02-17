@@ -85,7 +85,7 @@
     .col-md-4.text-lg-center
         span.fs-5
             if activeUser.type.match(/^(player|admin|core staff)$/)
-                span.me-1 Cost:
+                span.me-1 Event Cost:
                 if attendee && attendee.cost
                     | $#{attendee.cost}
                 else if event.has_cost

@@ -97,25 +97,25 @@
                     title='Additional Options'
                     data-bs-toggle='tooltip'
                     )
-                -
-                    let owed = 0;
-                    if (attendee && attendee.user){
-                        if (attendee.cost && !attendee.paid && attendee.user.type === 'player'){
-                            owed += attendee.cost
-                        }
-                        for ( const addon of attendee.addons ){
-                            const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                            if (!addon.paid){
-                                if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
-                                    if (event_addon.pay_what_you_want){
-                                        owed += addon.cost;
-                                    } else {
-                                        owed += event_addon.cost;
-                                    }
+            -
+                let owed = 0;
+                if (attendee && attendee.user){
+                    if (attendee.cost && !attendee.paid && attendee.user.type === 'player'){
+                        owed += attendee.cost
+                    }
+                    for ( const addon of attendee.addons ){
+                        const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
+                        if (!addon.paid){
+                            if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
+                                if (event_addon.pay_what_you_want){
+                                    owed += addon.cost;
+                                } else {
+                                    owed += event_addon.cost;
                                 }
                             }
                         }
                     }
+                }
             if owed
                 span.mx-2 Owed: $#{owed}
                 if currentCampaign.stripe_account_ready

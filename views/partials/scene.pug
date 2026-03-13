@@ -551,7 +551,12 @@ mixin staffEntry(user)
 
     else
         i.fas.fa-users.me-1
-        = user.name
+        span.me-1= user.name
+        if user.npc
+            span.me-0 (
+            i.far.fa-user.me-1
+            =user.npc
+            span.ms-0 )
 
 mixin sourceEntry(source)
     i.far.fa-id-card.me-1.align-middle
@@ -796,19 +801,19 @@ mixin sceneCardBody(scene, full, characterIds)
                 .col
                     each tag in scene.tags
                         .badge.text-bg-info=tag
-        if checkPermission('event') && scene.writer
+        if scene.writer
             .row.my-1
                 .col
                     strong.me-2 Scene Writer:
                     span=scene.writer.name
 
-        if checkPermission('event') && scene.additional_writers && scene.additional_writers.length
+        if scene.additional_writers && scene.additional_writers.length
             .row.my-1
                 .col
                     strong.me-2 Additional Writer#{scene.additional_writers.length!==1?'s':''}:
                     span=_.pluck(scene.additional_writers, 'name').join(', ')
 
-        if checkPermission('event') && scene.runner
+        if scene.runner
             .row.my-1
                 .col
                     strong.me-2 Scene Runner:
@@ -979,7 +984,7 @@ mixin sceneCardBody(scene, full, characterIds)
 
 
 
-            if checkPermission('event') && _.keys(scene.staff).length
+            if _.keys(scene.staff).length
                 .col-lg
                     h5 Staff
                     if full

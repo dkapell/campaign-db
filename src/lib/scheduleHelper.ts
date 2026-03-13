@@ -21,10 +21,11 @@ function sceneItemSorter(a, b){
     return a.name.localeCompare(b.name);
 }
 
-function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneModel{
+function formatScene(scene:SceneModel, forPlayer:boolean=false, pastEvent:boolean=false): FormattedSceneModel{
     if (forPlayer && !scene.display_to_pc){
         return null;
     }
+
     const output: FormattedSceneModel = {
         id:scene.id,
         guid:scene.guid,
@@ -48,6 +49,13 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
     if (forPlayer){
         output.name = scene.player_name?scene.player_name:scene.name;
         output.tags = _.pluck(scene.tags.filter(tag => { return tag.display_to_pc}), 'name');
+        if (pastEvent){
+            output.writer_id = scene.writer_id;
+            output.writer = scene.writer;
+            output.additional_writers = scene.additional_writers;
+            output.runner_id = scene.runner_id;
+            output.runner = scene.runner;
+        }
     } else {
         output.name = scene.name;
         output.player_name = scene.player_name;
@@ -215,7 +223,7 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false): FormattedSceneM
             output.players = { confirmed: [] };
         }
     }
-    if (!forPlayer){
+    if (!forPlayer || pastEvent){
         const staff = scene.users.filter(user => {
             return user.type !== 'player';
         }).map(user => {
@@ -419,6 +427,8 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
         schedule = await getSchedule(eventId);
     }
 
+    const pastEvent = new Date(event.end_time) <= new Date();
+
     const timeslots = schedule.timeslots;
 
     const scenes = [];
@@ -451,7 +461,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
             if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
                 (showUnconfirmed && _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}))
             ){
-                const formattedScene = formatScene(scene, forPlayer);
+                const formattedScene = formatScene(scene, forPlayer, pastEvent);
                 if (!formattedScene){ continue; }
                 const userRecord = _.findWhere(formattedScene.users, {id:userId});
                 if (userRecord && userRecord.npc){
@@ -464,7 +474,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
                 if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'setup'}) ||
                     _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'cleanup'})
                 ){
-                    const formattedScene = formatScene(scene, forPlayer);
+                    const formattedScene = formatScene(scene, forPlayer, pastEvent);
                     if (!formattedScene){ continue; }
                     const userRecord = _.findWhere(formattedScene.users, {id:userId});
                     formattedScene.type = _.findWhere(scene.timeslots, {id:timeslot.id}).scene_schedule_status;

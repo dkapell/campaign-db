@@ -953,7 +953,7 @@ mixin sceneCardBody(scene, full, characterIds)
 
         .row.my-1
             if _.keys(scene.players).length && scene.assign_players
-                .col-lg-8
+                .col-lg
                     h5 Characters
                     if full && checkPermission('event')
                         .player-count
@@ -985,7 +985,7 @@ mixin sceneCardBody(scene, full, characterIds)
 
 
             if _.keys(scene.staff).length
-                .col-lg
+                .col-lg-auto
                     h5 Staff
                     if full
                         .staff-count

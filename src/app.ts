@@ -184,15 +184,12 @@ const {
         return (_.indexOf(urls, req.originalUrl) !== -1);
     },
     getTokenFromRequest: (req) => {
-    // If the incoming request is a multipart content type
-    // then get the token from the body.
+        // If the incoming request is a multipart content type
+        // then get the token from the body.
         if (req.body && _.has(req.body, '_csrf')){
             return req.body._csrf;
         }
 
-        if (req.body && _.has(req.body, 'csrf-token')){
-            return req.body['csrf-token'];
-        }
         // Otherwise use the header for all other request types
         if (_.has(req.headers, 'x-csrf-token')){
             return req.headers['x-csrf-token'];

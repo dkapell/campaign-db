@@ -58,7 +58,7 @@ async function renderDocument(e){
     const result = await fetch(url, {
         method:'PUT',
         headers: {
-            'csrf-token': csrf
+            'x-csrf-token': csrf
         }
     });
 

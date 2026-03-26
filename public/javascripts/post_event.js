@@ -1,4 +1,4 @@
-/* global uploadImage sceneListTemplate editFeedbackTemplate newFeedbackTemplate*/
+/* global uploadImage sceneListTemplate editFeedbackTemplate newFeedbackTemplate fetchWithCsrfRetry*/
 
 let dataPending = false;
 let dataSaving = false;
@@ -90,7 +90,7 @@ async function saveForm($form, $element){
     }
     const url = $form.data('apiurl');
 
-    const request = await fetch(url,{method:$form[0].method, body: data});
+    const request = await fetchWithCsrfRetry(url,{method:$form[0].method, body: data});
     const result = await request.json();
     if (result.success){
         if ($element){
@@ -187,7 +187,7 @@ async function loadSchedule(){
     const eventId = $('#eventId').val();
     const attendanceId = $('#attendanceId').val();
 
-    const scheduleResult = await fetch(`/event/${eventId}/post_event/${attendanceId}/schedule`);
+    const scheduleResult = await fetchWithCsrfRetry(`/event/${eventId}/post_event/${attendanceId}/schedule`);
     const data = await scheduleResult.json();
     data.disabled = $('.sceneList').attr('disabled');
     data.capitalize = capitalize;
@@ -223,7 +223,7 @@ async function removeSceneFeedback(e){
         _method: 'DELETE',
         _csrf: $('#csrfToken').val(),
     });
-    const request = await fetch(url,{
+    const request = await fetchWithCsrfRetry(url,{
         headers: {
             'Content-Type': 'application/json',
         },
@@ -251,7 +251,7 @@ async function addSceneFeedback(e){
         _method: 'POST',
         _csrf: $('#csrfToken').val(),
     });
-    const request = await fetch(url,{
+    const request = await fetchWithCsrfRetry(url,{
         headers: {
             'Content-Type': 'application/json',
         },
@@ -278,7 +278,7 @@ async function showSceneFeedback(e){
     const disabled = $(this).data('disabled');
     $this.find('.feedback-icon').removeClass('fa-edit').addClass('fa-sync').addClass('fa-spin');
 
-    const result = await fetch(`/event/${eventId}/post_event/${attendanceId}/${sceneId}`);
+    const result = await fetchWithCsrfRetry(`/event/${eventId}/post_event/${attendanceId}/${sceneId}`);
     const data = await result.json();
 
     data.modal = true;
@@ -332,7 +332,7 @@ async function submitFeedbackModal(e) {
         data.append(pair[0], pair[1]);
     }
 
-    const request = await fetch(form.action,{method:form.method, body: data});
+    const request = await fetchWithCsrfRetry(form.action,{method:form.method, body: data});
     const result = await request.json();
 
     if (!result.success){

@@ -109,10 +109,15 @@ function showCss(req, res){
     res.send(req.campaign.css);
 }
 
+function showCsrf(req, res){
+    res.json({csrfToken:req.csrfToken()})
+}
+
 const router = express.Router();
 
 router.get('/', showIndex);
 router.get('/css', showCss);
+router.get('/api/csrf', showCsrf);
 
 export default router;
 

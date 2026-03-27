@@ -66,10 +66,10 @@ block content
                             a(href='/user/' + user.id)= user.name
                             if user.sso_name
                                 small.ms-2
-                                    i.fab.fa-google
-                                    span.ms1 : #{user.sso_name}
+                                    i.fab.fa-google(title=user.sso_name data-bs-toggle='tooltip')
                             if user.site_admin
-                                .badge.text-bg-success.ms-2 Site Admin
+                                .badge.text-bg-success.ms-2(title='Site Admin' data-bs-toggle='tooltip')
+                                    i.fas.fa-user-tie
 
                             if checkPermission('gm') && user.tags.length
                                 a.btn.btn-outline-info.btn-xs.me-1.ms-2.float-end(

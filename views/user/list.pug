@@ -46,6 +46,7 @@ block content
                     if currentCampaign.display_cp && checkPermission('gm')
                         th.non-documentation-column(title=`${currentCampaign.renames.cp.singular} Spendable (Total)` data-bs-toggle='tooltip') #{currentCampaign.renames.cp.singular}
                             i.far.fa-question-circle.ms-1
+                        th.non-documentation-column #{currentCampaign.renames.cp.singular} Spent
                     if checkPermission('gm')
                         th.non-documentation-column Drive
                         th.non-documentation-column(title='How many upcoming events is this user registered for' data-bs-toggle='tooltip') Events
@@ -91,6 +92,14 @@ block content
                                     span #{user.cp.usable}
                                         if user.cp.total > user.cp.usable
                                             span.ms-1 (#{user.cp.total})
+                            td
+
+                                if user.type === 'player'
+                                    if user.character
+                                        span= user.character.cp
+                                    else
+                                        | 0
+
                         if checkPermission('gm')
                             td
                                 if user.staff_drive_folder

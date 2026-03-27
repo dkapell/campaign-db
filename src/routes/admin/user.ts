@@ -29,6 +29,9 @@ async function list(req, res, next){
                 user.regCount = userEvents.length;
                 user.documentations = await req.models.documentation_user.find({campaign_id:req.campaign.id, user_id:user.id});
                 user.image = await campaignHelper.getUserImage(req.campaign.id, user.id);
+                if (user.type === 'player') {
+                    user.character = await req.models.character.findOne({campaign_id:req.campaign.id, user_id:user.id, active:true});
+                }
                 return user;
             });
             res.locals.title += ' - Users';

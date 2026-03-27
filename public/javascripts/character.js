@@ -426,11 +426,11 @@ function customSkillMatcher(params, data) {
     if (typeof data.text === 'undefined') {
         return null;
     }
-
-    if (data.title.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+    const searchTerm = params.term.toUpperCase()
+    if (data.title.toUpperCase().indexOf(searchTerm) > -1) {
       return data
     }
-    if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+    if (data.text.toUpperCase().indexOf(searchTerm) > -1) {
       return data
     }
 

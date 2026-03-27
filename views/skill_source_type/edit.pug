@@ -19,8 +19,10 @@ append scripts
             $('#skill_source_type_group').on('keyup', function(){
                 if ($(this).val()){
                     $('.group-details').show();
+                    $('.group-details').attr('required', 'required');
                 } else {
                     $('.group-details').hide();
+                    $('.group-details').attr('required', false);
                 }
             }).trigger('keyup');
         });

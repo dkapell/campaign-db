@@ -25,7 +25,7 @@ block content
                         a.btn.btn-outline-primary.btn-sm.ms-2(href=`/event/${event.id}/checkin`)
                             span.fas.fa-clipboard-check.me-2
                             | Check-in
-                    if checkPermission('gm') && new Date(event.end_time) < new Date()
+                    if checkPermission('gm') && new Date(event.end_time) < new Date() && currentCampaign.event_attendance_cp > 0
                         a.btn.btn-sm.btn-outline-primary.ms-2#grantEventCPBtn(
                             href='#'
                             data-csrf=csrfToken

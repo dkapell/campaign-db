@@ -397,7 +397,8 @@ function prepCharacterSkillForm($form, character_skill, renames){
                     return $select.data('placeholder');
                 }
                 return $(data.element).data('text');
-            }
+            },
+            matcher: customSkillMatcher
         });
     });
 
@@ -414,6 +415,29 @@ function prepCharacterSkillForm($form, character_skill, renames){
 
     displayDetails(character_skill, character_skill);
 }
+
+function customSkillMatcher(params, data) {
+    // If there are no search terms, return all of the data
+    if ($.trim(params.term) === '') {
+        return data;
+    }
+
+    // Do not display the item if there is no 'text' property
+    if (typeof data.text === 'undefined') {
+        return null;
+    }
+
+    if (data.title.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+      return data
+    }
+    if (data.text.toUpperCase().indexOf(params.term.toUpperCase()) > -1) {
+      return data
+    }
+
+    // Return `null` if the term should not be displayed
+    return null;
+}
+
 
 function displayDetails(object, selected){
     if (_.isArray(object.provides) && object.provides.length){

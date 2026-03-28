@@ -111,7 +111,11 @@ append content
                                     | Player Drive
 
                                     i.fa.fa-external-link.ms-1
-                        else
+                        if character
+                            a.list-group-item.list-group-item-action(href=`/character/${character.id}`)
+                                i.fas.fa-fw.fa-user.me-1
+                                | Current Character
+                        if !checkPermission('contrib')
                             a.list-group-item.list-group-item-action(href='/skill/doc')
                                 i.fas.fa-fw.fa-file-alt.me-1
                                 | Skills
@@ -119,7 +123,8 @@ append content
                             a.list-group-item.list-group-item-action(href='/glossary')
                                     i.fas.fa-fw.fa-book.me-1
                                     | Glossary
-                        a.list-group-item.list-group-item-action(href='/character')
+                        if !character
+                            a.list-group-item.list-group-item-action(href='/character')
                                 i.fas.fa-fw.fa-users.me-1
                                 | Characters
                         a.list-group-item.list-group-item-action(href='/event')

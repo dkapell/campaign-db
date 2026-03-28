@@ -135,6 +135,7 @@ interface SkillModel extends ModelData{
         notes?:string
     }
     scene_request_status?:string
+    cp_cost_okay?:boolean
 }
 
 interface CharacterSkillModel extends SkillModel{

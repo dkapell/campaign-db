@@ -45,34 +45,49 @@ table.table.table-sm.table-striped.character-skills-table.data-table.w-100(
 
                         if skill.details.notes || skill.details.sheet_note
                             span.badge.text-bg-info.mt-1.float-end notes
-                td= skill.character_cost
+                td
+                    if skillListType === 'current'
+                        = skill.character_cost
+                    else if skillListType === 'possible'
+                        = skill.next_cost
                 if allowedEdit
                     td
                         .skill-actions.text-nowrap
-                            a.btn.btn-outline-info.btn-xs.skill-edit-btn.me-1(
-                                role="button",
-                                title='Edit Skill Details'
-                                data-bs-toggle="tooltip"
-                                data-skillid=skill.character_skill_id
-                                data-characterid=character_id
-                            )
-                                    i.fas.fa-edit.fa-fw
-                            if skill.removable
-                                a.btn.btn-outline-danger.btn-xs.delete-skill-btn(
+                            if skillListType === 'current'
+                                a.btn.btn-outline-info.btn-xs.skill-edit-btn.me-1(
                                     role="button",
-                                    title='Remove Skill'
+                                    title='Edit Skill Details'
                                     data-bs-toggle="tooltip"
                                     data-skillid=skill.character_skill_id
                                     data-characterid=character_id
-                                    data-csrf=csrfToken
                                 )
-                                    i.fas.fa-trash.fa-fw
-                            else
-                                a.btn.btn-outline-danger.opacity-50.btn-xs(
-                                    role=button
-                                    disabled=true
-                                    title=`Not Removable: ${skill.no_remove_reason}`
-                                    data-bs-toggle='tooltip'
-                                )
-                                    i.fas.fa-ban.fa-fw
+                                        i.fas.fa-edit.fa-fw
+                                if skill.removable
+                                    a.btn.btn-outline-danger.btn-xs.delete-skill-btn(
+                                        role="button",
+                                        title='Remove Skill'
+                                        data-bs-toggle="tooltip"
+                                        data-skillid=skill.character_skill_id
+                                        data-characterid=character_id
+                                        data-csrf=csrfToken
+                                    )
+                                        i.fas.fa-trash.fa-fw
+                                else
+                                    a.btn.btn-outline-danger.opacity-50.btn-xs(
+                                        role=button
+                                        disabled=true
+                                        title=`Not Removable: ${skill.no_remove_reason}`
+                                        data-bs-toggle='tooltip'
+                                    )
+                                        i.fas.fa-ban.fa-fw
+                            else if skillListType === 'possible'
+                                if skill.cp_cost_okay
+                                    a.btn.btn-outline-success.btn-xs.add-skill-btn.me-1(
+                                        role="button",
+                                        title='Add Skill'
+                                        data-bs-toggle="tooltip"
+                                        data-skillid=skill.id
+                                        data-characterid=character_id
+                                    )
+                                        i.fas.fa-plus.fa-fw
 

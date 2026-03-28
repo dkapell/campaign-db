@@ -509,7 +509,7 @@ async function showAddSkillApi(req, res, next){
 
         const doc = {
             csrfToken: res.locals.csrfToken,
-            possibleSkills: await character.possibleSkills(req.session.activeUser.id),
+            possibleSkills: await character.possibleSkills(req.session.activeUser.id, !!req.query.all),
             character_skill:null,
             renames: req.campaign.renames
         };

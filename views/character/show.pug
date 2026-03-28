@@ -83,6 +83,8 @@ block content
         if character.custom_field.length
             li.nav-item(role="presentation")
                 a.nav-link#details-tab(href="#details" data-bs-toggle="tab" role="tab" aria-controls="details" aria-selected="false") Details
+        li.nav-item(role="presentation")
+            a.nav-link#possible-skill-tab(href="#possible-skills" data-bs-toggle="tab" role="tab" aria-controls="possible-skills" aria-selected="false") Possible Skills
 
     .tab-content#characterTabContent
         .tab-pane.fade.show.active.character-sheet#character(role="tabpanel" aria-labelledby="character-tab")
@@ -135,6 +137,15 @@ block content
                     for custom_field, idx in character.custom_field
                        +customFieldDisplay(custom_field, idx>0)
 
+        .tab-pane.fade#possible-skills(role="tabpanel" aria-labelledby="possible-skills-tab")
+            .row.my-3
+                .col
+                    h4 Possible Skills
+                    .div.table-responsive-md
+                        #character-possible-skill-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
+                    .col-sm-6.offset-sm-3.text-center#character-possible-skill-table-loading
+                        .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                            .visually-hidden Table is Loading
 
 
     +characterModal()

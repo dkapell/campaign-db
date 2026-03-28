@@ -784,7 +784,7 @@ class Character{
         return characterRenderer([await this.data()], options);
     }
 
-    async possibleSkills(activeUserId:number): Promise<SkillModel[]>{
+    async possibleSkills(activeUserId:number, ignoreCost?:boolean): Promise<SkillModel[]>{
         const sources = await this.sources();
         const localSkills = await this.skills();
 
@@ -859,8 +859,12 @@ class Character{
                     }
                     skills = _.without(skills, existing);
                 }
-
+                skill.cp_cost_okay = true;
                 if (campaign.display_cp && user.type === 'player' && this._data.active && Number(skill.next_cost) > 0 && Number(skill.next_cost) > (cp.usable - this._data.cp)) {
+                    skill.cp_cost_okay = false;
+                }
+
+                if (!ignoreCost && !skill.cp_cost_okay) {
                     continue checkSkills;
                 }
 

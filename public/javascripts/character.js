@@ -31,6 +31,9 @@ $(function(){
     if ($('#character-skill-table').length){
         showSkillList();
     }
+    if ($('#character-possible-skill-table').length){
+        showPossibleSkillList();
+    }
     if ($('#character-audits-table').length){
         showAudits($('#character-audits-table').data('characterid'));
     }
@@ -84,6 +87,7 @@ async function updateCharacterWidgets(characterId){
     showCharacterSheet(characterId);
     showCp(characterId);
     showAudits(characterId);
+    showPossibleSkillList();
 }
 
 async function showCharacterSheet(characterId){
@@ -152,6 +156,7 @@ async function showSkillList(){
     data.capitalize = capitalize;
     data.marked = marked;
     data.allowedEdit = $('#character-skill-table').data('allowededit');
+    data.skillListType = 'current';
 
     $('#character-skill-table').html(characterskilllistTemplate(data));
     $('.skill-edit-btn').on('click', editSkill);
@@ -164,6 +169,31 @@ async function showSkillList(){
     $('#character-skill-table-loading').hide();
     $('#character-skill-table').show();
     $('#character-skill-table').find('table').each(prepDataTable);
+}
+
+async function showPossibleSkillList(){
+    const characterId = $('#character-possible-skill-table').data('characterid');
+    const result = await fetch(`/character/${characterId}/skill/add?all=true`);
+    const data = await result.json();
+    data.skills = data.possibleSkills;
+    data.character_id = characterId;
+    data.capitalize = capitalize;
+    data.marked = marked;
+    data.allowedEdit = $('#character-possible-skill-table').data('allowededit');
+    data.skillListType = 'possible';
+
+    $('#character-possible-skill-table').html(characterskilllistTemplate(data));
+    $('#character-possible-skill-table').find('.add-skill-btn').on('click', function(e){
+        e.preventDefault();
+        const skillId = $(this).data('skillid');
+        const characterId = $(this).data('characterid');
+        showAddSkill(characterId, skillId);
+    });
+
+    $('#character-possible-skill-table').find('[data-bs-toggle="tooltip"]').tooltip();
+    $('#character-possible-skill-table-loading').hide();
+    $('#character-possible-skill-table').show();
+    $('#character-possible-skill-table').find('table').each(prepDataTable);
 }
 
 async function showCp(characterId){
@@ -261,6 +291,10 @@ async function addSkill(e){
     $this.tooltip('hide');
     const characterId = $this.data('characterid');
 
+    showAddSkill(characterId);
+}
+
+async function showAddSkill(characterId, skillId){
     const result = await fetch(`/character/${characterId}/skill/add`);
     const data = await result.json();
 
@@ -278,6 +312,9 @@ async function addSkill(e){
     $modal.modal('show');
     $modal.one('shown.bs.modal', function(e){
         $('#character_skill_skill_id').select2('focus');
+        if (skillId){
+            $('#character_skill_skill_id').val(skillId).trigger('change');
+        }
     });
 
     $modal.one('hidden.bs.modal', function(e){

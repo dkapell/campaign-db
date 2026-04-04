@@ -51,10 +51,10 @@ function prepSurveyFields(){
     });
 
     $('.survey_field-row').on('mouseenter', function(e){
-        $(this).addClass('bg-light');
+        $(this).addClass('text-bg-light');
     });
     $('.survey_field-row').on('mouseleave', function(e){
-        $(this).removeClass('bg-light');
+        $(this).removeClass('text-bg-light');
     });
 
 }

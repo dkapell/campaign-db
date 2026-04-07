@@ -737,14 +737,6 @@ mixin sceneCard(scene, full=false)
 
         if (checkPermission('event') && scene.staff_url) || scene.player_url || (checkPermission('contrib') && characterIds.length)
                 .card-footer
-                    if !full && checkPermission('contrib')
-                        a.btn.btn-sm.btn-outline-info(
-                            href=`/scene/${scene.id}`
-                            title="View Scene"
-                            data-bs-toggle='tooltip'
-                        )
-                            i.fas.fa-eye.me-1
-                            | View Scene
                     if checkPermission('event')
                         .float-end.text-end(style='font-size:0.7rem')
                             span.me-1 Created:
@@ -768,6 +760,15 @@ mixin sceneCardBody(scene, full, characterIds)
             a.btn.btn-sm.btn-outline-info.me-2(href=scene.player_url target='_blank')
                 | Player Writeup
                 i.fa.fa-external-link.ms-1
+
+        if !full && checkPermission('contrib')
+            a.btn.btn-sm.btn-outline-info(
+                href=`/scene/${scene.id}`
+                title="View Scene"
+                data-bs-toggle='tooltip'
+            )
+                i.fas.fa-eye.me-1
+                | View Scene
 
         if checkPermission('contrib') && characterIds.length
             a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(

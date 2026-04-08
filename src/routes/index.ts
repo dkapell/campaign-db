@@ -83,10 +83,7 @@ async function showIndex(req, res){
                     return character;
                 });
                 res.locals.characters = characters
-                res.locals.events = futureEvents.map(event => {
-                    event.attendees = _.where(event.attendees, {user_id: user.id});
-                    return event;
-                });
+                res.locals.events = futureEvents
             } else {
                 res.locals.characters = [];
                 res.locals.events = futureEvents;

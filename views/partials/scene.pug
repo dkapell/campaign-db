@@ -458,12 +458,18 @@ mixin sceneTable(scenes, exportable=false)
                                 =scene.writer.name
                         td
                             if timeslotsConfirmed.length
-                                = (_.pluck(timeslotsConfirmed, 'name')).join(', ')
+                                - const timeslots = _.pluck(timeslotsConfirmed, 'name')
+                                = timeslots[0]
+                                if timeslots.length > 1
+                                    span.ms-1 +#{timeslots.length-1}
                                 i.far.fa-question-check.text-success.ms-1(title="Confirmed" data-bs-toggle='tooltip')
                                 if timeslotsConfirmed.length !== scene.timeslot_count
                                     span.ms-1 (#{scene.timeslot_count} Requested)
                             else if timeslotsSuggested.length
-                                = (_.pluck(timeslotsSuggested, 'name')).join(', ')
+                                - const timeslots = _.pluck(timeslotsSuggested, 'name')
+                                = timeslots[0]
+                                if timeslots.length > 1
+                                    span.ms-1 +#{timeslots.length-1}
                                 i.far.fa-question-circle.text-warning.ms-1(title="Suggested" data-bs-toggle='tooltip')
                                 if timeslotsSuggested.length !== scene.timeslot_count
                                     span.ms-1 (#{scene.timeslot_count} Requested)

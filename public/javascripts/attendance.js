@@ -147,10 +147,12 @@ function updateCustomFieldVisibility(){
         }
     });
     $('.addon-row').each( function(){
+        let shown = 0;
         const $this = $(this);
         if (userType === 'player'){
             if ($this.data('available_to_player')){
                 $this.show();
+                shown++;
                 if ($this.data('charge_player')){
                     $this.find('.paid-cost').show();
                     $this.find('.paid-badge').show();
@@ -164,6 +166,7 @@ function updateCustomFieldVisibility(){
         } else {
             if ($this.data('available_to_staff')){
                 $this.show();
+                shown++;
                 if ($this.data('charge_staff')){
                     $this.find('.paid-cost').show();
                     $this.find('.paid-badge').show();
@@ -174,6 +177,12 @@ function updateCustomFieldVisibility(){
             } else {
                 $this.hide();
             }
+        }
+
+        if (shown){
+            $('.addon-section').show();
+        } else {
+            $('.addon-section').hide();
         }
 
     });

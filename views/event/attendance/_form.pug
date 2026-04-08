@@ -69,7 +69,7 @@ if checkPermission('gm') && attendance.user.type === 'player'
                 if attendance.paid_by_order
                     a.ms-2(href=`/order/${attendance.paid_by_order}?backto=all`) Order ##{attendance.paid_by_order}
 
-if event.addons
+if event.addons.length
     .row.my-2
         .col
             legend Event Addons

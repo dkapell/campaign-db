@@ -36,7 +36,7 @@ else if checkPermission('registration edit')
                         data-html= character.active?`${character.name} <span class="badge text-bg-success ms-1">Active</badge>`:character.name
                         ) #{character.name} #{character.active?'[Active]':''}
 
-if event.has_cost || event.has_cost_options
+if (event.has_cost || event.has_cost_options) && checkPermission('gm') || checkPermission('player') && !checkPermission('event')
     .row.my-2#eventCost
         .col-md-1
             label.col-form-label Ticket
@@ -70,7 +70,7 @@ if checkPermission('gm') && attendance.user.type === 'player'
                     a.ms-2(href=`/order/${attendance.paid_by_order}?backto=all`) Order ##{attendance.paid_by_order}
 
 if event.addons.length
-    .row.my-2
+    .row.my-2.addon-section
         .col
             legend Event Addons
             ul.list-group

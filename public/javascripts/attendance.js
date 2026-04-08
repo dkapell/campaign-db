@@ -109,6 +109,13 @@ async function updateCharacterPicker(userId){
 }
 
 function updateCustomFieldVisibility(){
+
+    if ($('.addon-row').length){
+        $('.addon-section').show();
+    } else {
+        $('.addon-section').hide();
+    }
+
     if (! $('#attendance_user_id').length ){
         return;
     }

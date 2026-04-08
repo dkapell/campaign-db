@@ -647,6 +647,9 @@ async function exportEventAttendees(req, res, next){
 
 function parseAttendeeAddons(input, forGm){
     const output = [];
+    if (!input){
+        return output;
+    }
     for (const addon of input){
         if (addon.selected){
             const doc:  AttendeeAddon = {

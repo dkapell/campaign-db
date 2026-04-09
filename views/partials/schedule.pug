@@ -1,47 +1,48 @@
 mixin timeslotButtons(timeslot)
-    button.btn.btn-outline-success.users-btn.btn-xs.mx-1.position-relative.busy-users-btn(
-        role='button'
-        data-bs-toggle='tooltip'
-        title='Busy Attendees'
-        data-panel-type='busy'
-        data-type='busy-all'
-        data-timeslot-id=timeslot.id
-    )
-        i.fas.fa-user-check.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-success.user-count
+    .timeslot-buttons
+        button.btn.btn-outline-success.users-btn.btn-xs.mx-1.position-relative.busy-users-btn(
+            role='button'
+            data-bs-toggle='tooltip'
+            title='Busy Attendees'
+            data-panel-type='busy'
+            data-type='busy-all'
+            data-timeslot-id=timeslot.id
+        )
+            i.fas.fa-user-check.fa-fw
+            span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-success.user-count
 
-    button.btn.btn-outline-secondary.unscheduled-players-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
-        style='z-index:100'
-        role='button'
-        data-bs-toggle='tooltip'
-        title='Players'
-        data-timeslot-id=timeslot.id
-        data-type='player'
-        data-panel-type='list'
+        button.btn.btn-outline-secondary.unscheduled-players-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+            style='z-index:100'
+            role='button'
+            data-bs-toggle='tooltip'
+            title='Players'
+            data-timeslot-id=timeslot.id
+            data-type='player'
+            data-panel-type='list'
 
-    )
-        i.fas.fa-user.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
-    button.btn.btn-outline-secondary.unscheduled-staff-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
-        role='button'
-        data-bs-toggle='tooltip'
-        title='Staff'
-        data-timeslot-id=timeslot.id
-        data-type='staff'
-        data-panel-type='list'
-    )
-        i.fas.fa-users.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
-    button.btn.btn-outline-info.all-users-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
-        role='button'
-        data-bs-toggle='tooltip'
-        title='All Attendees'
-        data-timeslot-id=timeslot.id
-        data-type='all'
-        data-panel-type='list'
-    )
-        i.fas.fa-globe.fa-fw
-        span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-info.user-count
+        )
+            i.fas.fa-user.fa-fw
+            span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
+        button.btn.btn-outline-secondary.unscheduled-staff-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+            role='button'
+            data-bs-toggle='tooltip'
+            title='Staff'
+            data-timeslot-id=timeslot.id
+            data-type='staff'
+            data-panel-type='list'
+        )
+            i.fas.fa-users.fa-fw
+            span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-secondary.user-count
+        button.btn.btn-outline-info.all-users-btn.unscheduled-users-btn.users-btn.btn-xs.mx-1.position-relative(
+            role='button'
+            data-bs-toggle='tooltip'
+            title='All Attendees'
+            data-timeslot-id=timeslot.id
+            data-type='all'
+            data-panel-type='list'
+        )
+            i.fas.fa-globe.fa-fw
+            span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-info.user-count
 
 mixin sceneItem(scene, xAxisType, cellsPerSlot)
 

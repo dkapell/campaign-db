@@ -78,6 +78,7 @@ async function show(req, res, next){
         }
 
         if (req.checkPermission('gm, orders view')) {
+            const default_ticket = _.findWhere(event.costs, {default:true});
             res.locals.income = {
                 event: [
                     {
@@ -87,7 +88,7 @@ async function show(req, res, next){
                         orders: 0,
                         outstanding: 0,
                         default: true,
-                        ticket: 'Default'
+                        ticket: default_ticket.name
                     }
                 ],
                 addons: {
@@ -110,7 +111,7 @@ async function show(req, res, next){
                         raw: 0,
                         orders: 0,
                         outstanding: 0,
-                        default: attendance.cost === event.default_cost && attendance.ticket == 'Default',
+                        default: attendance.cost === event.default_cost && attendance.ticket == default_ticket.name,
                         ticket: attendance.ticket
                     };
                     res.locals.income.event.push(row);

@@ -79,13 +79,7 @@ async function show(req, res, next){
 
         if (req.checkPermission('gm, orders view')) {
             res.locals.income = {
-                event: {
-                    count: 0,
-                    price: event.default_cost,
-                    raw: 0,
-                    orders: 0,
-                    outstanding: 0
-                },
+                event: [],
                 addons: {
                     total: {
                         raw: 0,
@@ -94,19 +88,33 @@ async function show(req, res, next){
                     },
                     addons: {}
                 }
-
             };
+
             for (const attendance of event.attendees) {
                 if (!attendance.attending){ continue; }
+                let row = _.findWhere(res.locals.income.event, {price:attendance.cost});
+                if (!row) {
+                    row = {
+                        count: 0,
+                        price: attendance.cost,
+                        raw: 0,
+                        orders: 0,
+                        outstanding: 0,
+                        default: attendance.cost === event.default_cost,
+                        ticket: attendance.ticket
+                    };
+                    res.locals.income.event.push(row);
+                }
+
                 if (attendance.paid) {
-                    res.locals.income.event.raw += attendance.cost;
-                    res.locals.income.event.count++;
+                    row.raw += attendance.cost;
+                    row.count++;
                     if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)) {
-                        res.locals.income.event.orders += attendance.cost;
+                        row.orders += attendance.cost;
                     }
                 } else if (attendance.user.type === 'player') {
-                    res.locals.income.event.outstanding += attendance.cost;
-                    res.locals.income.event.count++;
+                    row.outstanding += attendance.cost;
+                    row.count++;
                 }
 
                 for (const attendance_addon of attendance.addons) {
@@ -145,6 +153,8 @@ async function show(req, res, next){
                 }
             }
         }
+
+        res.locals.income.event = _.sortBy(res.locals.income.event, 'price').reverse()
 
         users = users.filter(user => {return user.type !== 'none'});
         res.locals.users = _.sortBy(users, 'typeForDisplay');

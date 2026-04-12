@@ -33,15 +33,19 @@
                                 )
 
                 tbody.table-group-divider
-                    tr
-                        td Event
-                        td $#{income.event.price}
-                        td= income.event.count
-                        td $#{income.event.raw}
-                        if currentCampaign.stripe_account_ready
-                            td $#{income.event.orders}
-                        td $#{income.event.outstanding}
-                        td $#{income.event.raw + income.event.outstanding}
+                    each value in income.event
+                        tr
+                            td Event
+                                .badge.text-bg-info.ms-2
+                                    i.fas.fa-ticket-alt.me-1
+                                    = value.ticket
+                            td $#{value.price}
+                            td= value.count
+                            td $#{value.raw}
+                            if currentCampaign.stripe_account_ready
+                                td $#{value.orders}
+                            td $#{value.outstanding}
+                            td $#{value.raw + value.outstanding}
                     each value, name in income.addons.addons
                         tr
                             td Addon: #{name}
@@ -55,6 +59,23 @@
                             td $#{value.outstanding}
                             td $#{value.raw + value.outstanding}
                 tfoot.table-group-divider
+                    -
+                        const eventCount = _.pluck(income.event, 'count').reduce((a,e) => {return a+e}, 0);
+                        const eventRaw = _.pluck(income.event, 'raw').reduce((a,e) => {return a+e}, 0);
+                        const eventOutstanding = _.pluck(income.event, 'outstanding').reduce((a,e) => {return a+e}, 0);
+                        const eventOrders = _.pluck(income.event, 'orders').reduce((a,e) => {return a+e}, 0);
+
+                    if income.event.length > 1
+                        tr
+                            td All Event
+                            td
+                            td= eventCount
+                            td $#{eventRaw}
+                            if currentCampaign.stripe_account_ready
+                                td $#{eventOrders}
+                            td $#{eventOutstanding}
+                            td $#{eventRaw + eventOutstanding}
+
                     tr
                         td All Addons
                         td
@@ -65,13 +86,12 @@
                         td $#{income.addons.total.outstanding}
                         td $#{income.addons.total.raw + income.addons.total.outstanding}
 
-
                     tr
                         th Total
                         td
                         td
-                        th $#{income.event.raw + income.addons.total.raw}
+                        th $#{eventRaw + income.addons.total.raw}
                         if currentCampaign.stripe_account_ready
-                            th $#{income.event.orders + income.addons.total.orders}
-                        th $#{income.event.outstanding + income.addons.total.outstanding}
-                        th $#{income.event.raw + income.event.outstanding + income.addons.total.raw + income.addons.total.outstanding}
+                            th $#{eventOrders + income.addons.total.orders}
+                        th $#{eventOutstanding + income.addons.total.outstanding}
+                        th $#{eventRaw + eventOutstanding + income.addons.total.raw + income.addons.total.outstanding}

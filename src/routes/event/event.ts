@@ -163,9 +163,8 @@ async function show(req, res, next){
 
                 }
             }
+            res.locals.income.event = _.sortBy(res.locals.income.event, 'price').reverse()
         }
-
-        res.locals.income.event = _.sortBy(res.locals.income.event, 'price').reverse()
 
         users = users.filter(user => {return user.type !== 'none'});
         res.locals.users = _.sortBy(users, 'typeForDisplay');

@@ -36,9 +36,10 @@
                     each value in income.event
                         tr
                             td Event
-                                .badge.text-bg-info.ms-2
-                                    i.fas.fa-ticket-alt.me-1
-                                    = value.ticket
+                                if income.event.length > 1 || !value.default
+                                    .badge.text-bg-info.ms-2
+                                        i.fas.fa-ticket-alt.me-1
+                                        = value.ticket
                             td $#{value.price}
                             td= value.count
                             td $#{value.raw}

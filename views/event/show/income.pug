@@ -37,7 +37,7 @@
                         tr
                             td Event
                                 if income.event.length > 1 || !value.default
-                                    .badge.text-bg-info.ms-2
+                                    .badge.text-bg-info.ms-2.float-end
                                         i.fas.fa-ticket-alt.me-1
                                         = value.ticket
                             td $#{value.price}
@@ -47,9 +47,13 @@
                                 td $#{value.orders}
                             td $#{value.outstanding}
                             td $#{value.raw + value.outstanding}
-                    each value, name in income.addons.addons
+                    each value in income.addons.addons
                         tr
-                            td Addon: #{name}
+                            td Addon: #{value.name}
+                                if value.pay_what_you_want
+                                   .badge.text-bg-info.ms-2.float-end
+                                        i.fas.fa-dollar-sign.me-1
+                                        | Pay What You Want
                             td $#{value.price}
                             td= value.count
 

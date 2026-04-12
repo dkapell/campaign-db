@@ -97,7 +97,7 @@ async function show(req, res, next){
                         orders: 0,
                         outstanding: 0
                     },
-                    addons: {}
+                    addons: []
                 }
             };
 
@@ -133,37 +133,44 @@ async function show(req, res, next){
                     const cost = attendance_addon.addon.pay_what_you_want&&!_.isNull(attendance_addon.cost)?attendance_addon.cost:attendance_addon.addon.cost;
 
                     if (attendance_addon.addon.charge_player || attendance_addon.addon.charge_staff){
-                        if (!_.has(res.locals.income.addons.addons, addonName)){
-                            res.locals.income.addons.addons[addonName] = {
+                        let row = _.findWhere(res.locals.income.addons.addons, {name:addonName, price:cost});
+                        if (!row){
+                            row = {
+                                name: addonName,
                                 count: 0,
                                 price: cost,
                                 raw: 0,
                                 orders: 0,
-                                outstanding: 0
+                                outstanding: 0,
+                                pay_what_you_want: attendance_addon.addon.pay_what_you_want
                             };
+                            res.locals.income.addons.addons.push(row);
                         }
-                    }
-                    if (attendance_addon.paid) {
-                        res.locals.income.addons.total.raw += cost;
-                        res.locals.income.addons.addons[addonName].raw += cost;
-                        res.locals.income.addons.addons[addonName].count++;
-                        if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)) {
-                            res.locals.income.addons.total.orders += cost;
-                            res.locals.income.addons.addons[addonName].orders += cost;
+
+                        if (attendance_addon.paid) {
+                            res.locals.income.addons.total.raw += cost;
+                            row.raw += cost;
+                            row.count++;
+                            if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance_addon', attendance_addon.id)) {
+                                res.locals.income.addons.total.orders += cost;
+                                row.orders += cost;
+                            }
+                        } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
+                            res.locals.income.addons.total.outstanding += cost;
+                            row.outstanding += cost;
+                            row.count++;
+                        } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
+                            res.locals.income.addons.total.outstanding += cost;
+                            row.outstanding += cost;
+                            row.count++;
                         }
-                    } else if (attendance.user.type === 'player' && attendance_addon.addon.charge_player){
-                        res.locals.income.addons.total.outstanding += cost;
-                        res.locals.income.addons.addons[addonName].outstanding += cost;
-                        res.locals.income.addons.addons[addonName].count++;
-                    } else if (attendance.user.type !== 'player' && attendance_addon.addon.charge_staff){
-                        res.locals.income.addons.total.outstanding += cost;
-                        res.locals.income.addons.addons[addonName].outstanding += cost;
-                        res.locals.income.addons.addons[addonName].count++;
                     }
 
                 }
             }
             res.locals.income.event = _.sortBy(res.locals.income.event, 'price').reverse()
+            res.locals.income.addons.addons = _.sortBy(res.locals.income.addons.addons, 'price').reverse()
+            res.locals.income.addons.addons = _.sortBy(res.locals.income.addons.addons, 'name')
         }
 
         users = users.filter(user => {return user.type !== 'none'});

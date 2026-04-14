@@ -9,7 +9,9 @@ $(function(){
         trigger: 'hover',
         selector: '[data-bs-toggle="popover"]'
     });
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    $('body').tooltip({
+        selector: '[data-bs-toggle="tooltip"]'
+    });
     $('.complex-select2').each(function(e){
         const $select = $(this);
         $select.select2({

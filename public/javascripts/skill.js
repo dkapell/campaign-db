@@ -406,7 +406,6 @@ async function editSkill(id){
         if (type === 'gm') { return isGM; }
         return false;
     };
-    data.csrfToken = $('#csrfToken').val();
 
     $modal.find('.modal-title').text(`Edit Skill: ${data.skill.name}`);
     $modal.find('.modal-body').html(editFormTemplate(data));

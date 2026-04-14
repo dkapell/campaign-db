@@ -64,19 +64,29 @@ mixin eventListDisplay(events, showPast=false)
                             td=event.attendees.filter(a => { return a.attending}).length - event.players.filter(a => { return a.attending}).length
                         td
                             if attendee
-                                span.badge.text-bg-success
-                                    i.fas.fa-calendar-check.me-1
-                                    if event.end_time < new Date()
-                                        | Attended
-                                    else
-                                        | Attending
-                            else
+                                if attendee.attending
+                                    span.badge.text-bg-success
+                                        i.fas.fa-calendar-check.me-1
+                                        if event.end_time < new Date()
+                                            | Attended
+                                        else
+                                            | Attending
+                                else
+                                    span.badge.text-bg-warning
+                                        i.fas.fa-calendar-check.me-1
+                                        if event.end_time < new Date()
+                                            | Did not Attend
+                                        else
+                                            | Not Attending
+                            else if event.end_time < new Date()
                                 span.badge.text-bg-warning
                                     i.fas.fa-calendar-times.me-1
-                                    if event.end_time < new Date()
-                                        | Did not Attend
-                                    else
-                                        | Not Attending
+                                    | Did not Attend
+                            else
+                                span.badge.text-bg-danger
+                                    i.fas.fa-calendar-times.me-1
+                                    | No Response
+
                         if checkPermission('gm')
                             if currentCampaign.display_schedule
                                 td=capitalize(event.schedule_status)

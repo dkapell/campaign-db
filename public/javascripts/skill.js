@@ -452,7 +452,6 @@ async function newSkill(e){
         if (type === 'gm') { return isGM; }
         return false;
     };
-    data.csrfToken = $('#csrfToken').val();
 
     $modal.find('.modal-title').text('New Skill');
     $modal.find('.modal-body').html(newFormTemplate(data));

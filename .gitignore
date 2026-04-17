@@ -51,3 +51,5 @@ scripts/devtests
 credentials
 TODO
 *.todo
+CampaignDB.sublime-project
+CampaignDB.sublime-workspace

@@ -257,7 +257,7 @@ interface AttendanceModel extends ModelData {
     event_id?: number
     user_id?: number
     character_id?: number
-    paid?: boolean
+    paid?: 'unpaid'|'paid'|'waived'
     ticket?: string
     notes?: string
     pre_event_data?: Record<string, unknown>
@@ -297,7 +297,7 @@ interface Provides {
 interface AttendeeAddon {
     id?: number
     event_addon_id: number
-    paid?: boolean
+    paid?: 'unpaid'|'paid'|'waived'
     cost?: number
 }
 

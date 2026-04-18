@@ -64,7 +64,7 @@
                     | Edit Registration
             if new Date(event.end_time) > new Date()
                 if attendee.attending
-                    if !(attendee.paid || attendee.addons.filter(addon => { return addon.paid}).length)
+                    if !(attendee.paid !== 'unpaid' || attendee.addons.filter(addon => { return addon.paid !== 'unpaid'}).length)
                         a.btn.btn-outline-danger.btn-sm#event-unregister-btn(
                             role="button"
                             url=`/event/${event.id}/register/${attendee.id}`
@@ -100,15 +100,15 @@
             -
                 let owed = 0;
                 if (attendee && attendee.user){
-                    if (attendee.cost && !attendee.paid && attendee.user.type === 'player'){
+                    if (attendee.cost && attendee.paid === 'unpaid' && attendee.user.type === 'player'){
                         owed += attendee.cost
                     }
-                    for ( const addon of attendee.addons ){
-                        const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-                        if (!addon.paid){
+                    for ( const attendee_addon of attendee.addons ){
+                        const event_addon = _.findWhere(event.addons, {id:attendee_addon.event_addon_id})
+                        if (attendee_addon.paid === 'unpaid'){
                             if (event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'){
                                 if (event_addon.pay_what_you_want){
-                                    owed += addon.cost;
+                                    owed += attendee_addon.cost?attendee_addon.cost:event_addon.cost;
                                 } else {
                                     owed += event_addon.cost;
                                 }
@@ -132,8 +132,10 @@
                 if attendee.attending
                     if activeUser.type === 'player'
                         span.me-2= attendee.character.name
-                        if attendee.paid
+                        if attendee.paid === 'paid'
                             span.badge.text-bg-success Paid
+                        else if attendee.paid === 'waived'
+                            span.badge.text-bg-success Waived
                         else if event.has_cost
                             span.badge.text-bg-warning Unpaid
                         else
@@ -160,8 +162,10 @@ if attendee
                             strong #{event_addon.name}
                             if event_addon.charge_player && attendee.user.type === 'player' || event_addon.charge_staff && attendee.user.type !== 'player'
 
-                                if addon.paid
+                                if addon.paid === 'paid'
                                     .badge.text-bg-success.float-end Paid
+                                else if addon.paid === 'waived'
+                                    .badge.text-bg-success.float-end Waived
                                 else
                                     .badge.text-bg-warning.float-end Unpaid
                                 span.me-2.float-end $#{event_addon.pay_what_you_want&&!_.isNull(addon.cost)?addon.cost:event_addon.cost}

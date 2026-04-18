@@ -46,7 +46,7 @@ async function showNewAttendance(req, res, next){
 
         res.locals.attendance = {
             character_id: activeCharacter?activeCharacter.id:null,
-            paid: false,
+            paid: 'unpaid',
             notes: null,
             pre_event_data: {},
             user_id: user.id,
@@ -179,7 +179,7 @@ async function createAttendance(req, res){
             }
 
             if (!_.has(attendance, 'paid')){
-               attendance.paid = false;
+               attendance.paid = 'unpaid';
             }
 
 
@@ -267,7 +267,7 @@ async function createNotAttendance(req, res){
             }
 
             if (!_.has(attendance, 'paid')){
-               attendance.paid = false;
+               attendance.paid = 'unpaid';
             }
 
         } else {
@@ -345,9 +345,7 @@ async function updateAttendance(req, res){
         if (user.type.match(/^(core staff|admin)$/)){
             if (!_.has(attendance, 'paid')){
                 if (await orderHelper.isPaid('attendance', attendanceId)){
-                    attendance.paid = true;
-                } else {
-                    attendance.paid = false;
+                    attendance.paid = 'paid';
                 }
             }
         } else if (req.checkPermission('registration edit')){
@@ -420,7 +418,7 @@ async function removeAttendance(req, res, next){
             throw new Error('Not allowed to edit this registration');
         }
 
-        const isPaid = current.paid || current.addons.filter(addon => { return addon.paid}).length;
+        const isPaid = current.paid === 'paid' || current.addons.filter(addon => { return addon.paid === 'paid'}).length;
         if (isPaid){
             req.flash('error', 'Can not withdraw from a paid event.  Please contact staff to manage this event registration.');
             return res.redirect(`/event/${event.id}`);
@@ -541,7 +539,7 @@ async function exportEventAttendees(req, res, next){
                 }
                 row.push(attendee.character.name);
                 if (event.default_cost){
-                    row.push(attendee.paid?'Yes':'No');
+                    row.push(attendee.paid);
                 }
 
             } else {
@@ -560,7 +558,7 @@ async function exportEventAttendees(req, res, next){
                                 const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
                                 if (attendee_addon){
                                     if (addon.charge_player){
-                                        row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                        row.push(attendee_addon.paid)
                                     } else {
                                         row.push('Yes');
                                     }
@@ -578,7 +576,7 @@ async function exportEventAttendees(req, res, next){
                                 const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:addon.id});
                                 if (attendee_addon){
                                     if (addon.charge_staff){
-                                        row.push(attendee_addon.paid?'Paid':'Unpaid')
+                                        row.push(attendee_addon.paid)
                                     } else {
                                         row.push('Yes');
                                     }
@@ -658,8 +656,8 @@ function parseAttendeeAddons(input, forGm){
             if (addon.id !== ''){
                 doc.id = Number(addon.id)
             }
-            if (forGm){
-                doc.paid = _.has(addon, 'paid');
+            if (forGm && _.has(addon, 'paid')){
+                doc.paid = addon.paid
             }
             if (addon.cost){
                 doc.cost = addon.cost;
@@ -672,10 +670,10 @@ function parseAttendeeAddons(input, forGm){
 
 async function filterAttendeeAddons(req, addons: AttendeeAddon[]){
     return async.map(addons, async(addon) => {
-        if (addon.paid) { return addon; }
+        if (addon.paid !== 'unpaid') { return addon; }
         if (!addon.id){ return addon; }
         if (await orderHelper.isPaid('attendance_addon', addon.id)){
-            addon.paid = true;
+            addon.paid = 'paid';
         }
         return addon;
     });

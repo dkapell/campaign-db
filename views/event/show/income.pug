@@ -40,7 +40,12 @@
                                     .badge.text-bg-info.ms-2.float-end
                                         i.fas.fa-ticket-alt.me-1
                                         = value.ticket
-                            td $#{value.price}
+                            td
+                                if value.waived
+                                    .badge.text-bg-primary.float-start
+                                        | Waived
+                                else
+                                    | $#{value.price}
                             td= value.count
                             td $#{value.raw}
                             if currentCampaign.stripe_account_ready
@@ -54,7 +59,12 @@
                                    .badge.text-bg-info.ms-2.float-end
                                         i.fas.fa-dollar-sign.me-1
                                         | Pay What You Want
-                            td $#{value.price}
+                            td
+                                if value.waived
+                                    .badge.text-bg-primary.float-start
+                                        | Waived
+                                else
+                                    | $#{value.price}
                             td= value.count
 
                             td $#{value.raw}

@@ -88,7 +88,8 @@ async function show(req, res, next){
                         orders: 0,
                         outstanding: 0,
                         default: true,
-                        ticket: default_ticket.name
+                        ticket: default_ticket.name,
+                        waived: false
                     }
                 ],
                 addons: {
@@ -103,21 +104,23 @@ async function show(req, res, next){
 
             for (const attendance of event.attendees) {
                 if (!attendance.attending){ continue; }
-                let row = _.findWhere(res.locals.income.event, {price:attendance.cost, ticket:attendance.ticket});
+                const eventCost = attendance.paid==='waived'?0:attendance.cost
+                let row = _.findWhere(res.locals.income.event, {price:eventCost, ticket:attendance.ticket, waived:attendance.paid==='waived'});
                 if (!row) {
                     row = {
                         count: 0,
-                        price: attendance.cost,
+                        price: eventCost,
                         raw: 0,
                         orders: 0,
                         outstanding: 0,
                         default: attendance.cost === event.default_cost && attendance.ticket == default_ticket.name,
-                        ticket: attendance.ticket
+                        ticket: attendance.ticket,
+                        waived: attendance.paid === 'waived'
                     };
                     res.locals.income.event.push(row);
                 }
 
-                if (attendance.paid) {
+                if (attendance.paid !== 'unpaid') {
                     row.raw += attendance.cost;
                     row.count++;
                     if (req.campaign.stripe_account_ready && await orderHelper.isPaid('attendance', attendance.id)) {
@@ -130,10 +133,13 @@ async function show(req, res, next){
 
                 for (const attendance_addon of attendance.addons) {
                     const addonName = attendance_addon.addon.name;
-                    const cost = attendance_addon.addon.pay_what_you_want&&!_.isNull(attendance_addon.cost)?attendance_addon.cost:attendance_addon.addon.cost;
+                    let cost = attendance_addon.addon.pay_what_you_want&&!_.isNull(attendance_addon.cost)?attendance_addon.cost:attendance_addon.addon.cost;
+                    if (attendance_addon.paid === 'waived'){
+                        cost = 0;
+                    }
 
                     if (attendance_addon.addon.charge_player || attendance_addon.addon.charge_staff){
-                        let row = _.findWhere(res.locals.income.addons.addons, {name:addonName, price:cost});
+                        let row = _.findWhere(res.locals.income.addons.addons, {name:addonName, price:cost, waived:attendance_addon.paid === 'waived'});
                         if (!row){
                             row = {
                                 name: addonName,
@@ -142,12 +148,13 @@ async function show(req, res, next){
                                 raw: 0,
                                 orders: 0,
                                 outstanding: 0,
-                                pay_what_you_want: attendance_addon.addon.pay_what_you_want
+                                pay_what_you_want: attendance_addon.addon.pay_what_you_want,
+                                waived: attendance_addon.paid === 'waived'
                             };
                             res.locals.income.addons.addons.push(row);
                         }
 
-                        if (attendance_addon.paid) {
+                        if (attendance_addon.paid !== 'unpaid') {
                             res.locals.income.addons.total.raw += cost;
                             row.raw += cost;
                             row.count++;
@@ -533,7 +540,7 @@ async function checkoutEvent(req, res){
         }
         const items = [];
 
-        if (attendance.cost && !attendance.paid && attendance.user.type === 'player'){
+        if (attendance.cost && attendance.paid === 'unpaid' && attendance.user.type === 'player'){
             items.push({
                 type: 'attendance',
                 id: attendance.id,
@@ -544,7 +551,7 @@ async function checkoutEvent(req, res){
 
         for ( const addon of attendance.addons ){
             const event_addon = _.findWhere(event.addons, {id:addon.event_addon_id})
-            if (!addon.paid){
+            if (addon.paid === 'unpaid'){
                 if (event_addon.charge_player && attendance.user.type === 'player' || event_addon.charge_staff && attendance.user.type !== 'player'){
                     const cost = event_addon.pay_what_you_want && !_.isNull(addon.cost)?addon.cost:event_addon.cost;
                     items.push({

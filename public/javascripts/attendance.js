@@ -40,6 +40,7 @@ $(function(){
     $('#attendanceForm').on('submit', submitAttendanceForm);
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     updateCustomFieldVisibility();
+    $('#eventPrice').html(eventpriceTemplate($('#eventPrice').data('attendance')));
     $('#pricing-select').on('change', updateEventPriceDisplay).trigger('change');
 });
 
@@ -153,8 +154,9 @@ function updateCustomFieldVisibility(){
                 break;
         }
     });
+    let shown = 0;
     $('.addon-row').each( function(){
-        let shown = 0;
+
         const $this = $(this);
         if (userType === 'player'){
             if ($this.data('available_to_player')){
@@ -185,14 +187,12 @@ function updateCustomFieldVisibility(){
                 $this.hide();
             }
         }
-
-        if (shown){
-            $('.addon-section').show();
-        } else {
-            $('.addon-section').hide();
-        }
-
     });
+    if (shown){
+        $('.addon-section').show();
+    } else {
+        $('.addon-section').hide();
+    }
 
     $('.addon-row:visible').each(function(index) {
         if(index == 0){

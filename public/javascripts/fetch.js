@@ -14,7 +14,7 @@ async function fetchWithCsrfRetry(url, options = {}, retries = 1){
         }
         // Remove form-based CSRF Token
         if (options.body){
-           options.body.delete('_csrf')
+            options.body.delete('_csrf');
         }
 
         return fetchWithCsrfRetry(url, options, retries - 1);

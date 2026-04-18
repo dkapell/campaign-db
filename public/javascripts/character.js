@@ -463,12 +463,12 @@ function customSkillMatcher(params, data) {
     if (typeof data.text === 'undefined') {
         return null;
     }
-    const searchTerm = params.term.toUpperCase()
+    const searchTerm = params.term.toUpperCase();
     if (data.title.toUpperCase().indexOf(searchTerm) > -1) {
-      return data
+        return data;
     }
     if (data.text.toUpperCase().indexOf(searchTerm) > -1) {
-      return data
+        return data;
     }
 
     // Return `null` if the term should not be displayed

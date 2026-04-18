@@ -1,6 +1,7 @@
 span.paid-cost.ms-2
     - const cost = (eventCost.pay_what_you_want && !(_.isUndefined(attendance.cost) || _.isNull(attendance.cost)))?attendance.cost:eventCost.cost
-    if eventCost.pay_what_you_want && !attendance.paid
+
+    if eventCost.pay_what_you_want && attendance.paid ==='unpaid'
         .d-inline-block
             .input-group
                 .input-group-text $

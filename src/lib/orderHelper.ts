@@ -17,7 +17,7 @@ async function addItemsToOrder(campaignId:number, userId:number, items:OrderItem
         }
         const order_item = await models.order_item.findOne({order_id:order.id, object_type:item.type, object_id:object.id});
         if (order_item){
-            if (object.paid){
+            if (object.paid !== 'unpaid'){
                 // remove already paid for items.
                 await models.order_item.delete(order_item.id);
             }
@@ -132,7 +132,7 @@ async function payOrder(orderId:number): Promise<void>{
             console.log(`Could not find ${item.object_type}:${item.object_id}`);
             continue;
         }
-        object.paid = true;
+        object.paid = 'paid';
         await models[item.object_type].update(object.id, object);
     }
 }
@@ -148,7 +148,7 @@ async function unpayOrder(orderId:number): Promise<void>{
             console.log(`Could not find ${item.object_type}:${item.object_id}`);
             continue;
         }
-        object.paid = false;
+        object.paid = 'paid';
         await models[item.object_type].update(object.id, object);
     }
 }
@@ -183,7 +183,7 @@ async function isPaid(objectType:string, objectId:number): Promise<boolean|numbe
     if (!object){
         throw new Error('Invalid Object');
     }
-    if (!object.paid){
+    if (object.paid !== 'paid'){
         return false;
     }
     const order_items = await models.order_item.find({object_type:objectType, object_id:objectId});

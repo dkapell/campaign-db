@@ -41,7 +41,7 @@ mixin attendeeListItem(attendee, type)
                         let unpaidAddons = 0;
                         if (attendee.addons){
                             for (const addon of attendee.addons){
-                                if (addon.addon.charge_staff && !addon.paid){
+                                if (addon.addon.charge_staff && addon.paid === 'unpaid'){
                                     unpaidAddons++;
 
                                 }
@@ -64,26 +64,31 @@ mixin attendeeListItem(attendee, type)
                                     if (addon.addon.charge_player){
                                         selectedAddons++;
                                     }
-                                    if (addon.addon.charge_player && addon.paid){
+                                    if (addon.addon.charge_player && addon.paid !== 'unpaid'){
                                         paidAddons++;
-                                        addon_cost += addon.cost ? addon.cost : addon.addon.cost;
+                                        if (addon.paid === 'paid'){
+                                            addon_cost += addon.cost ? addon.cost : addon.addon.cost;
+                                        }
                                     }
                                 }
                             }
                             let paidText = '';
-                            if (attendee.paid){
+
+                            if (attendee.paid === 'paid'){
                                 paidText += `<br>Event: $${attendee.cost}`
+                            } else if (attendee.paid === 'waived'){
+                                paidText += `<br>Event: Waived`
                             }
                             if (addon_cost){
                                 paidText += `<br>Addons: $${addon_cost}`
                             }
-                        if attendee.paid && !(selectedAddons - paidAddons)
+                        if attendee.paid !== 'unpaid' && !(selectedAddons - paidAddons)
                             span.badge.text-bg-success.me-1(
                                 data-bs-toggle='tooltip'
                                 data-bs-html='true'
                                 title=`Fully Paid${paidText}`
                             ) Paid
-                        else if attendee.paid
+                        else if attendee.paid !== 'unpaid'
 
                             span.badge.text-bg-warning.me-1(
                                 data-bs-toggle='tooltip'
@@ -243,7 +248,7 @@ mixin attendeeTable(attendees, type)
                                     let unpaidAddons = 0;
                                     if (attendee.addons){
                                         for (const addon of attendee.addons){
-                                            if (addon.addon.charge_staff && !addon.paid){
+                                            if (addon.addon.charge_staff && addon.paid === 'unpaid'){
                                                 unpaidAddons++;
 
                                             }
@@ -267,28 +272,32 @@ mixin attendeeTable(attendees, type)
                                                 if (addon.addon.charge_player){
                                                     selectedAddons++;
                                                 }
-                                                if (addon.addon.charge_player && addon.paid){
+                                                if (addon.addon.charge_player && addon.paid !== 'unpaid'){
                                                     paidAddons++;
-                                                    addon_cost += addon.cost ? addon.cost : addon.addon.cost;
+                                                    if (addon.paid === 'paid'){
+                                                        addon_cost += addon.cost ? addon.cost : addon.addon.cost;
+                                                    }
                                                 }
                                             }
                                         }
 
                                         let paidText = '';
-                                        if (attendee.paid){
+                                        if (attendee.paid === 'paid'){
                                             paidText += `<br>Event: $${attendee.cost}`
+                                        } else if (attendee.paid === 'waived'){
+                                            paidText += `<br>Event: Waived`
                                         }
                                         if (addon_cost){
                                             paidText += `<br>Addons: $${addon_cost}`
                                         }
 
-                                    if attendee.paid && !(selectedAddons - paidAddons)
+                                    if attendee.paid !== 'unpaid' && !(selectedAddons - paidAddons)
                                         span.badge.text-bg-success.me-2(
                                             data-bs-toggle='tooltip'
                                             data-bs-html='true'
                                             title=`Fully Paid${paidText}`
                                         ) Paid
-                                    else if attendee.paid
+                                    else if attendee.paid !== 'unpaid'
                                         span.badge.text-bg-warning.me-2(
                                             data-bs-toggle='tooltip'
                                             data-bs-html='true'
@@ -446,8 +455,13 @@ mixin showAddons(attendee, type)
             for (const addon of attendee.addons){
                 addons += `**${addon.addon.name}**`
                 const cost = addon.addon.pay_what_you_want&&!_.isNull(addon.cost)?addon.cost:addon.addon.cost;
+
                 if ((type === 'player' && addon.addon.charge_player) || (type=== 'staff' && addon.addon.charge_staff)){
-                    addons += ` ($${cost}): ${addon.paid?'Paid':'Unpaid'}\n`;
+                    if (addon.paid === 'waived'){
+                        addons += `: ${capitalize(addon.paid)}\n`;
+                    } else {
+                        addons += ` ($${cost}): ${capitalize(addon.paid)}\n`;
+                    }
                 } else {
                     addons += '\n';
                 }

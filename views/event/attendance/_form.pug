@@ -40,7 +40,7 @@ if (event.has_cost || event.has_cost_options) && checkPermission('gm') || checkP
     .row.my-2#eventCost
         .col-md-1
             label.col-form-label Ticket
-        if !attendance.paid && event.costs.length > 1
+        if attendance.paid === 'unpaid' && event.costs.length > 1
             .col-md-4
                 select.form-select.select2#pricing-select(
                     name = 'attendance[ticket]'
@@ -52,22 +52,39 @@ if (event.has_cost || event.has_cost_options) && checkPermission('gm') || checkP
                             name="attendance[ticket]"
                             selected=attendance.ticket?attendance.ticket===cost.name:cost.default
                         ) #{cost.name} ($#{cost.cost}#{cost.pay_what_you_want?'+':''})
+        else if event.costs.length > 1
+            .col-md-4
+                .badge.text-bg-info.mt-2
+                    i.fas.fa-ticket-alt.me-1
+                    =attendance.ticket
+
         .col-md-6#eventPrice(
             data-attendance={
-                paid: attendance.paid,
-                cost:attendance.cost,
-                ticket:attendance.ticket
+                costName: attendance.ticket,
+                eventCost: _.findWhere(event.costs, {name:attendance.ticket}),
+                attendance: {
+                    cost: attendance.cost,
+                    paid: attendance.paid
+                }
             }
         )
 
 if checkPermission('gm') && attendance.user.type === 'player'
     .row.my-2
         .col
-            .form-check.form-switch
-                input.form-check-input#attendance_paid(type="checkbox" name="attendance[paid]" checked=attendance.paid disabled=attendance.paid_by_order)
-                label.form-check-label(for="attendance_paid") Paid
+            label.form-check-label(for="attendance_paid") Paid
                 if attendance.paid_by_order
                     a.ms-2(href=`/order/${attendance.paid_by_order}?backto=all`) Order ##{attendance.paid_by_order}
+
+            select.form-select.select2#attendance_paid(
+                name='attendance[paid]'
+                disabled=attendance.paid_by_order
+            )
+                each status in ['unpaid', 'paid', 'waived']
+                    option(
+                        value=status
+                        selected=attendance.paid===status
+                    )= capitalize(status)
 
 if event.addons.length
     .row.my-2.addon-section

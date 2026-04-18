@@ -40,7 +40,7 @@ mixin eventListDisplay(events, showPast=false)
                             if event.default_cost
                                 | $#{event.default_cost}.00
                                 if attendee && attendee.user.type === 'player'
-                                    if attendee.paid
+                                    if attendee.paid !== 'unpaid'
                                         .badge.text-bg-success.ms-2 Paid
                                     else
                                         .badge.text-bg-danger.ms-2 Unpaid
@@ -163,9 +163,10 @@ mixin eventListItemPlayer(event)
                 span.badge.text-bg-info Registration Not Open
             else if attendance
                 if attendance.attending
-                    if attendance.paid
-
+                    if attendance.paid === 'paid'
                         span.badge.text-bg-success Paid
+                    else if attendance.paid === 'waived'
+                        span.badge.text-bg-success Waived
                     else if event.has_cost
                         span.badge.text-bg-warning Unpaid
                     else
@@ -181,7 +182,7 @@ mixin eventListItemPlayer(event)
         .col-md-10
             i.fas.fa-map-marker-alt.me-1.fa-fw
             = event.location
-        if !(attendance && attendance.paid)
+        if !(attendance && attendance.paid !== 'unpaid')
             .col.text-end
                 span.me-1 Cost:
                 if event.has_cost
@@ -433,7 +434,7 @@ mixin addonField(addon, attendance_addon, user, attendance)
     )
         input(type='hidden' value=addon.id name=`attendance[addons][${addon.id}][addon_id]`)
         input(type='hidden' value=attendance_addon.id name=`attendance[addons][${addon.id}][id]`)
-        if attendance_addon.paid
+        if attendance_addon.paid && attendance_addon.paid.match(/^(paid|waived)$/)
             input(type='hidden' value='on' name=`attendance[addons][${addon.id}][selected]`)
 
         .form-check.form-check-inline
@@ -441,7 +442,7 @@ mixin addonField(addon, attendance_addon, user, attendance)
                 type="checkbox"
                 name=`attendance[addons][${addon.id}][selected]`
                 id=`attendance_addons_${addon.id}`
-                disabled=attendance_addon.paid?'true':null
+                disabled=attendance_addon.paid && attendance_addon.paid.match(/^(paid|waived)$/)?'true':null
                 checked=attendance_addon.id
             )
             label.form-check-label(for=`attendance_addons_${addon.id}`)
@@ -451,7 +452,7 @@ mixin addonField(addon, attendance_addon, user, attendance)
             - const cost = (addon.pay_what_you_want && !(_.isUndefined(attendance_addon.cost) || _.isNull(attendance_addon.cost)))?attendance_addon.cost:addon.cost
 
 
-            if addon.pay_what_you_want && !attendance_addon.paid
+            if addon.pay_what_you_want && attendance_addon.paid === 'unpaid'
                 .d-inline-block
                     .input-group.input-group-sm
                         .input-group-text $
@@ -469,25 +470,28 @@ mixin addonField(addon, attendance_addon, user, attendance)
         span.paid-badge.float-end(style=showCost?'':'display:none')
             if (checkPermission('gm'))
                 span
-                    .form-check.form-switch
-                        input.form-check-input.me-1(
-                            type="checkbox"
-                            name=`attendance[addons][${addon.id}][paid]`
-                            id=`attendance_addons_${addon.id}_paid`
-                            checked=attendance_addon.paid
-                            disabled=attendance_addon.paid_by_order
-                        )
-                        label.form-check-label(
-                            for=`attendance_addons_${addon.id}_paid`
-                        ) Paid
-                        if attendance_addon.paid_by_order && attendance_addon.paid_by_order !== attendance.paid_by_order
+                    select.form-select.form-select-sm.select2(
+                        id=`attendance_addons_${addon.id}_paid`
+                        name=`attendance[addons][${addon.id}][paid]`
+                        disabled=attendance_addon.paid_by_order
+                    )
+                        each status in ['unpaid', 'paid', 'waived']
+                            option(
+                                value=status
+                                selected=attendance_addon.paid===status
+                            )= capitalize(status)
+
+                    if attendance_addon.paid_by_order && attendance_addon.paid_by_order !== attendance.paid_by_order
                             a.ms-2(href=`/order/${attendance_addon.paid_by_order}?backto=all`) Order ##{attendance_addon.paid_by_order}
 
             else
-                if attendance_addon.paid
+                if attendance_addon.paid === 'waived'
+                    .badge.text-bg-success Waived
+                else if attendance_addon.paid === 'paid'
                     .badge.text-bg-success Paid
                 else
                     .badge.text-bg-danger Unpaid
+
 
 mixin eventCostHeader()
     h5 Event Pricing
@@ -614,10 +618,12 @@ mixin attendanceTable(attendances)
                             if !attendance.attending
                                 .badge.text-bg-info Not Attending
                             else if attendance.user.type === 'player' && attendance.event.has_cost
-                                if attendance.paid
+                                if attendance.paid === 'unpaid'
                                     .badge.text-bg-success Paid
+                                else if attendance.paid === 'waived'
+                                    .badge.text-bg-success Waived
                                 else
-                                    .badge.text-bg-danger Unpaid
+                                    .badge.text-bg-success Paid
                             else if pastEvent
                                 .badge.text-bg-success Attended
                             else

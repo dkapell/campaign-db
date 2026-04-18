@@ -102,19 +102,19 @@ block content
                                                         if (addon.addon.charge_player){
                                                             selectedAddons++;
                                                         }
-                                                        if (addon.addon.charge_player && addon.paid){
+                                                        if (addon.addon.charge_player && addon.paid!=='unpaid'){
                                                             paidAddons++;
 
                                                         }
                                                     }
                                                 }
 
-                                            if attendee.paid && !(selectedAddons - paidAddons)
+                                            if attendee.paid !== 'unpaid' && !(selectedAddons - paidAddons)
                                                 span.badge.text-bg-success.me-2(
                                                     data-bs-toggle='tooltip'
                                                     title='Fully Paid'
                                                 ) Paid
-                                            else if attendee.paid
+                                            else if attendee.paid !== 'unpaid'
 
                                                 span.badge.text-bg-warning.me-2(
                                                     data-bs-toggle='tooltip'
@@ -138,8 +138,10 @@ block content
                                                         - const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:Number(addon.id)})
                                                         if attendee_addon
                                                             if addon.charge_player
-                                                                if attendee_addon.paid
+                                                                if attendee_addon.paid === 'paid'
                                                                     .badge.text-bg-success Paid
+                                                                else if attendee_addon.paid === 'waived'
+                                                                    .badge.text-bg-success Waived
                                                                 else
                                                                     .badge.text-bg-danger Unpaid
                                                             else
@@ -218,7 +220,7 @@ block content
                                                 let unpaidAddons = 0;
                                                 if (attendee.addons){
                                                     for (const addon of attendee.addons){
-                                                        if (addon.addon.charge_staff && !addon.paid){
+                                                        if (addon.addon.charge_staff && addon.paid === 'unpaid'){
                                                             unpaidAddons++;
 
                                                         }
@@ -236,7 +238,7 @@ block content
                                                         - const attendee_addon = _.findWhere(attendee.addons, {event_addon_id:Number(addon.id)})
                                                         if attendee_addon
                                                             if addon.charge_staff
-                                                                if attendee_addon.paid
+                                                                if attendee_addon.paid !== 'unpaid'
                                                                     .badge.text-bg-success Paid
                                                                 else
                                                                     .badge.text-bg-danger Unpaid

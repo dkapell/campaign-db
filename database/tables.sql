@@ -777,6 +777,12 @@ create table survey_response (
         ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
+create type paid_type as enum(
+'unpaid',
+'paid',
+'waived'
+);
+
 create table attendance (
     id serial,
     campaign_id int not null,
@@ -784,7 +790,7 @@ create table attendance (
     user_id int not null,
     character_id int,
     cost int,
-    paid boolean default false,
+    paid paid_type default 'unpaid',
     notes text,
     pre_event_survey_response_id int,
     post_event_survey_response_id int,
@@ -822,7 +828,7 @@ create table attendance_addons (
     campaign_id int not null,
     attendance_id int not null,
     event_addon_id int not null,
-    paid boolean default false,
+    paid paid_type default 'unpaid',
     cost int,
     primary key (id),
     CONSTRAINT attendance_addons_attendance_fk FOREIGN KEY (attendance_id)

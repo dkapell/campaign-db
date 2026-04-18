@@ -15,6 +15,10 @@ async function list(req, res, next){
     try {
         let orders = await req.models.order.find({campaign_id:req.campaign.id, user_id:req.session.activeUser.id});
         orders = orders.filter(orderHelper.isSubmitted);
+        orders = await async.map(orders, async (order) => {
+            order.summary = await orderHelper.summarize(order)
+            return order;
+        });
         if (req.query.export){
             const csvOutput = await orderHelper.buildCsv(orders, false);
             res.attachment(`${req.campaign.name} - My Orders.csv`);
@@ -41,6 +45,7 @@ async function listAll(req, res, next){
         let orders = await req.models.order.find({campaign_id:req.campaign.id});
         orders = await async.map(orders, async (order) => {
             order.user = await req.models.user.get(req.campaign.id, order.user_id);
+            order.summary = await orderHelper.summarize(order)
             return order;
         });
         orders = orders.filter(orderHelper.isSubmitted);

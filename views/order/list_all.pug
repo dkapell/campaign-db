@@ -18,6 +18,7 @@ block content
                     th User
                     th(data-priority="1") Date
                     th Status
+                    th Summary
                     th Amount
                     th
 
@@ -26,10 +27,12 @@ block content
                     tr(class='clickable-row', data-click-object='order' data-click-id=order.id data-click-query="backto=all")
                         td.dtr-control
                         td ##{order.id}
-                        td #{order.user.name} (#{order.user.email})
+                        td
+                            a.action-btn(href=`/user/${order.user.id}`) #{order.user.name}
                         td(data-priority=1, data-sort=order.updated.getTime())=moment.utc(order.updated).tz(currentCampaign.timezone).format('lll')
                         td(data-priority=2)
                             +orderStatusBadge(order.status)
+                        td=order.summary
                         td(data-priority=3) $#{order.payment_amount_cents/100}
                         td.text-end
                             a.btn.btn-xs.btn-outline-info.action-btn(

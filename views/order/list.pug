@@ -17,6 +17,7 @@ block content
                     th Order Id
                     th(data-priority="1") Date
                     th Status
+                    th Summary
                     th Amount
                     th
 
@@ -28,7 +29,7 @@ block content
                         td(data-priority=1, data-sort=order.updated.getTime())=moment.utc(order.updated).tz(currentCampaign.timezone).format('lll')
                         td(data-priority=2)
                             +orderStatusBadge(order.status)
-
+                        td=order.summary
                         td(data-priority=3) $#{order.payment_amount_cents/100}
                         td.text-end
                             a.btn.btn-xs.btn-outline-info.action-btn(

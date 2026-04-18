@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import moment from 'moment';
 import async from 'async';
 import stringify from 'csv-stringify-as-promised';
+import _ from 'underscore';
 import models from './models';
 
 
@@ -261,6 +262,50 @@ async function emptyOrder(campaignId:number, userId:number, create?:boolean): Pr
     return;
 }
 
+const orderItemNames = {
+    attendance: 'Attendance',
+    attendance_addon: 'Addon'
+}
+
+async function summarize(order: OrderModel): Promise<string>{
+    let summary = `${order.order_items.length} Items`;
+
+    const orderItemGroups = _.groupBy(order.order_items, 'object_type');
+
+    if (orderItemGroups.attendance){
+        const attendanceOrderItem = _.findWhere(order.order_items, {object_type:'attendance'});
+        const attendance = await models.attendance.get(attendanceOrderItem.object_id, {postSelect: (value)=>{return value}});
+        const event = await models.event.get(attendance.event_id, {postSelect: (value)=>{return value}});
+        summary = `Attendance for ${event.name}`
+        for (const group in orderItemGroups){
+            if (group === 'attendance') continue;
+            summary += ` + ${orderItemGroups[group].length} ${orderItemNames[group]}(s)`
+        }
+    } else if (orderItemGroups.attendance_addon){
+        const addons = []
+        const events = []
+        for (const orderItem of orderItemGroups.attendance_addon){
+            const attendanceAddon = await models.attendance_addon.get(orderItem.object_id)
+            if (!attendanceAddon) {
+                addons.push(orderItem.name)
+                continue
+            }
+            const event = await models.event.get(attendanceAddon.addon.event_id, {postSelect: (value)=>{return value}});
+            addons.push(attendanceAddon.addon.name)
+            events.push(event.name)
+        }
+        summary = `Addon${addons.length>1?'s':''}: ${addons.join(', ')}`
+        if (events.length) {
+            summary += ` for ${events.join(', ')}`
+        }
+        for (const group in orderItemGroups){
+            if (group === 'attendance_addon') continue;
+            summary += ` + ${orderItemGroups[group].length} ${orderItemNames[group]}(s)}`
+        }
+    }
+    return summary;
+}
+
 export default {
     checkout,
     getOpenOrder,
@@ -271,5 +316,6 @@ export default {
     refund,
     isPaid,
     isSubmitted,
-    buildCsv
+    buildCsv,
+    summarize
 };

@@ -44,7 +44,41 @@ include ../../partials/scene
                         th.px-0
                         th Scene
                 tbody(role='tablist')
-                    each timeslot in schedule
+                    -
+                        const mySchedule = [];
+                        timeslotLoop: for (const timeslot of schedule){
+                            const last = mySchedule.length?mySchedule[mySchedule.length-1]:null;
+                             if (!last){
+                                mySchedule.push(timeslot);
+                                continue timeslotLoop;
+                            }
+                            if (!timeslot.scenes.length){
+                                mySchedule.push(timeslot);
+                                continue timeslotLoop;
+                            }
+                            if (timeslot.scenes.length !== last.scenes.length ||
+                                timeslot.schedule_busy_id !== last.schedule_busy_id){
+                                mySchedule.push(timeslot);
+                                continue timeslotLoop;
+                            }
+                            for (const scene of timeslot.scenes){
+                                if (!_.findWhere(last.scenes, {id:scene.id})){
+                                    mySchedule.push(timeslot);
+                                    continue timeslotLoop;
+                                }
+                            }
+                            for (const scene of last.scenes){
+                                if (!_.findWhere(timeslot.scenes, {id:scene.id})){
+                                    mySchedule.push(timeslot);
+                                    continue timeslotLoop;
+                                }
+                            }
+                            last.endTimeSlot = {
+                                name: timeslot.name,
+                                display_name: timeslot.display_name
+                            }
+                        }
+                    each timeslot in mySchedule
                         tr
                             td.text-nowrap
                                 if timeslot.display_name
@@ -53,6 +87,14 @@ include ../../partials/scene
                                     = timeslot.name
                                 if timeslot.type === 'meal'
                                     i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)
+                                if timeslot.endTimeSlot
+                                    br
+                                    small
+                                        i.fas.fa-arrow-right.me-1
+                                        if timeslot.endTimeSlot.display_name
+                                            = timeslot.endTimeSlot.display_name
+                                        else
+                                            = timeslot.endTimeSlot.name
 
                             td.px-0
                                 if timeslot.display_name
@@ -60,6 +102,13 @@ include ../../partials/scene
                                         data-bs-toggle='tooltip'
                                         title=timeslot.name
                                     )
+                                if timeslot.endTimeSlot && timeslot.endTimeSlot.display_name
+                                    br
+                                    i.far.fa-clock.fa-fw(
+                                        data-bs-toggle='tooltip'
+                                        title=timeslot.endTimeSlot.name
+                                    )
+
                             td
                                 ul.list-inline.my-0
                                     if timeslot.schedule_busy
@@ -111,6 +160,8 @@ include ../../partials/scene
 
                                                 if idx < timeslot.scenes.length-1
                                                     span.ms-0 ,
+                                    if !timeslot.schedule_busy && timeslot.scenes.length === 0
+                                        i Unscheduled
     .col
         .tab-content
             - const scenes = [];

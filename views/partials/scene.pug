@@ -394,6 +394,7 @@ mixin sceneTable(scenes, exportable=false)
                     th(data-priority="1") Name
                     th(data-priority="2") Status
                     th(data-priority="4") Writer
+                    th(data-priority="5") Runner
                     th(data-priority="3") Timeslot
                     th(data-priority="3") Location
                     th Players
@@ -453,9 +454,25 @@ mixin sceneTable(scenes, exportable=false)
 
                         td
                             +sceneStatusBadge(scene.status)
-                        td
+                        -
+                            let writers = [''];
+                            if (scene.writer){
+                                writers.push(scene.writer)
+                            }
+                            for (const writer of scene.additional_writers){
+                                writers.push(writer.name)
+                            }
+
+                        td(data-search=writers.join(', '))
                             if scene.writer
-                                =scene.writer.name
+                                strong=scene.writer.name
+                            if scene.additional_writers.length > 3
+                                |  +#{scene.additional_writers.length}
+                            else if scene.additional_writers.length
+                                | , #{_.pluck(scene.additional_writers, 'name').sort().join(', ')}
+                        td
+                            if scene.runner
+                                =scene.runner.name
                         td
                             if timeslotsConfirmed.length
                                 - const timeslots = _.pluck(timeslotsConfirmed, 'name')

@@ -23,6 +23,7 @@ async function list(req, res, next){
         }
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});
         res.locals.title += ' - Scenes';
+        res.locals.wideMain = true;
         res.render('scene/list', { pageTitle: 'Scenes' });
     } catch (err){
         next(err);

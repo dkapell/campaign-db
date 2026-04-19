@@ -339,6 +339,9 @@ interface TimeslotModel extends ModelData{
     payment_note?: string
     type?: string
     name?:string
+    endName?: string
+    startStr?:string
+    endStr?:string
     scene_request_status?:string
     scene_schedule_status?:string
     scenes?: FormattedSceneModel[]

@@ -21,17 +21,30 @@ const Timeslot = new Model('timeslots', tableFields, {
 
 async function fill(data){
     const dayStr = data.day.charAt(0).toUpperCase() + data.day.slice(1);
-    let afternoon = false;
-    let hour = data.start_hour;
+    let startAfternoon = false;
+    let startHour = data.start_hour;
     if (data.start_hour > 11){
-        afternoon = true;
+        startAfternoon = true;
     }
     if (data.start_hour > 12){
-        hour -= 12;
+        startHour -= 12;
     }
 
-    data.startStr = `${hour}:${String(data.start_minute).padStart(2, '0')}${afternoon?'pm':'am'}`;
+    data.startStr = `${startHour}:${String(data.start_minute).padStart(2, '0')}${startAfternoon?'pm':'am'}`;
+
     data.name = `${dayStr} - ${data.startStr}`;
+    let endAfternoon = false
+    let endHour = Math.floor(data.start_hour + data.start_minute/60 + data.length/60);
+    if (endHour > 11){
+        endAfternoon = true;
+    }
+    if (endHour > 12){
+        endHour -= 12;
+    }
+    const endMins = (data.start_minute + data.length)%60;
+
+    data.endStr = `${endHour}:${String(endMins).padStart(2, '0')}${endAfternoon?'pm':'am'}`;
+    data.endName = `${dayStr} - ${data.endStr}`;
     return data;
 }
 

@@ -74,7 +74,7 @@ include ../../partials/scene
                                 }
                             }
                             last.endTimeSlot = {
-                                name: timeslot.name,
+                                name: timeslot.endStr,
                                 display_name: timeslot.display_name
                             }
                         }
@@ -89,12 +89,12 @@ include ../../partials/scene
                                     i.fas.fa-utensils.fa-fw.ms-1(class=iconClass)
                                 if timeslot.endTimeSlot
                                     br
-                                    small
-                                        i.fas.fa-arrow-right.me-1
-                                        if timeslot.endTimeSlot.display_name
-                                            = timeslot.endTimeSlot.display_name
-                                        else
-                                            = timeslot.endTimeSlot.name
+
+                                    i.fas.fa-long-arrow-alt-right.me-2
+                                    if timeslot.endTimeSlot.display_name
+                                        = timeslot.endTimeSlot.display_name
+                                    else
+                                        = timeslot.endTimeSlot.name
 
                             td.px-0
                                 if timeslot.display_name

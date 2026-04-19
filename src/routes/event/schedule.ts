@@ -623,7 +623,7 @@ async function getUsersPerTimeslot(req, res){
 
 async function updateUser(req, res){
     const eventId = req.params.id;
-    const userId = req.params.userId;
+    const userId:UpdateUserIdType = req.params.userId;
     const userData = req.body.user;
     try{
         const event = await req.models.event.get(eventId);
@@ -641,11 +641,7 @@ async function updateUser(req, res){
             throw new Error('Invalid Schedule Lock');
         }
 
-        const user = await req.models.user.get(req.campaign.id, userId);
 
-        if (!user){
-            throw new Error('Invalid User');
-        }
         if (userData.type === 'scene'){
             if (!_.has(userData, 'scene_id')){
                 throw new Error('Scene Id must be provided');
@@ -654,30 +650,39 @@ async function updateUser(req, res){
             if (!scene || scene.campaign_id !== req.campaign.id){
                 throw new Error('Invalid Scene');
             }
-            if (user.type === 'player' && !scene.assign_players){
-                throw new Error('Can not assign players to this scene');
-            }
 
-            const scene_user = await req.models.scene_user.findOne({scene_id:scene.id, user_id:user.id});
-            if (scene_user){
-                if (userData.status === 'unscheduled' &&
-                    scene_user.request_status === 'none' &&
-                    (!scene_user.details || !scene_user.details.npc)
-                ){
-                    await req.models.scene_user.delete({scene_id:scene.id, user_id:user.id})
-                } else {
+            const timeslots = scene.timeslots.filter(timeslot => {
+                return timeslot.scene_schedule_status === 'confirmed' || timeslot.scene_schedule_status === 'suggested'
+            });
 
-                    scene_user.schedule_status = userData.status?userData.status:'suggested';
-                    await req.models.scene_user.update({scene_id:scene.id, user_id:user.id}, scene_user);
+            const users = await parseUpdateUsers(userId, _.pluck(timeslots, 'id'));
+
+            await async.each(users, async(user) => {
+                if (user.type === 'player' && !scene.assign_players){
+                    throw new Error('Can not assign players to this scene');
                 }
-            } else if (userData.status !== 'unscheduled'){
-                await req.models.scene_user.create({
-                    scene_id: scene.id,
-                    user_id: user.id,
-                    schedule_status: userData.status?userData.status:'suggested',
-                    request_status:'none'
-                });
-            }
+
+                const scene_user = await req.models.scene_user.findOne({scene_id:scene.id, user_id:user.id});
+                if (scene_user){
+                    if (userData.status === 'unscheduled' &&
+                        scene_user.request_status === 'none' &&
+                        (!scene_user.details || !scene_user.details.npc)
+                    ){
+                        await req.models.scene_user.delete({scene_id:scene.id, user_id:user.id})
+                    } else {
+
+                        scene_user.schedule_status = userData.status?userData.status:'suggested';
+                        await req.models.scene_user.update({scene_id:scene.id, user_id:user.id}, scene_user);
+                    }
+                } else if (userData.status !== 'unscheduled'){
+                    await req.models.scene_user.create({
+                        scene_id: scene.id,
+                        user_id: user.id,
+                        schedule_status: userData.status?userData.status:'suggested',
+                        request_status:'none'
+                    });
+                }
+            });
 
         } else if (userData.type === 'schedule_busy'){
             if (!_.has(userData, 'schedule_busy_type_id')){
@@ -690,23 +695,29 @@ async function updateUser(req, res){
             if (!timeslot || timeslot.campaign_id !== req.campaign.id){
                 throw new Error('Invalid Timeslot');
             }
-            const schedule_busy = await req.models.schedule_busy.findOne({
-                event_id:event.id,
-                user_id:user.id,
-                timeslot_id:userData.timeslot_id
-            });
-            if (schedule_busy){
-                if (schedule_busy.type_id !== Number(userData.schedule_busy_type_id)){
-                    throw new Error(`User is already scheduled for ${schedule_busy.type.name} in this Timeslot`);
-                }
-            } else {
-                await req.models.schedule_busy.create({
+
+            const users = await parseUpdateUsers(userId, [timeslot.id]);
+
+            await async.each(users, async(user) => {
+
+                const schedule_busy = await req.models.schedule_busy.findOne({
                     event_id:event.id,
                     user_id:user.id,
-                    timeslot_id:userData.timeslot_id,
-                    type_id: userData.schedule_busy_type_id
+                    timeslot_id:userData.timeslot_id
                 });
-            }
+                if (schedule_busy){
+                    if (schedule_busy.type_id !== Number(userData.schedule_busy_type_id)){
+                        throw new Error(`User is already scheduled for ${schedule_busy.type.name} in this Timeslot`);
+                    }
+                } else {
+                    await req.models.schedule_busy.create({
+                        event_id:event.id,
+                        user_id:user.id,
+                        timeslot_id:userData.timeslot_id,
+                        type_id: userData.schedule_busy_type_id
+                    });
+                }
+            });
         } else if (userData.type === 'unschedule_busy'){
             if (!_.has(userData, 'schedule_busy_id')){
                 throw new Error('Schedule Busy Id must be provided');
@@ -722,6 +733,55 @@ async function updateUser(req, res){
     } catch (err){
         console.trace(err);
         res.json({success:false, error:err.message});
+    }
+
+
+
+    async function parseUpdateUsers(userId:UpdateUserIdType, timeslotIds:number[]): Promise<CampaignUser[]>{
+        const users = [];
+        for (const timeslotId of timeslotIds){
+            let timeslotUsers = []
+            switch(userId){
+                case 'all-player':
+                    timeslotUsers = await scheduleHelper.getUsersAtTimeslot(eventId, timeslotId);
+                    timeslotUsers = timeslotUsers.filter(user => {
+                        return user.type === 'player';
+                    });
+                    break;
+
+                case 'all-unscheduled-player':
+                    timeslotUsers = await scheduleHelper.getUsersAtTimeslot(eventId, timeslotId);
+                    timeslotUsers = timeslotUsers.filter(user => {
+                        return user.type === 'player' && user.schedule_status === 'unscheduled'
+                    });
+                    break;
+
+                case 'all-staff':
+                    timeslotUsers = await scheduleHelper.getUsersAtTimeslot(eventId, timeslotId);
+                    timeslotUsers = timeslotUsers.filter(user => {return user.type !== 'player'});
+                    break;
+
+                case 'all-unscheduled-staff':
+                    timeslotUsers = await scheduleHelper.getUsersAtTimeslot(eventId, timeslotId);
+                    timeslotUsers = timeslotUsers.filter(user => {
+                        return user.type !== 'player' && user.schedule_status === 'unscheduled'
+                    });
+                    break;
+
+                default: {
+                    const user = await req.models.user.get(req.campaign.id, userId);
+
+                    if (!user){
+                        throw new Error('Invalid User');
+                    }
+                    timeslotUsers.push(user);
+                    break;
+                }
+
+            }
+            users.push(timeslotUsers);
+        }
+        return _.intersection(...users);
     }
 }
 

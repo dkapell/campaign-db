@@ -34,6 +34,30 @@ mixin userPlacerCard(user)
                         i.far.fa-user.me-1
                         | #{user.character.name}
 
+mixin allTypePlacerCard(cardType, unscheduled)
+    -
+        cardType = cardType==='player'?'player':'staff'
+        const idParts = ['all'];
+        if (unscheduled){
+            idParts.push('unscheduled')
+        }
+        idParts.push(cardType);
+
+    li.user-item.m-1.border.list-inline-item.rounded.px-1.pb-1.align-top.bg-body(
+        data-user-id=idParts.join('-')
+        data-user-type=cardType
+    )
+        .row.handle.my-0
+            .col.handle.text-center
+                i.fas.fa-grip-lines.handle-icon.text-info
+        .row
+            .col
+                i.fas.fa-user.me-1
+                case cardType
+                    when 'player'
+                        | All #{unscheduled && 'Unscheduled'} Players
+                    when 'staff'
+                        | All #{unscheduled && 'Unscheduled'} Staff
 
 if schedule_busy_types.length
     .row.mb-2
@@ -63,14 +87,16 @@ else
     .tab-content#userPickerTabContent
         .tab-pane.fade.show.active#users-unscheduled(role="tabpanel" aria-labelledby="users-unscheduled-tab")
             -
-                const fileredUsers = users.filter(user => {
+                const filteredUsers = users.filter(user => {
                     return user.schedule_status === 'unscheduled'
                 })
-            if fileredUsers.length
+            if filteredUsers.length
                 .row
                     .col
                         ul.list-inline.mb-0#users-panel-list
-                            each user in _.sortBy(fileredUsers, 'name')
+                            if filteredUsers.length > 3 && allowedEdit
+                                +allTypePlacerCard(type, true)
+                            each user in _.sortBy(filteredUsers, 'name')
                                 +userPlacerCard(user)
 
             else
@@ -81,6 +107,9 @@ else
 
         .tab-pane.fade#users-all(role="tabpanel" aria-labelledby="users-all-tab")
             ul.list-inline.mb-0#users-panel-list-all
+                if users.length > 3 && allowedEdit
+                    +allTypePlacerCard(type)
+
                 each user in _.sortBy(users, 'name')
                     +userPlacerCard(user)
 

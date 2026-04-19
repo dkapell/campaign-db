@@ -177,3 +177,5 @@ interface GetUsersAtTimeslotCache{
     scenes?: FormattedSceneModel[]
     schedule_busys?: ScheduleBusyModel[]
 }
+
+type UpdateUserIdType = number|'all-player'|'all-unscheduled-player'|'all-staff'|'all-unscheduled-staff'

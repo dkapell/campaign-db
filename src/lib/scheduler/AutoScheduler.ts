@@ -238,6 +238,10 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
 function scoreScene(scene:SceneModel): SceneModel{
     scene.score = 0;
 
+    if (scene.status === 'confirmed'){
+        scene.score += 1000;
+    }
+
     scene.score += (scene.locations_count * Number(config.get('scheduler.score.locations_count')));
     scene.score -= scene.locations.filter(location => {
         if (location.scene_request_status === 'rejected') { return false;}

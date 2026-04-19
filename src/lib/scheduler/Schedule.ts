@@ -214,7 +214,9 @@ class Schedule extends EventEmitter {
             scenesProcessed++;
             await null; // release event loop to allow keepalive
             const scene = queue.next();
-            if (scene.schedule_status === 'new'){
+            if (scene.schedule_status === 'slotted'){
+                await this.fillUsers(scene, {status: 'required', single:false}, options);
+            } else if (scene.schedule_status === 'new'){
                 const slotResult = await this.findSlot(scene, options);
                 if (slotResult.slotted){
                     scene.happiness += Number(config.get('scheduler.happiness.scheduled'));

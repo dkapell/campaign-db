@@ -679,16 +679,23 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
     return stringify(output, {});
 }
 
-async function getSceneStatusCsv(campaignId:number){
+async function getSceneStatusCsv(campaignId:number, type:'future'|'postponed'){
     let scenes = await models.scene.find({campaign_id:campaignId});
     const events = await models.event.find({campaign_id:campaignId});
     const futureEvents = events.filter(event => { return event.end_time > new Date(); });
     scenes = scenes.filter(scene => {
-        if (!scene.event_id){ return true; }
-        if (_.findWhere(futureEvents, {id:scene.event_id} )){
-            return true;
+        if (type === 'future'){
+            if (scene.status === 'postponed') { return false; }
+            if (!scene.event_id){ return true; }
+            if (_.findWhere(futureEvents, {id:scene.event_id} )){
+                return true;
+            }
+            return false;
+        } else if (type === 'postponed'){
+            return scene.status === 'postponed'
+        } else {
+            throw new Error('invalid CSV type')
         }
-        return false;
     });
 
     const output = [];
@@ -698,6 +705,7 @@ async function getSceneStatusCsv(campaignId:number){
         'Event',
         'Status',
         'Writer',
+        'Additional Writers',
         'Runner',
         'Tags',
         'Timeslot(s)',
@@ -730,6 +738,8 @@ async function getSceneStatusCsv(campaignId:number){
         } else {
             row.push(null)
         }
+
+        row.push(_.pluck(scene.additional_writers, 'name').join(', '))
 
         if (scene.runner_id){
             row.push(scene.runner.name);

@@ -16,9 +16,9 @@ async function list(req, res, next){
         current: 'Scenes'
     };
     try {
-        if (req.query.export){
-            const csvOutput = await scheduleHelper.getSceneStatusCsv(req.campaign.id);
-            res.attachment(`${req.campaign.name} - Scene Status.csv`);
+        if (req.query.export && req.query.export.match(/^(future|postponed)$/)){
+            const csvOutput = await scheduleHelper.getSceneStatusCsv(req.campaign.id, req.query.export);
+            res.attachment(`${req.campaign.name} - Scene Status - ${req.query.export}.csv`);
             return res.end(csvOutput);
         }
         res.locals.scenes = await req.models.scene.find({campaign_id:req.campaign.id});

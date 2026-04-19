@@ -8,6 +8,7 @@ block content
 
     -
         const futureScenes = scenes.filter(scene => {
+            if (scene.status === 'postponed') { return false; }
             if (!scene.event_id) { return true; }
             if (new Date(scene.event.end_time) > new Date()){
                 return true;
@@ -22,17 +23,29 @@ block content
             return false;
         });
 
+        const postponedScenes = scenes.filter(scene => {
+            return scene.status === 'postponed'
+        });
+
     ul.nav.nav-tabs.w-100.my-2#sceneTabs(role="tablist")
         li.nav-item(role="presentation")
             a.nav-link.active#future-scenes-tab(href="#future-scenes" data-bs-toggle="tab" role="tab" aria-controls="future-scenes" aria-selected="true") Future Scenes
+                .badge.text-bg-primary.ms-1=futureScenes.length
+
+        li.nav-item(role="presentation")
+            a.nav-link#postponed-scenes-tab(href="#postponed-scenes" data-bs-toggle="tab" role="tab" aria-controls="postponed-scenes" aria-selected="false") Postponed Scenes
+                .badge.text-bg-primary.ms-1=postponedScenes.length
 
         li.nav-item(role="presentation")
             a.nav-link#past-scenes-tab(href="#past-scenes" data-bs-toggle="tab" role="tab" aria-controls="past-scenes" aria-selected="false") Past Scenes
+                .badge.text-bg-primary.ms-1=pastScenes.length
 
 
     .tab-content#sceneTabContent
         .tab-pane.fade.show.active#future-scenes(role="tabpanel" aria-labelledby="future-scenes-tab")
-            +sceneTable(futureScenes, true)
+            +sceneTable(futureScenes, 'future')
+        .tab-pane.fade#postponed-scenes(role="tabpanel" aria-labelledby="postponed-scenes-tab")
+            +sceneTable(postponedScenes, 'postponed')
         .tab-pane.fade#past-scenes(role="tabpanel" aria-labelledby="past-scenes-tab")
             +sceneTable(pastScenes)
 

@@ -738,7 +738,7 @@ async function updateUser(req, res){
 
 
     async function parseUpdateUsers(userId:UpdateUserIdType, timeslotIds:number[]): Promise<CampaignUser[]>{
-        const users = [];
+        const userIds = [];
         for (const timeslotId of timeslotIds){
             let timeslotUsers = []
             switch(userId){
@@ -779,9 +779,11 @@ async function updateUser(req, res){
                 }
 
             }
-            users.push(timeslotUsers);
+            userIds.push(_.pluck(timeslotUsers, 'id'));
         }
-        return _.intersection(...users);
+        return async.map(_.intersection(...userIds), async(userId) => {
+            return req.models.user.get(req.campaign.id, userId);
+        });
     }
 }
 

@@ -981,8 +981,22 @@ mixin sceneCardBody(scene, full, characterIds)
                     h5 Characters
                     if full && checkPermission('event')
                         .player-count
-                            strong.me-2 Player Count:
-                            span #{scene.player_count_min} - #{scene.player_count_max}
+                            strong.me-1 Player Count:
+                            -
+                                let playerCount = 0;
+
+                                if (scene.players.confirmed){
+                                    playerCount += scene.players.confirmed.length
+                                }
+                                if (scene.players.suggested){
+                                    playerCount += scene.players.suggested.length
+                                }
+
+                            if playerCount
+                                span.me-1 #{playerCount} of
+                            | #{scene.player_count_min} - #{scene.player_count_max}
+
+
                     ul.list-unstyled
                         each status in ['confirmed', 'suggested']
                             if scene.players[status]
@@ -1013,8 +1027,19 @@ mixin sceneCardBody(scene, full, characterIds)
                     h5 Staff
                     if full
                         .staff-count
-                            strong.me-2 Staff Count
-                            span #{scene.staff_count_min} - #{scene.staff_count_max}
+                            strong.me-1 Staff Count:
+                             -
+                                let staffCount = 0;
+
+                                if (scene.staff.confirmed){
+                                    staffCount += scene.staff.confirmed.length
+                                }
+                                if (scene.staff.suggested){
+                                    staffCount += scene.staff.suggested.length
+                                }
+                            if staffCount
+                                span.me-1 #{staffCount} of
+                            | #{scene.staff_count_min} - #{scene.staff_count_max}
                             if scene.combat_staff_count_min
                                 span.ms-1 (#{scene.combat_staff_count_min} - #{scene.combat_staff_count_max} as Combat Staff)
                     ul.list-unstyled

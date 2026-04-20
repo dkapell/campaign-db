@@ -212,7 +212,10 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false, pastEvent:boolea
             doc.name = doc.character.name
         }
         return doc;
+    }).sort((a,b) => {
+        return a.name.localeCompare(b.name)
     });
+
     output.players = _.groupBy(players, 'scene_schedule_status');
     if (forPlayer){
         if (output.players.confirmed){
@@ -241,7 +244,8 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false, pastEvent:boolea
                 doc.npc = user.scene_details.npc;
             }
             return doc;
-        });
+        }).sort((a,b) => { return a.name.localeCompare(b.name)});
+
         output.staff = _.groupBy(staff, 'scene_schedule_status');
         output.users = [...players, ...staff];
         output.usersByStatus = _.groupBy(scene.users, 'scene_schedule_status');

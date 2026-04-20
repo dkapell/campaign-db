@@ -174,9 +174,9 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                             title= capitalize(player.scene_request_status)
                                             class=userIconClass
                                         )
-                                        = player.name
+                                        span.text-truncate.d-inline-block(style='max-width:175px')= player.name
                                 else
-                                    span.p-1= player.name
+                                    span.text-truncate.p-1.d-inline-block(style='max-width:175px')= player.name
                                 if scheduleType === 'edit' && allowedEdit
                                     button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                         role='button'
@@ -209,7 +209,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                         title= capitalize(player.scene_request_status)
                                         class=userIconClass
                                     )
-                                    = player.name
+                                    span.text-truncate.d-inline-block(style='max-width:175px')=  player.name
                                 if allowedEdit
                                     .btn-group.float-end.ms-1(role='group')
                                         button.btn.btn-xs.btn-outline-success.schedule-user-btn(
@@ -315,14 +315,14 @@ if scene.staff
                         li.list-group-item.my-0.p-0
                             if scheduleType === 'edit'
                                 a.p-1(href=`/user/${staff.id}` target='_blank')
-                                    i.fas.me-1(
+                                    i.fas.me-1.fa-fw(
                                         data-bs-toggle='tooltip'
                                         title= capitalize(staff.scene_request_status)
                                         class=userIconClass
                                     )
-                                    = staff.name
+                                    span.text-truncate.d-inline-block(style='max-width:175px')=  staff.name
                             else
-                                span.p-1= staff.name
+                                span.text-truncate.p-1.d-inline-block(style='max-width:175px')= staff.name
                             if scheduleType === 'edit' && allowedEdit
                                 button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                     role='button'
@@ -349,12 +349,12 @@ if scene.staff
                             }
                         li.list-group-item.my-0.p-0
                             a.p-1(href=`/user/${staff.id}` target='_blank')
-                                i.fas.me-1(
+                                i.fas.me-1.fa-fw(
                                     data-bs-toggle='tooltip'
                                     title= capitalize(staff.scene_request_status)
                                     class=userIconClass
                                 )
-                                = staff.name
+                                span.text-truncate.d-inline-block(style='max-width:175px')=  staff.name
                             if allowedEdit
                                 .btn-group.float-end.ms-1(role='group')
                                     button.btn.btn-xs.btn-outline-success.schedule-user-btn(

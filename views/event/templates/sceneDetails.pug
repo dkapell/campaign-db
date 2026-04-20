@@ -174,7 +174,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                             title= capitalize(player.scene_request_status)
                                             class=userIconClass
                                         )
-                                        span.user-name= player.name
+                                        span.user-name-link= player.name
                                 else
                                     span.p-1.user-name= player.name
                                 if scheduleType === 'edit' && allowedEdit
@@ -209,7 +209,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                         title= capitalize(player.scene_request_status)
                                         class=userIconClass
                                     )
-                                    span.user-name=  player.name
+                                    span.user-name-link=  player.name
                                 if allowedEdit
                                     .btn-group.float-end.ms-1(role='group')
                                         button.btn.btn-xs.btn-outline-success.schedule-user-btn(
@@ -320,7 +320,7 @@ if scene.staff
                                         title= capitalize(staff.scene_request_status)
                                         class=userIconClass
                                     )
-                                    span.user-name=  staff.name
+                                    span.user-name-link=  staff.name
                             else
                                 span.p-1.user-name= staff.name
                             if scheduleType === 'edit' && allowedEdit
@@ -354,7 +354,7 @@ if scene.staff
                                     title= capitalize(staff.scene_request_status)
                                     class=userIconClass
                                 )
-                                span.user-name=  staff.name
+                                span.user-name-link=  staff.name
                             if allowedEdit
                                 .btn-group.float-end.ms-1(role='group')
                                     button.btn.btn-xs.btn-outline-success.schedule-user-btn(

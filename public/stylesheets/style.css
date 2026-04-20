@@ -447,12 +447,23 @@ body
 .scene-user-list {
     font-size:0.8rem;
 }
-.scene-user-list .user-name{
-    max-width: 130px;
+
+.scene-user-list .user-name-link,
+.scene-user-list .user-name,
+{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     display: inline-block;
     vertical-align: middle;
+}
+
+.scene-user-list .user-name-link
+{
+    max-width: 130px;
+}
+
+.scene-user-list .user-name{
+    max-width: 160px;
 }
 

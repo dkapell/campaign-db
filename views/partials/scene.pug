@@ -1006,13 +1006,14 @@ mixin sceneCardBody(scene, full, characterIds)
                                             +sceneStatusBadge(status, true)
                                         +playerEntry(user)
 
-                        if !scene.players.confirmed && !scene.players.suggested && scene.players.unscheduled
+                        if scene.players.unscheduled && (checkPermission('admin, scheduler') || (!scene.players.confirmed && !scene.players.suggested))
                             - const playersByRequestStatus = _.groupBy(scene.players.unscheduled, 'scene_request_status');
                              each requestStatus in _.keys(playersByRequestStatus)
                                 each user in  _.sortBy(playersByRequestStatus[requestStatus], (user)=>{return user.character?user.character.name:user.name})
                                     li
                                         +sceneStatusBadge(requestStatus, true)
-                                        +playerEntry(user)
+                                        i
+                                            +playerEntry(user)
                         - const playerCount = scene.players.confirmed?scene.players.confirmed.length:0 + scene.players.suggested?scene.players.suggested.length:0
 
                         if scene.status.match(/^(scheduled|confirmed)$/) && scene.player_count_max - playerCount > 0 && !scene.for_anyone
@@ -1051,13 +1052,14 @@ mixin sceneCardBody(scene, full, characterIds)
                                             +sceneStatusBadge(status, true)
                                         +staffEntry(user)
 
-                        if !scene.staff.confirmed && !scene.staff.suggested && scene.staff.unscheduled
+                        if scene.staff.unscheduled && (checkPermission('admin, scheduler') || (!scene.staff.confirmed && !scene.staff.suggested))
                             - const staffByRequestStatus = _.groupBy(scene.staff.unscheduled, 'scene_request_status');
                              each requestStatus in _.keys(staffByRequestStatus)
                                 each user in _.sortBy(staffByRequestStatus[requestStatus], 'name')
                                     li
                                         +sceneStatusBadge(requestStatus, true)
-                                        +staffEntry(user)
+                                        i
+                                            +staffEntry(user)
         if full && (_.keys(scene.sources).length || _.keys(scene.skills).length)
             .row
                 if _.keys(scene.sources).length

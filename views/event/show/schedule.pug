@@ -48,7 +48,8 @@ include ../../partials/scene
                         const mySchedule = [];
                         timeslotLoop: for (const timeslot of schedule){
                             const last = mySchedule.length?mySchedule[mySchedule.length-1]:null;
-                             if (!last){
+
+                            if (!last){
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;
                             }
@@ -57,22 +58,26 @@ include ../../partials/scene
                                 continue timeslotLoop;
                             }
                             if (timeslot.scenes.length !== last.scenes.length ||
-                                timeslot.schedule_busy_id !== last.schedule_busy_id){
+                                timeslot.schedule_busy !== last.schedule_busy){
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;
                             }
                             for (const scene of timeslot.scenes){
-                                if (!_.findWhere(last.scenes, {id:scene.id})){
+                                const lastScene = _.findWhere(last.scenes, {id:scene.id})
+
+                                if (!lastScene || scene.type !== lastScene.type){
                                     mySchedule.push(timeslot);
                                     continue timeslotLoop;
                                 }
                             }
                             for (const scene of last.scenes){
-                                if (!_.findWhere(timeslot.scenes, {id:scene.id})){
+                                const lastScene = _.findWhere(timeslot.scenes, {id:scene.id})
+                                if (!lastScene || scene.type !== lastScene.type){
                                     mySchedule.push(timeslot);
                                     continue timeslotLoop;
                                 }
                             }
+
                             last.endTimeSlot = {
                                 name: timeslot.endStr,
                                 display_name: timeslot.display_name

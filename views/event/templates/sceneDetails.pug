@@ -174,9 +174,9 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                             title= capitalize(player.scene_request_status)
                                             class=userIconClass
                                         )
-                                        span.text-truncate.d-inline-block(style='max-width:175px')= player.name
+                                        span.user-name= player.name
                                 else
-                                    span.text-truncate.p-1.d-inline-block(style='max-width:175px')= player.name
+                                    span.p-1.user-name= player.name
                                 if scheduleType === 'edit' && allowedEdit
                                     button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                         role='button'
@@ -209,7 +209,7 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                                         title= capitalize(player.scene_request_status)
                                         class=userIconClass
                                     )
-                                    span.text-truncate.d-inline-block(style='max-width:175px')=  player.name
+                                    span.user-name=  player.name
                                 if allowedEdit
                                     .btn-group.float-end.ms-1(role='group')
                                         button.btn.btn-xs.btn-outline-success.schedule-user-btn(
@@ -320,9 +320,9 @@ if scene.staff
                                         title= capitalize(staff.scene_request_status)
                                         class=userIconClass
                                     )
-                                    span.text-truncate.d-inline-block(style='max-width:175px')=  staff.name
+                                    span.user-name=  staff.name
                             else
-                                span.text-truncate.p-1.d-inline-block(style='max-width:175px')= staff.name
+                                span.p-1.user-name= staff.name
                             if scheduleType === 'edit' && allowedEdit
                                 button.btn.btn-xs.btn-outline-danger.unschedule-user-btn.float-end.ms-1(
                                     role='button'
@@ -354,7 +354,7 @@ if scene.staff
                                     title= capitalize(staff.scene_request_status)
                                     class=userIconClass
                                 )
-                                span.text-truncate.d-inline-block(style='max-width:175px')=  staff.name
+                                span.user-name=  staff.name
                             if allowedEdit
                                 .btn-group.float-end.ms-1(role='group')
                                     button.btn.btn-xs.btn-outline-success.schedule-user-btn(

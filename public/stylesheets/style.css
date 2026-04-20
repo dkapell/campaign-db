@@ -444,3 +444,15 @@ body
     }
 }
 
+.scene-user-list {
+    font-size:0.75rem;
+}
+.scene-user-list .user-name{
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+

@@ -449,7 +449,7 @@ body
 }
 
 .scene-user-list .user-name-link,
-.scene-user-list .user-name,
+.scene-user-list .user-name
 {
     overflow: hidden;
     text-overflow: ellipsis;

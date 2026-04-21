@@ -273,6 +273,7 @@ function stopDragUser($user, data){
 }
 
 async function updateSceneUser(event, ui){
+    event.stopPropagation();
     const $scene = $(event.target);
     const $user = $(ui.draggable);
     $scene.find('.scene-details').collapse('show');

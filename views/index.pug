@@ -53,6 +53,13 @@ append content
                                 i.fas.fa-fw.fa-tasks.me-1
                                 | Pending #{currentCampaign.renames.cp.singular} Grants
                                 span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=pending_cp_grants
+
+                        if checkPermission('gm, cp_grant') && pending_community_cp_grants && currentCampaign.display_community_cp
+                            a.list-group-item.list-group-item-action(href='/cp_grant')
+                                i.fas.fa-fw.fa-tasks.me-1
+                                | Pending Community CP Grants
+                                span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=pending_community_cp_grants
+
                         if post_event_surveys.length
                             each survey in post_event_surveys
                                 a.list-group-item.list-group-item-action(

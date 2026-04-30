@@ -39,6 +39,7 @@ async function showIndex(req, res){
 
         if (req.campaign.display_community_cp){
             res.locals.community_cp = await campaignHelper.communityCpCalculator(user.id, req.campaign.id);
+            res.locals.pending_community_cp_grants = Number(await req.models.community_cp_grant.count({campaign_id:req.campaign.id, status:'pending'}));
         }
 
         // User is a Player - show my cp grants, events, current character

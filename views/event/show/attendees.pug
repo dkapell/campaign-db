@@ -34,15 +34,19 @@ if checkPermission('contrib') || !event.hide_attendees
 
                     li.nav-item(role="presentation")
                         a.nav-link.active#attendees-players-tab(href="#attendees-players" data-bs-toggle="tab" role="tab" aria-controls="attendees-players" aria-selected="true") Players
+                            .badge.ms-1.text-bg-info= event.players.filter(player => {return player.attending}).length
 
                     li.nav-item(role="presentation")
                         a.nav-link#attendees-staff-tab(href="#attendees-staff" data-bs-toggle="tab" role="tab" aria-controls="attendees-staff" aria-selected="false") Staff
+                            .badge.ms-1.text-bg-info= event.attendees.filter(attendee => {return attendee.user.type !== 'player' && attendee.attending}).length
 
                     li.nav-item(role="presentation")
                         a.nav-link#attendees-non-attending-tab(href="#attendees-non-attending" data-bs-toggle="tab" role="tab" aria-controls="attendees-non-attending" aria-selected="false") Not Attending
+                            .badge.ms-1.text-bg-info= event.attendees.filter(attendee => { return !attendee.attending }).length
 
                     li.nav-item(role="presentation")
                         a.nav-link#attendees-no-response-tab(href="#attendees-no-response" data-bs-toggle="tab" role="tab" aria-controls="attendees-no-response" aria-selected="false") No Response
+                            .badge.ms-1.text-bg-info= users.filter(user => { return !user.occasional_attendee && !_.findWhere(event.attendees, {user_id: user.id}); }).length
 
 
 

@@ -276,8 +276,7 @@ async function summarize(order: OrderModel): Promise<string>{
         const attendanceOrderItem = _.findWhere(order.order_items, {object_type:'attendance'});
         const attendance = await models.attendance.get(attendanceOrderItem.object_id, {postSelect: (value)=>{return value}});
         if (!attendance) {
-            console.error(attendanceOrderItem)
-            return 'Unknown Event'
+            return attendanceOrderItem.name;
         }
         const event = await models.event.get(attendance.event_id, {postSelect: (value)=>{return value}});
         summary = `Attendance for ${event.name}`

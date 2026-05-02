@@ -71,7 +71,8 @@
         "documentation edit",
         "orders view",
         "checkin edit",
-        "scheduler"
+        "scheduler",
+        "event edit"
     ],
     "renames": {
         "post_event_survey": "Post Event Survey",

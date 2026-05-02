@@ -15,7 +15,7 @@ block content
                 | Add to Google Calendar
 
             h2 Events
-    if checkPermission('gm')
+    if checkPermission('admin, event edit')
         a.btn.btn-outline-success.my-2(href='/event/new')
             span(class="fa fa-plus")
             |  New Event

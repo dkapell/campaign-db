@@ -652,16 +652,16 @@ router.use(function(req, res, next){
 router.use(scheduleHelper.middleware);
 
 router.get('/', list);
-router.get('/new', permission('gm'), showNew);
+router.get('/new', permission('admin, event edit'), showNew);
 router.get('/:id', show);
-router.get('/:id/edit', permission('gm'), showEdit);
+router.get('/:id/edit', permission('admin, event edit'), showEdit);
 router.get('/:id/export', permission('contrib, registration view'), attendanceRoutes.export);
 router.get('/:id/export_survey', permission('contrib'), postEventSurveyRoutes.export);
 router.get('/:id/export_survey_scene', permission('gm'), postEventSurveyRoutes.exportScene);
 router.get('/:id/pdf', permission('contrib'), exportPlayerPdfs);
 router.get('/:id/checkout', checkoutEvent);
-router.post('/', permission('gm'), create);
-router.put('/:id', permission('gm'), update);
+router.post('/', permission('admin, event edit'), create);
+router.put('/:id', permission('admin, event edit'), update);
 router.delete('/:id', permission('admin'), remove);
 router.put('/:id/grant_cp', permission('gm'), grantAttendanceCp);
 

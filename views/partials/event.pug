@@ -20,9 +20,9 @@ mixin eventListDisplay(events, showPast=false)
                         th Players
                         th Staff/NPCs
                     th Attending
-                    if checkPermission('gm')
-                        if currentCampaign.display_schedule
-                            th Schedule
+                    if checkPermission('gm') && currentCampaign.display_schedule
+                        th Schedule
+                    if checkPermission('admin, event edit')
                         th Actions
 
             tbody
@@ -87,9 +87,10 @@ mixin eventListDisplay(events, showPast=false)
                                     i.fas.fa-calendar-times.me-1
                                     | No Response
 
-                        if checkPermission('gm')
-                            if currentCampaign.display_schedule
-                                td=capitalize(event.schedule_status)
+                        if checkPermission('gm') && currentCampaign.display_schedule
+                            td=capitalize(event.schedule_status)
+
+                        if checkPermission('admin, event edit')
                             td.text-right
                                 a.btn.btn-outline-info.btn-xs.action-btn.me-1(
                                     role="button",

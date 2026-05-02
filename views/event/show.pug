@@ -16,7 +16,7 @@ block content
                 .col-lg-auto
                     h3.d-inline= event.name
 
-                    if checkPermission('gm')
+                    if checkPermission('admin, event edit')
                         a.btn.btn-outline-info.btn-sm.ms-3(href=`/event/${event.id}/edit?backto=event`)
                             span.fa.fa-edit.me-2
                             | Edit Event

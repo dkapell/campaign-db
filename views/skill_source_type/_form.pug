@@ -49,7 +49,6 @@ if currentCampaign.display_schedule && currentCampaign.schedule_players
                 input.form-check-input#skill_source_type_on_scene_user_picker(type="checkbox", name="skill_source_type[on_scene_user_picker]", checked=skill_source_type.on_scene_user_picker)
                 label.form-check-label(for="skill_source_type_on_scene_user_picker") Display on player picker in scene editor
 
-on_scene_user_picker
 .row.my-2
     .col
         button.btn.btn-primary(type="submit")= skill_source_type.id?'Update':'Create'

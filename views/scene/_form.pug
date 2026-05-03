@@ -520,7 +520,7 @@ fieldset.my-2.border.p-2.rounded
                         select.form-select.complex-select2#scene-skill-picker(data-placeholder='Skill')
                             option
                             each skill in skills
-                                if !skill.source.required
+                                if !skill.required && skill.source.type.on_scene_user_picker
                                     option(
                                         value=skill.id
                                         data-skill=skill

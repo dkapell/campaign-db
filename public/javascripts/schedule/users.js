@@ -72,7 +72,6 @@ async function showUsersBtn(e){
     }
     hideMessages();
     scrollToTimeslot(timeslotId);
-    console.log('here');
     $(`.timeslot-header[data-timeslot-id=${timeslotId}]`)
         .removeClass('bg-body')
         .addClass('text-bg-info');

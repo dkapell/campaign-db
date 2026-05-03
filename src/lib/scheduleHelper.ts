@@ -348,10 +348,15 @@ async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:For
             return true;
         } else if (_.findWhere(scene.timeslots.suggested, {id:timeslotId})){
             return true;
+        } else if (_.findWhere(scene.timeslots.setup, {id:timeslotId})){
+            return true;
+        } else if (_.findWhere(scene.timeslots.cleanup, {id:timeslotId})){
+            return true;
         }
         return false;
     });
 }
+
 
 async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUsersAtTimeslotCache = {}): Promise<CampaignUser[]>{
     if (!_.has(data, 'users')){
@@ -371,6 +376,12 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
         user.non_exclusive = false;
 
         for (const scene of data.scenes){
+            if (
+                (_.findWhere(scene.timeslots.setup, {id:timeslotId}) ||
+                _.findWhere(scene.timeslots.cleanup, {id:timeslotId})) &&
+                scene.runner.id !== user.id){
+                continue;
+            }
             if (scene.usersByStatus && _.findWhere(scene.usersByStatus.confirmed, {id:user.id})){
                 const record = _.findWhere(scene.usersByStatus.confirmed, {id:user.id});
                 statuses.push({

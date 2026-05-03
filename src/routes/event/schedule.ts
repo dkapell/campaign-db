@@ -481,6 +481,7 @@ async function validateScenes(req, res){
 
 
     } catch(err) {
+        console.trace(err)
         res.json({success:false, error:err.message});
     }
 }
@@ -512,13 +513,11 @@ async function getUsersAtTimeslot(req, res){
         }
         users = users.map(scheduleHelper.formatUser);
 
-        const scenes = await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id);
         const schedule_busy_types = await req.models.schedule_busy_type.find({campaign_id:req.campaign.id});
         res.json({
             success: true,
             users: users,
             timeslot: timeslot,
-            scenes: scenes,
             schedule_busy_types: schedule_busy_types
         });
     } catch(err) {

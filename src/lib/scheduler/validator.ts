@@ -264,6 +264,8 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
         if (user.scene_schedule_status === 'confirmed' || user.scene_schedule_status === 'suggested'){
             if (!(user.type === 'player' && scene.non_exclusive)){
                 for (const timeslot of timeslots.timeslots){
+
+                    // Check for regular schedule overlap
                     const concurentScenes = data.scenes.filter(checkScene => {
                         if (checkScene.id === scene.id){
                             return false
@@ -312,6 +314,45 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                         }
                     }
 
+                    // Check for Logistics overlap
+                    if (user.type !== 'player'){
+                        const concurentLogisticsScenes = data.scenes.filter(checkScene => {
+                            if (checkScene.id === scene.id){
+                                return false
+                            }
+                            const checkTimeslots = getLogisticsTimeslots(checkScene);
+                            if (_.findWhere(checkTimeslots.timeslots, {id:timeslot.id})){
+                                return true;
+                            }
+                            return false;
+                        });
+
+                        for (const timeslotScene of concurentLogisticsScenes){
+                            if (!timeslotScene.runner || timeslotScene.runner.id !== user.id){
+                                continue
+                            }
+
+                            const timeslotSceneUser = _.findWhere(timeslotScene.users, {id:user.id});
+                            if (!timeslotSceneUser){
+                                continue
+                            }
+                            if (timeslotSceneUser.scene_schedule_status === 'confirmed'){
+                                issues.push({
+                                    code: 'staff-dbl-book',
+                                    text: `${user.name} is also booked for setup/cleanup for ${timeslotScene.name}`
+                                });
+
+                            } else if (timeslotSceneUser.scene_schedule_status === 'suggested'){
+
+                                issues.push({
+                                    code: 'staff-dbl-book',
+                                    text: `${user.name} is also suggested for setup/cleanup for ${timeslotScene.name}`
+                                });
+                            }
+                        }
+                    }
+
+                    // Check for schedule busy overlap
                     const schedule_busys = _.where(data.schedule_busys, {user_id:user.id, timeslot_id:timeslot.id})
                     if (schedule_busys.length){
                         issues.push({

@@ -457,7 +457,7 @@ mixin sceneTable(scenes, exportable=false)
                         -
                             let writers = [''];
                             if (scene.writer){
-                                writers.push(scene.writer)
+                                writers.push(scene.writer.name)
                             }
                             for (const writer of scene.additional_writers){
                                 writers.push(writer.name)

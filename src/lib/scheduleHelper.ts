@@ -339,7 +339,7 @@ async function getEventScenes(eventId:number): Promise<FormattedSceneModel[]>{
     return scenes.map(scene=> {return formatScene(scene); });
 }
 
-async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:FormattedSceneModel[] = null): Promise<FormattedSceneModel[]>{
+async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:FormattedSceneModel[] = null, includeLogistics:boolean=false): Promise<FormattedSceneModel[]>{
     if (!scenes){
         scenes = await getEventScenes(eventId);
     }
@@ -348,6 +348,8 @@ async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:For
             return true;
         } else if (_.findWhere(scene.timeslots.suggested, {id:timeslotId})){
             return true;
+        } else if (!includeLogistics) {
+            return false;
         } else if (_.findWhere(scene.timeslots.setup, {id:timeslotId})){
             return true;
         } else if (_.findWhere(scene.timeslots.cleanup, {id:timeslotId})){
@@ -363,7 +365,7 @@ async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUse
         data.users = await getEventUsers(eventId);
     }
     if (!_.has(data, 'scenes')){
-        data.scenes = await getScenesAtTimeslot(eventId, timeslotId);
+        data.scenes = await getScenesAtTimeslot(eventId, timeslotId, null, true);
     }
     if (!_.has(data, 'schedule_busys')){
         data.schedule_busys = await models.schedule_busy.find({event_id:eventId});

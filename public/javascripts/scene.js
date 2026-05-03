@@ -528,8 +528,10 @@ function updateSceneSkill(e){
 function updatePlayerSelectionDisplay(e){
     if ($(this).prop('checked')){
         $('#player-assignment-section').removeClass('d-none');
+        $('#skills-sources-assignment-section').removeClass('d-none');
     } else {
         $('#player-assignment-section').addClass('d-none');
+        $('#skills-sources-assignment-section').addClass('d-none');
     }
 }
 

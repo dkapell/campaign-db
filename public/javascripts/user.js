@@ -11,8 +11,9 @@ $(function(){
 
     prepDocumentationFilter();
     toggleDocumentationColumns();
-    $('#userForm').on('submit', submitUserForm);
-
+});
+$(window).on('load', function() {
+    $('#userForm').on('submit.userForm', submitUserForm);
 });
 
 function prepUserFilter(){
@@ -99,13 +100,13 @@ async function submitUserForm(e){
 
     const $user_image_picker = $form.find('#user_image_id').closest('.image-field-container').find('.image-file-picker');
     if (!$user_image_picker.length){
-        $form.unbind('submit').submit();
+        $form.unbind('submit.userForm').submit();
         return true;
     }
 
     const file = ($user_image_picker.prop('files'))[0];
     if (!file){
-        $form.unbind('submit').submit();
+        $form.unbind('submit.userForm').submit();
         return true;
     }
 
@@ -122,7 +123,7 @@ async function submitUserForm(e){
             await markFileUploaded(request.postUpload);
             $container.find('.image-saving').hide();
         }
-        $form.unbind('submit').submit();
+        $form.unbind('submit.userForm').submit();
         return true;
     } else {
         return false;

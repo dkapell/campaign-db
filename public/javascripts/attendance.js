@@ -36,12 +36,14 @@ $(function(){
     $('#attendance_user_id').on('change', updateSelectedAttendee).trigger('change');
 
     $('#not-attending-btn-form').on('click', markNotAttending);
-
-    $('#attendanceForm').on('submit', submitAttendanceForm);
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     updateCustomFieldVisibility();
     $('#eventPrice').html(eventpriceTemplate($('#eventPrice').data('attendance')));
     $('#pricing-select').on('change', updateEventPriceDisplay).trigger('change');
+});
+
+$(window).on('load', function() {
+    $('#attendanceForm').on('submit.imageHandle', submitAttendanceForm);
 });
 
 function updateEventPriceDisplay(e){
@@ -281,9 +283,9 @@ async function submitAttendanceForm(e){
             images--;
         }
     }
+    $form.find('.submit-icon').addClass('fa-save').removeClass('fa-sync').removeClass('fa-spin');
     if (!images){
-        $form.unbind('submit').submit();
-        return true;
+        $form.unbind('submit.imageHandle').trigger('submit');
     }
     return false;
 }

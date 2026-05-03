@@ -1,7 +1,7 @@
 /* global _ uploadFile markFileUploaded*/
 
 $(document).ready(function () {
-    $('#new-image-form').on('submit', submitImageForm);
+    $('#new-image-form').on('submit.imageForm', submitImageForm);
     $('.copy-img-btn').on('click', copyImageMarkdown);
     $('.image-filter').on('change', updateImageFilter);
     loadImageFilter();
@@ -9,6 +9,10 @@ $(document).ready(function () {
         title: 'Delete this item'
     }).on('click', deleteImage);
     $('#image_type').on('change', updateImageFields).trigger('change');
+});
+
+$(window).on('load', function() {
+    $('#new-image-form').on('submit.imageForm', submitImageForm);
 });
 
 async function deleteImage(e){
@@ -92,7 +96,7 @@ async function submitImageForm(e){
             await markFileUploaded(request.postUpload);
             $container.find('.image-saving').hide();
         }
-        $form.unbind('submit').submit();
+        $form.unbind('submit.imageForm').submit();
         return true;
     } else {
         return false;

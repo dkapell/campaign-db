@@ -6,8 +6,11 @@ $(function(){
     });
 
     $('#font_type').on('change', updateFontFields).trigger('change');
-    $('#fontForm').on('submit', submitFontForm);
     $('#fontPicker').on('change', updateFileInfo);
+});
+
+$(window).on('load', function() {
+    $('#fontForm').on('submit.fontForm', submitFontForm);
 });
 
 function updateFontFields(e){
@@ -31,7 +34,7 @@ async function submitFontForm(e){
     const type = $('#font_type').val();
     const id = $('#font-id').val();
     if (type === 'google' || id){
-        $this.unbind('submit').submit();
+        $this.unbind('submit.fontForm').submit();
     }
 
     const file = ($('#fontPicker').prop('files'))[0];
@@ -50,7 +53,7 @@ async function submitFontForm(e){
         if (request.postUpload){
             await markFileUploaded(request.postUpload);
         }
-        $this.unbind('submit').submit();
+        $this.unbind('submit.fontForm').submit();
         return true;
     } else {
         return false;

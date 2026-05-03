@@ -21,13 +21,15 @@ $(function(){
     $('#postEventAddendumSubmitBtn').on('click', submitPostEventAddendum);
     $('#postEventHideBtn').on('click', hidePostEventSurvey);
     $('#postEventUnhideBtn').on('click', unhidePostEventSurvey);
-    $('#postEventSurveyForm').on('submit', submitPostEventSurveyForm);
-    $('#postEventAddendumForm').on('submit', submitPostEventSurveyForm);
 
     $('.survey-dropdown-clear-btn').on('click', clearSurveyDropdown);
     if ($('.sceneList').length){ loadSchedule();}
     $('#surveyModal').find('.save-btn').on('click', submitFeedbackModal);
+});
 
+$(window).on('load', function() {
+    $('#postEventSurveyForm').on('submit.postEventSurveyForm', submitPostEventSurveyForm);
+    $('#postEventAddendumForm').on('submit.postEventAddendumForm', submitPostEventSurveyForm);
 });
 
 async function clearSurveyDropdown(e){
@@ -173,7 +175,7 @@ async function submitPostEventSurveyForm(e){
         }
     }
     if (!images){
-        $form.unbind('submit').submit();
+        $form.unbind('submit.postEventSurveyForm').submit();
         return true;
     }
     return false;

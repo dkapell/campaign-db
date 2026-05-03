@@ -9,7 +9,7 @@ block content
             .card
                 .card-header New Scene
                 .card-body
-                    form.form.needs-validation(method="POST" action="/scene" novalidate)
+                    form.form.needs-validation#sceneForm(method="POST" action="/scene" novalidate)
                         input(type="hidden", name='_csrf',value=csrfToken)
                         include ./_form.pug
     +imageModal()

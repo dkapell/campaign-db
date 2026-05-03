@@ -44,7 +44,7 @@ mixin sceneLocationInput(location, request_status, schedule_status, showOutdoors
 
         .row.my-1
             .col.px-1
-                select.form-select.form-select-sm.complex-select2(name=`scene[locations][id-${location.id}][request_status]`)
+                select.form-select.form-select-sm.complex-select2.location-select(name=`scene[locations][id-${location.id}][request_status]`)
                     +sceneStatusRequestOptions(request_status)
 
 
@@ -96,7 +96,7 @@ mixin sceneTimeslotInput(timeslot, request_status, schedule_status, showDaytime=
                     .d-block.text-end.mb-1
                         +sceneItemScheduleBadge(schedule_status)
 
-                select.form-select.form-select-sm.complex-select2(name=`scene[timeslots][id-${timeslot.id}][request_status]`)
+                select.form-select.form-select-sm.complex-select2.timeslot-select(name=`scene[timeslots][id-${timeslot.id}][request_status]`)
                     +sceneStatusRequestOptions(request_status)
 
 
@@ -215,7 +215,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                 .badge.text-bg-primary.ms-2.user-type(style=user.type==='player'?'display:none':'')=capitalize(user.typeForDisplay)
 
             .col-xxl.px-1.order-last.order-xxl-2
-                select.form-select.form-select-sm.scene-status-select(
+                select.form-select.form-select-sm.scene-status-select.user-select(
                     class=user.id!=='new'?'complex-select2':''
                     name=`scene[users][id-${user.id}][request_status]`
                     id=`scene-users-${user.type}-${user.id}-request-status`

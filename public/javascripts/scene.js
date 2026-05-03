@@ -132,8 +132,13 @@ $(function(){
             $(this).val(current.filter(item => {return Number(item) !== Number(writer);})).trigger('change');
         }
     });
-
+    $('#sceneForm').on('submit', clearCustomSceneValidity);
 });
+
+$(window).on('load', function() {
+    $('#sceneForm').on('submit.sceneForm', submitSceneForm);
+});
+
 
 function updateBadges(){
     if ($('#scene_player_name').val() !== ''){
@@ -528,5 +533,47 @@ function updatePlayerSelectionDisplay(e){
     }
 }
 
+function clearCustomSceneValidity(e){
+    $('.location-select').each(function(){
+        $(this)[0].setCustomValidity('');
+    });
+    $('.timeslot-select').each(function(){
+        $(this)[0].setCustomValidity('');
+    });
+    return true;
+}
+
+function submitSceneForm(e){
+    //e.preventDefault();
+    console.log('called');
+    const $form = $(this);
+
+    if ($('#scene_status').val() !== 'ready'){
+        return true;
+    }
+
+    let locations = 0;
+    $('.location-select').each(function(e){
+        if ($(this).val() !== 'none') { locations++; }
+    });
+    let timeslots = false;
+    $('.timeslot-select').each(function(e){
+        if ($(this).val() !== 'none') { timeslots++; }
+    });
+    if (timeslots && locations) {
+        return true;
+    }
+    if (!locations){
+        $('.location-select').each(function(){
+            $(this)[0].setCustomValidity('Empty');
+        });
+    }
+    if (!timeslots){
+        $('.timeslot-select').each(function(){
+            $(this)[0].setCustomValidity('Empty');
+        });
+    }
+    return false;
+}
 
 

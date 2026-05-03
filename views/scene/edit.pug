@@ -10,7 +10,7 @@ block content
             .card
                 .card-header= 'Edit Scene: ' + scene.name
                 .card-body
-                    form.form.needs-validation(method="POST" action="/scene/" + scene.id novalidate)
+                    form.form.needs-validation#sceneForm(method="POST" action="/scene/" + scene.id novalidate)
                         input(type="hidden", name="_method",  value="PUT")
                         input(type="hidden", name='_csrf',value=csrfToken)
                         input(type="hidden", name='scene[id]',value=scene.id)

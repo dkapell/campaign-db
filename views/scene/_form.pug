@@ -24,10 +24,10 @@ if (backto)
 
                 )= event.name
 
-    label.col-form-label.col-lg-1(for="scene_request_status") Status
+    label.col-form-label.col-lg-1(for="scene_status") Status
         span.ms-1.text-danger *
     .col-lg-2
-        select.form-select.complex-select2#scene_request_status(
+        select.form-select.complex-select2#scene_status(
             name="scene[status]"
             data-placeholder='Status'
             disabled=(scene.status==='confirmed'||scene.status==='scheduled')

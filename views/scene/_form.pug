@@ -503,7 +503,7 @@ fieldset.my-2.border.p-2.rounded
                         select.form-select.complex-select2#scene-source-picker(data-placeholder='Source')
                             option
                             each source in sources
-                                if !source.required
+                                if !source.required && source.type.on_scene_user_picker
                                     - const type = capitalize(source.type.name)
                                     option(
                                         value=source.id

@@ -732,7 +732,8 @@ async function getSceneStatusCsv(campaignId:number, type:'future'|'postponed'){
         'Required Players',
         'Required Staff',
         'Schedule Note',
-        'Staff Writeup'
+        'Staff Writeup',
+        'Description'
     ]
     output.push(header);
     for (const scene of scenes){
@@ -819,6 +820,11 @@ async function getSceneStatusCsv(campaignId:number, type:'future'|'postponed'){
 
         if (scene.staff_url){
             row.push(scene.staff_url);
+        } else {
+            row.push(null);
+        }
+        if (scene.description){
+            row.push(removeMd(description));
         } else {
             row.push(null);
         }

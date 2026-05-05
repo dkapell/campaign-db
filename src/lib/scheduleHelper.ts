@@ -824,7 +824,7 @@ async function getSceneStatusCsv(campaignId:number, type:'future'|'postponed'){
             row.push(null);
         }
         if (scene.description){
-            row.push(removeMd(description));
+            row.push(removeMd(scene.description));
         } else {
             row.push(null);
         }

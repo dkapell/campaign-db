@@ -417,7 +417,7 @@ async function editSkill(id){
         .html('<i class="fas fa-copy"></i> Clone Skill')
         .attr('href', '/skill/new?clone=' + id)
         .attr('data-click-id', id);
-
+    $modal.find('.extra-buttons').find('.skill-clone-btn').remove();
     $modal.find('.extra-buttons').prepend($cloneBtn);
     prepSkillForm($modal.find('form'));
     $modal.modal('show');

@@ -169,7 +169,7 @@ mixin characterSheet(character, renames)
                                 span.ms-1.float-end= val
 
             .card.mb-3
-                h5.py-2.card-header Headers
+                h5.py-2.card-header #{renames.skill_source.plural}
                 ul.card-text.list-group.list-group-flush
                     each source in character.sources
                         if !source.type.display_on_sheet

@@ -1,7 +1,8 @@
 table.table.table-sm.table-striped
     thead
         tr
-            th.col-md-8(data-priority="1") Header
+            th Category
+            th.col-md-6(data-priority="1") #{renames.skill_source.singular}
             th Cost
             th Skills
             if allowedEdit
@@ -9,6 +10,7 @@ table.table.table-sm.table-striped
     tbody
         each source in sources
             tr
+                td= capitalize(source.type.name)
                 td= source.name
                     if source.details
                         if source.details.stat
@@ -41,7 +43,8 @@ table.table.table-sm.table-striped
                     td.text-end
                         if source.removable
                             a.btn.btn-outline-danger.btn-xs.delete-source-btn(
-                                title='Remove Header'
+                                title=`Remove ${renames.skill_source.singular}`
+                                data-sourcename=renames.skill_source.singular
                                 data-bs-toggle="tooltip"
                                 role="button"
                                 data-sourceid=source.id

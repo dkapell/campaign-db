@@ -33,7 +33,7 @@
                     settings[field] = $(this).attr(field);
                 }
             }
-            if ($(this).attr('data-bs-original-title')){
+            if (settings.title === 'Please confirm this action' && $(this).attr('data-bs-original-title')){
                 settings.title = $(this).attr('data-bs-original-title');
             }
             $(this).tooltip('hide');

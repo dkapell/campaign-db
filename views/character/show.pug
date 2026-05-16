@@ -98,8 +98,8 @@ block content
                         .float-end
                             a.btn.btn-outline-success.btn-sm.ms-4.add-source-btn(data-characterid=character.id)
                                 i.fas.fa-plus.fa-fw.me-1
-                                | Add Header
-                    h4 Headers
+                                | Add #{currentCampaign.renames.skill_source.singular}
+                    h4 #{currentCampaign.renames.skill_source.plural}
                     #character-source-table(data-characterid=character.id, data-allowededit=allowedEdit?'true':'false')
                     .col-sm-6.offset-sm-3.text-center#character-source-table-loading
                         .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")

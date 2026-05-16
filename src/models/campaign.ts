@@ -1,7 +1,6 @@
 'use strict';
 import validator from 'validator';
 import config from 'config';
-import _ from 'underscore';
 import cache from '../lib/cache';
 
 import Model from '../lib/Model';
@@ -139,15 +138,17 @@ function validate(data:ModelData){
 
 function buildRenameMap(rename_map:Record<string, string>){
     const renames = {};
+    const defaultRenames: Record<string, string> = config.get('renames');
+
+    for (const name in defaultRenames){
+        renames[name] = buildRename(defaultRenames[name]);
+    }
+
     if (rename_map){
         for (const name in rename_map as Record<string, string>){
-            renames[name] = buildRename(rename_map[name]);
-        }
-    }
-    const defaultRenames: Record<string, string> = config.get('renames');
-    for (const name in defaultRenames){
-        if (!_.has(rename_map, name)){
-            renames[name] = buildRename(defaultRenames[name]);
+            if (rename_map[name] !== ''){
+                renames[name] = buildRename(rename_map[name]);
+            }
         }
     }
     return renames;

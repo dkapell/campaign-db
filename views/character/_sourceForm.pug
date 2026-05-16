@@ -3,7 +3,7 @@ if (backto)
 
 .row.my-2
     .col
-        select.form-select.complex-select2#character_skill_source_source_id(name="character_skill_source[source_id]" data-placeholder='Select Header' required)
+        select.form-select.complex-select2#character_skill_source_source_id(name="character_skill_source[source_id]" data-placeholder='Select Skill Source' required)
             option
             for source in possibleSources
                 - const unlocked = '<i class="fas fa-unlock me-1"></i>';

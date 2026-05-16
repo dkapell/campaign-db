@@ -5,7 +5,7 @@ block content
 
     .row
         .col-md-2
-            h1.h3.d-none.d-md-block Headers
+            h1.h3.d-none.d-md-block #{currentCampaign.renames.cp.plural}
             ul.list-unstyled.section-nav.sticky-top(style="top:72px")
                 for source in sources
                     - const showSource = sourceCheck(source)

@@ -139,9 +139,7 @@ async function showSourceList(){
 
     $('#character-source-table').html(charactersourcelistTemplate(data));
     $('.delete-source-btn')
-        .confirmation({
-            title: 'Remove this Header?'
-        }).on('click', removeSource);
+        .confirmation().on('click', removeSource);
 
     $('#character-source-table').find('[data-bs-toggle="tooltip"]').tooltip();
     $('#character-source-table-loading').hide();
@@ -247,10 +245,10 @@ async function addSource(e){
     data.modal = true;
     data.backto = 'modal';
 
-    $modal.find('.modal-title').text('Add Header');
+    $modal.find('.modal-title').text(`Add ${data.renames.skill_source.singular}`);
     $modal.find('.modal-body').html(addsourceformTemplate(data));
     prepCharacterSourceForm($modal.find('form'), data.character_skill_source, data.renames);
-    $modal.find('.save-btn').text('Add Header');
+    $modal.find('.save-btn').text(`Add ${data.renames.skill_source.singular}`);
     $modal.modal('show');
 
     $modal.one('shown.bs.modal', function(e){

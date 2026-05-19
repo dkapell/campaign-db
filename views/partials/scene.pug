@@ -246,7 +246,8 @@ mixin sceneSourceInput(source, request_status, schedule_status)
                     if (schedule_status === 'confirmed') { iconClass = 'text-success'; }
                 i.far.fa-id-card.me-1.align-middle(class=iconClass)
                 strong.align-middle.source-name= source.name
-                .badge.text-bg-primary.ms-2.source-type=capitalize(source.type.name)
+                if source.type
+                    .badge.text-bg-primary.ms-2.source-type=capitalize(source.type.name)
 
             .col.px-1
                 if !schedule_status || schedule_status=== 'unscheduled'
@@ -463,16 +464,20 @@ mixin sceneTable(scenes, exportable=false)
                                 writers.push(writer.name)
                             }
 
-                        td(data-search=writers.join(', '))
+                        td(data-search=writers.length?writers.join(', '):'none')
                             if scene.writer
                                 strong=scene.writer.name
                             if scene.additional_writers.length > 3
                                 |  +#{scene.additional_writers.length}
                             else if scene.additional_writers.length
                                 | , #{_.pluck(scene.additional_writers, 'name').sort().join(', ')}
+                            if !scene.writer && ! scene.additional_writers.length
+                                i None
                         td
                             if scene.runner
                                 =scene.runner.name
+                            else
+                                i None
                         td
                             if timeslotsConfirmed.length
                                 - const timeslots = _.pluck(timeslotsConfirmed, 'name')

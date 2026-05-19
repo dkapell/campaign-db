@@ -83,7 +83,9 @@ async function showNew(req, res){
         default_cleanup_slots: 0,
         scene_default_description: null,
         scene_default_printout_note: null,
-        schedule_missing_required:true
+        schedule_missing_required:true,
+        allow_scene_no_writer: false,
+        allow_scene_no_runner: false
     };
     res.locals.fonts = [];
     res.locals.googleFonts = await fontHelper.list()
@@ -164,7 +166,9 @@ async function create(req, res){
         'schedule_y_location',
         'theme_dark_mode',
         'allow_player_dark_mode',
-        'schedule_missing_required'
+        'schedule_missing_required',
+        'allow_scene_no_writer',
+        'allow_scene_no_runner'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;
@@ -204,7 +208,9 @@ async function update(req, res){
         'schedule_y_location',
         'theme_dark_mode',
         'allow_player_dark_mode',
-        'schedule_missing_required'
+        'schedule_missing_required',
+        'allow_scene_no_writer',
+        'allow_scene_no_runner'
     ]){
         if (!_.has(campaign, field)){
             campaign[field] = false;

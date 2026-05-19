@@ -60,22 +60,56 @@ if (backto)
 
 .row.my-2
     label.col-form-label.col-lg-1.text-nowrap(for="scene_writer_id") Writer
-        span.ms-1.text-danger *
+        if !currentCampaign.allow_scene_no_writer
+            span.ms-1.text-danger *
     .col-lg-4
-        select.form-select.select2#scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required)
+        select.form-select.complex-search-select2#scene_writer_id(name="scene[writer_id]" data-placeholder='Scene Writer' required = !currentCampaign.allow_scene_no_writer)
             option
+            if currentCampaign.allow_scene_no_writer
+                option(
+                    value=-1,
+                    selected=!scene.writer_id
+                    data-text='<i>None</i>'
+                    data-html='<i>None</i>'
+                    data-search='None'
+                ) None
             each user in _.sortBy(users, 'name')
                 if user.type !== 'player'
-                    option(value=user.id selected=scene.writer_id===user.id)=user.name
-    label.col-form-label.col-lg-1.text-nowrap(for="scene_runner_id") Runner
-        span.ms-1.text-danger *
-    .col-lg-4
-        select.form-select.select2#scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner' required)
-            option
-            each user in _.sortBy(users, 'name')
-                if user.type !== 'player'
-                    option(value=user.id selected=scene.runner_id===user.id)=user.name
+                    - const type = capitalize(user.typeForDisplay);
+                    option(
+                        value=user.id
+                        selected=scene.writer_id===user.id
+                        title=user.name
+                        data-text=`${user.name} <span class="badge text-bg-primary ms-1">${type}</span>`
+                        data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${user.name}`
+                        data-search=`${user.name} ${type}`
+                    )=user.name
 
+    label.col-form-label.col-lg-1.text-nowrap(for="scene_runner_id") Runner
+        if !currentCampaign.allow_scene_no_runner
+            span.ms-1.text-danger *
+    .col-lg-4
+        select.form-select.complex-search-select2#scene_runner_id(name="scene[runner_id]" data-placeholder='Scene Runner' required=!currentCampaign.allow_scene_no_runner)
+            option
+            if currentCampaign.allow_scene_no_runner
+                option(
+                    value=-1,
+                    selected=!scene.runner_id
+                    data-text='<i>None</i>'
+                    data-html='<i>None</i>'
+                    data-search='None'
+                ) None
+            each user in _.sortBy(users, 'name')
+                if user.type !== 'player'
+                    - const type = capitalize(user.typeForDisplay);
+                    option(
+                        value=user.id
+                        selected=scene.runner_id===user.id
+                        title=user.name
+                        data-text=`${user.name} <span class="badge text-bg-primary ms-1">${type}</span>`
+                        data-html=`<span class="text-primary"><strong>${type}</strong>:</span> ${user.name}`
+                        data-search=`${user.name} ${type}`
+                    )=user.name
 
 
 .row.my-2

@@ -14,12 +14,15 @@ if field.description
         if scene.timeslots[0].display_name
             span.ms-1 (#{scene.timeslots[0].display_name})
 
-    if scene.writer
+    if scene.writer || scene.additional_writers
         .col
             strong Writer:
-            span.ms-2= scene.writer
-            if scene.additional_writers.length
-                span.ms-1 (#{scene.additional_writers.join(', ')})
+            if scene.writer
+                span.ms-2= scene.writer
+                if scene.additional_writers.length
+                    span.ms-1 (#{scene.additional_writers.join(', ')})
+            else if scene.additional_writers.length
+                    span.ms-1 #{scene.additional_writers.join(', ')}
 
 .row.my-2
     .col

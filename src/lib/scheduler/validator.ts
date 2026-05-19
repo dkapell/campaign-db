@@ -28,7 +28,9 @@ const issueList = {
     'missing-runner': 'warning',
     'coreq-not-sched': 'info',
     'coreq-diff-event': 'info',
-    'coreq-diff-time': 'warning'
+    'coreq-diff-time': 'warning',
+    'no-writer': 'warning',
+    'no-runner': 'warning'
 }
 
 interface IssueRecord{
@@ -41,6 +43,7 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
     if (!scene.event_id || scene.status === 'new' || scene.status === 'postponed'){
         return [];
     }
+
 
     const locations = getSelectedLocations(scene);
     const timeslots = getSceneTimeslots(scene);
@@ -426,6 +429,13 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
 
     }
 
+    if (!scene.writer_id){
+        issues.push({
+            code: 'no-writer',
+            text: 'No assigned scene writer.'
+        });
+    }
+
     if (scene.runner_id){
         const sceneUser = _.findWhere(scene.users, {id:scene.runner_id});
         if (!sceneUser || !sceneUser.scene_schedule_status.match(/^(confirmed|suggested)$/)){
@@ -434,6 +444,11 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                 text: `${scene.runner.name} is running this scene, but not assigned to it.`
             });
         }
+    } else {
+        issues.push({
+            code: 'no-runner',
+            text: 'No assigned scene runner.'
+        });
     }
 
     await saveSceneIssues(scene.id, issues);

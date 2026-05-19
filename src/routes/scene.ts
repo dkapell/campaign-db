@@ -443,15 +443,23 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
         scene[field] = records;
     }
 
+    if (scene.writer_id === "-1" && req.campaign.allow_scene_no_writer){
+        scene.writer_id = null;
+    }
+
     if (scene.runner_id){
-        const runnerUser = _.findWhere(scene.users, {id: scene.runner_id});
-        if (!runnerUser) {
-            scene.users.push({
-                id: scene.runner_id,
-                scene_request_status: 'required'
-            });
+        if (scene.runner_id === "-1" && req.campaign.allow_scene_no_runner){
+            scene.runner_id = null
         } else {
-            runnerUser.scene_request_status = 'required';
+            const runnerUser = _.findWhere(scene.users, {id: scene.runner_id});
+            if (!runnerUser) {
+                scene.users.push({
+                    id: scene.runner_id,
+                    scene_request_status: 'required'
+                });
+            } else {
+                runnerUser.scene_request_status = 'required';
+            }
         }
     }
 

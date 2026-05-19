@@ -86,7 +86,9 @@ const tableFields = [
     'schedule_user_id',
     'scene_default_description',
     'scene_default_printout_note',
-    'schedule_missing_required'
+    'schedule_missing_required',
+    'allow_scene_no_writer',
+    'allow_scene_no_runner',
 ];
 
 const Campaign: CampaignModel = new Model('campaigns', tableFields, {

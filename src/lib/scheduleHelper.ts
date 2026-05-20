@@ -581,6 +581,12 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
         for (const timeslot of timeslots){
 
             const slotScenes = locationScenes.filter(scene => {
+                if (csvType === 'staff' && scene.timeslots.setup && _.findWhere(scene.timeslots.setup, {id:timeslot.id})){
+                    return true;
+                }
+                if (csvType === 'staff' && scene.timeslots.cleanup && _.findWhere(scene.timeslots.cleanup, {id:timeslot.id})){
+                    return true;
+                }
                 return !!(scene.timeslots.confirmed && _.findWhere(scene.timeslots.confirmed, {id:timeslot.id}));
             });
             const sceneNames = [];
@@ -594,6 +600,13 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
                     if (scene.player_name){
                         sceneName = scene.player_name
                     }
+                }
+
+                if (scene.timeslots.setup && _.findWhere(scene.timeslots.setup, {id:timeslot.id})){
+                    sceneName += ' - Setup'
+                }
+                if (scene.timeslots.cleanup && _.findWhere(scene.timeslots.cleanup, {id:timeslot.id})){
+                    sceneName += ' - Cleanup'
                 }
                 let playerCount = 0;
                 playerCount += scene.players.confirmed?scene.players.confirmed.length:0;
@@ -628,7 +641,16 @@ async function getCsv(eventId:number, csvType:string):Promise<string>{
                 for (const scene of timeslot.scenes){
                     let sceneName = scene.name
                     const userRecord = _.findWhere(scene.users, {id:attendance.user_id});
-                    if (userRecord && userRecord.npc){
+                    let isLogistics = false;
+                    if (_.findWhere(scene.timeslots.setup, {id:timeslot.id})){
+                        sceneName += ' - Setup';
+                        isLogistics = true;
+                    }
+                    if (_.findWhere(scene.timeslots.cleanup, {id:timeslot.id})){
+                        sceneName += ' - Cleanup';
+                        isLogistics = true;
+                    }
+                    if (userRecord && userRecord.npc && !isLogistics){
                         sceneName += ` (${userRecord.npc})`;
                     }
                     userScenes.push(sceneName);

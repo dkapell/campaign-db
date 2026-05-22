@@ -1,9 +1,11 @@
 'use strict';
-import { markdown } from 'markdown';
-import CodeMirror from 'codemirror/addon/runmode/runmode.node';
+import { Marked } from 'marked';
+import {decode} from 'html-entities';
+
+const marked = new Marked({breaks:true});
 
 // style definitions for markdown
-const styles = {
+const styles:Record<string, Style> = {
     h1: {
         fontSize: 25,
         padding: 15
@@ -13,11 +15,20 @@ const styles = {
         padding: 10
     },
     h3: {
-        fontSize: 18,
-        padding: 10
+        fontSize: 16,
+        padding: 8
+    },
+    h4: {
+        fontSize: 12,
+        padding: 2
     },
     para: {
-        //padding: 2
+        fontSize: 'default',
+        //padding: 0
+    },
+    text: {
+        fontSize: 'default',
+        //padding: 0
     },
     code: {
         fontSize: 9
@@ -29,14 +40,14 @@ const styles = {
     inlinecode: {
         fontSize: 10
     },
-    listitem: {
-        fontSize: 10,
-        padding: 6
+    list_item: {
+        fontSize: 'default',
+        padding: 2
     },
     link: {
         color: '#18bc9c',
         font: ' Italic',
-        underline: true
+        underline: true,
     },
     example: {
         fontSize: 9,
@@ -44,54 +55,30 @@ const styles = {
         padding: 10
     },
     strong: {
-        font: ' Bold'
+        font: ' Bold',
+        fontSize: 'default'
     },
     italic: {
-        font: ' Italic'
+        font: ' Italic',
+        fontSize: 'default',
     },
     em: {
-        font: ' Italic'
+        font: ' Italic',
+        fontSize: 'default',
     }
 };
 
-// syntax highlighting colors
-// based on Github's theme
-const colors = {
-    keyword: '#cb4b16',
-    atom: '#d33682',
-    number: '#009999',
-    def: '#2aa198',
-    variable: '#108888',
-    'variable-2': '#b58900',
-    'variable-3': '#6c71c4',
-    property: '#2aa198',
-    operator: '#6c71c4',
-    comment: '#999988',
-    string: '#dd1144',
-    'string-2': '#009926',
-    meta: '#768E04',
-    qualifier: '#b58900',
-    builtin: '#d33682',
-    bracket: '#cb4b16',
-    tag: '#93a1a1',
-    attribute: '#2aa198',
-    header: '#586e75',
-    quote: '#93a1a1',
-    link: '#93a1a1',
-    special: '#6c71c4',
-    default: '#002b36'
-};
-
-let codeBlocks = [];
-let lastType = null;
+let lastType:string|null = null;
 
 interface Style {
     font?:string,
     background?:string,
-    fontSize?:number,
+    fontSize?:number|'default',
     padding?:number,
     color?:string,
     align?:'right'|'left'|'center'|'justify',
+    oblique?:boolean|number
+    underline?:boolean
 }
 
 interface RenderOptions{
@@ -107,6 +94,9 @@ interface RenderOptions{
     fill?:boolean
     noLinks?:boolean
     indent?:number
+    defaultFontSize?:number
+    oblique?:boolean|number
+    fontOptions?:PDFFontOptions
 }
 
 interface NodeAttrs {
@@ -116,36 +106,49 @@ interface NodeAttrs {
     [key:string]:unknown
 }
 
+interface CDBPdf extends PDFKit.PDFDocument{
+    _fontSize?:number,
+}
+
+
 
 // This class represents a node in the markdown tree, and can render it to pdf
 class Node {
-    type: string;
-    text: string;
-    attrs: NodeAttrs;
-    content: Node[];
-    style: Style;
+    type: string|null = null;
+    text: string = '';
+    attrs: NodeAttrs = {};
+    content: Node[] = [];
+    style: Style = {};
+    depth?:number
+    tokens?:Node[]
+    items?:Node[]
 
-    constructor(tree) {
+    constructor(tree:string|Node) {
     // special case for text nodes
         if (typeof tree === 'string') {
             this.type = 'text';
             this.text = tree;
             return;
+        } else if (tree.type === 'heading'){
+            this.type = `h${tree.depth}`;
+            this.text = tree.text
         } else {
-            this.type = (tree.shift() as string);
+            this.type = tree.type as string;
+            this.text = tree.text
         }
 
         this.attrs = {};
-
+/*
         if (typeof tree[0] === 'object' && !Array.isArray(tree[0])) {
             this.attrs = (tree.shift() as NodeAttrs);
         }
-
+*/
         // parse sub nodes
         this.content = [];
-        while (tree.length) {
-            const data = (tree.shift() as Node);
-            this.content.push(new Node(data));
+        if (tree.tokens){
+            for (const data of tree.tokens as Node[]){
+                this.content.push(new Node(data));
+            }
         }
 
         switch (this.type) {
@@ -154,77 +157,68 @@ class Node {
                 this.type = `h${this.attrs.level}`;
                 break;
 
-            case 'code_block': {
-                // use code mirror to syntax highlight the code block
-                const code = this.content[0].text;
-                this.content = [];
-                CodeMirror.runMode(code, 'javascript', (text, style) => {
-                    const color = colors[style] || colors.default;
-                    const opts = {
-                        color,
-                        continued: text !== '\n'
-                    };
-
-                    return this.content.push(new Node(['code', opts, text]));
-                });
-
-                if (this.content.length) {
-                    this.content[this.content.length - 1].attrs.continued = false;
+            case 'list':
+                while (tree.items && tree.items.length) {
+                    const data = (tree.items.shift() as Node);
+                    this.content.push(new Node(data));
                 }
-                codeBlocks.push(code);
                 break;
-            }
-            /*
-            case 'img':
-                // images are used to generate inline example output
-                // stores the JS so it can be run
-                // in the render method
 
-                console.log(JSON.stringify(this.attrs, null, 2));
-
-                this.type = 'image';
-                code = codeBlocks[this.attrs.alt];
-                if (code) {
-                    this.code = code;
-                }
-                this.height = +this.attrs.title || 0;
-
-               break;
-               */
         }
-        this.style = styles[this.type] || styles.para;
+        if (Object.hasOwn(styles, this.type)){
+            this.style = styles[this.type] ? JSON.parse(JSON.stringify(styles[this.type])) : {};
+        } else {
+            this.style = JSON.parse(JSON.stringify(styles.para));
+        }
     }
 
     // sets the styles on the document for this node
     setStyle (doc: PDFKit.PDFDocument, renderOptions: RenderOptions) {
+        const options: RenderOptions = {
+            oblique:false
+        };
+
         if (this.style.font) {
             if (renderOptions.font){
                 doc.font(`${renderOptions.font}${this.style.font}`);
+                options.oblique = renderOptions.fontOptions?.fontOblique?.[renderOptions.font]
             } else {
                 doc.font(`Body Font${this.style.font}`);
+                options.oblique = renderOptions.fontOptions?.fontOblique?.[`Body Font${this.style.font}`]
             }
         } else {
             if (renderOptions.font){
                 doc.font(renderOptions.font);
+                options.oblique = renderOptions.fontOptions?.fontOblique?.[renderOptions.font]
             } else {
                 doc.font('Body Font');
             }
         }
 
         if (this.style.fontSize) {
-            doc.fontSize(this.style.fontSize);
+            if (this.style.fontSize === 'default'){
+                this.style.fontSize = Number(renderOptions.defaultFontSize)
+                doc.fontSize(this.style.fontSize);
+            } else {
+                doc.fontSize(this.style.fontSize);
+            }
         }
 
         if (this.style.color || this.attrs.color) {
-            doc.fillColor(this.style.color || this.attrs.color);
+            if (this.style.color){
+                doc.fillColor(this.style.color)
+            } else if (this.attrs.color){
+                doc.fillColor(this.attrs.color);
+            }
         } else {
             doc.fillColor('black');
         }
 
-        const options: RenderOptions = {};
-
         options.align = this.style.align;
-        options.link = (this.attrs.href as string) || null; // override continued link
+        if (this.attrs.href){
+            options.link = (this.attrs.href as string); // override continued link
+        }
+
         if (this.attrs.continued != null) {
             options.continued = (this.attrs.continued as boolean);
         }
@@ -233,6 +227,9 @@ class Node {
         }
         if (renderOptions.width){
             options.width = renderOptions.width;
+        }
+        if (!renderOptions.align){
+            options.align = 'left'
         }
         return options;
     }
@@ -243,8 +240,9 @@ class Node {
             renderOptions.continued = false;
         }
 
-        let height = 0;
+        const startX = doc.x;
 
+        let height = 0;
         if (this.type === 'img'){
             this.setStyle(doc, renderOptions);
             const filepath = __dirname + '/../../public' + this.attrs.href;
@@ -262,31 +260,65 @@ class Node {
 
         } else {
 
+            if (this.type === 'space'){
+                const options = this.setStyle(doc, renderOptions);
+                height += doc.heightOfString(' ', options);
+
+                if (!renderOptions.getHeight){
+                    doc.moveDown(1)
+                }
+
+            }
+            const oldWidth = renderOptions.width;
+            if (this.type === 'list'){
+                height += 5;
+                doc.x += 15;
+                if (!renderOptions.getHeight){
+                    doc.y += 5;
+                }
+                if (renderOptions.width){
+                    renderOptions.width -= 15;
+                }
+
+            }
+            if (this.type === 'list_item'){
+                this.content.unshift(new Node({
+                    type: 'strong',
+                    tokens: [
+                        '•  '
+                    ]
+                } as unknown as Node))
+            }
+
             // loop through subnodes and render them
             for (let index = 0; index < this.content.length; index++) {
                 const fragment = this.content[index];
-                if (fragment.type === 'text') {
+
+                let bulletAdded = false;
+
+                if (fragment.type === 'text' && !fragment.content.length) {
                     // add a new page for each heading, unless it follows another heading
                     if (
-                        ['h1', 'h2'].includes(this.type) &&
+                        this.type && ['h1', 'h2'].includes(this.type) &&
                                   lastType != null &&
                                   lastType !== 'h1'
                     ) {
                         doc.addPage();
                     }
 
-                    /*
-                    if (this.type === 'h1') {
-                        doc.h1Outline = doc.outline.addItem(fragment.text);
-                    } else if (this.type === 'h2' && doc.h1Outline !== null) {
-                        doc.h1Outline.addItem(fragment.text);
-                    }*/
+                    let text = decode(fragment.text);;
+
+                    if (this.type === 'list_item' && !bulletAdded){
+                        text = `•  ${text}`;
+                        bulletAdded = true;
+                    }
 
                     // set styles and whether this fragment is continued (for rich text wrapping)
                     const options = this.setStyle(doc, renderOptions);
                     if (options.continued == null) {
-                        options.continued = renderOptions.continued || index < this.content.length - 1;
+                        options.continued = renderOptions.continued || (index < this.content.length - 1 && this.content[index+1].type !== 'br');
                     }
+
                     if (renderOptions.lineGap){
                         options.lineGap = renderOptions.lineGap;
                     }
@@ -296,29 +328,39 @@ class Node {
 
                     // remove newlines unless this is code
                     if (this.type !== 'code') {
-                        fragment.text = fragment.text.replace(/[\r\n]\s*/g, ' ');
+                        text = text.replace(/[\r\n]\s*/g, ' ');
                     }
+
                     if (renderOptions.getHeight){
-                        height += doc.heightOfString(fragment.text, options);
+                        height += doc.heightOfString(text, options);
                     } else {
-                        doc.text(fragment.text, options);
+                        doc.text(text, options);
                     }
                 } else {
                     const newOptions = JSON.parse(JSON.stringify(renderOptions));
                     if (! renderOptions.continued){
-                        newOptions.continued = index < this.content.length - 1 && this.type !== 'bulletlist';
+                        newOptions.continued = index < this.content.length - 1 && this.type !== 'list' && this.content[index+1]?.type !== 'br' ;
+
                     }
-                    fragment.render(
+                    const fragmentHeight = Number(fragment.render(
                         doc,
                         newOptions
-                    );
+                    ));
+                    height += fragmentHeight;
                 }
-
 
                 lastType = this.type;
             }
+
+            if (this.type === 'list'){
+                renderOptions.width = oldWidth;
+            }
+            doc.x = startX
         }
         if (renderOptions.getHeight){
+            if (this.style.padding){
+                height += this.style.padding;
+            }
             return height;
         }
 
@@ -329,25 +371,28 @@ class Node {
 }
 
 // reads and renders a markdown/literate javascript file to the document
-function render(doc:PDFKit.PDFDocument, input, options?:RenderOptions){
-    codeBlocks = [];
-    const tree = markdown.parse(input);
-    tree.shift();
+function render(doc:CDBPdf, input:string, renderOptions?:RenderOptions){
 
-    if (!options){
-        options = {};
+    const tree = marked.lexer(input);//, {breaks:true});
+
+    const options = {
+        ...renderOptions
+    };
+
+    if (!options.defaultFontSize){
+        options.defaultFontSize = doc._fontSize;
     }
     if (options.getHeight){
         let height = 0;
         while (tree.length) {
-            const node = new Node(tree.shift());
-            height += node.render(doc, options);
+            const node = new Node(tree.shift() as unknown as Node);
+            height += Number(node.render(doc, options));
         }
         return height;
     } else {
         const result = [];
         while (tree.length) {
-            const node = new Node(tree.shift());
+            const node = new Node(tree.shift() as unknown as Node);
             result.push(node.render(doc, options));
         }
         return result;

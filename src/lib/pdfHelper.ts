@@ -14,17 +14,30 @@ const colors = {
     light: '#7b8a8b'
 };
 
-async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
+async function registerFonts(doc:PDFKit.PDFDocument, options:PDFFontOptions): Promise<void>{
     const fontsDir = __dirname + '/../../fonts/'
+
+    const styles = {
+        '':null,
+        ' Bold': 'bold',
+        ' Italic': 'italic',
+        ' BoldItalic': 'bolditalic',
+    }
+    if (!options.fontOblique){
+        options.fontOblique = {}
+    }
 
     try {
         if (!options.titleFontId){
             throw new Error('No Title Font Provided')
         }
-        doc.registerFont('Title Font', await fontHelper.buffer(options.titleFontId));
-        doc.registerFont('Title Font Bold', await fontHelper.buffer(options.titleFontId, 'bold'));
-        doc.registerFont('Title Font Italic', await fontHelper.buffer(options.titleFontId, 'italic'));
-        doc.registerFont('Title Font BoldItalic', await fontHelper.buffer(options.titleFontId, 'bolditalic'));
+        for (const styleName in styles){
+            const {font, oblique} = await fontHelper.buffer(options.titleFontId, styles[styleName]);
+            doc.registerFont(`Title Font${styleName}`, font);
+            if (oblique){
+                options.fontOblique[`Title Font${styleName}`] = true
+            }
+        }
     } catch (err){
         console.log(`Something went wrong loading remote font for headers, using defaults. ${err.message}`);
         doc.registerFont('Title Font', fontsDir + 'Montserrat-Regular.ttf');
@@ -37,10 +50,13 @@ async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
         if (!options.headerFontId){
             throw new Error('No Header Font Provided')
         }
-        doc.registerFont('Header Font', await fontHelper.buffer(options.headerFontId));
-        doc.registerFont('Header Font Bold', await fontHelper.buffer(options.headerFontId, 'bold'));
-        doc.registerFont('Header Font Italic', await fontHelper.buffer(options.headerFontId, 'italic'));
-        doc.registerFont('Header Font BoldItalic', await fontHelper.buffer(options.headerFontId, 'bolditalic'));
+        for (const styleName in styles){
+            const {font, oblique} = await fontHelper.buffer(options.headerFontId, styles[styleName]);
+            doc.registerFont(`Header Font${styleName}`, font);
+            if (oblique){
+                options.fontOblique[`Header Font${styleName}`] = true
+            }
+        }
     } catch (err){
         console.log(`Something went wrong loading remote font for headers, using defaults. ${err.message}`);
         doc.registerFont('Header Font', fontsDir + 'Montserrat-Regular.ttf');
@@ -53,10 +69,13 @@ async function registerFonts(doc:PDFKit.PDFDocument, options): Promise<void>{
         if (!options.bodyFontId){
             throw new Error('No Body Font Provided')
         }
-        doc.registerFont('Body Font', await fontHelper.buffer(options.bodyFontId));
-        doc.registerFont('Body Font Bold', await fontHelper.buffer(options.bodyFontId, 'bold'));
-        doc.registerFont('Body Font Italic', await fontHelper.buffer(options.bodyFontId, 'italic'));
-        doc.registerFont('Body Font BoldItalic', await fontHelper.buffer(options.bodyFontId, 'bolditalic'));
+        for (const styleName in styles){
+            const {font, oblique} = await fontHelper.buffer(options.bodyFontId, styles[styleName]);
+            doc.registerFont(`Body Font${styleName}`, font);
+            if (oblique){
+                options.fontOblique[`Body Font${styleName}`] = true
+            }
+        }
 
     } catch (err){
         console.log(`Something went wrong loading remote font for body, using defaults. ${err.message}`);
@@ -79,7 +98,9 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
         for (const paragraph of text){
             for (let i = 0; i < paragraph.length; i++){
                 const chunk = paragraph[i];
-                const features: PDFFeatures = {};
+                const features: PDFFeatures = {
+                    oblique:false
+                };
                 if ( i < paragraph.length - 1){
                     features.continued = true;
                 }
@@ -92,7 +113,7 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
                     continue;
                 }
                 let fontStyle = 'Body';
-                 switch (chunk.paragraphStyle){
+                switch (chunk.paragraphStyle){
                      case 'TITLE':
                         doc.lineGap(6);
                         doc.font('Title Font').fontSize(22*options.titleScale);
@@ -137,11 +158,13 @@ function renderGoogleDocument(doc:PDFKit.PDFDocument, text:string|GoogleDocTextR
 
                 if (chunk.textStyle.bold && chunk.textStyle.italic){
                     doc.font(`${fontStyle} Font BoldItalic`);
+                    features.oblique = options.fontOblique[fontStyle]
                 } else if (chunk.textStyle.bold){
                     doc.font(`${fontStyle} Font Bold`);
 
                 } else if (chunk.textStyle.italic){
                     doc.font(`${fontStyle} Font Italic`);
+                    features.oblique = options.fontOblique[fontStyle]
                 }
 
                 if (chunk.textStyle.underline){

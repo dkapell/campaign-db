@@ -24,7 +24,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         options.template = campaign.character_sheet_template
     }
 
-    const fontOptions = {
+    const fontOptions: PDFFontOptions = {
         useDefaults: false,
         titleFontId: campaign.character_sheet_title_font_id,
         headerFontId: campaign.character_sheet_header_font_id,
@@ -34,6 +34,7 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     options.titleScale = campaign.character_sheet_title_font_scale;
     options.headerScale = campaign.character_sheet_header_font_scale;
     options.bodyScale = campaign.character_sheet_body_font_scale;
+
 
     const sizeDoc = new PDFDocument({size: 'LETTER'});
 
@@ -104,6 +105,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
         if (!options.font){
             options.font = 'Body Font';
         }
+        options.oblique = fontOptions.fontOblique[options.font];
+
         const features = {
             width: maxWidth,
             lineBreak: !options.nowrap,
@@ -314,35 +317,36 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             doc.font('Body Font').fontSize(10*options.bodyScale).text('•  ', {continued:true});
             doc.font('Body Font Italic').fontSize(10*options.bodyScale).text(`${skill.name} `, {
                 continued:true,
-                paragraphGap:3
+                paragraphGap:3,
+                oblique: fontOptions.fontOblique['Body Font']
             });
             if (skill.count > 1 && !skill.usage.display_uses){
-                doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`(X${skill.count}) `, {continued:true});
+                doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(`(X${skill.count}) `, {continued:true, oblique:false});
             }
 
             for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc && tag.on_sheet){
                     doc.fillColor(pdfHelper.colors[tag.color?tag.color:'info']);
-                    doc.font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
-                    doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
-                    doc.font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});
+                    doc.font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true, oblique:false});
+                    doc.font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true, oblique:false});
+                    doc.font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true, oblique:false});
                     doc.fillColor('#000000');
                 }
             }
 
-            doc.font('Body Font').fontSize(10*options.bodyScale).text('- ', {continued:true});
+            doc.font('Body Font').fontSize(10*options.bodyScale).text('- ', {continued:true, oblique:false});
 
             if (skill.usage.display_uses && skill.uses){
                 doc.font('Body Font Bold').fontSize(10*options.bodyScale);
-                doc.text(`${skill.count * skill.uses}/${skill.usage.usage_format}: `, {continued:true});
+                doc.text(`${skill.count * skill.uses}/${skill.usage.usage_format}: `, {continued:true, oblique:false});
             }
             doc.font('Body Font').fontSize(10*options.bodyScale);
             if (skill.details && skill.details.sheet_note){
-                markdown(doc, skill.summary, {continued:true});
-                doc.font('Body Font').text('  •  ', {continued:true});
-                doc.font('Body Font Italic').text(skill.details.sheet_note);
+                markdown(doc, skill.summary, {continued:true, fontOptions:fontOptions});
+                doc.font('Body Font').text('  •  ', {continued:true, oblique:false});
+                doc.font('Body Font Italic').text(skill.details.sheet_note, {oblique:fontOptions.fontOblique['Body Font Italic']});
             } else {
-                markdown(doc, skill.summary);
+                markdown(doc, skill.summary, {fontOptions:fontOptions});
             }
 
             if (doc.page.height - doc.y < options.margin*2){
@@ -373,28 +377,28 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (!rulesMode){
                 height += doc.font('Header Font').fontSize(10*options.headerScale).heightOfString(skill.summary);
             }
-
+            doc.fontSize(10*options.bodyScale);
             height += Number(markdown(doc, skill.description, {getHeight:true}));
 
             if (doc.page.height - (doc.y + Number(height)) < options.margin *3){
                 doc.addPage({margin: options.margin*2});
             }
 
-            doc.font('Header Font Italic').fontSize(12*options.headerScale).text(`${skill.name} `, {continued:true});
+            doc.font('Header Font Italic').fontSize(12*options.headerScale).text(`${skill.name} `, {continued:true, oblique:fontOptions.fontOblique['Header Font Italic']});
 
             for (const tag of skill.tags as SkillTagModel[]){
                 if (tag.display_to_pc){
                     const color = pdfHelper.colors[tag.color?tag.color:'info'];
-                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true});
-                    doc.fillColor(color).font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true});
-                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true});
+                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('[', {continued:true, oblique:false});
+                    doc.fillColor(color).font('Body Font Bold').fontSize(10*options.bodyScale).text(tag.name, {continued:true, oblique:false});
+                    doc.fillColor(color).font('Body Font').fontSize(10*options.bodyScale).text('] ', {continued:true, oblique:false});
                     doc.fillColor('#000000');
                 }
             }
             if (!rulesMode){
-                doc.font('Header Font').fontSize(12*options.headerScale).text((skill.source.name as string), {align:'right'});
+                doc.font('Header Font').fontSize(12*options.headerScale).text((skill.source.name as string), {align:'right', oblique:false});
             } else {
-                doc.text(' ', {align:'right'});
+                doc.text(' ', {align:'right', oblique:false});
             }
 
             doc.x += 5;
@@ -415,29 +419,29 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 }
                 if (skill.usage.display_uses && skill.uses){
                     doc.font('Body Font Bold').fontSize(10*options.bodyScale);
-                    doc.text(`${skill.uses}/${skill.usage.usage_format}: `, {continued:true});
+                    doc.text(`${skill.uses}/${skill.usage.usage_format}: `, {continued:true, oblique:false});
                 }
 
                 if (details.length){
 
-                    markdown(doc, skill.summary, {continued:true});
+                    markdown(doc, skill.summary, {continued:true, fontOptions:fontOptions});
                     doc.font('Header Font').text(`  [${details.join(', ')}]`);
                     doc.moveDown(0.5);
 
 
                 } else {
-                    markdown(doc, skill.summary);
+                    markdown(doc, skill.summary, {fontOptions:fontOptions});
                 }
             }
 
-            markdown(doc, skill.description);
+            markdown(doc, skill.description, {fontOptions:fontOptions});
             if (skill.details && skill.details.sheet_note){
-                doc.font('Body Font Bold').text('Sheet Note: ', {continued:true});
-                doc.font('Body Font').text(skill.details.sheet_note);
+                doc.font('Body Font Bold').text('Sheet Note: ', {continued:true, oblique:false});
+                doc.font('Body Font').text(skill.details.sheet_note, {oblique:false});
             }
             if (skill.details && skill.details.notes){
-                doc.font('Body Font Bold').text('Note: ', {continued:true});
-                markdown(doc, skill.details.notes);
+                doc.font('Body Font Bold').text('Note: ', {continued:true, oblique:false});
+                markdown(doc, skill.details.notes, {fontOptions:fontOptions});
             }
             doc.x -= 5;
             doc.moveDown(0.5);
@@ -491,7 +495,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 {
                     width: doc.page.width - (options.margin*2 + 4),
                     height: options.margin,
-                    align:'left'
+                    align:'left',
+                    oblique:false
                 }
             );
 
@@ -502,7 +507,8 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
                 {
                     width: doc.page.width - (options.margin*2 + 4),
                     height: options.margin,
-                    align:'center'
+                    align:'center',
+                    oblique:false
                 }
             );
         }

@@ -27,7 +27,10 @@ async function renderFile(id){
             bodyScale: (file.body_font_scale ||= 1) * (campaign.translation_scale ||= 1),
             headerScale: (file.header_font_scale ||= 1) * (campaign.translation_scale ||= 1),
             titleFontId:  file.title_font_id?file.title_font_id:campaign.default_translation_title_font_id,
-            titleScale: (file.title_font_scale ||= 1) * (campaign.translation_scale ||= 1)
+            titleScale: (file.title_font_scale ||= 1) * (campaign.translation_scale ||= 1),
+            titleFontOblique: false,
+            headerFontOblique: false,
+            bodyFontOblique: false
         });
 
         const outputFolder = await Drive.createFolder(campaign.translation_drive_folder, 'Translation PDF Output');
@@ -60,9 +63,9 @@ async function render(preview:string, text:GoogleDocTextRun[][], options): Promi
     }
     const fontBuffer = await fontHelper.buffer(font.id);
 
-    doc.registerFont(font.name, fontBuffer);
-    await pdfHelper.registerFonts(doc, options);
+    doc.registerFont(font.name, fontBuffer.font);
 
+    await pdfHelper.registerFonts(doc, options);
 
     if (options.label){
 

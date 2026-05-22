@@ -91,7 +91,7 @@ async function find(conditions:Conditions, options?:RequestOptions): Promise<Ski
 async function findOne(conditions:Conditions): Promise<SkillModel>{
     const result:SkillModel[] = await find(conditions);
     if (!result.length){ return null; }
-    return fill(result[0]);
+    return result[0];
 }
 
 

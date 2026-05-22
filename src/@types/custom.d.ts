@@ -111,6 +111,7 @@ interface PDFFeatures {
     continued?:boolean
     underline?:boolean
     strike?:boolean
+    oblique?:boolean
 }
 
 interface OrderItem {
@@ -163,6 +164,7 @@ interface CharacterSheetTextOptions{
     font?:string
     nowrap?:boolean
     align?:string
+    oblique?:boolean
 }
 
 interface ValidationCache{
@@ -179,3 +181,11 @@ interface GetUsersAtTimeslotCache{
 }
 
 type UpdateUserIdType = number|'all-player'|'all-unscheduled-player'|'all-staff'|'all-unscheduled-staff'
+
+interface PDFFontOptions{
+    useDefaults: boolean,
+    titleFontId: number,
+    headerFontId: number,
+    bodyFontId: number,
+    fontOblique?: Record<string,boolean>
+}

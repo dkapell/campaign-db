@@ -24,7 +24,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
     const event = await models.event.get(eventId);
     const campaign = await models.campaign.get(event.campaign_id);
 
-    const fontOptions = {
+    const fontOptions: PDFFontOptions = {
         useDefaults: false,
         titleFontId: (await models.font.findOne({campaign_id:campaign.id, name: options.font.title.name})).id,
         headerFontId: (await models.font.findOne({campaign_id:campaign.id, name: options.font.header.name})).id,
@@ -235,7 +235,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                         doc.text(segment.text, {
                             width:segment.width,
                             stroke:segment.stroke,
-                            fill:true
+                            fill:true,
+                            oblique: fontOptions.fontOblique[segment.font]
                         });
                     }
                     doc.x -= segment.offset;

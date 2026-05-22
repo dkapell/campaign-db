@@ -16,19 +16,28 @@ const fontStyles = {
 
 const fontCache = {};
 
-async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
+async function getBuffer(fontId:number, style?:string): Promise<{font: Buffer, oblique:boolean}>{
     style ||= 'regular';
     const font = await models.font.get(fontId);
     if (!font){
         throw new Error ('Invalid Font')
     }
-    let buffer:Buffer = checkCache(font.name, style);
-    if (buffer){ return buffer; }
+    const { buffer, substyle } = checkCache(font.name, style);
+
+    if (buffer){
+        return {
+            font: buffer,
+            oblique: style.match(/italic/) && !substyle.match(/italic/)
+        };
+    }
 
     if (font.type === 'user'){
-        const stream = await uploadHelper.getStream(font.upload);
-        buffer = await streamToBuffer(stream);
-        return storeCache(font.name, style, buffer);
+        const stream = uploadHelper.getStream(font.upload);
+        const newBuffer = await streamToBuffer(stream);
+        return {
+            font: storeCache(font.name, style, style, newBuffer),
+            oblique:false
+        };
 
     } else if (font.type === 'google'){
         const googleFont = await getGoogleFont(font.name);
@@ -37,8 +46,11 @@ async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
             if (_.has(googleFont.files, substyle)){
                 const getBuffer = bent('buffer');
                 found = true;
-                buffer = await getBuffer(googleFont.files[substyle]);
-                return storeCache(font.name, style, buffer);
+                const newBuffer = await getBuffer(googleFont.files[substyle]);
+                return {
+                    font: storeCache(font.name, style, substyle, newBuffer),
+                    oblique:style.match(/italic/) && !substyle.match(/italic/)
+                };
             }
         }
         if (!found){
@@ -49,20 +61,24 @@ async function getBuffer(fontId:number, style?:string): Promise<Buffer>{
     return null;
 }
 
-function checkCache(name:string, style:string): Buffer{
+function checkCache(name:string, style:string): {buffer:Buffer, substyle:string}{
     if (_.has(fontCache, name) && _.has(fontCache[name], style)){
         if (fontCache[name][style].timestamp.getTime() < 1000*60*5){
-             return Buffer.from(fontCache[name][style].data, 'base64');
+             return {
+                buffer: Buffer.from(fontCache[name][style].data, 'base64'),
+                substyle: fontCache[name][style].substyle
+            }
         }
     }
-    return null;
+    return {buffer:null, substyle:null};
 }
-function storeCache(name, style, buffer){
+function storeCache(name:string, style:string, substyle:string, buffer):Buffer{
     if (!_.has(fontCache, name)){
         fontCache[name] = {};
     }
     fontCache[name][style] = {
         timestamp: new Date(),
+        substyle: substyle,
         data: buffer.toString('base64')
     };
     return Buffer.from(buffer, 'base64');

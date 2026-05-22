@@ -29,6 +29,7 @@
     "google-auth-library": "^9.14.1",
     "googleapis": "^144.0.0",
     "heic-convert": "^2.1.0",
+    "html-entities": "^2.6.0",
     "http-errors": "^2.0.0",
     "ical-generator": "^9.0.0",
     "limiter": "^2.1.0",

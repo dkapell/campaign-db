@@ -149,7 +149,7 @@ async function unpayOrder(orderId:number): Promise<void>{
             console.log(`Could not find ${item.object_type}:${item.object_id}`);
             continue;
         }
-        object.paid = 'paid';
+        object.paid = 'unpaid';
         await models[item.object_type].update(object.id, object);
     }
 }

@@ -163,7 +163,7 @@ async function refund(orderId:number, options:refundOptions = {}): Promise<Strip
     if (!order) {
         throw new Error('Order not found');
     }
-    if (!order.charge_id.match(/^ch_/)){
+    if (!order.charge_id.match(/^(ch|py)_/)){
         throw new Error('Invalid Charge Id');
     }
     const campaign = await models.campaign.get(order.campaign_id);

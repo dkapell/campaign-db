@@ -27,7 +27,7 @@ block content
                     .card-footer
                         p Stripe Id: #{order.charge_id}
                         if order.status === 'complete'
-                            if order.charge_id && order.charge_id.match(/^ch_/)
+                            if order.charge_id && order.charge_id.match(/^(ch|py)_/)
                                 button.btn.btn-warning.me-2#refund-order-btn(
                                     data-csrf=csrfToken
                                     url=`/order/${order.id}`

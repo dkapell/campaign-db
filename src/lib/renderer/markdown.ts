@@ -281,20 +281,16 @@ class Node {
                 }
 
             }
-            if (this.type === 'list_item'){
-                this.content.unshift(new Node({
-                    type: 'strong',
-                    tokens: [
-                        '•  '
-                    ]
-                } as unknown as Node))
+            if (this.type === 'list_item' && !renderOptions.getHeight){
+                const y = doc.y;
+                doc.font('Body Font Bold').text('•');
+                doc.y = y;
+                doc.x += 10;
             }
 
             // loop through subnodes and render them
             for (let index = 0; index < this.content.length; index++) {
                 const fragment = this.content[index];
-
-                let bulletAdded = false;
 
                 if (fragment.type === 'text' && !fragment.content.length) {
                     // add a new page for each heading, unless it follows another heading
@@ -308,13 +304,10 @@ class Node {
 
                     let text = decode(fragment.text);;
 
-                    if (this.type === 'list_item' && !bulletAdded){
-                        text = `•  ${text}`;
-                        bulletAdded = true;
-                    }
-
                     // set styles and whether this fragment is continued (for rich text wrapping)
                     const options = this.setStyle(doc, renderOptions);
+
+
                     if (options.continued == null) {
                         options.continued = renderOptions.continued || (index < this.content.length - 1 && this.content[index+1].type !== 'br');
                     }

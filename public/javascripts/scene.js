@@ -113,7 +113,7 @@ $(function(){
     $('#scene_display_to_pc').on('change', updateBadges);
     updateBadges();
 
-    $('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
+    //$('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
 
     $('.location-info[data-bs-toggle="popover"]').popover({
         trigger: 'hover',

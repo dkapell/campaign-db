@@ -243,6 +243,8 @@ if scheduleType === 'edit' || scene.players.confirmed && scene.players.confirmed
                             span.p-1 + Anyone
             else
                 | No Players Assigned
+                if scene.player_count_max
+                    span.ms-1 (#{scene.player_count_max})
 
 if scene.staff
     .row.my-1

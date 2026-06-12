@@ -397,26 +397,25 @@ fieldset.my-2.border.p-2.rounded
                                         title='Have this scene show up on the \'Anyone\' section of the schedule'
                                     )
 
-                    #player-assignment-section.d-none
-                        .row.my-1
-                            .col
-                                .form-check.form-switch
-                                    input.form-check-input#scene_non_exclusive(type="checkbox", name="scene[non_exclusive]", checked=scene.non_exclusive)
-                                    label.form-check-label(for="scene_non_exclusive") Non-Exclusive
-                                        i.far.fa-question-circle.ms-1(
-                                            data-bs-toggle='tooltip'
-                                            title='Players can be double-booked for this scene'
-                                        )
+                    .row.my-1.player-assignment-section.d-none
+                        .col
+                            .form-check.form-switch
+                                input.form-check-input#scene_non_exclusive(type="checkbox", name="scene[non_exclusive]", checked=scene.non_exclusive)
+                                label.form-check-label(for="scene_non_exclusive") Non-Exclusive
+                                    i.far.fa-question-circle.ms-1(
+                                        data-bs-toggle='tooltip'
+                                        title='Players can be double-booked for this scene'
+                                    )
 
-                        .row.my-1
-                            label.col-form-label.col-xl(for="scene_player_count") Total Player Count
-                                span.ms-1.text-danger *
-                            .col-xl-6
-                                .input-group.input-group-sm#scene_player_count
-                                    input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min min=0)
-                                    .input-group-text to
-                                    input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max min=0)
-
+                    .row.my-1
+                        label.col-form-label.col-xl(for="scene_player_count") Total Player Count
+                            span.ms-1.text-danger *
+                        .col-xl-6
+                            .input-group.input-group-sm#scene_player_count
+                                input.form-control.scene-user-count#scene_player_count_min(type="number" placeholder="Min" name="scene[player_count_min]" value=scene.player_count_min min=0)
+                                .input-group-text to
+                                input.form-control.scene-user-count#scene_player_count_max(type="number" placeholder="Max" name="scene[player_count_max]" value=scene.player_count_max min=0)
+                    .player-assignment-section.d-none
                         ul.my-1.list-group.scene-user-list#scene-player-list
                             each user in scene.users
                                 if user.type === 'player'

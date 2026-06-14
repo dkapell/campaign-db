@@ -39,7 +39,8 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
         languages: {},
         diagnose: {},
         styles: {},
-        sources: {}
+        sources: {},
+        tagskills: {}
     };
     if (!data.length){
         return output;
@@ -124,6 +125,13 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
                 output.languages[language] = [];
             }
             output.languages[language].push(character.id);
+        }
+
+        for (const tagskill of character.provides.tagskills){
+            if (!_.has(output.tagskills, tagskill)){
+                output.tagskills[tagskill] = [];
+            }
+            output.tagskills[tagskill].push(character.id);
         }
 
         for (const trait of character.provides.diagnose){

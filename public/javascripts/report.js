@@ -1,6 +1,6 @@
 /* globals _ marked */
 /* globals attributesTemplate diagnoseTemplate stylesTemplate languagesTemplate traitsTemplate skillsTemplate sourcesTemplate*/
-/* globals skillTemplate characterTemplate */
+/* globals skillTemplate characterTemplate tagskillsTemplate */
 
 'use strict';
 

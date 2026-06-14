@@ -24,6 +24,7 @@ interface AggregateCharacterData{
     characters: CharacterData[],
     traits: Record<string, Record<string, number[]>>,
     languages: Record<string, number[]>,
+    tagskills: Record<string, number[]>,
     diagnose: Record<string, number[]>,
     styles: Record<string, number[]>,
     sources: Record<string, Record<string, number[]>>,

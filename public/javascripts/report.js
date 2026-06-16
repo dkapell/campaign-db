@@ -120,12 +120,27 @@ async function updateGroupReport(){
     data.capitalize = function(string){return string.charAt(0).toUpperCase() + string.slice(1);};
     $('#report-attributes').html(attributesTemplate(data));
     $('#report-diagnose').html(diagnoseTemplate(data));
+    if (_.keys(data.diagnose).length){
+        $('#report-diagnose').show();
+    } else {
+        $('#report-diagnose').hide();
+    }
     $('#report-styles').html(stylesTemplate(data));
     $('#report-languages').html(languagesTemplate(data));
+    if (_.keys(data.languages).length){
+        $('#report-languages').show();
+    } else {
+        $('#report-languages').hide();
+    }
     $('#report-traits').html(traitsTemplate(data));
     $('#report-skills').html(skillsTemplate(data));
     $('#report-sources').html(sourcesTemplate(data));
     $('#report-tagskills').html(tagskillsTemplate(data));
+    if (_.keys(data.tagskills).length){
+        $('#report-tagskills').show();
+    } else {
+        $('#report-tagskills').hide();
+    }
     $('#report-skills-tab').find('.nav-link').first().addClass('active');
     $('#report-skills-tabContent').find('.tab-pane').first().addClass('active').addClass('show');
 }

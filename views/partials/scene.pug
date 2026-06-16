@@ -801,7 +801,7 @@ mixin sceneCardBody(scene, full, characterIds)
                 | View Scene
 
         if checkPermission('contrib') && characterIds.length
-            a.btn.btn-sm.btn-outline-info.group-report-btn.me-1(
+            a.btn.btn-sm.btn-outline-info.group-report-btn.mx-1(
                 href=`/report/group?group=${characterIds.join(',')}`
                 title="Group Report"
             )

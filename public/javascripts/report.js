@@ -120,11 +120,6 @@ async function updateGroupReport(){
     data.capitalize = function(string){return string.charAt(0).toUpperCase() + string.slice(1);};
     $('#report-attributes').html(attributesTemplate(data));
     $('#report-diagnose').html(diagnoseTemplate(data));
-    if (_.keys(data.diagnose).length){
-        $('#report-diagnose').show();
-    } else {
-        $('#report-diagnose').hide();
-    }
     $('#report-styles').html(stylesTemplate(data));
     $('#report-languages').html(languagesTemplate(data));
     if (_.keys(data.languages).length){

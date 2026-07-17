@@ -53,3 +53,5 @@ TODO
 *.todo
 CampaignDB.sublime-project
 CampaignDB.sublime-workspace
+*.pdf
+*.csv

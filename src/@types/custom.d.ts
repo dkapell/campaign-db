@@ -78,6 +78,7 @@ interface CharacterSheetOptions {
     headerScale?:number
     bodyScale?:number
     template?:string
+    duplex?:boolean
 }
 
 interface SurveyField {

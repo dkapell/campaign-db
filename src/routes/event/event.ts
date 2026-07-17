@@ -472,7 +472,8 @@ async function exportPlayerPdfs(req, res, next){
         const pdf = await characterRenderer(charactersSorted, {
             skillDescriptions: req.query.descriptions,
             showLanguages: req.query.languages,
-            showRules: req.query.rules
+            showRules: req.query.rules,
+            duplex: req.query.duplex
         });
 
         pdf.pipe(res);

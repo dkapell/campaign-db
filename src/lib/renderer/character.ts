@@ -41,19 +41,21 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
     await pdfHelper.registerFonts(doc, fontOptions);
     await pdfHelper.registerFonts(sizeDoc, fontOptions);
 
-    let firstPage = true;
     let currentCharacter = null;
-
+    let page = 0;
+    let bordered = true;
     // Draw a nice border
     doc.on('pageAdded', () => {
-        renderPage(firstPage, currentCharacter);
+        if (bordered){
+            renderPage(page===0, currentCharacter);
+        }
+        page++;
     });
 
     for (const character of characters){
-        firstPage = true;
+        page = 0;
         currentCharacter = character;
         doc.addPage();
-        firstPage = false;
 
         let row = options.margin;
         row = renderHeader(character);
@@ -91,11 +93,20 @@ async function renderCharacter(characters: CharacterData[], options: CharacterSh
             if (!options.showRules){
                 renderRules(character.provides.rules)
             }
+            if (doc.y > (doc.page.height * 0.66) ){
+                doc.addPage({margin: options.margin*2});
+            }
             doc.font('Header Font').fontSize(14 * options.headerScale).text('All My Skills');
             const allSkills = character.skills.filter(skill => {
                 return !_.findWhere(character.provides.rules, {id:skill.id});
             })
             renderAllSkills(allSkills);
+        }
+
+        if (options.duplex && page % 2){
+            bordered = false;
+            doc.addPage();
+            bordered = true;
         }
 
     }

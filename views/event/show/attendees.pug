@@ -20,13 +20,25 @@ if checkPermission('contrib') || !event.hide_attendees
                         .visually-hidden Toggle Dropdown
                     ul.dropdown-menu.py-1
                         li
+                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?duplex30=true`)
+                                i.fas.fa-file
+                                |  Duplex-Ready
+                        li
                             a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true`)
                                 i.fas.fa-file
                                 |  With Game Rules
                         li
+                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?rules=true&duplex=true`)
+                                i.fas.fa-file
+                                |  With Game Rules (Duplex-Ready)
+                        li
                             a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true`)
                                 i.fas.fa-file
-                                |  With Skill Descriptions
+                                |  With Skill Description
+                        li
+                            a.dropdown-item(role="button" href=`/event/${event.id}/pdf?descriptions=true&duplex=true`)
+                                i.fas.fa-file
+                                |  With Skill Descriptions (Duplex-Ready)
     .row.my-2
         .col
             if checkPermission('contrib') || checkPermission('registration view')

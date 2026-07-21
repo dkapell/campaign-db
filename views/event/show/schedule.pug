@@ -53,10 +53,10 @@ include ../../partials/scene
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;
                             }
-                            if (!timeslot.scenes.length){
+                            /*if (!timeslot.scenes.length){
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;
-                            }
+                            }*/
                             if (timeslot.scenes.length !== last.scenes.length ||
                                 timeslot.schedule_busy !== last.schedule_busy){
                                 mySchedule.push(timeslot);

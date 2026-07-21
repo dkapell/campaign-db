@@ -88,7 +88,7 @@ function checkScheduleVisibility(user, event){
 
 function eventCalculate(event) {
     const eventStart = DateTime.fromJSDate(event.start_time).setZone(event.timezone).startOf('day');
-    const eventEnd = DateTime.fromJSDate(event.end_time).setZone(event.timezone);
+    const eventEnd = DateTime.fromJSDate(event.end_time).setZone(event.timezone).plus({hours:2});
     let eventDays = Interval.fromDateTimes(eventStart, eventEnd).splitBy({days:1});
     eventDays = _.indexBy(eventDays, day => { return day.start.toFormat('EEE').toLowerCase() });
     for (const day in eventDays){

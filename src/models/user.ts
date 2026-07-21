@@ -234,7 +234,7 @@ async function postSelect(user, campaignId){
             user.sso_name = user.name;
             user.name = campaign_user.name;
         }
-        user.calendar_url = `${config.get('app.secureOnly')?'https':'http'}://${campaign.site}/calendar/${campaign_user.calendar_id}`
+        user.calendar_url = `webcal://${campaign.site}/calendar/${campaign_user.calendar_id}`
     } else {
         user.type = 'none';
         user.campaignType = 'unset';

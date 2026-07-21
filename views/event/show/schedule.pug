@@ -53,6 +53,10 @@ include ../../partials/scene
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;
                             }
+                            if (timeslot.type !== 'regular' || timeslot.type !== last.type){
+                                mySchedule.push(timeslot);
+                                continue timeslotLoop;
+                            }
                             /*if (!timeslot.scenes.length){
                                 mySchedule.push(timeslot);
                                 continue timeslotLoop;

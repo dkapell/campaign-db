@@ -131,7 +131,7 @@ block content
                                                 span.me-1 Submitted:
                                                 = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
 
-                                            .text-bg-light.border.rounded.p-2
+                                            .bg-light-subtle.border.rounded.p-2
                                                 != marked.parseInline(addendum.content, {breaks:true})
 
                         .row.my-3

@@ -43,7 +43,7 @@ block content
                             .col-lg.text-lg-end
                                 span.me-1 Submitted:
                                 = moment.utc(addendum.submitted_at).tz(currentCampaign.timezone).format('lll')
-                    .card-body.text-bg-light
+                    .card-body.bg-light-subtle
                         .row
                             .col.p-2
                                 if addendum.content

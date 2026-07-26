@@ -752,12 +752,12 @@ mixin sceneCard(scene, full=false)
 
                             if checkPermission('gm') && feedback.gm_feedback
                                 strong.ms-md-4 GM Feedback
-                                .card.text-bg-light.ms-md-4.my-1
+                                .card.bg-light-subtle.ms-md-4.my-1
                                     .card-body.p-2
                                         != marked.parseInline(feedback.gm_feedback)
                             if feedback.npc_feedback
                                 strong.ms-md-4 NPC Feedback
-                                .card.text-bg-light.ms-md-4.my-1
+                                .card.bg-light-subtle.ms-md-4.my-1
                                     .card-body.p-2
                                         != marked.parseInline(feedback.npc_feedback)
 

@@ -26,7 +26,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
                             span.ms-1 ( #{field.days_before} Days Before )
                     if field.description
                         .form-text!=marked.parseInline(field.description, {breaks:true})
-                    .text-bg-light.border.rounded.p-2
+                    .bg-light-subtle.border.rounded.p-2
                         if currentValue && !currentValue.match(/^\s*$/)
                             != marked.parseInline(currentValue, {breaks:true})
                         else
@@ -115,7 +115,7 @@ mixin customSurveyFieldDisplay(field, value)
                     each feedback in value
                         +displaySceneFeedback(feedback)
                 else
-                    .card.text-bg-light.ms-md-4
+                    .card.bg-light-subtle.ms-md-4
                         .card-body.p-2
                             if noResponse
                                 i No Answer Provided
@@ -144,12 +144,12 @@ mixin displaySceneFeedback(feedback)
                         span.ms-2 (#{feedback.scene.player_name})
             if checkPermission('gm') && feedback.gm_feedback
                 strong.ms-md-4 GM Feedback
-                .card.text-bg-light.ms-md-4.my-1
+                .card.bg-light-subtle.ms-md-4.my-1
                     .card-body.p-2
                         != marked.parseInline(feedback.gm_feedback)
             if feedback.npc_feedback
                 strong.ms-md-4 NPC Feedback
-                .card.text-bg-light.ms-md-4.my-1
+                .card.bg-light-subtle.ms-md-4.my-1
                     .card-body.p-2
                         != marked.parseInline(feedback.npc_feedback)
 

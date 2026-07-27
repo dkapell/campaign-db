@@ -66,7 +66,7 @@ block maincontent
                     .form-check.form-switch
                         input.form-check-input#highlight-open-scenes(type="checkbox")
                         label.form-check-label(for="highlight-open-scenes") Highlight Scenes with openings
-
+    - console.log(scenes.length)
     .container-fluid
         .row.my-2.p-0
             -
@@ -166,7 +166,7 @@ block maincontent
                             span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
                 each scene in scenes
-                    if checkPermission('event') || scene.display_to_pc || event.end_time < new Date()
+                    if checkPermission('event') || scene.display_to_pc || new Date(event.end_time) < new Date()
                         +sceneItem(scene, xAxisType, cellsPerSlot)
 
                 +nullBusyItem(xAxisType, cellsPerSlot)

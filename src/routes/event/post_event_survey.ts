@@ -785,7 +785,7 @@ async function getSceneApi(req, res){
             throw new Error('Invalid Event');
         }
 
-        if (event.end_time > new Date()){
+        if (new Date(event.end_time) > new Date()){
             throw new Error('Event has not ended yet');
         }
         const attendance = await req.models.attendance.get(attendanceId);

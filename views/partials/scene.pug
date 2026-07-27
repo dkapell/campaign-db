@@ -754,12 +754,12 @@ mixin sceneCard(scene, full=false)
                                 strong.ms-md-4 GM Feedback
                                 .card.bg-light-subtle.ms-md-4.my-1
                                     .card-body.p-2
-                                        != marked.parseInline(feedback.gm_feedback)
+                                        != marked.parseInline(feedback.gm_feedback, {breaks:true})
                             if feedback.npc_feedback
                                 strong.ms-md-4 NPC Feedback
                                 .card.bg-light-subtle.ms-md-4.my-1
                                     .card-body.p-2
-                                        != marked.parseInline(feedback.npc_feedback)
+                                        != marked.parseInline(feedback.npc_feedback, {breaks:true})
 
             else
                 +sceneCardBody(scene, full, characterIds)

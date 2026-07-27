@@ -166,7 +166,7 @@ block maincontent
                             span.float-end.schedule-drop-indicator.m-1.text-danger.schedule-drop-rejected Rejected
 
                 each scene in scenes
-                    if checkPermission('event') || (scene.display_to_pc || event.end_time < new Date())
+                    if checkPermission('event') || scene.display_to_pc || event.end_time < new Date()
                         +sceneItem(scene, xAxisType, cellsPerSlot)
 
                 +nullBusyItem(xAxisType, cellsPerSlot)

@@ -42,8 +42,9 @@ async function show(req, res, next){
             if (req.checkPermission('gm')){
                 return res.json({scene:scheduleHelper.formatScene(scene)});
             } else if (scene.status === 'confirmed'){
+                const event = await req.models.event.get(scene.event_id);
                 return res.json({
-                    scene: scheduleHelper.formatScene(scene, !req.checkPermission('event')),
+                    scene: scheduleHelper.formatScene(scene, new Date(event.end_time) > new Date() && !req.checkPermission('event')),
                     nonExclusiveName: req.campaign.renames.non_exclusive.singular
                 });
             } else {

@@ -175,7 +175,7 @@ async function submitPostEventSurveyForm(e){
         }
     }
     if (!images){
-        $form.unbind('submit.postEventSurveyForm').submit();
+        $form.unbind('submit.postEventSurveyForm').unbind('submit.postEventAddendumForm').submit();
         return true;
     }
     return false;

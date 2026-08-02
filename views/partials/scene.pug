@@ -791,7 +791,7 @@ mixin sceneCardBody(scene, full, characterIds)
                 | Player Writeup
                 i.fa.fa-external-link.ms-1
 
-        if !full && checkPermission('contrib')
+        if !full && checkPermission('event')
             a.btn.btn-sm.btn-outline-info(
                 href=`/scene/${scene.id}`
                 title="View Scene"

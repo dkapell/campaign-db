@@ -102,7 +102,7 @@ mixin customSurveyFieldInput(namePrefix, idPrefix, field, currentValue, isStaff,
 
 
 mixin customSurveyFieldDisplay(field, value)
-    if field.type !== 'text content'
+    if field.type !== 'text content' && (!field.response_gm_only || checkPermission('gm'))
         -
             const noResponse = ((field.type !== 'boolean' && !value) || (''+value).match(/^\s*$/))
         .row.my-2.surveyResponse(
@@ -111,6 +111,8 @@ mixin customSurveyFieldDisplay(field, value)
         )
             .col
                 h5= field.name
+                    if field.response_gm_only
+                        .badge.ms-2.text-bg-info GM-Only
                 if field.type === 'scene'
                     each feedback in value
                         +displaySceneFeedback(feedback)
@@ -273,6 +275,34 @@ mixin surveyField(field,  idx)
                 label.control-label Options
                 br
                 .form-check.form-switch.form-check-inline.survey_field-input
+                    input.form-check-input.survey_field-input.survey_field-required(
+                        type='checkbox'
+                        name=`survey[definition][${idx}][required]`
+                        id=`survey_field_${idx}_required`
+                        data-fieldtype='required'
+                        checked=field.required
+                    )
+                    label.form-check-label(
+                        for=`survey_field_${idx}_required`
+                        data-fieldtype='required'
+                    ) Required
+
+
+
+
+                .form-check.form-switch.form-check-inline.survey_field-input
+                    input.form-check-input.survey_field-input.survey_field-on_checkin(
+                        type='checkbox'
+                        name=`survey[definition][${idx}][on_checkin]`
+                        id=`survey_field_${idx}_on_checkin`
+                        data-fieldtype='on_checkin'
+                        checked=field.on_checkin
+                    )
+                    label.form-check-label(
+                        for=`survey_field_${idx}_on_checkin`
+                        data-fieldtype='on_checkin'
+                    ) On Check-in Form
+                .form-check.form-switch.form-check-inline.survey_field-input
                     input.form-check-input.survey_field-input.survey_field-editable_by(
                         type='checkbox'
                         name=`survey[definition][${idx}][editable_by]`
@@ -287,30 +317,17 @@ mixin surveyField(field,  idx)
                     ) GM only Edit
 
                 .form-check.form-switch.form-check-inline.survey_field-input
-                    input.form-check-input.survey_field-input.survey_field-required(
+                    input.form-check-input.survey_field-input.survey_field-response_gm_only(
                         type='checkbox'
-                        name=`survey[definition][${idx}][required]`
-                        id=`survey_field_${idx}_required`
-                        data-fieldtype='required'
-                        checked=field.required
+                        name=`survey[definition][${idx}][response_gm_only]`
+                        id=`survey_field_${idx}_response_gm_only`
+                        data-fieldtype='response_gm_only'
+                        checked=field.response_gm_only
                     )
                     label.form-check-label(
-                        for=`survey_field_${idx}_required`
-                        data-fieldtype='required'
-                    ) Required
-
-                .form-check.form-switch.form-check-inline.survey_field-input
-                    input.form-check-input.survey_field-input.survey_field-on_checkin(
-                        type='checkbox'
-                        name=`survey[definition][${idx}][on_checkin]`
-                        id=`survey_field_${idx}_on_checkin`
-                        data-fieldtype='on_checkin'
-                        checked=field.on_checkin
-                    )
-                    label.form-check-label(
-                        for=`survey_field_${idx}_on_checkin`
-                        data-fieldtype='on_checkin'
-                    ) On Check-in Form
+                        for=`survey_field_${idx}_response_gm_only`
+                        data-fieldtype='response_gm_only'
+                    ) GM-Only Responses
             .col-lg-2
                 - field.days_before ||= 0;
                 .form-floating

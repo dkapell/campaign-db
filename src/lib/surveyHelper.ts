@@ -67,7 +67,7 @@ function parseSurveyFields(input){
             doc.id = uuidv4();
         }
 
-        for (const field of ['required', 'on_checkin']){
+        for (const field of ['required', 'on_checkin', 'response_gm_only']){
             if (_.has(surveyField, field)){
                 doc[field] = true;
             } else {

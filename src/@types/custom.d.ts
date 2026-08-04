@@ -96,6 +96,7 @@ interface SurveyField {
     content?: string
     description?: string
     days_before?:number
+    response_gm_only?:boolean
 }
 
 interface GoogleDocTextRun {

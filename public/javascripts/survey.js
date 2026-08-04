@@ -75,6 +75,7 @@ function toggleFieldOptions($row){
     $row.find('.survey_field-on_checkin').attr('disabled', false);
     $row.find('.survey_field-editable_by').attr('disabled', false);
     $row.find('.survey_field-on_checkin').attr('disabled', false);
+    $row.find('.survey_field-response_gm_only').attr('disabled', false);
     $row.find('.add-description-btn').show();
     switch (type){
         case 'longtext':
@@ -88,6 +89,7 @@ function toggleFieldOptions($row){
             $row.find('.survey_field-required').attr('disabled', true);
             $row.find('.survey_field-on_checkin').attr('disabled', true);
             $row.find('.survey_field-editable_by').attr('disabled', true);
+            $row.find('.survey_field-response_gm_only').attr('disabled', true);
             $row.find('.add-description-btn').hide();
             $row.find('.field-description').hide();
             break;
@@ -96,6 +98,7 @@ function toggleFieldOptions($row){
             break;
         case 'scene':
             $row.find('.textarea-options').show();
+            $row.find('.survey_field-response_gm_only').attr('disabled', true);
             break;
     }
 

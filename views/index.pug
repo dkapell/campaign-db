@@ -55,7 +55,7 @@ append content
                                 span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=pending_cp_grants
 
                         if checkPermission('gm, cp_grant') && pending_community_cp_grants && currentCampaign.display_community_cp
-                            a.list-group-item.list-group-item-action(href='/cp_grant')
+                            a.list-group-item.list-group-item-action(href='/community_cp_grant')
                                 i.fas.fa-fw.fa-tasks.me-1
                                 | Pending Community CP Grants
                                 span.badge.text-bg-danger.float-end(data-bs-toggle="tooltip" title='Pending Grants')=pending_community_cp_grants

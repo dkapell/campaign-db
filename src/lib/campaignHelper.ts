@@ -304,8 +304,8 @@ async function getUsersCsv(campaignId:number): Promise<string>{
             _.pluck(user.tags, 'name').join(', ')
         ]
         for (const documentation of documentations){
-            const userDoc = _.findWhere(user.documentations, {id:documentation.id})
-
+            const userDoc = _.findWhere(user.documentations, {documentation_id:documentation.id})
+            console.log(userDoc)
             row.push(userDoc?.status)
         }
         data.push(row);

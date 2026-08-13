@@ -19,6 +19,12 @@ interface Session extends SessionData {
    activeUser?: CampaignUser
 }
 
+interface CpData{
+    base:number
+    total:number
+    usable:number
+}
+
 interface CampaignUser {
    id: number,
    name?: string,
@@ -40,6 +46,14 @@ interface CampaignUser {
    last_login?: Date
    data?:CampaignUserData
    parsedData?:CampaignUserData
+   permissions?:string[]
+}
+
+interface CampaignUserExtended extends CampaignUser{
+    regCount?: number
+    cp?: CpData
+    documentations?: ModelData[]
+    image?: ImageRecord
 }
 
 interface CampaignUserData{

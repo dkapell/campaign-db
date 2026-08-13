@@ -17,6 +17,13 @@ async function list(req, res, next){
     };
     try {
         if (!req.campaign.default_site){
+
+            if (req.query.export){
+                const csvOutput = await campaignHelper.getUsersCsv(req.campaign.id)
+                res.attachment(`${req.campaign.name} - Users.csv`);
+                return res.end(csvOutput);
+            }
+
             const campaign_users = await req.models.campaign_user.find({campaign_id:req.campaign.id});
             let events = await req.models.event.find({campaign_id:req.campaign.id});
             events = events.filter( event => { return event.end_time > new Date(); })

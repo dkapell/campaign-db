@@ -34,9 +34,12 @@ block content
         .col-sm-6.offset-sm-3.text-center#tableLoading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100#user-table(
+        table.table.table-striped.data-table.table-hover.my-3.dt-responsive.nowrap.table-sm.w-100.table-exportable#user-table(
             style="display: none"
+            data-csrf=csrfToken
+            data-export='/user?export=1'
         )
+
             thead
                 tr
                     th

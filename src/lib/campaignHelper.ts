@@ -131,15 +131,11 @@ function characterSorter(a, b){
     return a.name.localeCompare(b.name);
 }
 
-interface cpData{
-    base:number
-    total:number
-    usable:number
-}
-async function cpCalculator(userId:number, campaignId:number): Promise<cpData> {
+
+async function cpCalculator(userId:number, campaignId:number): Promise<CpData> {
     const campaign = await models.campaign.get(campaignId);
     const cpGrants = await models.cp_grant.find({user_id:userId, campaign_id:campaignId, status:'approved'});
-    const result:cpData = {
+    const result:CpData = {
         base: 0,
         total: 0,
         usable: 0,
@@ -265,6 +261,58 @@ async function getCharacterCSV(campaignId: number, characters:ModelData[]): Prom
     return stringify(data, {});
 };
 
+async function getUsersCsv(campaignId:number): Promise<string>{
+    const data = [];
+    const campaign = await models.campaign.get(campaignId);
+
+    const campaign_users = await models.campaign_user.find({campaign_id:campaignId});
+    let events = await models.event.find({campaign_id:campaignId});
+    events = events.filter( event => { return event.end_time > new Date(); })
+
+
+    const documentations = await models.documentation.find({campaignId:campaignId});
+
+    const header = ['Name', 'Email', 'Type', 'Character', campaign.renames.cp.singular, 'Events', 'Drive Folder', 'Staff Drive Folder', 'Permissions', 'Last Login', 'Tags'];
+    for (const documentation of documentations) {
+        header.push(documentation.name)
+    }
+
+    data.push(header);
+
+    for (const campaign_user of campaign_users){
+        const user = await models.user.get(campaign.id, campaign_user.user_id);
+        const regCount = (events.filter(event => {
+            return (_.where(event.attendees, {user_id: user.id, attending:true})).length;
+        })).length;
+        const cp = await cpCalculator(user.id, campaign.id)
+        user.documentations = await models.documentation_user.find({campaign_id:campaign.id, user_id:user.id});
+        if (user.type === 'player') {
+            user.character = await models.character.findOne({campaign_id:campaign.id, user_id:user.id, active:true});
+        }
+
+        const row = [
+            user.name,
+            user.email,
+            user.type,
+            user.character?.name,
+            cp.total,
+            regCount,
+            user.drive_folder,
+            user.staff_drive_folder,
+            user.permissions.join(', '),
+            user.last_login,
+            _.pluck(user.tags, 'name').join(', ')
+        ]
+        for (const documentation of documentations){
+            const userDoc = _.findWhere(user.documentations, {id:documentation.id})
+
+            row.push(userDoc?.status)
+        }
+        data.push(row);
+    }
+    return stringify(data, {});
+}
+
 async function parseTime(campaignId:number, date: string, hour:number){
     const campaign = await models.campaign.get(campaignId);
     const timezone = campaign.timezone;
@@ -350,6 +398,7 @@ async function getUserData(campaignId, data){
 export default {
     init,
     getCharacterCSV,
+    getUsersCsv,
     cpCalculator,
     communityCpCalculator,
     attributeSorter,

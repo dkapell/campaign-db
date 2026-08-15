@@ -887,6 +887,7 @@ async function recalculateAll(req, res){
         });
         return res.json({success:true});
     } catch(err){
+        console.trace(err);
         return res.json({success:false, message:err});
     }
 }

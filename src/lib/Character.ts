@@ -433,7 +433,7 @@ class Character{
                 }
             }
             if (found < skill.require_num){
-                throw new Error(`"${skill.name}" from ${skill.source.name} requires "${characterSkill.skill.name}"`);
+                throw new Error(`"${skill.name}" from ${skill.source.name} requires at least ${skill.require_num} of "${characterSkill.skill.requires.join(', ')}"`);
             }
         }
         const doc = {
@@ -691,43 +691,72 @@ class Character{
         }
 
         // recalculate CP costs and required skills of Sources
-        const charSources = _.groupBy(await this.sources(true), 'type_id');
+        const characterSources = await this.sources(true)
+        const charSources = _.groupBy(characterSources, 'type_id');
 
-        for (const type in charSources){
-            const sources = charSources[type];
-            if (sources[0].type.num_free){
-                const num_free = sources[0].type.num_free;
-                for (let i = 0; i < Math.min(num_free, sources.length); i++){
-                    const source = sources.pop();
-                    if (Number(source.character_cost) !== 0){
+        const free = {
+            categories: [],
+            types: []
+        }
+
+        for (const source of characterSources){
+            if (source.type.num_free){
+                if (source.type.category) {
+                    const category = source.type.category;
+                    const current = free.categories[category] || 0;
+                    if (current < source.type.num_free){
                         await this.updateSourceCost(source.id, 0);
-                    }
-                    // Add required skills from source
-                    const skills = await findRequiredSkills(source.id);
-                    for (const skill of skills){
-                        await this.addSkill(skill.id, null, true);
-                    }
-                }
-            }
-            for (const source of sources){
-                if (Number(source.cost) !== Number(source.character_cost)){
-                    await this.updateSourceCost(source.id, source.cost, true);
-                }
-                // Add required skills from source
-                const skills = await findRequiredSkills(source.id);
-                for (const skill of skills){
 
-                    await this.addSkill(skill.id, null, true);
+                    } else {
+                        await this.updateSourceCost(source.id, source.cost, true);
+                    }
+                    if (!_.has(free.categories, category)){
+                        free.categories[category] = 0;
+                    }
+                    free.categories[category]++;
+
+                } else {
+                    const current = free.types[source.type_id] || 0;
+
+                    if (current < source.type.num_free){
+                        await this.updateSourceCost(source.id, 0);
+
+                    } else {
+                        await this.updateSourceCost(source.id, source.cost, true);
+                    }
+                    if (!_.has(free.types, source.type_id)){
+                        free.types[source.type_id] = 0;
+                    }
+                    free.types[source.type_id]++;
                 }
+            } else {
+                await this.updateSourceCost(source.id, source.cost, true);
+            }
+            const skills = await findRequiredSkills(source.id);
+                for (const skill of skills){
+                    await this.addSkill(skill.id, null, true);
             }
         }
 
         const allCharSkills:CharacterSkillModel[] = await this.skills();
 
-        // check for sources that are not purchasable and remove them
+        // check for skills that are not purchasable and remove them
         for (const skill of allCharSkills){
-            if (! skill.status.purchasable ){
-                await this.removeSkill(skill.character_skill_id, true);
+            let purchasable = skill.status.purchasable;
+            if (!purchasable){
+                const skillUser = await models.skill_user.findOne({skill_id:skill.id, id:this._data.user_id});
+                if (skillUser){
+                    purchasable = true;
+                }
+            }
+
+            if (!purchasable){
+                try{
+                    console.log(`trying to remove ${skill.name} from ${this._data.name}`)
+                    await this.removeSkill(skill.character_skill_id, true);
+                } catch (err){
+                    console.log(err)
+                }
             }
         }
 

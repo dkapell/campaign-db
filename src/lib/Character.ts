@@ -716,7 +716,7 @@ class Character{
                     free.categories[category]++;
 
                 } else {
-                    const current = free.types[source.type_id] || 0;
+                    const current = free.types[''+source.type_id] || 0;
 
                     if (current < source.type.num_free){
                         await this.updateSourceCost(source.id, 0);
@@ -724,10 +724,10 @@ class Character{
                     } else {
                         await this.updateSourceCost(source.id, source.cost, true);
                     }
-                    if (!_.has(free.types, source.type_id)){
-                        free.types[source.type_id] = 0;
+                    if (!_.has(free.types, ''+source.type_id)){
+                        free.types[''+source.type_id] = 0;
                     }
-                    free.types[source.type_id]++;
+                    free.types[''+source.type_id]++;
                 }
             } else {
                 await this.updateSourceCost(source.id, source.cost, true);
@@ -752,7 +752,6 @@ class Character{
 
             if (!purchasable){
                 try{
-                    console.log(`trying to remove ${skill.name} from ${this._data.name}`)
                     await this.removeSkill(skill.character_skill_id, true);
                 } catch (err){
                     console.log(err)

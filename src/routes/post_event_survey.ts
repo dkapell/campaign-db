@@ -33,6 +33,7 @@ async function list(req, res, next){
                 const attendance = await req.models.attendance.get(addendum.attendance_id);
                 const event = _.findWhere(events, {id:attendance.event_id});
                 addendum.eventName= event.name;
+                addendum.eventId = event.id;
                 addendum.eventStartTime= event.start_time;
                 addendum.eventEndTime= event.end_time;
                 addendum.submittedAt = new Date(addendum.submitted_at);

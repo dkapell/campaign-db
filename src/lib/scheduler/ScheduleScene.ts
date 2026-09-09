@@ -83,6 +83,13 @@ class ScheduleScene  {
             return this.data.coreqs;
         }
     }
+    get repeater(){
+        return this.data.repeater;
+    }
+    get repeater_scenes(){
+        return this.data.repeater_scenes;
+    }
+
     get total_happiness(): number {
         let happiness = this.happiness;
         happiness -= (this.player_count.max - this.currentPlayers.length) * 2;

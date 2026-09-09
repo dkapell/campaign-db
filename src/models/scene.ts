@@ -70,6 +70,8 @@ const tableFields = [
     'runner_id',
     'non_exclusive',
     'for_anyone',
+    'repeater',
+    'repeater_primary_scene_id',
     'created',
     'updated'
 ];
@@ -134,8 +136,22 @@ async function fill(data: SceneModel){
     if (data.runner_id){
         data.runner = await models.user.get(data.campaign_id, data.runner_id);
     }
+
+    if (data.repeater){
+        if (data.repeater_primary_scene_id){
+            data.repeater_scenes = await getScenesForRepeater(data.repeater_primary_scene_id);
+        } else {
+            data.repeater_scenes = await getScenesForRepeater(data.id);
+        }
+    }
     data.additional_writers =  await getAdditionalWriters(data.id as number, data.campaign_id as number);
     return data;
+}
+
+async function getScenesForRepeater(sceneId:number): Promise<SceneModel[]>{
+    const select = 'select id, name from scenes where id = $1 or repeater_primary_scene_id = $1 order by name';
+    const result = await database.query(select, [sceneId]);
+    return result.rows;
 }
 
 async function postFind(records){

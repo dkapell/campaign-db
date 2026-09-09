@@ -844,6 +844,17 @@ class Schedule extends EventEmitter {
                     continue;
                 }
 
+                // Reject if user is already assigned to this repeater sequence
+                if (scene.repeater){
+                    const result = await async.detect(scene.repeater_scenes, async(repeaterScene) => {
+                        const repeaterSceneObj = _.findWhere(this.scenes, {id:repeaterScene.id})
+                        return (repeaterSceneObj && _.indexOf(repeaterSceneObj.currentPlayers, userId) !== -1);
+                    })
+                    if (result){
+                        continue;
+                    }
+                }
+
                 // accept if they're available
                 if (_.indexOf(available.players.available, userId) !== -1){
                     scene.addPossiblePlayer(userId);

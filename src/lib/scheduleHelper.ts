@@ -76,6 +76,9 @@ function formatScene(scene:SceneModel, forPlayer:boolean=false, pastEvent:boolea
         output.runner = scene.runner;
         output.created = scene.created;
         output.updated = scene.updated;
+        output.repeater = scene.repeater;
+        output.repeater_primary_scene_id = scene.repeater_primary_scene_id;
+        output.repeater_scenes = scene.repeater_scenes;
     }
 
     if (scene.score){

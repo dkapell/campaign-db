@@ -406,6 +406,24 @@ fieldset.my-2.border.p-2.rounded
                                         data-bs-toggle='tooltip'
                                         title='Players can be double-booked for this scene'
                                     )
+                        .col
+                            .form-check.form-switch
+                                input.form-check-input#scene_repeater(type="checkbox", name="scene[repeater]", checked=scene.repeater)
+                                label.form-check-label(for="scene_repeater") Repeater
+                                    i.far.fa-question-circle.ms-1(
+                                        data-bs-toggle='tooltip'
+                                        title='This scene is a Repeater'
+                                    )
+                    .row.my-1.repeater-primary-scene-section.d-none
+                        .col
+                            label.col-form-label.col-lg-1.text-nowrap(for="scene_repeater_primary_scene_id") Repeater Primary Scene
+                                i.far.fa-question-circle.ms-1(data-bs-toggle='tooltip' title='Which scene should be used as the primary for this repeater to avoid double-scheduling players.  None for the primary scene')
+                            select.form-select.select2#scene_repeater_primary_scene_id(name='scene[repeater_primary_scene_id]')
+                                option(value=-1 selected=!scene.repeater_primary_scene_id) None
+                                each primary in scenes
+                                    if scene.id && primary.id === scene.id
+                                        - continue;
+                                    option(value=primary.id selected=primary.id===scene.repeater_primary_scene_id)=primary.name
 
                     .row.my-1
                         label.col-form-label.col-xl(for="scene_player_count") Total Player Count

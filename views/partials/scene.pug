@@ -984,6 +984,22 @@ mixin sceneCardBody(scene, full, characterIds)
                     strong Non-Exclusive
                     span.ms-2 Yes
 
+        if full && scene.repeater
+            .row.my-1
+                .col
+                    strong Repeater
+                    span.ms-2 Yes:
+                        - const primarySceneId = scene.repeater_primary_scene_id?scene.repeater_primary_scene_id:scene.id
+                        each repeaterScene, ridx in scene.repeater_scenes
+                            a.ms-2(href=`/scene/${repeaterScene.id}` class=(repeaterScene.id===primarySceneId?'link-primary':''))
+                                i.fas.fa-theater-masks.me-1
+                                =repeaterScene.name
+                            if ridx < scene.repeater_scenes.length-1
+                                span.ms-0.me-0 ,
+
+
+
+
         .row.my-1
             if _.keys(scene.players).length && scene.assign_players
                 .col-lg

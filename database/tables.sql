@@ -1104,6 +1104,8 @@ create table scenes (
     updated timestamp with time zone DEFAULT now(),
     for_anyone boolean default false,
     non_exclusive boolean default false,
+    repeater boolean default false,
+    repeater_primary_scene_id int,
     primary key (id),
     CONSTRAINT scenes_campaign_fk FOREIGN KEY (campaign_id)
         REFERENCES "campaigns" (id) MATCH SIMPLE
@@ -1116,6 +1118,9 @@ create table scenes (
         ON UPDATE NO ACTION ON DELETE SET NULL,
     CONSTRAINT scenes_runner_fk FOREIGN KEY (runner_id)
         REFERENCES "users" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE SET NULL,
+    CONSTRAINT scenes_repeater_primary_scene_fk FOREIGN KEY (repeater_primary_scene_id)
+        REFERENCES "scenes" (id) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE SET NULL
 );
 

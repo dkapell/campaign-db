@@ -114,6 +114,7 @@ $(function(){
     updateBadges();
 
     $('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
+    $('#scene_repeater').on('change', updateRepeaterDisplay).trigger('change');
 
     $('.location-info[data-bs-toggle="popover"]').popover({
         trigger: 'hover',
@@ -531,6 +532,14 @@ function updatePlayerSelectionDisplay(e){
     } else {
         $('.player-assignment-section').addClass('d-none');
         $('#skills-sources-assignment-section').addClass('d-none');
+    }
+}
+
+function updateRepeaterDisplay(e){
+    if ($(this).prop('checked')){
+        $('.repeater-primary-scene-section').removeClass('d-none');
+    } else {
+        $('.repeater-primary-scene-section').addClass('d-none');
     }
 }
 

@@ -173,6 +173,8 @@ async function showNew(req, res, next){
                 non_exclusive:false,
                 writer_id: req.session.activeUser.id,
                 runner_id: req.session.activeUser.id,
+                repeater: false,
+                repeater_primary_scene_id: null
             };
 
             res.locals.breadcrumbs = {
@@ -372,6 +374,7 @@ async function update(req, res){
             throw new Error('Can not edit record from different campaign');
         }
         await checkPrereqs(req, scene);
+        await checkPrimaryScene(req, scene);
         await req.models.scene.update(id, scene);
         await req.audit('scene', id, 'update', {old: current, new:scene});
         if (scene.event_id){
@@ -398,7 +401,7 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
     const scene = req.body.scene;
     delete scene.created;
     scene.updated = new Date();
-    for (const field of ['display_to_pc', 'assign_players', 'for_anyone', 'non_exclusive']){
+    for (const field of ['display_to_pc', 'assign_players', 'for_anyone', 'non_exclusive', 'repeater']){
         if (!_.has(scene, field)){
             scene[field] = false;
         }
@@ -464,6 +467,10 @@ async function prepSceneData(req, current:SceneModel=null): Promise<ModelData>{
         }
     }
 
+     if (scene.repeater_primary_scene_id === "-1"){
+        scene.repeater_primary_scene_id = null;
+    }
+
     if (current) {
         for (const user of current.users){
             if (!_.findWhere(scene.users, {id:''+user.id})){
@@ -491,6 +498,24 @@ async function checkPrereqs(req, scene){
                 if (prereq.prereqs.length){
                     await addScene(prereqId, _.pluck(prereq.prereqs, 'id'));
                 }
+            }
+        }
+    }
+}
+
+async function checkPrimaryScene(req, scene){
+    if (scene.repeater && scene.repeater_primary_scene_id){
+        const graph = new Graph();
+        await addScene(scene.id, scene.repeater_primary_scene_id);
+
+        async function addScene(sceneId, primarySceneId){
+            graph.add(sceneId, [primarySceneId])
+            if (graph.hasCycle()){
+                throw new Error('Cycle found in Repeater Scene')
+            }
+            const primary = await req.models.scene.get(primarySceneId);
+            if (primary.repeater && primary.repeater_primary_scene_id){
+                await addScene(primary.id, primary.repeater_primary_scene_id);
             }
         }
     }

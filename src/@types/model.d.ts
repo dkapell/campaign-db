@@ -404,7 +404,11 @@ interface SceneModel extends ModelData{
     runner?:CampaignUser
     writer?:CampaignUser
     for_anyone?:boolean
-    non_exclusive?:booleam
+    non_exclusive?:boolean
+    repeater?:boolean
+    repeater_primary_scene_id?:number
+    repeater_primary_scene?: SceneModel[]
+    repeater_scenes?: SceneModel[]
 }
 
 interface FormattedSourceModel{
@@ -466,6 +470,9 @@ interface FormattedSceneModel extends ModelData{
     for_anyone?:boolean
     non_exclusive?:boolean
     type?:string
+    repeater?:boolean
+    repeater_primary_scene_id?:number
+    repeater_scenes?:SceneModel[]
 }
 
 interface SceneUserModel extends ModelData{

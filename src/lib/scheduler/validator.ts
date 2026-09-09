@@ -16,6 +16,7 @@ const issueList = {
     'player-dbl-book': 'warning',
     'staff-dbl-book': 'warning',
     'user-dbl-busy': 'warning',
+    'repeater-dbl-book': 'warning',
     'not-enough-players': 'warning',
     'too-many-players': 'warning',
     'unconfirmed-players': 'info',
@@ -362,6 +363,22 @@ async function validateScene(scene:SceneModel, data:ValidationCache = {}): Promi
                             code: 'user-dbl-busy',
                             text: `${user.name} is also busy with ${(_.pluck(schedule_busys, 'name')).join(', ')}`
                         });
+                    }
+                }
+
+                // Check for double-booked with a different instance of this repeater
+                if (scene.repeater && user.type === 'player'){
+                    for (const repeater of scene.repeater_scenes){
+                        if (repeater.id === scene.id) { continue; }
+                        const repeaterScene = _.findWhere(data.scenes, {id: repeater.id});
+                        if (! repeaterScene) { continue; }
+                        const repeaterSceneUser = _.findWhere(repeaterScene.users, {id:user.id});
+                        if (repeaterSceneUser && (repeaterSceneUser.scene_schedule_status === 'confirmed' || repeaterSceneUser.scene_schedule_status === 'suggested')){
+                            issues.push({
+                                code: 'repeater-dbl-book',
+                                text: `${user.name} is also booked for repeater ${repeaterScene.name}`
+                            });
+                        }
                     }
                 }
             }

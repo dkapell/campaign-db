@@ -276,7 +276,7 @@ mixin skillDisplay(skill)
     if skill.description
         .row.my-1
             .col
-                .skill-description!= marked.parseInline(skill.description)
+                .skill-description!= marked.parseInline(skill.description, {breaks:true})
 
     if skill.characters
         .row

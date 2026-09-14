@@ -331,7 +331,7 @@ async function getPostEventSurveys(campaignId:number, userId?:number){
 async function getSceneFeedbacks(attendanceId){
     const attendance = await models.attendance.get(attendanceId);
     const event = await models.event.get(attendance.event_id);
-    const allTimeslots = await models.timeslot.find({campaign_id:event.campaign_id});
+    const allTimeslotIds = _.pluck(await models.timeslot.find({campaign_id:event.campaign_id}), 'id');
     let feedbacks = await models.scene_feedback.find({survey_response_id: attendance.post_event_survey_response_id});
     feedbacks = feedbacks.filter(feedback => { return !feedback.skipped});
     feedbacks = await async.map(feedbacks, async (feedback) => {
@@ -339,11 +339,10 @@ async function getSceneFeedbacks(attendanceId){
         return feedback;
     });
 
-
     return feedbacks.sort((a, b) => {
         if (a.scene.timeslots.confirmed && b.scene.timeslots.confirmed){
             if (a.scene.timeslots.confirmed[0].id !== b.scene.timeslots.confirmed[0].id){
-                return _.indexOf(allTimeslots, a.scene.timeslots.confirmed[0].id) - _.indexOf(allTimeslots, b.scene.timeslots.confirmed[0].id)
+                return _.indexOf(allTimeslotIds, a.scene.timeslots.confirmed[0].id) - _.indexOf(allTimeslotIds, b.scene.timeslots.confirmed[0].id)
             }
         } else if (a.scene.timeslots.confirmed){
             return -1;

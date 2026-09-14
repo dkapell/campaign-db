@@ -427,13 +427,17 @@ class Character{
             if (!_.isArray(skill.requires)){
                 continue;
             }
+            if (skill.id === characterSkill.skill_id){
+                continue;
+            }
+
             for (const item of skill.requires){
                 if (_.indexOf(skillIds, item) !== -1 ){
                     found++;
                 }
             }
             if (found < skill.require_num){
-                throw new Error(`"${skill.name}" from ${skill.source.name} requires at least ${skill.require_num} of "${characterSkill.skill.requires.join(', ')}"`);
+                throw new Error(`"${skill.name}" from ${skill.source.name} requires at least ${skill.require_num} of "${skill.requires.join(', ')}"`);
             }
         }
         const doc = {

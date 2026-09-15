@@ -119,7 +119,8 @@
             "staff_unscheduled": 1,
             "player_evenness": 3
         },
-        "keepVersions":50
+        "keepVersions":50,
+        "concurrency": 5
     },
     "scheduleReports": {
         "player": {

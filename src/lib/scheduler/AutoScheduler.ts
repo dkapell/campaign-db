@@ -79,7 +79,7 @@ class AutoScheduler extends Readable{
         });
 
         const runs = (options.runs && options.runs <= 100)?options.runs:config.get('scheduler.runs') as number;
-        const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:5;
+        const concurrency = (options.concurrency&& options.concurrency <= 20)?options.concurrency:config.get('scheduler.concurrency');
         const attempts = [];
 
         const schedulerStatuses = {};

@@ -530,8 +530,8 @@ class Schedule extends EventEmitter {
                             } else if (typeof prereq === 'object'){
                                 prereqScene = _.findWhere(this.scenes, {id:prereq.id});
                             }
-                            if (!prereqScene) {0
-                                this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no prereq scene found (error?)`)
+                            if (!prereqScene) {
+                                this.debug >= 1 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no prereq scene found ${prereq.id}`)
                                 continue;
                             }
                             for (const prereqTimeslotId of prereqScene.currentTimeslots){

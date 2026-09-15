@@ -425,6 +425,8 @@ mixin sceneTable(scenes, exportable=false)
                         const staff = scene.users.filter(user => {
                             return user.scene_schedule_status === 'confirmed' && user.type !== 'player'
                         });
+
+
                     tr(class='clickable-row', data-click-object='scene' data-click-id=scene.id)
                         td.dtr-control
                         td
@@ -497,6 +499,8 @@ mixin sceneTable(scenes, exportable=false)
                                     span.ms-1 (#{scene.timeslot_count} Requested)
                             else
                                 | Unscheduled (#{scene.timeslot_count})
+                                if scene.status === 'ready' && !scene.timeslots.length
+                                    .badge.text-bg-danger.mx-1 No Timeslots
 
                         td
                             if locationsConfirmed.length
@@ -511,6 +515,8 @@ mixin sceneTable(scenes, exportable=false)
                                     span.ms-1 (#{scene.locations_count} Requested)
                             else
                                 | Unscheduled (#{scene.locations_count})
+                                if scene.status === 'ready' && !scene.locations.length
+                                    .badge.text-bg-danger.mx-1 No Locations
                         td
                             if scene.assign_players
                                 | #{scene.player_count_min} - #{scene.player_count_max} (#{players.length})

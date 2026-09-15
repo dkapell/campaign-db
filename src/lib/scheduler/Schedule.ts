@@ -540,7 +540,7 @@ class Schedule extends EventEmitter {
                                     if (_.indexOf(conflicts, prereqScene.id) === -1){
                                         conflicts.push(prereqScene.id);
                                     }
-                                    this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: before prereq ${prereqScene.id}`)
+                                    this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: before prereq ${prereqScene.name}`)
                                     continue timeslotLoop;
                                 }
                             }
@@ -1019,6 +1019,17 @@ class Schedule extends EventEmitter {
                         }
                         const records = getCharacterData(character, type)
                         if (_.findWhere(records, {id:itemId})){
+
+                            // Reject if user is already assigned to this repeater sequence
+                            if (scene.repeater){
+                                const result = await async.detect(scene.repeater_scenes, async(repeaterScene) => {
+                                    const repeaterSceneObj = _.findWhere(this.scenes, {id:repeaterScene.id})
+                                    return (repeaterSceneObj && _.indexOf(repeaterSceneObj.currentPlayers, character.user_id) !== -1);
+                                })
+                                if (result){
+                                    continue;
+                                }
+                            }
 
                             // Found an available character with required/requested skill/source
                             scene.addPossiblePlayer(character.user_id);

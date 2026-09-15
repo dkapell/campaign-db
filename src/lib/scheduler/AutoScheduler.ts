@@ -99,7 +99,10 @@ class AutoScheduler extends Readable{
 
         await async.timesLimit(runs, Number(concurrency), async (schedulerIdx): Promise<SchedulerResult> => {
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
-            const schedule = new Schedule(eventId, scenes, cache);
+            const schedule = new Schedule(eventId, scenes, cache, {
+                schedulerIdx: schedulerIdx,
+                debug: Number(config.get('scheduler.debugLevel'))
+            });
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};
 
             schedule.on('scene status', (data) => {
@@ -116,7 +119,7 @@ class AutoScheduler extends Readable{
             schedule.on('error', (err) => {
                 throw new Error(err.message);
             });
-            await schedule.run(scenesToPlace, options, schedulerIdx);
+            await schedule.run(scenesToPlace, options);
             schedulerStatuses[schedulerIdx].scheduler = 'done'
             attempts.push(schedule.summary);
             return;

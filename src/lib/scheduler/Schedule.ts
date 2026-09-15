@@ -26,6 +26,11 @@ interface FindSlotResult{
     conflicts?: number[]
 }
 
+interface ScheduleOptions{
+    schedulerIdx?: number
+    debug?: number
+}
+
 
 class Schedule extends EventEmitter {
     scenes: ScheduleScene[];
@@ -35,6 +40,7 @@ class Schedule extends EventEmitter {
     issues: string[] = [];
     global_hapiness = 0;
     debug:number = 0;
+    schedulerIdx: number = 0;
 
     scenesSeen = {
         placement:{},
@@ -45,7 +51,7 @@ class Schedule extends EventEmitter {
         all_max:{},
     }
 
-    constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
+    constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null, options:ScheduleOptions = {}){
         super();
 
         this.event_id = event_id;
@@ -58,7 +64,13 @@ class Schedule extends EventEmitter {
         this.scenes = scenes.map(scene => {
             return new ScheduleScene(scene, this.cache);
         });
-        this.debug = Number(config.get('scheduler.debugLevel'))
+
+        if (options.schedulerIdx){
+            this.schedulerIdx = options.schedulerIdx
+        }
+        if (options.debug){
+            this.debug = options.debug
+        }
     }
 
     statusUpdate(scene, duration){
@@ -180,15 +192,20 @@ class Schedule extends EventEmitter {
         return scenes;
     }
 
-    updateScenesSeen(type, scene, trigger=10){
+    updateScenesSeen(type, scene, trigger=10):number{
        if (!_.has(this.scenesSeen[type], scene.id)){
             this.scenesSeen[type][scene.id] = 0;
         }
         this.scenesSeen[type][scene.id]++;
 
         if (this.debug >= 1 && !(this.scenesSeen[type][scene.id] % trigger)){
-            console.log(`${scene.name} was seen in ${type} ${this.scenesSeen[type][scene.id]} times`)
+            console.log(`${this.schedulerIdx}: ${scene.name} was seen in ${type} ${this.scenesSeen[type][scene.id]} times`)
         }
+        return this.scenesSeen[type][scene.id];
+    }
+
+    checkSceneSeen(type, scene){
+        return this.scenesSeen[type]?.[scene.id] || 0
     }
 
     async addScene(scene:ScheduleScene){
@@ -207,9 +224,9 @@ class Schedule extends EventEmitter {
         }
     }
 
-    async run(scenes:ScheduleScene[], options:SchedulerOptions, schedulerIdx:number){
+    async run(scenes:ScheduleScene[], options:SchedulerOptions){
         this.emit('status', {
-            message: `${schedulerIdx}: starting scheduler`,
+            message: `${this.schedulerIdx}: starting scheduler`,
             duration: 0
         });
         const queue = new ScheduleQueue(scenes);
@@ -232,22 +249,17 @@ class Schedule extends EventEmitter {
             all_max:0,
         };
 
-        const scenesSeen = {
-            placement:{},
-            requested_min:{},
-            requested_max:{},
-            character:{},
-            all_min:{},
-            all_max:{},
-        }
-
-
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
             await null; // release event loop to allow keepalive
             const scene = queue.next();
 
-            this.updateScenesSeen('placement', scene, 5);
+            const seenCount = this.updateScenesSeen('placement', scene, 5);
+            if (seenCount > 20){
+                this.debug >= 1 && console.log(`${this.schedulerIdx}: failed to place ${scene.name} after 20 attempts`)
+                scene.schedule_status = 'done';
+                unscheduled++;
+            }
 
             if (scene.schedule_status === 'slotted'){
                 await this.fillUsers(scene, {status: 'required', single:false}, options);
@@ -281,7 +293,7 @@ class Schedule extends EventEmitter {
                 this.statusUpdate(scene, now - last);
                 last = now;
 
-                this.debug >= 3 && console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                this.debug >= 3 && console.log(`${this.schedulerIdx}: ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
             }
             await this.addScene(scene)
         }
@@ -319,7 +331,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    this.debug >= 3 && console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`${this.schedulerIdx}: r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -352,7 +364,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    this.debug >= 3 && console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`${this.schedulerIdx}: r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -379,7 +391,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    this.debug >= 3 && console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`${this.schedulerIdx}: c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -422,7 +434,7 @@ class Schedule extends EventEmitter {
                     const now = (new Date()).getTime();
                     this.statusUpdate(scene, now - last);
                     last = now;
-                    this.debug >= 3 && console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`${this.schedulerIdx}: a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -459,7 +471,7 @@ class Schedule extends EventEmitter {
                     const now = (new Date()).getTime();
                     this.statusUpdate(scene, now - last);
                     last = now;
-                    this.debug >= 3 && console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`${this.schedulerIdx}: a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -474,7 +486,7 @@ class Schedule extends EventEmitter {
         }
         const totalDuration = (new Date()).getTime() - start;
         this.emit('status', {
-            message: `${schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed} t:${JSON.stringify(timers)} aa:${this.avgSlots}`,
+            message: `${this.schedulerIdx}: finished in ${totalDuration}ms: h:${this.happiness} gh:${this.global_hapiness} u:${unscheduled} sp:${scenesProcessed} t:${JSON.stringify(timers)} aa:${this.avgSlots}`,
             duration: totalDuration
         });
         this.scheduleResult = {
@@ -565,6 +577,9 @@ class Schedule extends EventEmitter {
             scene.clearPlayers();
             scene.clearStaff();
             scene.status = 'ready';
+            if (this.debug >= 0 && this.checkSceneSeen('placement', scene.id) === 5){
+                console.log(`${this.schedulerIdx}: conflicts: ${conflicts.join(', ')}`)
+            }
             return {slotted: false, conflicts:conflicts};
         }
     }

@@ -525,7 +525,6 @@ class Schedule extends EventEmitter {
 
                         for (const prereq of scene.prereqs){
                             let prereqScene:ScheduleScene = null
-                            console.log(this.scenes.length)
                             if (typeof prereq === 'number'){
                                 prereqScene = _.findWhere(this.scenes, {id: prereq});
                             } else if (typeof prereq === 'object'){

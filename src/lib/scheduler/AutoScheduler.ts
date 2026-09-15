@@ -237,7 +237,9 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
             return scene;
         })
     if (Number(config.get('scheduler.debugLevel')) >= 1){
-        console.log(_.pluck(scenes, 'name').join('\n'))
+        for (const scene of scenes){
+            console.log(`${scene.id}: ${scene.name}: ${scene.score}`)
+        }
     }
     return scenes;
 }

@@ -67,7 +67,7 @@ async function show(req, res, next){
         if (req.checkPermission('gm')){
             res.locals.scene.issues = await scheduleHelper.validateScene(scene);
         }
-        if (req.checkPermission('event')){
+        if (req.checkPermission('event') && scene.event_id){
             let feedbacks = (await req.models.scene_feedback.find({scene_id: scene.id}))
                 .filter(feedback => {return !feedback.skipped});
 

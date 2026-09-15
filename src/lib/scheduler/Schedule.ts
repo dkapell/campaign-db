@@ -255,8 +255,8 @@ class Schedule extends EventEmitter {
             const scene = queue.next();
 
             const seenCount = this.updateScenesSeen('placement', scene, 5);
-            if (seenCount > 15){
-                this.debug >= 1 && console.log(`${this.schedulerIdx}: failed to place ${scene.name} after 15 attempts`)
+            if (seenCount > 25){
+                this.debug >= 1 && console.log(`${this.schedulerIdx}: failed to place ${scene.name} after 25 attempts`)
                 scene.schedule_status = 'done';
                 unscheduled++;
             }
@@ -531,7 +531,7 @@ class Schedule extends EventEmitter {
                                 prereqScene = _.findWhere(this.scenes, {id:prereq.id});
                             }
                             if (!prereqScene) {
-                                this.debug >= 1 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no prereq scene found ${prereq.id}`)
+                                this.debug >= 1 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no prereq scene found ${prereq}`)
                                 continue;
                             }
                             for (const prereqTimeslotId of prereqScene.currentTimeslots){
@@ -685,7 +685,6 @@ class Schedule extends EventEmitter {
                 clear = false;
                 break checkScene;
             }
-
         }
 
         return clear;

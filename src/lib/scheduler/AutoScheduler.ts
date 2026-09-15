@@ -227,14 +227,16 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
             for (const coreq of scene.coreqs){
                 const coreqId = getReqId(coreq);
                 const coreqScene = _.findWhere(scenes, {id:coreqId});
-                if (coreqScene && (scene.score >= coreqScene.score)){
-                    coreqScene.score = scene.score;
+                if (coreqScene && (scene.score != coreqScene.score)){
+                    const score = Math.max(scene.score, coreqScene.score);
+                    coreqScene.score = score;
+                    scene.score = score;
                 }
             }
 
             return scene;
         })
-    if (config.get('scheduler.debugLevel') >= 1){
+    if (Number(config.get('scheduler.debugLevel')) >= 1){
         console.log(_.pluck(scenes, 'name').join('\n'))
     }
     return scenes;

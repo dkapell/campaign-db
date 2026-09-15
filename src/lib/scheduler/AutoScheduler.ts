@@ -97,7 +97,7 @@ class AutoScheduler extends Readable{
         // Get list of scenes after clear
         const scenes = await models.scene.find({event_id:eventId});
 
-        await async.timesLimit(runs, concurrency, async (schedulerIdx): Promise<SchedulerResult> => {
+        await async.timesLimit(runs, Number(concurrency), async (schedulerIdx): Promise<SchedulerResult> => {
             const scenesToPlace = scoredScenes.map(scene => { return new ScheduleScene(JSON.parse(JSON.stringify(scene)), cache); });
             const schedule = new Schedule(eventId, scenes, cache);
             schedulerStatuses[schedulerIdx] = {scheduler: 'running', scenes:{}};

@@ -34,6 +34,7 @@ class Schedule extends EventEmitter {
     protected scheduleResult: SchedulerResult = {};
     issues: string[] = [];
     global_hapiness = 0;
+    debug:number = Number(config.get('scheduler.debugLevel'))
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
         super();
@@ -210,10 +211,33 @@ class Schedule extends EventEmitter {
             all_max:0,
         };
 
+        const scenesSeen = {
+            placement:{},
+            requested_min:{},
+            requested_max:{},
+            character:{},
+            all_min:{},
+            all_max:{},
+        }
+
+        function updateScenesSeen(type, scene){
+           if (!_.has(scenesSeen[type], scene.id)){
+                scenesSeen[type][scene.id] = 0;
+            }
+            scenesSeen[type][scene.id]++;
+
+            if (this.debug >= 1 && !(scenesSeen[type][scene.id] % 5)){
+                console.log(`${scene.name} was seen in ${type} ${scenesSeen[type][scene.id]} times`)
+            }
+        }
+
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
             await null; // release event loop to allow keepalive
             const scene = queue.next();
+
+            updateScenesSeen('placement', scene);
+
             if (scene.schedule_status === 'slotted'){
                 await this.fillUsers(scene, {status: 'required', single:false}, options);
             } else if (scene.schedule_status === 'new'){
@@ -246,7 +270,7 @@ class Schedule extends EventEmitter {
                 this.statusUpdate(scene, now - last);
                 last = now;
 
-                //console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                this.debug >= 3 && console.log(`ss ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
             }
             await this.addScene(scene)
         }
@@ -260,6 +284,10 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
+
+                updateScenesSeen('requested_min', scene);
+
+
                 if (scene.schedule_status === 'slotted'){
                     // fill to min with requested users
                     let happiness = 0
@@ -280,7 +308,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    //console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`r- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -292,6 +320,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
+                updateScenesSeen('requested_max', scene);
                 if (scene.schedule_status === 'users requested min'){
                     // Fill to max with requested users
                     let happiness = 0
@@ -312,7 +341,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    //console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`r+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -324,6 +353,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
+                updateScenesSeen('character', scene);
                 if (scene.schedule_status === 'users requested max'){
 
                     // Fill to max with users that fill requested sources and skills
@@ -338,7 +368,7 @@ class Schedule extends EventEmitter {
                     this.statusUpdate(scene, now - last);
                     last = now;
 
-                    //console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`c+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -353,6 +383,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
+                updateScenesSeen('all_min', scene);
                 if (scene.schedule_status === 'users fill skills'){
 
                     // Fill to min with any user
@@ -380,7 +411,7 @@ class Schedule extends EventEmitter {
                     const now = (new Date()).getTime();
                     this.statusUpdate(scene, now - last);
                     last = now;
-                    //console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`a- ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }
@@ -392,6 +423,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
+                updateScenesSeen('all_max', scene);
                 if (scene.schedule_status === 'users fill min'){
                     // Fill to max with any available user
                     let happiness = 0;
@@ -416,7 +448,7 @@ class Schedule extends EventEmitter {
                     const now = (new Date()).getTime();
                     this.statusUpdate(scene, now - last);
                     last = now;
-                    //console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
+                    this.debug >= 3 && console.log(`a+ ${((new Date()).getTime() - last)}ms ${scene.name}`); last = (new Date()).getTime();
                 }
                 await this.addScene(scene);
             }

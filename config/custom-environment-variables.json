@@ -48,6 +48,7 @@
         "runs": "SCHEDULER_RUNS",
         "keepVersions": "SCHEDULER_KEEP_VERSIONS",
         "maxScenesPerRun": "SCHEDULER_MAX_SCENES",
-        "concurrency": "SCHEDULER_CONCURRENCY"
+        "concurrency": "SCHEDULER_CONCURRENCY",
+        "debugLevel": "SCHEDULE_DEBUG_LEVEL"
     }
 }

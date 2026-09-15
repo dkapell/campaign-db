@@ -163,7 +163,7 @@ class ScheduleScene  {
                 const checkSlotIdx = timeslotIdx + idx;
                 const checkSlot = allTimeslots[checkSlotIdx];
                 if (!checkSlot) {
-                    console.log(`${this.name} has a invalid timeslot`)
+                    console.log(`${this.name} has a invalid timeslot ${timeslotIdx} + ${idx} out of ${allTimeslots.length}`)
                 }
                 // If past the end of the event, or not a possible timeslot, reject the starting timeslot
                 if (!checkSlot || checkSlotIdx >= timeslots.length || _.indexOf(scenePossibleTimeslots, checkSlot.id) === -1){

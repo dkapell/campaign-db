@@ -220,7 +220,7 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
                 const prereqScene = _.findWhere(scenes, {id:prereqId});
                 if (prereqScene && (scene.score >= prereqScene.score)){
 
-                    prereqScene.score = scene.score + 1;
+                    prereqScene.score = Math.max(prereqScene.score, scene.score + 1);
                 }
             }
 
@@ -234,7 +234,9 @@ function scoreScenes(scenes:SceneModel[]): SceneModel[]{
 
             return scene;
         })
-
+    if (config.get('scheduler.debugLevel') >= 1){
+        console.log(_.pluck(scenes, 'name').join('\n'))
+    }
     return scenes;
 }
 

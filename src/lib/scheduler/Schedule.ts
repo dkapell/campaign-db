@@ -273,6 +273,10 @@ class Schedule extends EventEmitter {
                     let retry = false;
                     for (const id of slotResult.conflicts){
                         const conflictScene = _.findWhere(this.scenes, {id:id});
+                        if (conflictScene){
+                            conflictScene.markTimeslotsInvalid();
+                        }
+
                         if (!conflictScene || conflictScene.status !== 'confirmed'){
                             retry = true;
                             queue.setStatus(id, 'new');
@@ -585,7 +589,7 @@ class Schedule extends EventEmitter {
             scene.clearStaff();
             scene.status = 'ready';
             if (this.debug >= 1){
-                console.log(`${this.schedulerIdx}: conflicts: ${conflicts.join(', ')}`)
+                console.log(`${this.schedulerIdx}: ${scene.name}: conflicts: ${conflicts.join(', ')}`)
             }
             return {slotted: false, conflicts:conflicts};
         }

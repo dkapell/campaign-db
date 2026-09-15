@@ -28,6 +28,7 @@ class ScheduleScene  {
         players: [],
         staff: []
     };
+    private invalidTimeslots = [];
     protected possibleLocationData: number[] = [];
 
     protected cache: ScheduleCache;
@@ -135,6 +136,14 @@ class ScheduleScene  {
         return [...this.current.setup_timeslots, ...this.current.cleanup_timeslots];
     }
 
+    markTimeslotsInvalid(){
+        for (const timeslotId of this.current.timeslots){
+            if (_.indexOf(this.invalidTimeslots, timeslotId) === -1){
+                this.invalidTimeslots.push(timeslotId)
+            }
+        }
+    }
+
     async possibleTimeslots(timeslots:TimeslotModel[]): Promise<number[]>{
         // Build a ordered list of possibilites based on requred > requested
         const requiredTimeslots = _.shuffle(_.pluck(_.where(this.timeslots, {scene_request_status:'required'}), 'id' ));
@@ -175,7 +184,12 @@ class ScheduleScene  {
                 possibleTimeslots.push(timeslotId);
             }
         }
-        return possibleTimeslots;
+
+        if (possibleTimeslots.length === this.invalidTimeslots.length && possibleTimeslots.length > 0){
+            this.invalidTimeslots = [];
+        }
+
+        return _.difference(possibleTimeslots, this.invalidTimeslots);
     }
 
     async setCurrentTimeslots(arr:number[]){

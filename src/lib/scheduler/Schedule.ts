@@ -255,8 +255,8 @@ class Schedule extends EventEmitter {
             const scene = queue.next();
 
             const seenCount = this.updateScenesSeen('placement', scene, 5);
-            if (seenCount > 20){
-                this.debug >= 1 && console.log(`${this.schedulerIdx}: failed to place ${scene.name} after 20 attempts`)
+            if (seenCount > 15){
+                this.debug >= 1 && console.log(`${this.schedulerIdx}: failed to place ${scene.name} after 15 attempts`)
                 scene.schedule_status = 'done';
                 unscheduled++;
             }
@@ -530,13 +530,17 @@ class Schedule extends EventEmitter {
                             } else if (typeof prereq === 'object'){
                                 prereqScene = _.findWhere(this.scenes, {id:prereq.id});
                             }
-                            if (!prereqScene) { continue; }
+                            if (!prereqScene) {0
+                                this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no prereq scene found (error?)`)
+                                continue;
+                            }
                             for (const prereqTimeslotId of prereqScene.currentTimeslots){
                                 const prereqTimeslotIdx = _.indexOf(_.pluck(timeslots, 'id'), prereqTimeslotId);
                                 if (timeslotIdx <= prereqTimeslotIdx){
                                     if (_.indexOf(conflicts, prereqScene.id) === -1){
                                         conflicts.push(prereqScene.id);
                                     }
+                                    this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: before prereq ${prereqScene.id}`)
                                     continue timeslotLoop;
                                 }
                             }
@@ -545,6 +549,7 @@ class Schedule extends EventEmitter {
 
                     // check if Required Staff and Players are available starting at this timeslot
                     if (! await this.checkTimeslotUsers(scene, timeslotId, _.indexOf(sceneTimeslots.during, checkTimeslotId) === -1)){
+                        this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: users not available at slot ${_.findWhere(timeslots, {id:checkTimeslotId}).name}`);
                         continue timeslotLoop;
                     }
 
@@ -559,6 +564,7 @@ class Schedule extends EventEmitter {
                         }
                     }
                 }
+                this.debug >= 2 && console.log(`${this.schedulerIdx}: ${scene.name}: ${attempts}: no slot found`)
             }
         }
         if (foundTimeslots.length === scene.timeslot_count){
@@ -577,7 +583,7 @@ class Schedule extends EventEmitter {
             scene.clearPlayers();
             scene.clearStaff();
             scene.status = 'ready';
-            if (this.debug >= 0 && this.checkSceneSeen('placement', scene.id) === 5){
+            if (this.debug >= 1 && this.checkSceneSeen('placement', scene.id) === 5){
                 console.log(`${this.schedulerIdx}: conflicts: ${conflicts.join(', ')}`)
             }
             return {slotted: false, conflicts:conflicts};

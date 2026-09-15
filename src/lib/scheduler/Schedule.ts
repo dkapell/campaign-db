@@ -584,7 +584,7 @@ class Schedule extends EventEmitter {
             scene.clearPlayers();
             scene.clearStaff();
             scene.status = 'ready';
-            if (this.debug >= 1 && this.checkSceneSeen('placement', scene.id) === 5){
+            if (this.debug >= 1){
                 console.log(`${this.schedulerIdx}: conflicts: ${conflicts.join(', ')}`)
             }
             return {slotted: false, conflicts:conflicts};

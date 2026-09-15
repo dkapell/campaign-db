@@ -34,7 +34,16 @@ class Schedule extends EventEmitter {
     protected scheduleResult: SchedulerResult = {};
     issues: string[] = [];
     global_hapiness = 0;
-    debug:number = Number(config.get('scheduler.debugLevel'))
+    debug:number = 0;
+
+    scenesSeen = {
+        placement:{},
+        requested_min:{},
+        requested_max:{},
+        character:{},
+        all_min:{},
+        all_max:{},
+    }
 
     constructor(event_id: number, scenes: SceneModel[], cache:ScheduleCache = null){
         super();
@@ -49,6 +58,7 @@ class Schedule extends EventEmitter {
         this.scenes = scenes.map(scene => {
             return new ScheduleScene(scene, this.cache);
         });
+        this.debug = Number(config.get('scheduler.debugLevel'))
     }
 
     statusUpdate(scene, duration){
@@ -170,6 +180,17 @@ class Schedule extends EventEmitter {
         return scenes;
     }
 
+    updateScenesSeen(type, scene, trigger=10){
+       if (!_.has(this.scenesSeen[type], scene.id)){
+            this.scenesSeen[type][scene.id] = 0;
+        }
+        this.scenesSeen[type][scene.id]++;
+
+        if (this.debug >= 1 && !(this.scenesSeen[type][scene.id] % trigger)){
+            console.log(`${scene.name} was seen in ${type} ${this.scenesSeen[type][scene.id]} times`)
+        }
+    }
+
     async addScene(scene:ScheduleScene){
         const current = _.findWhere(this.scenes, {id: scene.id});
         if (current) {
@@ -220,23 +241,13 @@ class Schedule extends EventEmitter {
             all_max:{},
         }
 
-        function updateScenesSeen(type, scene){
-           if (!_.has(scenesSeen[type], scene.id)){
-                scenesSeen[type][scene.id] = 0;
-            }
-            scenesSeen[type][scene.id]++;
-
-            if (this.debug >= 1 && !(scenesSeen[type][scene.id] % 5)){
-                console.log(`${scene.name} was seen in ${type} ${scenesSeen[type][scene.id]} times`)
-            }
-        }
 
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
             await null; // release event loop to allow keepalive
             const scene = queue.next();
 
-            updateScenesSeen('placement', scene);
+            this.updateScenesSeen('placement', scene, 5);
 
             if (scene.schedule_status === 'slotted'){
                 await this.fillUsers(scene, {status: 'required', single:false}, options);
@@ -285,7 +296,7 @@ class Schedule extends EventEmitter {
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
 
-                updateScenesSeen('requested_min', scene);
+                this.updateScenesSeen('requested_min', scene);
 
 
                 if (scene.schedule_status === 'slotted'){
@@ -320,7 +331,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
-                updateScenesSeen('requested_max', scene);
+                this.updateScenesSeen('requested_max', scene);
                 if (scene.schedule_status === 'users requested min'){
                     // Fill to max with requested users
                     let happiness = 0
@@ -353,7 +364,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
-                updateScenesSeen('character', scene);
+                this.updateScenesSeen('character', scene);
                 if (scene.schedule_status === 'users requested max'){
 
                     // Fill to max with users that fill requested sources and skills
@@ -383,7 +394,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
-                updateScenesSeen('all_min', scene);
+                this.updateScenesSeen('all_min', scene);
                 if (scene.schedule_status === 'users fill skills'){
 
                     // Fill to min with any user
@@ -423,7 +434,7 @@ class Schedule extends EventEmitter {
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
                 const scene = queue.next();
-                updateScenesSeen('all_max', scene);
+                this.updateScenesSeen('all_max', scene);
                 if (scene.schedule_status === 'users fill min'){
                     // Fill to max with any available user
                     let happiness = 0;

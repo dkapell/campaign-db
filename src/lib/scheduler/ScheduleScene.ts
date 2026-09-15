@@ -175,6 +175,9 @@ class ScheduleScene  {
                 possibleTimeslots.push(timeslotId);
             }
         }
+        if (this.name === 'A14 S7 - of substance, not ornament' ){
+            console.log(`${scenePossibleTimeslots.length} | ${possibleTimeslots.length}`)
+        }
         return possibleTimeslots;
     }
 

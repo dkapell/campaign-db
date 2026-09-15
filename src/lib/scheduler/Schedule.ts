@@ -482,9 +482,6 @@ class Schedule extends EventEmitter {
                                     if (_.indexOf(conflicts, prereqScene.id) === -1){
                                         conflicts.push(prereqScene.id);
                                     }
-                                    if (scene.name === 'A14 S7 - of substance, not ornament' ){
-                                        console.log(`continue - timeslot before prereq ${prereqScene.name}`)
-                                    }
                                     continue timeslotLoop;
                                 }
                             }
@@ -493,9 +490,6 @@ class Schedule extends EventEmitter {
 
                     // check if Required Staff and Players are available starting at this timeslot
                     if (! await this.checkTimeslotUsers(scene, timeslotId, _.indexOf(sceneTimeslots.during, checkTimeslotId) === -1)){
-                        if (scene.name === 'A14 S7 - of substance, not ornament' ){
-                            console.log(`continue - not everyone available`)
-                        }
                         continue timeslotLoop;
                     }
 
@@ -506,15 +500,9 @@ class Schedule extends EventEmitter {
                                 foundTimeslots.push(timeslots[timeslotIdx+idx].id);
                             }
                             scene.currentLocations = suggestedLocations;
-                            if (scene.name === 'A14 S7 - of substance, not ornament' ){
-                                console.log(`done, found location}`)
-                            }
                             break timeslotLoop;
                         }
                     }
-                }
-                if (scene.name === 'A14 S7 - of substance, not ornament' ){
-                    console.log(`reloop`)
                 }
             }
         }

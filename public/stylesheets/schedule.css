@@ -130,6 +130,10 @@ html, body {
 }
 
 
+.scene-placeholder {
+  opacity: 66%
+}
+
 .scene-item.disabled,
 .scene-item.tag-disabled,
 .schedule-busy-type-item.disabled,

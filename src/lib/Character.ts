@@ -482,7 +482,7 @@ class Character{
         this._data = await models.character.get(this.id);
         const doc = JSON.parse(JSON.stringify(this._data));
         doc.sources = await this.sources();
-        doc.skills = await this.skills();
+        doc.skills = await this.skills(true);
         for (const skill of doc.skills){
             console.log(`${skill.name}: ${_.pluck(skill.tags, 'name').join(', ')}`)
         }
@@ -492,9 +492,6 @@ class Character{
         doc.provides = await gatherProvides(doc.sources, false, null);
         doc.provides = await gatherProvides(doc.skills, true, doc.provides);
 
-        for (const skill of doc.provides.skills){
-            console.log(`${skill.name}: ${_.pluck(skill.tags, 'name').join(', ')}`)
-        }
         doc.provides.attributes = await this.prepAttributes(doc.provides.attributes);
         doc.provides.internalAttributes = [];
         for (const attribute of doc.provides.attributes){

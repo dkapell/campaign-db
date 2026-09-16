@@ -330,14 +330,16 @@ function clearTimeslots(e){
 function addSceneUser(e){
     e.preventDefault();
     const $container = $(this).closest('.scene-user-picker-container');
-    const $userPicker = $container.find('.scene-user-picker');
-    const user = $userPicker.find('option:selected').data('user');
+    const $userPicker = $(this).closest('.input-group').find('.scene-user-picker');
+    const users = $userPicker.find('option:selected').data('users');
     const type = $userPicker.find('option:selected').data('type');
-    if (!user) { return; }
-    if ($(`#scene-user-${user.id}`).length){
-        return;
+    if (!users) { return; }
+    for (const user of users){
+        if ($(`#scene-user-${user.id}`).length){
+            continue;
+        }
+        addSceneUserRow($container, user, type);
     }
-    addSceneUserRow($container, user, type);
     $userPicker.val(null).trigger('change');
 }
 

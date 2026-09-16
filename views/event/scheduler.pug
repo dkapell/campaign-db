@@ -160,18 +160,26 @@ block maincontent
                     i.fas.fa-tasks.me-1
                     | Issues
                 if checkPermission('admin,scheduler')
-                    a.btn.btn-sm.btn-outline-info.me-2.pt-1(
+                    a.btn.btn-sm.btn-outline-info.mx-1.pt-1(
                         href=`/event/${event.id}/schedules`
                         data-bs-toggle='tooltip'
                         title='Manage Snapshots'
                     )
-                        i.fas.fa-history
-                button.btn.btn-sm.btn-outline-info#collapse-all-scenes-btn.pt-1(
+                        i.fas.fa-fw.fa-history
+                button.btn.btn-sm.btn-outline-info.mx-1#collapse-all-scenes-btn.pt-1(
                     role="button"
                     data-bs-toggle='tooltip'
                     title='Close all Scene Details'
                 )
-                    i.fas.fa-eye-slash
+                    i.fas.fa-fw.fa-eye-slash
+
+                a.btn.btn-sm.btn-outline-info#checkSchedule-btn.pt-1.mx-1(
+                    href=`/event/${event.id}/schedule/check`
+                    target='_blank'
+                    data-bs-toggle='tooltip'
+                    title='Check Attendee Allocation'
+                )
+                    i.fas.fa-fw.fa-clipboard-check
                 .badge.text-bg-warning.fs-6.rounded-pill.ms-3#validatingIndicator Validating
 
             .col-md-auto.pe-3.pt-1

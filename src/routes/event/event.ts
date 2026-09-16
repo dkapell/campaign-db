@@ -710,6 +710,7 @@ router.get('/:id/timeslot', permission('contrib'), scheduleRoutes.getUsersPerTim
 router.get('/:id/timeslot/:timeslotId', permission('contrib'), scheduleRoutes.getUsersAtTimeslot);
 router.get('/:id/timeslot/:timeslotId/busy', permission('contrib'), scheduleRoutes.getBusyUsersAtTimeslot);
 router.get('/:id/user/:userId/schedule', scheduleRoutes.getUserSchedule);
+router.get('/:id/schedule/check', permission('gm'), scheduleRoutes.checkSchedule);
 router.put('/:id/scheduler', permission('admin, scheduler'), scheduleRoutes.runScheduler);
 router.put('/:id/scheduler/clear', permission('admin, scheduler'), scheduleRoutes.clearSchedule);
 router.put('/:id/schedule/:scheduleId/keep', permission('admin, scheduler'), scheduleRoutes.keepScheduleSnapshot);

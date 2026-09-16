@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+    h3 Schedule Check for #{event.name}
+
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Name
+                    th Type
+                    th Busy Slots
+                    th Scheduled Slots
+                    th Scenes
+
+            tbody
+                each user in users
+                    -
+                        const slotsBusy = user.schedule.filter(timeslot => {
+                            if (timeslot.scenes.length) { return true; }
+                            if (timeslot.schedule_busy) { return true; }
+                            return false;
+                        })
+                        const slotsScheduled = user.schedule.filter(timeslot => {
+                            if (timeslot.scenes.length) { return true; }
+                            return false;
+                        })
+                        const scenes = user.schedule.reduce((a, timeslot) => {
+                            for (const scene of timeslot.scenes){
+                                if (!_.findWhere(a, {id:scene.id})){
+                                    a.push(scene);
+                                }
+                            }
+                            return a;
+                        }, [])
+                    tr
+                        td.dtr-control
+                        td=user.name
+                        td=capitalize(user.typeForDisplay)
+                        td=slotsBusy.length
+                        td=slotsScheduled.length
+                        td=scenes.length
+
+
+append scripts
+    script(src='/javascripts/data-table.js')

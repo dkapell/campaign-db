@@ -2,6 +2,7 @@ import _ from 'underscore';
 import async from 'async';
 import scheduleHelper from '../../lib/scheduleHelper';
 import scheduler from '../../lib/scheduler';
+import campaignHelper from '../../lib/campaignHelper';
 
 async function showScheduler(req, res, next){
     const id = req.params.id;
@@ -840,6 +841,42 @@ async function getUserSchedule(req, res){
     }
 }
 
+async function checkSchedule(req, res, next){
+    const eventId = req.params.id;
+    try{
+        const event = await req.models.event.get(eventId);
+
+        if (!event || event.campaign_id !== req.campaign.id){
+            throw new Error('Invalid Event');
+        }
+
+        if (! await req.isScheduleVisible(event.id)){
+            throw new Error('Schedule is not live')
+        }
+
+        res.locals.breadcrumbs = {
+            path: [
+                { url: '/', name: 'Home'},
+                { url: '/event', name: 'Events'},
+                { url: `/event/${event.id}`,name: event.name}
+            ],
+            current: 'Schedule Check'
+        };
+        res.locals.title += ` - Event - ${event.name} - Schedule Check`;
+        const schedule = await scheduleHelper.getSchedule(eventId)
+        const attendees = event.attendees.filter(attendance => {return attendance.attending});
+
+        res.locals.users = (await async.map(attendees, async (attendance) => {
+            attendance.user.schedule = await scheduleHelper.getUserSchedule(eventId, attendance.user_id, false, true, JSON.parse(JSON.stringify(schedule)));
+            return attendance.user
+        })).sort(campaignHelper.userSorter);
+        res.locals.event = event;
+        res.render('event/scheduleCheck');
+    } catch (err){
+        next(err);
+    }
+}
+
 async function runScheduler(req, res){
     const eventId = req.params.id;
     try{
@@ -1197,4 +1234,5 @@ export default {
     saveScheduleSnapshot,
     removeScheduleSnapshot,
     getReport,
+    checkSchedule
 };

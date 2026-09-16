@@ -252,17 +252,17 @@ function startDragUser($user, data){
                 accept: '.user-item',
                 tolerance: 'pointer',
                 drop: function(event, ui){
-                    $('.scene-item-droppable').droppable("option", "accept", '.user-item');
-                    updateScheduleBusyUser(event, ui)
+                    $('.scene-item-droppable').droppable('option', 'accept', '.user-item');
+                    updateScheduleBusyUser(event, ui);
                 },
                 classes: {
                     'ui-droppable-hover': 'bg-success-subtle border-success'
                 },
                 over: function(event, ui) {
-                    $('.scene-item-droppable').droppable("option", "accept", ".none");
+                    $('.scene-item-droppable').droppable('option', 'accept', '.none');
                 },
                 out: function(event, ui) {
-                    $('.scene-item-droppable').droppable("option", "accept", '.user-item');
+                    $('.scene-item-droppable').droppable('option', 'accept', '.user-item');
                 },
 
             });

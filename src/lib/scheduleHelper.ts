@@ -444,6 +444,7 @@ async function getUserSchedule(eventId:number, userId:number, forPlayer:boolean=
     }
 
     if (!schedule){
+        console.log('load schedule')
         schedule = await getSchedule(eventId);
     }
 

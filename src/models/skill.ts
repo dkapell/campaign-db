@@ -270,11 +270,10 @@ async function fill(record:SkillModel, data?){
 
         record.tags = record.tags.map(skill_tag => {
             return _.findWhere(data.tags, {'id': Number(skill_tag)});
-        })
-        console.log(`fill - ${record.name}: ${_.pluck(record.tags, 'name').join()}: ${data.tags?.length||0} Tags`)
-        record.tags = record.tags.filter(tag => {
+        }).filter(tag => {
             return tag;
         });
+
         console.log(`filtered - ${record.name}: ${_.pluck(record.tags, 'name').join()}: ${data.tags?.length||0} Tags`)
 
         record.tags = record.tags.sort((a, b) => {

@@ -30,12 +30,13 @@ async function showGroupReport(req, res, next){
     try{
         res.locals.group = []
         const characters = await req.models.character.find({active:true, campaign_id: req.campaign.id});
-        res.locals.characters = await async.map(characters, async (character) => {
+
+        res.locals.characters = (await async.map(characters, async (character) => {
             if (character.user_id){
                 character.user = await req.models.user.get(req.campaign.id, Number(character.user_id));
             }
             return character;
-        });
+        })).filter(character => { return character.user.type !== 'none'});
 
         res.locals.group = []
         if (req.query.group){

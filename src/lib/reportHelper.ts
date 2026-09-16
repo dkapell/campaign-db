@@ -94,6 +94,8 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
             }
         }
 
+        console.log(`${character.provides.skills.length} Skills Found`)
+
         for (const skill of character.provides.skills){
             for (const tag of skill.tags as SkillTagModel[]){
                 if (!_.has(output.skills, tag.name)){

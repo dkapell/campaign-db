@@ -261,19 +261,21 @@ async function fill(record:SkillModel, data?){
     console.log(`raw - ${record.name}: ${record.tags.join()}: ${data.tags?.length||0} Tags`)
     if (record.tags){
         if (!data.tags){
-            data.tags = await cache.check('skill-data-tags', 'all');
+            data.tags = await cache.check('skill-data-tags', `all-${record.campaign_id}`);
             if (!data.tags){
                 data.tags = await models.tag.find({campaign_id:record.campaign_id});
-                await cache.store('skill-data-tags', 'all', data.tags, 5);
+                await cache.store('skill-data-tags', `all-${record.campaign_id}`, data.tags, 5);
             }
         }
 
         record.tags = record.tags.map(skill_tag => {
             return _.findWhere(data.tags, {'id': Number(skill_tag)});
-        }).filter(tag => {
+        })
+        console.log(`fill - ${record.name}: ${_.pluck(record.tags, 'name').join()}: ${data.tags?.length||0} Tags`)
+        record.tags = record.tags.filter(tag => {
             return tag;
         });
-        console.log(`fill - ${record.name}: ${_.pluck(record.tags, 'name').join()}: ${data.tags?.length||0} Tags`)
+        console.log(`filtered - ${record.name}: ${_.pluck(record.tags, 'name').join()}: ${data.tags?.length||0} Tags`)
 
         record.tags = record.tags.sort((a, b) => {
             if (a.type === 'category'){

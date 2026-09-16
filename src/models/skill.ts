@@ -266,11 +266,14 @@ async function fill(record:SkillModel, data?){
                 await cache.store('skill-data-tags', 'all', data.tags, 5);
             }
         }
+        console.log(`${record.name}: ${record.tags.join()}`)
         record.tags = record.tags.map(skill_tag => {
             return _.findWhere(data.tags, {'id': skill_tag});
         }).filter(tag => {
             return tag;
         });
+        console.log(`${record.name}: ${_.pluck(record.tags, 'name').join()}`)
+
         record.tags = record.tags.sort((a, b) => {
             if (a.type === 'category'){
                 if (b.type === 'category'){

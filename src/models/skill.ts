@@ -72,7 +72,7 @@ async function find(conditions:Conditions, options?:RequestOptions): Promise<Ski
         return result.rows;
     } else {
         const data = {
-            tags: await models.tag.find({campaign_id:record.campaign_id}),
+            tags: await models.tag.find(),
             sources: [],
             usages:[],
             statuses:[]

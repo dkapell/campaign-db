@@ -552,7 +552,7 @@ class Character{
             return doc;
         }).sort(skillHelper.sorter);
         await cache.store('character-skills-cache', this.id, skills, 3);
-        console.log(`returning ${skill.length} skills`)
+        console.log(`returning ${skills.length} skills`)
         return skills;
     }
 

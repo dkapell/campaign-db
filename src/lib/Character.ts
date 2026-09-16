@@ -524,7 +524,9 @@ class Character{
             return skills;
         }
 
+
         skills = await models.character_skill.find({character_id:this.id});
+        console.log(`Skill Count = ${skills.length}`)
         const allSkills = JSON.parse(JSON.stringify(skills));
         skills = skills.map(skill => {
             const doc = skill.skill;

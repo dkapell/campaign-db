@@ -515,6 +515,7 @@ class Character{
         doc.custom_field = await models.character_custom_field.find({character_id:this.id});
         doc.custom_field =  _.sortBy(doc.custom_field, (field) => { return field.custom_field.display_order;});
 
+        console.log(`provides has ${doc.provides.skills.length} skills at this point`)
         return doc;
     }
 
@@ -551,6 +552,7 @@ class Character{
             return doc;
         }).sort(skillHelper.sorter);
         await cache.store('character-skills-cache', this.id, skills, 3);
+        console.log(`returning ${skill.length} skills`)
         return skills;
     }
 

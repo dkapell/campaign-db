@@ -94,22 +94,17 @@ async function aggregateCharacterData(data: CharacterData[], campaignId:number):
             }
         }
 
-        console.log(`${character.provides.skills.length} Skills Found`)
-
         for (const skill of character.provides.skills){
-            console.log(`Working on ${character.name}: ${skill.name}: ${_.pluck(skill.tags, 'name').join(', ')}`);
             for (const tag of skill.tags as SkillTagModel[]){
                 if (!_.has(output.skills, tag.name)){
                     output.skills[tag.name] = [];
                 }
                 const existing = _.findWhere(output.skills[tag.name], {id:skill.id});
                 if (existing){
-                    console.log(`adding character ${character.name} to skill ${skill.name} for tag ${tag.name}`)
                     if (_.indexOf((existing.characters as number[]), character.id)=== -1){
                         (existing.characters as number[]).push(character.id);
                     }
                 } else {
-                    console.log(`adding character ${character.name} to skill ${skill.name} for tag ${tag.name}`)
                     skill.characters = [character.id];
                     output.skills[tag.name].push(skill);
                 }

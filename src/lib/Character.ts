@@ -483,9 +483,6 @@ class Character{
         const doc = JSON.parse(JSON.stringify(this._data));
         doc.sources = await this.sources();
         doc.skills = await this.skills();
-        for (const skill of doc.skills){
-            console.log(`${skill.name}: ${_.pluck(skill.tags, 'name').join(', ')}`)
-        }
 
         doc.user = await models.user.get(this._data.campaign_id, this._data.user_id);
 

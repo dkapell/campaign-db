@@ -31,7 +31,6 @@ interface ScheduleOptions{
     debug?: number
 }
 
-
 class Schedule extends EventEmitter {
     scenes: ScheduleScene[];
     event_id: number;
@@ -249,6 +248,7 @@ class Schedule extends EventEmitter {
             all_max:0,
         };
 
+        // Slot Scenes into the schedule based on required users availability, timeslots, locations, and prereqs
         while (queue.length && scenesProcessed < maxScenesPerRun){
             scenesProcessed++;
             await null; // release event loop to allow keepalive
@@ -305,7 +305,10 @@ class Schedule extends EventEmitter {
         timers.placement = now - sectionLast;
         sectionLast = now;
 
+
         if (options.phase !== 'required'){
+
+            // Fill scenes with Requested people up to minimums
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
@@ -342,6 +345,8 @@ class Schedule extends EventEmitter {
             let now = (new Date()).getTime();
             timers.requested_min = now - sectionLast;
             sectionLast = now;
+
+            // Fill scenes with Requested people up to maximums
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
@@ -376,6 +381,7 @@ class Schedule extends EventEmitter {
             timers.requested_max = now - sectionLast;
             sectionLast = now;
             queue.restart();
+            // Add players to scenes based on requested/required skills
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
                 await null; // release event loop to allow keepalive
@@ -405,6 +411,8 @@ class Schedule extends EventEmitter {
         }
 
         if (options.phase === 'all'){
+
+            // Fill all scenes with users up to min
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
@@ -445,6 +453,8 @@ class Schedule extends EventEmitter {
             let now = (new Date()).getTime();
             timers.all_min = now - sectionLast;
             sectionLast = now;
+
+            // Fill all scenes with users up to max
             queue.restart();
             while (queue.length && scenesProcessed < maxScenesPerRun){
                 scenesProcessed++;
@@ -865,6 +875,22 @@ class Schedule extends EventEmitter {
         return result;
     }
 
+    userLoadSorter(aId:number, bId:number):number {
+        return this.getUserLoad(aId) - this.getUserLoad(bId);
+    }
+
+    getUserLoad(userId:number):number{
+        let load = 0;
+        for (const scene of this.scenes){
+            if (_.indexOf(scene.currentPlayers, userId) !== -1){
+                load++;
+            } else if (_.indexOf(scene.currentStaff, userId) !== -1){
+                load++
+            }
+        }
+        return load;
+    }
+
     protected async fillUsers(scene:ScheduleScene, fillOptions:SchedulerFillUserOptions, options:SchedulerOptions):Promise<number>{
 
         const available = {
@@ -881,15 +907,15 @@ class Schedule extends EventEmitter {
             if (!options.skipPlayers && scene.assign_players && !scene.for_anyone){
                 const allPlayers = await this.allAttendeeIds('player');
                 const rejectedPlayers = scene.desiredPlayers('rejected');
-                requestedPlayers = _.shuffle(allPlayers.filter(id => {
+                requestedPlayers = allPlayers.filter(id => {
                     return _.indexOf(rejectedPlayers, id) === -1
-                }));
+                }).sort((a,b) => {return this.userLoadSorter(a, b)});
             }
             const allStaff = await this.allAttendeeIds('staff');
             const rejectedStaff = scene.desiredPlayers('rejected');
-            requestedStaff = _.shuffle(allStaff.filter(id => {
+            requestedStaff = allStaff.filter(id => {
                 return _.indexOf(rejectedStaff, id) === -1
-            }));
+            }).sort((a,b) => {return this.userLoadSorter(a, b)});
 
         } else {
             requestedPlayers = _.shuffle(scene.desiredPlayers(fillOptions.status));

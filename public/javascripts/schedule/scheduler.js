@@ -1,5 +1,5 @@
 /* globals showSuccess collapseScenes collapseAllScenes, confirmScene updateAllSlots validateAllScenes updateSceneStatus showUsersBtn collapseAllScenes*/
-/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
+/* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages bootstrap */
 $(function(){
     $('[data-bs-toggle="tooltip"]').tooltip({
         delay: { 'show': 300, 'hide': 100 },
@@ -30,6 +30,8 @@ $(function(){
         $('.unscheduled').css('left', $('#topleft').width());
         $('.schedule-legend').css('left', $('#topleft').width());
     }, 100);
+
+    $('#show-logistics-slots').on('change', showLogisticsSlotsToggle);
 
 });
 
@@ -246,4 +248,24 @@ function updateSceneLocation(scene){
             updateSceneStatus($(this), scene.status);
         });
     }
+}
+
+
+function showLogisticsSlotsToggle(e){
+    const label = document.querySelector('#show-logistics-slots-label');
+
+    if ($(this).is(':checked')){
+        $('.scene-placeholder').addClass('d-none');
+        label.setAttribute('data-bs-title', 'Show Logistics Slots');
+
+    } else {
+        $('.scene-placeholder').removeClass('d-none');
+        label.setAttribute('data-bs-title', 'Hide Logistics Slots');
+    }
+    let tooltipInstance = bootstrap.Tooltip.getInstance(label);
+    if (tooltipInstance){
+        tooltipInstance.dispose();
+    }
+    tooltipInstance = new bootstrap.Tooltip(label);
+    tooltipInstance.show();
 }

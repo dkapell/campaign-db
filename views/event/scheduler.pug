@@ -180,6 +180,15 @@ block maincontent
                     title='Check Attendee Allocation'
                 )
                     i.fas.fa-fw.fa-clipboard-check
+
+                input.btn-check#show-logistics-slots(type='checkbox' autocomplete="off")
+                label.btn.btn-outline-info.btn-sm#show-logistics-slots-label(
+                    for='show-logistics-slots'
+                    data-bs-toggle='tooltip'
+                    title='Hide Logistics Slots'
+                )
+                    i.fas.fa-fw.fa-broom
+
                 .badge.text-bg-warning.fs-6.rounded-pill.ms-3#validatingIndicator Validating
 
             .col-md-auto.pe-3.pt-1

@@ -875,17 +875,19 @@ class Schedule extends EventEmitter {
         return result;
     }
 
-    userLoadSorter(aId:number, bId:number):number {
-        return this.getUserLoad(aId) - this.getUserLoad(bId);
-    }
+    protected async getUserLoad(userId:number): Promise<number> {
 
-    getUserLoad(userId:number):number{
-        let load = 0;
+        const schedule_busys = _.where(await this.cache.schedule_busys(), {
+            event_id: Number(this.event_id),
+            user_id: Number(userId)
+        });
+
+        let load = schedule_busys ? schedule_busys.length : 0
         for (const scene of this.scenes){
             if (_.indexOf(scene.currentPlayers, userId) !== -1){
-                load++;
+                load += scene.timeslot_count;
             } else if (_.indexOf(scene.currentStaff, userId) !== -1){
-                load++
+                load += scene.timeslot_count;
             }
         }
         return load;
@@ -907,15 +909,26 @@ class Schedule extends EventEmitter {
             if (!options.skipPlayers && scene.assign_players && !scene.for_anyone){
                 const allPlayers = await this.allAttendeeIds('player');
                 const rejectedPlayers = scene.desiredPlayers('rejected');
+                // Remove Rejected
                 requestedPlayers = allPlayers.filter(id => {
                     return _.indexOf(rejectedPlayers, id) === -1
-                }).sort((a,b) => {return this.userLoadSorter(a, b)});
+                });
+                // Place least scheduled first
+                requestedPlayers = await async.sortBy(requestedPlayers, async (userId) => {
+                    return this.getUserLoad(userId)
+                });
             }
+
             const allStaff = await this.allAttendeeIds('staff');
             const rejectedStaff = scene.desiredPlayers('rejected');
+            // Remove Rejected
             requestedStaff = allStaff.filter(id => {
                 return _.indexOf(rejectedStaff, id) === -1
-            }).sort((a,b) => {return this.userLoadSorter(a, b)});
+            });
+            // Place least scheduled first
+            requestedStaff = await async.sortBy(requestedStaff, async (userId) => {
+                return this.getUserLoad(userId)
+            });
 
         } else {
             requestedPlayers = _.shuffle(scene.desiredPlayers(fillOptions.status));

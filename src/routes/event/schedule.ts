@@ -865,11 +865,58 @@ async function checkSchedule(req, res, next){
         res.locals.title += ` - Event - ${event.name} - Schedule Check`;
         const schedule = await scheduleHelper.getSchedule(eventId)
         const attendees = event.attendees.filter(attendance => {return attendance.attending});
-
         res.locals.users = (await async.map(attendees, async (attendance) => {
             attendance.user.schedule = await scheduleHelper.getUserSchedule(eventId, attendance.user_id, false, true, JSON.parse(JSON.stringify(schedule)));
             return attendance.user
         })).sort(campaignHelper.userSorter);
+
+        const timeslots = schedule.timeslots.map(timeslot => {
+            let busyStaff = 0;
+            let busyPlayers = 0;
+            let scenes = 0;
+
+            for (const schedule_busy of _.where(schedule.schedule_busies, {timeslot_id:timeslot.id})){
+                const attendance = _.findWhere(attendees, {user_id: schedule_busy.user_id})
+                if (attendance){
+                    if (attendance.user.type === 'player'){
+                        busyPlayers++
+                    } else {
+                        busyStaff++;
+                    }
+                }
+            }
+
+            for (const scene of schedule.scenes){
+                if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
+                    _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}) ){
+
+                    scenes++;
+
+                    for (const attendance of attendees){
+                        if (_.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'confirmed'}) ||
+                            _.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'suggested'})){
+                            if (attendance.user.type === 'player'){
+                                busyPlayers++
+                            } else {
+                                busyStaff++;
+                            }
+                        }
+                    }
+                }
+            }
+            return {
+                name: timeslot.name,
+                scenes: scenes,
+                busyStaff: busyStaff,
+                busyPlayers: busyPlayers,
+                totalStaff: attendees.filter(attendee => { return attendee.user.type !== 'player'}).length,
+                totalPlayers: attendees.filter(attendee => { return attendee.user.type === 'player'}).length
+            }
+
+        });
+
+        res.locals.timeslots = timeslots;
+
         res.locals.event = event;
         res.render('event/scheduleCheck');
     } catch (err){

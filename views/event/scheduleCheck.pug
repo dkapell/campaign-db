@@ -2,7 +2,32 @@ extends ../layout
 
 block content
     h3 Schedule Check for #{event.name}
+    ul.nav.nav-tabs.w-100.my-2#scheduleCheckTabs(role="tablist")
+        li.nav-item(role="presentation")
+            a.nav-link.active#schedule-users-tab(href="#schedule-users" data-bs-toggle="tab" role="tab" aria-controls="schedule-users" aria-selected="true") Scheduling Load
 
+        li.nav-item(role="presentation")
+            a.nav-link#player-timeslot-tab(href="#player-timeslot" data-bs-toggle="tab" role="tab" aria-controls="player-timeslot" aria-selected="false") Players by Timeslot
+
+        li.nav-item(role="presentation")
+            a.nav-link#staff-timeslot-tab(href="#staff-timeslot" data-bs-toggle="tab" role="tab" aria-controls="staff-timeslot" aria-selected="false") Staff by Timeslot
+
+    .tab-content#grantTabsContent
+        .tab-pane.fade.show.active#schedule-users(role="tabpanel" aria-labelledby="schedule-users-tab")
+            h4 Load by User
+            +scheduleLoadTable(users)
+
+        .tab-pane.fade#player-timeslot(role="tabpanel" aria-labelledby="player-timeslot-tab")
+            h4 Players by Timeslot
+            +loadByTimeslot(timeslots, true)
+
+        .tab-pane.fade#staff-timeslot(role="tabpanel" aria-labelledby="staff-timeslot-tab")
+            h4 Staff by Timeslot
+            +loadByTimeslot(timeslots, false)
+
+
+
+mixin scheduleLoadTable(users)
     .table-responsive
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
@@ -47,6 +72,30 @@ block content
                         td=slotsScheduled.length
                         td=scenes.length
 
+mixin loadByTimeslot(timeslots, players=false)
+    .table-responsive
+        .col-sm-6.offset-sm-3.text-center.table-loading
+            .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
+                .visually-hidden Table is Loading
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+            style="display: none"
+            )
+            thead
+                tr
+                    th
+                    th(data-priority="1") Timeslot
+                    th Scenes
+                    th Busy
+                    th Free
+
+            tbody
+                each timeslot in timeslots
+                    tr
+                        td.dtr-control
+                        td=timeslot.name
+                        td=timeslot.scenes
+                        td=players?timeslot.busyPlayers:timeslot.busyStaff
+                        td=(players?timeslot.totalPlayers:timeslot.totalStaff) - (players?timeslot.busyPlayers:timeslot.busyStaff)
 
 append scripts
     script(src='/javascripts/data-table.js')

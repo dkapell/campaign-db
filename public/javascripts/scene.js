@@ -556,7 +556,6 @@ function clearCustomSceneValidity(e){
 
 function submitSceneForm(e){
     //e.preventDefault();
-    console.log('called');
     const $form = $(this);
 
     if ($('#scene_status').val() !== 'ready'){

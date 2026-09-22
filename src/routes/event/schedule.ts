@@ -3,6 +3,7 @@ import async from 'async';
 import scheduleHelper from '../../lib/scheduleHelper';
 import scheduler from '../../lib/scheduler';
 import campaignHelper from '../../lib/campaignHelper';
+import stringify from 'csv-stringify-as-promised';
 
 async function showScheduler(req, res, next){
     const id = req.params.id;
@@ -854,6 +855,115 @@ async function checkSchedule(req, res, next){
             throw new Error('Schedule is not live')
         }
 
+        const schedule = await scheduleHelper.getSchedule(eventId)
+        const attendees = event.attendees.filter(attendance => {return attendance.attending});
+
+
+        if (!req.query.export || req.query.export === 'timeslot'){
+            res.locals.timeslots = schedule.timeslots.map(timeslot => {
+                let busyStaff = {};
+                let busyPlayers = {};
+                let scenes = 0;
+
+                for (const schedule_busy of _.where(schedule.schedule_busies, {timeslot_id:timeslot.id})){
+                    const attendance = _.findWhere(attendees, {user_id: schedule_busy.user_id})
+                    if (attendance){
+                        if (attendance.user.type === 'player'){
+                            busyPlayers[attendance.user.id] = 1
+                        } else {
+                            busyStaff[attendance.user.id] = 1
+                        }
+                    }
+                }
+
+                for (const scene of schedule.scenes){
+                    if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
+                        _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}) ){
+
+                        scenes++;
+
+                        for (const attendance of attendees){
+                            if (_.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'confirmed'}) ||
+                                _.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'suggested'})){
+                                if (attendance.user.type === 'player'){
+                                    busyPlayers[attendance.user.id] = 1
+                                } else {
+                                    busyStaff[attendance.user.id] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                return {
+                    name: timeslot.name,
+                    scenes: scenes,
+                    busyStaff: _.keys(busyStaff).length,
+                    busyPlayers: _.keys(busyPlayers).length,
+                    totalStaff: attendees.filter(attendee => { return attendee.user.type !== 'player'}).length,
+                    totalPlayers: attendees.filter(attendee => { return attendee.user.type === 'player'}).length
+                }
+            });
+
+        }
+
+        if (!req.query.export || req.query.export==='attendee') {
+            res.locals.users = (await async.map(attendees, async (attendance) => {
+                attendance.user.schedule = await scheduleHelper.getUserSchedule(eventId, attendance.user_id, false, true, JSON.parse(JSON.stringify(schedule)));
+                return attendance.user
+            })).sort(campaignHelper.userSorter);
+        }
+
+        if (req.query.export === 'timeslot'){
+            const output = [
+                ['Timeslot', 'Scenes', 'Players Busy', 'Players Free', 'Staff Busy', 'Staff Free']
+            ]
+            for (const timeslot of res.locals.timeslots){
+                output.push([
+                    timeslot.name,
+                    timeslot.scenes,
+                    timeslot.busyPlayers,
+                    timeslot.totalPlayers - timeslot.busyPlayers,
+                    timeslot.busyStaff,
+                    timeslot.totalStaff - timeslot.busyStaff
+                ]);
+            }
+            res.attachment(`${event.name} - schedule by timeslot.csv`);
+            return res.end(await stringify(output, {}));
+        }
+         if (req.query.export === 'attendee'){
+            const output = [
+                ['Name', 'Type', 'Busy Slots', 'Scheduled Slots', 'Scenes']
+            ]
+            for (const user of res.locals.users){
+                const slotsBusy = user.schedule.filter(timeslot => {
+                    if (timeslot.scenes.length) { return true; }
+                    if (timeslot.schedule_busy) { return true; }
+                    return false;
+                }).length
+                const slotsScheduled = user.schedule.filter(timeslot => {
+                    if (timeslot.scenes.length) { return true; }
+                    return false;
+                }).length
+                const scenes = user.schedule.reduce((a, timeslot) => {
+                    for (const scene of timeslot.scenes){
+                        if (!_.findWhere(a, {id:scene.id})){
+                            a.push(scene);
+                        }
+                    }
+                    return a;
+                }, []).length
+                output.push([
+                    user.name,
+                    user.typeForDisplay,
+                    slotsBusy,
+                    slotsScheduled,
+                    scenes
+                ]);
+            }
+            res.attachment(`${event.name} - schedule by attendee.csv`);
+            return res.end(await stringify(output, {}));
+        }
+
         res.locals.breadcrumbs = {
             path: [
                 { url: '/', name: 'Home'},
@@ -863,59 +973,11 @@ async function checkSchedule(req, res, next){
             current: 'Schedule Check'
         };
         res.locals.title += ` - Event - ${event.name} - Schedule Check`;
-        const schedule = await scheduleHelper.getSchedule(eventId)
-        const attendees = event.attendees.filter(attendance => {return attendance.attending});
         res.locals.users = (await async.map(attendees, async (attendance) => {
             attendance.user.schedule = await scheduleHelper.getUserSchedule(eventId, attendance.user_id, false, true, JSON.parse(JSON.stringify(schedule)));
             return attendance.user
         })).sort(campaignHelper.userSorter);
 
-        const timeslots = schedule.timeslots.map(timeslot => {
-            let busyStaff = 0;
-            let busyPlayers = 0;
-            let scenes = 0;
-
-            for (const schedule_busy of _.where(schedule.schedule_busies, {timeslot_id:timeslot.id})){
-                const attendance = _.findWhere(attendees, {user_id: schedule_busy.user_id})
-                if (attendance){
-                    if (attendance.user.type === 'player'){
-                        busyPlayers++
-                    } else {
-                        busyStaff++;
-                    }
-                }
-            }
-
-            for (const scene of schedule.scenes){
-                if (_.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'confirmed'}) ||
-                    _.findWhere(scene.timeslots, {id:timeslot.id, scene_schedule_status:'suggested'}) ){
-
-                    scenes++;
-
-                    for (const attendance of attendees){
-                        if (_.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'confirmed'}) ||
-                            _.findWhere(scene.users, {id:attendance.user.id, scene_schedule_status:'suggested'})){
-                            if (attendance.user.type === 'player'){
-                                busyPlayers++
-                            } else {
-                                busyStaff++;
-                            }
-                        }
-                    }
-                }
-            }
-            return {
-                name: timeslot.name,
-                scenes: scenes,
-                busyStaff: busyStaff,
-                busyPlayers: busyPlayers,
-                totalStaff: attendees.filter(attendee => { return attendee.user.type !== 'player'}).length,
-                totalPlayers: attendees.filter(attendee => { return attendee.user.type === 'player'}).length
-            }
-
-        });
-
-        res.locals.timeslots = timeslots;
 
         res.locals.event = event;
         res.render('event/scheduleCheck');

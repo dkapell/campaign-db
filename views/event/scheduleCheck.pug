@@ -4,36 +4,29 @@ block content
     h3 Schedule Check for #{event.name}
     ul.nav.nav-tabs.w-100.my-2#scheduleCheckTabs(role="tablist")
         li.nav-item(role="presentation")
-            a.nav-link.active#schedule-users-tab(href="#schedule-users" data-bs-toggle="tab" role="tab" aria-controls="schedule-users" aria-selected="true") Scheduling Load
+            a.nav-link.active#schedule-users-tab(href="#schedule-users" data-bs-toggle="tab" role="tab" aria-controls="schedule-users" aria-selected="true") By Attendee
 
         li.nav-item(role="presentation")
-            a.nav-link#player-timeslot-tab(href="#player-timeslot" data-bs-toggle="tab" role="tab" aria-controls="player-timeslot" aria-selected="false") Players by Timeslot
-
-        li.nav-item(role="presentation")
-            a.nav-link#staff-timeslot-tab(href="#staff-timeslot" data-bs-toggle="tab" role="tab" aria-controls="staff-timeslot" aria-selected="false") Staff by Timeslot
+            a.nav-link#schedule-timeslot-tab(href="#schedule-timeslot" data-bs-toggle="tab" role="tab" aria-controls="schedule-timeslot" aria-selected="false") By Timeslot
 
     .tab-content#grantTabsContent
         .tab-pane.fade.show.active#schedule-users(role="tabpanel" aria-labelledby="schedule-users-tab")
-            h4 Load by User
+            h4 Schedule By Attendee
             +scheduleLoadTable(users)
 
-        .tab-pane.fade#player-timeslot(role="tabpanel" aria-labelledby="player-timeslot-tab")
-            h4 Players by Timeslot
-            +loadByTimeslot(timeslots, true)
-
-        .tab-pane.fade#staff-timeslot(role="tabpanel" aria-labelledby="staff-timeslot-tab")
-            h4 Staff by Timeslot
-            +loadByTimeslot(timeslots, false)
-
-
+        .tab-pane.fade#schedule-timeslot(role="tabpanel" aria-labelledby="schedule-timeslot-tab")
+            h4 Schedule Timeslot
+            +loadByTimeslot(timeslots)
 
 mixin scheduleLoadTable(users)
     .table-responsive
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100.table-exportable(
             style="display: none"
+            data-csrf=csrfToken
+            data-export=`/event/${event.id}/schedule/check?export=attendee`
             )
             thead
                 tr
@@ -77,25 +70,42 @@ mixin loadByTimeslot(timeslots, players=false)
         .col-sm-6.offset-sm-3.text-center.table-loading
             .spinner-border.m-5(role="status" style="width: 3rem; height: 3rem;")
                 .visually-hidden Table is Loading
-        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100(
+        table.table.table-striped.data-table.my-3.dt-responsive.nowrap.table-sm.w-100.table-exportable(
             style="display: none"
+            data-csrf=csrfToken
+            data-export=`/event/${event.id}/schedule/check?export=timeslot`
             )
             thead
                 tr
                     th
                     th(data-priority="1") Timeslot
                     th Scenes
-                    th Busy
-                    th Free
-
+                    th Players Busy
+                    th Players Free
+                    th Staff Busy
+                    th Staff Free
             tbody
                 each timeslot in timeslots
                     tr
                         td.dtr-control
                         td=timeslot.name
                         td=timeslot.scenes
-                        td=players?timeslot.busyPlayers:timeslot.busyStaff
-                        td=(players?timeslot.totalPlayers:timeslot.totalStaff) - (players?timeslot.busyPlayers:timeslot.busyStaff)
+                        td=timeslot.busyPlayers
+                        td=timeslot.totalPlayers - timeslot.busyPlayers
+                        td=timeslot.busyStaff
+                        td=timeslot.totalStaff - timeslot.busyStaff
 
 append scripts
     script(src='/javascripts/data-table.js')
+    script.
+        $(function(){
+            const tabStorageId = 'cdb-schedule-check-tab';
+            const selectedTab = localStorage.getItem(tabStorageId);
+            if (selectedTab) {
+                $(`#${selectedTab}`).tab('show');
+            }
+            $('#scheduleCheckTabs').on('shown.bs.tab', function(e){
+                localStorage.setItem(tabStorageId, $(e.target).attr('id'));
+            });
+        });
+

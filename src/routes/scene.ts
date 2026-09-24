@@ -129,7 +129,19 @@ async function showNew(req, res, next){
                 throw new Error('Invalid Scene');
             }
             delete scene.id;
+            scene.status = 'new';
+            scene.event_id = null;
             scene.name += ' (Copy)';
+
+            for (const type of ['users', 'locations', 'timeslots']){
+                for (const item of scene[type]){
+                    item.scene_schedule_status = 'unassigned'
+                }
+            }
+            scene.users = scene.users.filter(user => {
+                return user.scene_request_status !== 'none';
+            });
+
             res.locals.scene = scene;
 
             res.locals.breadcrumbs = {

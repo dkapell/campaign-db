@@ -69,7 +69,6 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             if (xAxisType !== 'location'){
                 size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
             }
-            console.log(scene.display_to_players)
         .scene-item.d-none(
             id=`scene-${scene.id}-${locationIdx}`
             style=`${size}; z-index:10`
@@ -80,13 +79,14 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             cell=cell
             data-tags=_.pluck(scene.tags, 'name')
             status=scene.status
-            data-display-to-pc=scene.display_to_pc?'true':'false'
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="false"
             data-open=(scene.player_count_max - playerCount > 0 || scene.for_anyone)?'true':'false'
         )
-            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
+            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1(
+                class=scene.display_to_pc?'':'scene-no-player-display'
+            )
                 +sceneBody(scene, locationIdx, false)
         - locationIdx++
 
@@ -135,7 +135,6 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-location-idx=locationIdx
             data-timeslot-count=scene.timeslot_count
             data-tags=_.pluck(scene.tags, 'name')
-            data-display-to-pc=scene.display_to_pc?'true':'false'
             locations=JSON.stringify(scene.locations)
             timeslots=JSON.stringify(scene.timeslots)
             cell=cell
@@ -150,7 +149,9 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-open=(scene.player_count_max - playerCount > 0 || scene.for_anyone)?'false':'true'
             expanded='false'
         )
-            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1
+            .scene-display.m-1.px-1.pb-0.bg-body.border.d-block.flex-grow-1(
+                class=scene.display_to_pc?'':'scene-no-player-display'
+            )
                 if xAxisType !== 'location'
                     .d-flex.h-100
                         if checkPermission('admin, scheduler') && currentCampaign.schedule_user_id === activeUser.id

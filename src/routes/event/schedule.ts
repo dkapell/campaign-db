@@ -861,8 +861,8 @@ async function checkSchedule(req, res, next){
 
         if (!req.query.export || req.query.export === 'timeslot'){
             res.locals.timeslots = schedule.timeslots.map(timeslot => {
-                let busyStaff = {};
-                let busyPlayers = {};
+                const busyStaff = {};
+                const busyPlayers = {};
                 let scenes = 0;
 
                 for (const schedule_busy of _.where(schedule.schedule_busies, {timeslot_id:timeslot.id})){

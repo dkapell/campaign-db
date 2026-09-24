@@ -621,7 +621,7 @@ function updateSceneStatus($scene, status){
         if ($scene.data('scheduler')){
             $scene.find('.scene-display').removeClass('border-success');
             $scene.find('.scene-display').removeClass('border-warning');
-            $scene.find('.scene-display').removeClass('scene-no-player-display')
+            $scene.find('.scene-display').removeClass('scene-no-player-display');
             if ($scene.attr('status') === 'confirmed'){
                 $scene.find('.scene-display').addClass('border-success');
             } else {

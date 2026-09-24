@@ -69,6 +69,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             if (xAxisType !== 'location'){
                 size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
             }
+            console.log(scene.display_to_players)
         .scene-item.d-none(
             id=`scene-${scene.id}-${locationIdx}`
             style=`${size}; z-index:10`
@@ -79,6 +80,7 @@ mixin sceneItem(scene, xAxisType, cellsPerSlot)
             cell=cell
             data-tags=_.pluck(scene.tags, 'name')
             status=scene.status
+            data-display-to-pc=scene.display_to_pc?'true':'false'
             class=scene.issues.filter(issue => { return issue.level === 'warning' && !issue.ignored}).length?'validation-warning':''
             class=scene.issues.filter(issue => { return issue.level === 'info' && !issue.ignored}).length?'validation-info':''
             data-scheduler="false"
@@ -123,7 +125,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             if (xAxisType !== 'location'){
                 size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
             }
-
+            console.log(scene.display_to_players)
             // `grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
         .scene-item.d-none(
             id=`scene-${scene.id}-${locationIdx}`
@@ -133,6 +135,7 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             data-location-idx=locationIdx
             data-timeslot-count=scene.timeslot_count
             data-tags=_.pluck(scene.tags, 'name')
+            data-display-to-pc=scene.display_to_pc?'true':'false'
             locations=JSON.stringify(scene.locations)
             timeslots=JSON.stringify(scene.timeslots)
             cell=cell
@@ -178,19 +181,26 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
 
 mixin sceneBody(scene, locationIdx, forScheduler)
     .d-flex.scene-detail-header
-        if checkPermission('contrib')
-            .flex-shrink-1
-                i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning.issue-icon(
-                    title='Validation Warning'
-                    data-bs-html='true'
-                    data-bs-toggle='popover'
-                )
-                i.fas.fa-info-circle.scene-info.me-1.text-info.issue-icon(
-                    title='Validation Info'
-                    data-bs-html='true'
-                    data-bs-toggle='popover'
 
-                )
+        if checkPermission('event')
+            .flex-shrink-1
+                if checkPermission('contrib')
+                    i.fas.fa-exclamation-triangle.scene-warning.me-1.text-warning.issue-icon(
+                        title='Validation Warning'
+                        data-bs-html='true'
+                        data-bs-toggle='popover'
+                    )
+                    i.fas.fa-info-circle.scene-info.me-1.text-info.issue-icon(
+                        title='Validation Info'
+                        data-bs-html='true'
+                        data-bs-toggle='popover'
+
+                    )
+                if !scene.display_to_pc
+                    i.fas.fa-eye-slash.text-primary(
+                        title='Do not display to players'
+                        data-bs-toggle='tooltip'
+                    )
         .flex-grow-1
             a.scene-name.d-block.ms-1.text-body.link-underline-info.link-offset-1.link-underline-opacity-50.link-underline-opacity-100-hover(
                 href='#'

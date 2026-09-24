@@ -619,15 +619,16 @@ function updateSceneStatus($scene, status){
         }
         const $slot = $(`#${$scene.attr('cell')}`);
         if ($scene.data('scheduler')){
-            if ($slot.attr('id') === 'unscheduled'){
-                $scene.find('.scene-display').removeClass('border-success');
-                $scene.find('.scene-display').removeClass('border-warning');
-            } else if ($scene.attr('status') === 'confirmed'){
+            $scene.find('.scene-display').removeClass('border-success');
+            $scene.find('.scene-display').removeClass('border-warning');
+            $scene.find('.scene-display').removeClass('scene-no-player-display')
+            if ($scene.attr('status') === 'confirmed'){
                 $scene.find('.scene-display').addClass('border-success');
-                $scene.find('.scene-display').removeClass('border-warning');
             } else {
                 $scene.find('.scene-display').addClass('border-warning');
-                $scene.find('.scene-display').removeClass('border-success');
+            }
+            if (!$scene.data('display-to-pc')){
+                $scene.find('.scene-display').addClass('scene-no-player-display');
             }
         } else {
             $scene.find('.scene-display').addClass('border-info');

@@ -3,6 +3,7 @@
 /* globals _ splitDetailPanel fullDetailPanel closeDetailPanel showError hideMessages */
 $(function(){
     $('.users-btn').on('click', showUsersBtn);
+
 });
 
 async function unconfirmAllSceneUsersBtn(e){
@@ -123,6 +124,7 @@ async function updateUsersPanel(timeslotId, type){
     if (data.success){
         formatUsersData(data, type);
         $('#bottom-panel').find('.panel-loading').hide();
+        $('#show-user-sources').on('change', showUserSourcesToggle);
     } else {
         showError(data.error);
     }
@@ -394,6 +396,16 @@ async function updateTimeslotUsersCount(){
         }
     } else {
         showError(data.error);
+    }
+}
+
+
+
+function showUserSourcesToggle(e){
+    if ($(this).is(':checked')){
+        $('.user-source-list').removeClass('d-none');
+    } else {
+        $('.user-source-list').addClass('d-none');
     }
 }
 

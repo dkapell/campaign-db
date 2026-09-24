@@ -34,7 +34,7 @@ mixin userPlacerCard(user)
                         i.far.fa-user.me-1
                         | #{user.character.name}
             if user.character.sources
-                .row
+                .row.user-source-list.d-none
                     .col
                         each source in user.character.sources
                             if !source.required
@@ -77,6 +77,15 @@ if schedule_busy_types.length
                             data-available-to-staff=schedule_busy_type.available_to_staff?'true':'false'
                             data-timeslot-id=timeslot.id
                         )= schedule_busy_type.name
+
+        if type === 'player'
+            .col.p-1
+                input.btn-check#show-user-sources(type='checkbox' autocomplete="off")
+                label.btn.btn-outline-info#show-user-sources-label(
+                    for='show-user-sources'
+                )
+                    i.fas.fa-fw.fa-eye.me-1
+                    | Show Sources
 if type === 'all'
     ul.list-inline.mb-0#users-panel-list-all
         each user in _.sortBy(users, 'name')

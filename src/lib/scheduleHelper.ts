@@ -9,6 +9,7 @@ import {DateTime} from 'luxon';
 import removeMd from 'remove-markdown';
 import scheduleReportRenderer from './renderer/schedule_report';
 import database from '../lib/database';
+import Character from './Character';
 
 const statusOrder = ['required', 'requested', 'rejected', 'none'];
 
@@ -318,7 +319,8 @@ function formatUser(user){
     if (user.character){
         doc.character = {
             id: user.character.id,
-            name: user.character.name
+            name: user.character.name,
+            sources: user.character.sources
         }
     }
     return doc;
@@ -331,6 +333,17 @@ async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
         const user = await models.user.get(event.campaign_id, attendance.user_id);
         if (user.type === 'player'){
             user.character = await models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
+            if (user.character){
+                const char = new Character({id:user.character.id});
+                await char.init();
+                user.character.sources = (await char.sources()).map( source => {
+                    return {
+                        id: source.id,
+                        name: source.name,
+                        required: source.required
+                    }
+                });
+            }
         }
         return user;
     });

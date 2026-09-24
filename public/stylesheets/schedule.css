@@ -11,6 +11,11 @@ html, body {
 
 }
 
+.user-item .user-name{
+  font-size: 0.9rem;
+
+}
+
 .x-header{
   grid-area: xheader;
   position:sticky;
@@ -76,7 +81,13 @@ html, body {
 }
 .user-item{
   z-index: 20;
+  max-width: 240px;
 }
+
+.user-item.disabled {
+  opacity: 0
+}
+
 .ui-draggable-dragging a:hover, .ui-draggable-dragging .handle{
   cursor: move !important;
 }
@@ -142,10 +153,6 @@ html, body {
 {
   opacity: 33%
 }
-.user-item.disabled {
-  opacity: 0
-}
-
 .scene-item-droppable-hover{
   opacity: 0.8;
 }

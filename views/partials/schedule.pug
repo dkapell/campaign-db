@@ -125,7 +125,6 @@ mixin sceneScheduleItem(scene, xAxisType, cellsPerSlot)
             if (xAxisType !== 'location'){
                 size = `grid-column: span ${scene.timeslot_count * cellsPerSlot}`
             }
-            console.log(scene.display_to_players)
             // `grid-row:span ${scene.timeslot_count}; z-index:${10-scene.timeslot_count};`
         .scene-item.d-none(
             id=`scene-${scene.id}-${locationIdx}`

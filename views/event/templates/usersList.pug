@@ -33,6 +33,12 @@ mixin userPlacerCard(user)
                     a.character(href=`/character/${user.character.id}` target='_blank')
                         i.far.fa-user.me-1
                         | #{user.character.name}
+            if user.character.sources
+                .row
+                    .col
+                        each source in user.character.sources
+                            if !source.required
+                                .badge.text-bg-primary.me-1=source.name
 
 mixin allTypePlacerCard(cardType, unscheduled)
     -

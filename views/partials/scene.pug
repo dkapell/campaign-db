@@ -205,7 +205,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
         }
     li.list-group-item.scene-user(id=`scene-user-${user.id}` exclusive-id=user.id data-schedule-status=schedule_status!=='unscheduled'?'true':'false' class=bgClass)
         .row
-            .col-lg-5.px-1.text-nowrap.order-first
+            .col-xxl-5.px-1.text-nowrap.order-first
                 -
                     let iconClass = '';
                     if (schedule_status === 'suggested') { iconClass = 'text-warning'; }
@@ -213,6 +213,9 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                 i.far.fa-user.me-1.align-middle(class=iconClass)
                 strong.align-middle.user-name= user.name
                 .badge.text-bg-primary.ms-2.user-type(style=user.type==='player'?'display:none':'')=capitalize(user.typeForDisplay)
+                if user.type === 'player' && user.character
+                    br
+                    div.text-truncate=user.character.name
 
             .col-xxl.px-1.order-last.order-xxl-2
                 select.form-select.form-select-sm.scene-status-select.user-select(
@@ -222,7 +225,7 @@ mixin sceneUserInput(user, request_status, schedule_status, details)
                 )
                     +sceneStatusUserRequestOptions(request_status)
             if schedule_status !== 'unscheduled'
-                .col.col-lg-3.text-end.order-2.order-xl-3
+                .col.col-xxl-3.text-end.order-2.order-xl-3
                     +sceneItemScheduleBadge(schedule_status)
 
 

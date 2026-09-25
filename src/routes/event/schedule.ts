@@ -501,8 +501,17 @@ async function getUsersAtTimeslot(req, res){
         if (!timeslot || timeslot.campaign_id !== req.campaign.id){
             throw new Error('Invalid Timeslot');
         }
+        const data:GetUsersAtTimeslotCache = await async.parallel({
+            scenes: async () => {
+                return scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id);
+            },
+            users: async () => {
+                return scheduleHelper.getEventUsers(event.id);
+            }
+        })
 
-        let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id);
+        let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);
+
         if (req.query.type && req.query.type.match(/^(player|staff)$/)){
             users = users.filter(user => {
                 if (req.query.type === 'player'){
@@ -514,13 +523,12 @@ async function getUsersAtTimeslot(req, res){
         }
         users = users.map(scheduleHelper.formatUser);
 
-        const scenes = await scheduleHelper.getScenesAtTimeslot(event.id, timeslot.id);
         const schedule_busy_types = await req.models.schedule_busy_type.find({campaign_id:req.campaign.id});
         res.json({
             success: true,
             users: users,
             timeslot: timeslot,
-            scenes: scenes,
+            scenes: data.scenes,
             schedule_busy_types: schedule_busy_types
         });
     } catch(err) {

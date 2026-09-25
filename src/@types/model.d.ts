@@ -23,6 +23,7 @@ interface RequestOptions {
     postSave?: (id: number, data:ModelData) => Promise<void>
     postDelete?: (condition: ComplexId, data:ModelData) => Promise<void>
     excludeFields?: string[]
+    includeFields?: string[]
     count?: boolean
     limit?: number
     offset?: number

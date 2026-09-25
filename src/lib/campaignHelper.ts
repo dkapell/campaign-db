@@ -389,7 +389,10 @@ async function getUserData(campaignId, data){
     }
 
     if (userData.preferences.dark_mode === 'default'){
-        const campaign = await models.campaign.get(campaignId);
+        const campaign = await models.campaign.get(campaignId, {
+            includeFields: ['theme_dark_mode'],
+            postSelect: async(record) => { return record;}
+        });
         userData.preferences.dark_mode = campaign.theme_dark_mode;
     }
     return userData;

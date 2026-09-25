@@ -10,6 +10,7 @@ import removeMd from 'remove-markdown';
 import scheduleReportRenderer from './renderer/schedule_report';
 import database from '../lib/database';
 import Character from './Character';
+import cache from './cache';
 
 const statusOrder = ['required', 'requested', 'rejected', 'none'];
 
@@ -327,9 +328,11 @@ function formatUser(user){
 }
 
 async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
+    let eventUsers = await cache.check('scheduleHelper-event-users', eventId)
+    if (eventUsers) { return eventUsers; }
     const event = await models.event.get(eventId);
     const attendances = await models.attendance.find({event_id:eventId, attending:true});
-    return async.map(attendances, async(attendance) => {
+    eventUsers = await async.map(attendances, async(attendance) => {
         const user = await models.user.get(event.campaign_id, attendance.user_id);
         if (user.type === 'player'){
             user.character = await models.character.findOne({campaign_id:event.campaign_id, user_id:user.id, active:true});
@@ -347,11 +350,16 @@ async function getEventUsers(eventId:number): Promise<CampaignUser[]>{
         }
         return user;
     });
+    cache.store('scheduleHelper-event-users', eventId, eventUsers, 5)
+    return eventUsers;
 }
 
 async function getEventScenes(eventId:number): Promise<FormattedSceneModel[]>{
-    const scenes = await models.scene.find({event_id:eventId});
-
+    let scenes = await cache.check('scheduleHelper-event-scenes', eventId);
+    if (!scenes){
+        scenes = await models.scene.find({event_id:eventId});
+        cache.store('scheduleHelper-event-scenes', eventId, scenes, 5)
+    }
     return scenes.map(scene=> {return formatScene(scene); });
 }
 
@@ -377,15 +385,23 @@ async function getScenesAtTimeslot(eventId:number, timeslotId:number, scenes:For
 
 
 async function getUsersAtTimeslot(eventId:number, timeslotId:number, data:GetUsersAtTimeslotCache = {}): Promise<CampaignUser[]>{
-    if (!_.has(data, 'users')){
-        data.users = await getEventUsers(eventId);
-    }
-    if (!_.has(data, 'scenes')){
-        data.scenes = await getScenesAtTimeslot(eventId, timeslotId, null, true);
-    }
-    if (!_.has(data, 'schedule_busys')){
-        data.schedule_busys = await models.schedule_busy.find({event_id:eventId});
-    }
+    await async.parallel([
+        async () => {
+            if (!_.has(data, 'users')){
+                data.users = await getEventUsers(eventId);
+            }
+        },
+        async () => {
+            if (!_.has(data, 'scenes')){
+                data.scenes = await getScenesAtTimeslot(eventId, timeslotId, null, true);
+            }
+        },
+        async () => {
+            if (!_.has(data, 'schedule_busys')){
+                data.schedule_busys = await models.schedule_busy.find({event_id:eventId});
+            }
+        }
+    ])
 
     const users = JSON.parse(JSON.stringify(data.users));
 

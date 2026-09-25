@@ -4,7 +4,6 @@ import _ from 'underscore';
 import database from '../lib/database';
 import cache from '../lib/cache';
 import validator from 'validator';
-import config from 'config';
 
 import campaign_userModel from './campaign_user';
 import campaignModel from './campaign';

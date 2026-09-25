@@ -86,14 +86,14 @@ const Scene = new Model('scenes', tableFields, {
 
 async function fill(data: SceneModel){
     data.tags = await getTags(data.id as number);
-    for (const table of ['location', 'timeslot', 'source', 'skill', 'user']){
+    await async.each(['location', 'timeslot', 'source', 'skill', 'user'], async (table) => {
         const records = await models[`scene_${table}`].find({scene_id:data.id});
         data[`${table}s`] = await async.map(records, async(record) => {
             let object = null;
             if (table === 'user'){
                 object = await models[table].get(data.campaign_id, record.user_id);
                 if (object.type === 'player' && data.event_id){
-                    const attendance = await models.attendance.findOne({user_id:object.id, event_id:data.event_id, attending:true});
+                    const attendance = await models.attendance.findOne({user_id:object.id, event_id:data.event_id, attending:true}, {postSelect:async (record)=>{return record}});
                     if (attendance && attendance.character_id){
                         object.character = await models.character.get(attendance.character_id);
                     }
@@ -115,7 +115,7 @@ async function fill(data: SceneModel){
             data.timeslots = _.sortBy(data.timeslots, 'start_hour');
             data.timeslots = _.sortBy(data.timeslots, 'day');
         }
-    }
+    })
     if (data.event_id){
         data.event = await models.event.get(data.event_id, {postSelect:async (data)=>{return data;}});
     }

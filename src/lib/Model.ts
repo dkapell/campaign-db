@@ -28,7 +28,15 @@ class Model implements IModel{
                         delete record[field];
                     }
                 }
+            } else if (_.has(options, 'includeFields') && _.isArray(options.includeFields)){
+                for (const field in record){
+                    if (field === 'id') { continue; }
+                    if (_.indexOf(options.includeFields, field) === -1){
+                        delete record[field];
+                    }
+                }
             }
+
             if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
                 record = await options.postSelect(record, options.client);
 
@@ -45,6 +53,12 @@ class Model implements IModel{
                 }
                 return true;
             });
+            query += fields.join(', ');
+        } else if (_.has(options, 'includeFields') && _.isArray(options.includeFields)){
+            const fields = this.fields.filter(field => {
+                if (field === 'id') {return true;}
+                return _.indexOf(options.includeFields, field) !== -1
+            })
             query += fields.join(', ');
         } else {
             query += '*';
@@ -63,7 +77,7 @@ class Model implements IModel{
             if (result.rows.length){
                 record = result.rows[0];
 
-                if (!_.has(options, 'excludeFields')){
+                if (!_.has(options, 'excludeFields') && !_.has(options, 'includeFields')){
                     await cache.store(this.table, id, record);
                 }
                 if (_.has(options, 'postSelect') && _.isFunction(options.postSelect)){
@@ -102,6 +116,12 @@ class Model implements IModel{
                 }
                 return true;
             });
+            query += fields.join(', ');
+        } else if (_.has(options, 'includeFields') && _.isArray(options.includeFields)){
+            const fields = this.fields.filter(field => {
+                if (field === 'id') {return true;}
+                return _.indexOf(options.includeFields, field) !== -1
+            })
             query += fields.join(', ');
         } else {
             query += '*';

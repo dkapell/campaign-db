@@ -509,7 +509,6 @@ async function getUsersAtTimeslot(req, res){
                 return scheduleHelper.getEventUsers(event.id);
             }
         })
-
         let users = await scheduleHelper.getUsersAtTimeslot(event.id, timeslot.id, data);
 
         if (req.query.type && req.query.type.match(/^(player|staff)$/)){

@@ -85,6 +85,9 @@ $(function(){
         });
     });
 
+    $('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
+    $('#scene_repeater').on('change', updateRepeaterDisplay).trigger('change');
+
     $('.scene-user').find('.scene-status-select').on('change', updateSceneUser).trigger('change');
     $('.scene-source').find('.scene-status-select').on('change', updateSceneSource).trigger('change');
 
@@ -112,9 +115,6 @@ $(function(){
     $('#scene_description').on('input', updateBadges);
     $('#scene_display_to_pc').on('change', updateBadges);
     updateBadges();
-
-    $('#scene_assign_players').on('change', updatePlayerSelectionDisplay).trigger('change');
-    $('#scene_repeater').on('change', updateRepeaterDisplay).trigger('change');
 
     $('.location-info[data-bs-toggle="popover"]').popover({
         trigger: 'hover',

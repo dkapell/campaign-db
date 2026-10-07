@@ -6,7 +6,8 @@ block content
         .col
             .d-md-flex.align-items-start
                 .nav.flex-md-column.nav-pills.me-3#report-skills-tab(role="tablist" aria-orientation="vertical")
-                    for skillList, tag in skills
+                    each tag in _.keys(skills).sort()
+                        - const skillList = skills[tag];
                         button.nav-link(
                             id=`report-skill-${tag.replace(/[^\w]/, '')}-tab`
                             data-bs-toggle="pill"
@@ -19,7 +20,8 @@ block content
                             span.badge.rounded-pill.text-bg-danger.ms-2.float-end= skillList.length
 
                 .tab-content.col#report-skills-tabContent
-                    for skillList, tag in skills
+                    each tag in _.keys(skills).sort()
+                        - const skillList = skills[tag];
                         .tab-pane.fade(
                             id=`report-skill-${tag.replace(/[^\w]/, '')}`
                             role="tabpanel"

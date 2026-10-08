@@ -1008,7 +1008,7 @@ class Character{
                 }
             }
 
-            if (campaign.display_cp && user.type === 'player' && this._data.active && source.cost > 0 && source.cost > (cp.usable - this._data.cp)) {
+            if (campaign.display_cp && user.type === 'player' && this._data.active && source.cost > 0 && source.cost > (cp.usable - this._data.cp) && !source.free) {
                 return false;
             }
             return true;

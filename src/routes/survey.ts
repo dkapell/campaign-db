@@ -132,7 +132,7 @@ async function create(req, res){
 
     try{
 
-        survey.definition = JSON.stringify(surveyHelper.parseFields(survey.definition));
+        survey.definition = surveyHelper.parseFields(survey.definition);
 
         if (survey.is_default && survey.type !== 'other'){
             const surveys = await req.models.survey.find({campaign_id:req.campaign.id, type: survey.type});
@@ -170,7 +170,7 @@ async function update(req, res){
         if (current.campaign_id !== req.campaign.id){
             throw new Error('Can not edit record from different campaign');
         }
-        survey.definition = JSON.stringify(surveyHelper.parseFields(survey.definition));
+        survey.definition = surveyHelper.parseFields(survey.definition);
 
         if (!current.is_default && survey.is_default && survey.type !== 'other'){
             const surveys = await req.models.survey.find({campaign_id:req.campaign.id, type: survey.type});
@@ -181,7 +181,6 @@ async function update(req, res){
                 }
             });
         }
-
 
         await req.models.survey.update(id, survey);
         await req.audit('survey', id, 'update', {old: current, new:survey});

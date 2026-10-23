@@ -268,6 +268,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
                     case 'timeslot': renderTimeslot(scene, section); break;
                     case 'location': renderLocation(scene, section); break;
                     case 'players': renderPlayers(scene, section); break;
+                    case 'staff': renderStaff(scene, section); break;
                     case 'description': renderDescription(scene, section); break;
                     case 'printout note': renderPrintoutNote(scene, section); break;
                 }
@@ -508,6 +509,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
         if (!_.has(options.countAfter, 'staff')){
             options.countAfter.staff = 20
         }
+
+        console.log(JSON.stringify(options, null ,2))
 
         const pageWidth = doc.page.width - (options.margins.right + options.margins.left);
         const cellWidth = (pageWidth - (options.gutter.horizontal * (options.columns - 1)))/options.columns;
@@ -766,6 +769,8 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
                 const players = [];
                 if (scene.players.confirmed){
+                    console.log(scene.players.confirmed.length);
+
                     if (scene.players.confirmed.length > options.countAfter.players){
                         players.push(`${scene.players.confirmed.length} Players`)
                         if (scene.for_anyone){

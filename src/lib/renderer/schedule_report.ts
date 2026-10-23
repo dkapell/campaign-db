@@ -429,6 +429,39 @@ async function renderReport(eventId:number, reportName:string, options): Promise
 
         }
 
+        function renderStaff(scene, sectionOptions){
+            doc.strokeColor('#000000')
+                .fillColor('#000000')
+                .lineWidth(options.boldStrokeWidth);
+            doc.x += options.margin;
+            let sectionName = sectionOptions.name?sectionOptions.name:'Staff';
+
+            const staff = [];
+            if (scene.staff.confirmed){
+                for (const user of scene.staff.confirmed){
+                    staff.push(user.name);
+
+                }
+                if (staff.length > 1){
+                    sectionName = pluralize.plural(sectionName);
+                }
+            }
+
+            doc
+                .font('Header Font Bold')
+                .fontSize(18 * options.font.header.scale)
+                .text(`${sectionName}: `,
+                    {continued:true, stroke:options.font.header.strokeForBold, fill:true, indent:-options.margin});
+
+            doc
+                .font('Body Font')
+                .fontSize(18 * options.font.body.scale)
+                .text(staff.join(', '), {stroke:false, fill:true, indent:-options.margin});
+            doc.x -= options.margin;
+            doc.moveDown(0.5);
+
+        }
+
         function renderDescription(scene, sectionOptions){
             doc.strokeColor('#000000')
                 .fillColor('#000000')
@@ -510,7 +543,7 @@ async function renderReport(eventId:number, reportName:string, options): Promise
             options.countAfter.staff = 20
         }
 
-        console.log(JSON.stringify(options, null ,2))
+        console.log(JSON.stringify(options, null, 2))
 
         const pageWidth = doc.page.width - (options.margins.right + options.margins.left);
         const cellWidth = (pageWidth - (options.gutter.horizontal * (options.columns - 1)))/options.columns;

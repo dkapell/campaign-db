@@ -171,6 +171,9 @@ async function update(req, res){
         req.flash('warning', 'Community CP Tracker is not enabled for this Campaign');
         return res.redirect('/');
     }
+    if (Number(grant.user_id) === -1){
+        grant.user_id = null;
+    }
 
     try {
         const current = await req.models.community_cp_grant.get(id);

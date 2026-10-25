@@ -16,7 +16,7 @@ if checkPermission('gm, cp grant')
 .row.my-2
      .col
         label.control-label(for="grant_amount") Amount of CP
-        input.form-control#grant_amount(type="number" placeholder="Quantity" name="grant[amount]" value=grant.amount required min=--500 step=0.5)
+        input.form-control#grant_amount(type="number" placeholder="Quantity" name="grant[amount]" value=grant.amount required min=-500 step=0.5)
         div.invalid-feedback Please specify a valid Amount
 
 .row.my-2

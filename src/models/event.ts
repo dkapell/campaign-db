@@ -53,7 +53,7 @@ const Event: EventIModel= new Model('events', tableFields, {
 });
 
 Event.next = async function(campaign_id:number): Promise<ModelData>{
-    const select = 'select * from events where end_time > now() and campaign_id = $1 order by start_time asc limit 1';
+    const select = 'select * from events where end_time > now() and campaign_id = $1 and deleted = false order by start_time asc limit 1';
     const result = await database.query(select, [campaign_id]);
     if (result.rows.length){
         return result.rows[0];

@@ -131,7 +131,8 @@
             if attendee
                 if attendee.attending
                     if activeUser.type === 'player'
-                        span.me-2= attendee.character.name
+                        if attendee.character
+                            span.me-2= attendee.character.name
                         if attendee.paid === 'paid'
                             span.badge.text-bg-success Paid
                         else if attendee.paid === 'waived'
